@@ -1,0 +1,80 @@
+{
+    "lastupdated": "2025-07-29T14:22:37.189Z",
+    "dbtitle": "Movies",
+    "dbversion": "1.0",
+    "author": "Ken Dawson",
+    "email": "admin@freetv.today",
+    "link": "https://freetv.today/",
+    "shows": [
+        {
+            "category": "action",
+            "status": "active",
+            "identifier": "big-trouble-little-china",
+            "title": "Big Trouble In Little China",
+            "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vulputate scelerisque lorem non vestibulum. Pellentesque pellentesque tincidunt augue at pretium.",
+            "start": "1986",
+            "end": "1986",
+            "imdb": "tt0090728"
+        },
+        {
+            "category": "action",
+            "status": "active",
+            "identifier": "true-lies-1994-d-theater",
+            "title": "True Lies",
+            "desc": "A fearless, globe-trotting, terrorist-battling secret agent has his life turned upside down when he discovers his wife might be having an affair with a used-car salesman while terrorists smuggle nuclear war heads into the United States.",
+            "start": "1994",
+            "end": "1994",
+            "imdb": "tt0111503"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "ItsAMadMadMadMadWorld_201407",
+            "title": "Its a Mad, Mad, Mad, Mad World",
+            "desc": "A group of motorists witnesses a car crash in the California desert, and after the driver's dying words indicate the location of a hidden stash of loot, they turn against each other in a race across the state to get to it.",
+            "start": "1963",
+            "end": "1963",
+            "imdb": "tt0057193"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "galaxy-quest_DVD",
+            "title": "Galaxy Quest",
+            "desc": "The alumni cast of a space opera television series have to play their roles as the real thing when an alien race needs their help. However, they also have to defend both Earth and the alien race from a reptilian warlord.",
+            "start": "1999",
+            "end": "1999",
+            "imdb": "tt0177789"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "kungpow_202207",
+            "title": "Kung Pow Enter The Fist",
+            "desc": "A rough-around-the-edges martial arts master seeks revenge for his parents death.",
+            "start": "2002",
+            "end": "2002",
+            "imdb": "tt0240468"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "the-gods-must-be-crazy-1980_202201",
+            "title": "The Gods Must Be Crazy",
+            "desc": "A comic allegory about a traveling Bushman who encounters modern civilization and its stranger aspects, including a clumsy scientist and a band of revolutionaries.",
+            "start": "1980",
+            "end": "1980",
+            "imdb": "tt0080801"
+        },
+        {
+            "category": "action",
+            "status": "active",
+            "identifier": "blade_202210",
+            "title": "Blade",
+            "desc": "A half-vampire, half-mortal man becomes a protector of the mortal race, while slaying evil vampires.",
+            "start": "1998",
+            "end": "1998",
+            "imdb": "tt0120611"
+        }
+    ]
+}
