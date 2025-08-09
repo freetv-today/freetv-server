@@ -1,31 +1,35 @@
-import { LocationProvider, Router, Route } from 'preact-iso';
-import { LayoutDefault } from './LayoutDefault.jsx';
-import { LayoutSubnav } from './LayoutSubnav.jsx';
-import { LayoutFullpage } from './LayoutFullpage.jsx';
-import { LayoutSearch } from './LayoutSearch.jsx';
-import { LayoutVidviewer } from './LayoutVidviewer.jsx';
-import { LayoutNotFound } from './LayoutNotFound.jsx';
-import { Home } from '../pages/Home/index.jsx';
-import { Recent } from '../pages/Recent/index.jsx';
-import { Search } from '../pages/Search/index.jsx';
-import { Help } from '../pages/Help/index.jsx';
-import { Admin } from '../pages/Admin/index.jsx';
-import { NotFound } from '../pages/_404.jsx';
-import '../style.css';
+// src/components/App.jsx
+import { Router, Route } from 'preact-iso';
+import { AlertProvider } from '@context/AlertContext';
+import { LayoutDefault } from '@components/Layouts/LayoutDefault.jsx';
+import { LayoutSubnav } from '@components/Layouts/LayoutSubnav.jsx';
+import { LayoutFullpage } from '@components/Layouts/LayoutFullpage.jsx';
+import { LayoutSearch } from '@components/Layouts/LayoutSearch.jsx';
+import { LayoutVidviewer } from '@components/Layouts/LayoutVidviewer.jsx';
+import { LayoutNotFound } from '@components/Layouts/LayoutNotFound.jsx';
+import { Home } from '@pages/Home';
+import { Recent } from '@pages/Recent';
+import { Search } from '@pages/Search';
+import { Help } from '@pages/Help';
+import { Admin } from '@pages/Admin';
+import { Category } from '@pages/Category';
+import { NotFound } from '@pages/_404.jsx';
+import '@/style.css';
 
 export function App() {
   return (
-    <LocationProvider>
+    <AlertProvider>
       <main>
         <Router>
           <Route path="/" component={() => <LayoutDefault><Home /></LayoutDefault>} />
           <Route path="/recent" component={() => <LayoutSubnav><Recent /></LayoutSubnav>} />
+          <Route path="/category/:name" component={() => <LayoutSubnav><Category /></LayoutSubnav>} />
           <Route path="/search" component={() => <LayoutSearch><Search /></LayoutSearch>} />
           <Route path="/help" component={() => <LayoutFullpage><Help /></LayoutFullpage>} />
           <Route path="/admin" component={() => <LayoutFullpage><Admin /></LayoutFullpage>} />
           <Route default component={() => <LayoutNotFound><NotFound /></LayoutNotFound>} />
         </Router>
       </main>
-    </LocationProvider>
+    </AlertProvider>
   );
 }

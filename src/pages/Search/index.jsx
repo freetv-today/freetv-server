@@ -1,4 +1,4 @@
-import { ImageLargeLogo } from "../../components/ImageLargeLogo";
+import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
 
 export function Search() {
 	return (

@@ -1,4 +1,11 @@
+// src/index.jsx
 import { render } from 'preact';
-import { AppLoader } from './components/AppLoader.jsx';
+import { LocationProvider } from 'preact-iso';
+import { LoadConfig } from '@components/Loaders/LoadConfig';
 
-render(<AppLoader />, document.getElementById('app'));
+render(
+  <LocationProvider>
+    <LoadConfig />
+  </LocationProvider>,
+  document.getElementById('app')
+);

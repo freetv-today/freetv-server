@@ -1,5 +1,5 @@
-import { ImageLargeLogo } from "../../components/ImageLargeLogo";
-import { useConfig } from '../../context/ConfigContext.jsx';
+import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
+import { useConfig } from '@/context/ConfigContext.jsx';
 
 export function Home() {
 

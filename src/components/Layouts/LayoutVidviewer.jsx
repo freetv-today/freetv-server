@@ -1,4 +1,4 @@
-import { NavbarMain } from "./NavbarMain";
+import { NavbarMain } from "@components/Navigation/NavbarMain";
 
 // VidviewLayout.jsx
 export function LayoutVidviewer({ children }) {

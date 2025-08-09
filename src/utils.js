@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------
+// Javascript utilities for Free TV app
+// ------------------------------------------------------------------------
+
 export function generateToken(length) {
   const a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
   const b = [];
@@ -20,4 +24,18 @@ export function generateNewCode() {
 
 export function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function shouldUpdateData(storedData, newData) {
+  const storedDate = storedData?.lastupdated ? new Date(storedData.lastupdated) : null;
+  const newDate = newData?.lastupdated ? new Date(newData.lastupdated) : null;
+  return !storedData || !storedDate || (newDate && newDate > storedDate);
+}
+
+export async function enforceMinLoadingTime(startTime, minTime = 1200) {
+  const elapsedTime = Date.now() - startTime;
+  const remainingTime = minTime - elapsedTime;
+  if (remainingTime > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remainingTime));
+  }
 }

@@ -5,9 +5,16 @@
 		<link rel="icon" type="image/png" href="/src/assets/freetv.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Free TV</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">    <link href="assets/css/freetv.css" rel="stylesheet"> 
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 	</head>
 	<body>
+		<noscript>
+			<div class="text-center text-danger fw-bold p-4" style="margin-top: 100px;">
+			<h3 class="display-5">This app requires Javascript!</h3>
+			<p>Please enable Javascript in your browser settings and reload.</p>
+			<p class="text-center"><a href="/"><img src="assets/img/error-reload.svg" width="100" title="Reload" alt="Reload"></a></p>
+			</div>
+		</noscript>
 		<div id="app"></div>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 		<script type="module" src="/src/index.jsx"></script>

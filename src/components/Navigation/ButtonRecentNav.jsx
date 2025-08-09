@@ -1,4 +1,4 @@
-import { Link } from './Link.jsx';
+import { Link } from '@components/UI/Link.jsx';
 
 export function ButtonRecentNav() {
   return (

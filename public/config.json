@@ -1,10 +1,10 @@
 {
     "name": "Free TV",
     "version": "2.0.0 - beta",
-    "lastupdated": "2025-08-01T16:20:45.956Z",
+    "lastupdated": "2025-08-08T14:30:30.417Z",
     "database": "/playlists/freetv.json",
     "offline": false, 
-    "showadmin": true,
+    "showadmin": false,
     "appdata": false,
     "showads": false,
     "modules": false,

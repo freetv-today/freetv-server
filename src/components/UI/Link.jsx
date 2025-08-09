@@ -1,20 +1,20 @@
-// src/components/Link.jsx
+// src/components/UI/Link.jsx
 import { useLocation } from 'preact-iso';
 
 export function Link({ href, class: className, activeClass = 'active', children, ...props }) {
-  const { url } = useLocation();
-  // Normalize URLs for comparison (remove trailing slashes)
-  const cleanUrl = url.replace(/\/$/, '');
-  const cleanHref = href.replace(/\/$/, '');
+  const { url, route } = useLocation();
+  // Normalize URLs for comparison
+  const cleanUrl = url ? url.replace(/\/$/, '') : '';
+  const cleanHref = href ? href.replace(/\/$/, '') : '';
   // Check if the link is active
   const isActive = cleanUrl === cleanHref;
   const classes = isActive ? `${className || ''} ${activeClass}`.trim() : className || '';
 
   const handleClick = (e) => {
     e.preventDefault();
-    // Handle path navigation
-    window.history.pushState({}, '', href);
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    if (cleanUrl !== cleanHref) {
+      route(href); // Only route if the URL is different
+    }
   };
 
   return (
