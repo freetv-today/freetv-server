@@ -7,36 +7,35 @@ import { ErrorPage } from '@components/UI/ErrorPage.jsx';
 import { shouldUpdateData } from '@/utils.js';
 
 export function LoadConfig() {
+
   const [loading, setLoading] = useState(true);
   const [configData, setConfigData] = useLocalStorage('configData', null);
   const [error, setError] = useState(null);
   const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (configData?.debugmode) {
-      console.log('Rendering LoadConfig with configData:', configData);
-    }
-  }, [configData]);
-
-  useEffect(() => {
     if (hasInitialized.current) {
       if (configData?.debugmode) {
-        console.log('Skipping duplicate initialization in LoadConfig');
+        console.log('Free TV app has already been initialized');
       }
       return;
     }
     hasInitialized.current = true;
 
     async function fetchConfig() {
-      let config = configData;
 
+      let config = configData;
+      // DEBUG
+      // if (config?.debugmode) {
+      //   console.log('Current configData:', config);
+      // }
       try {
         localStorage.setItem('test', 'test');
         localStorage.removeItem('test');
       } catch (e) {
         setError({
           type: 'Storage Error',
-          message: 'Local storage is required. Please enable it in your browser.',
+          message: 'Device storage is required. Please enable local storage in your browser.',
         });
         setLoading(false);
         return;
@@ -64,24 +63,25 @@ export function LoadConfig() {
         };
 
         if (!validatedConfig.database && !validatedConfig.offline) {
-          throw new Error('Invalid config: database URL is required when not in offline mode');
+          throw new Error('Invalid configuration: database URL is required');
         }
 
         if (shouldUpdateData(config, validatedConfig)) {
           if (validatedConfig.debugmode) {
+            console.log('Initializing Free TV application...');
             console.log(
               !config
-                ? 'No config data in local storage, using new config'
-                : 'Newer config detected, updating from /config.json'
+                ? 'No data found in local storage'
+                : 'Newer configuration detected, updating from /config.json'
             );
           }
           config = validatedConfig;
           setConfigData(config);
           if (validatedConfig.debugmode) {
-            console.log('Config data loaded and saved to local storage:', config);
+            console.log('Configuration data loaded and saved to local storage');
           }
         } else if (config?.debugmode) {
-          console.log('Using existing config data from local storage:', config);
+          console.log('Using existing configuration data from local storage');
         }
       } catch (error) {
         if (config?.debugmode) {
@@ -102,7 +102,13 @@ export function LoadConfig() {
   }, []); // Empty dependency array
 
   // Memoize configData to prevent unnecessary re-renders
-  const memoizedConfig = useMemo(() => configData || { offline: true, showadmin: false }, [configData]);
+  const memoizedConfig = useMemo(() => {
+    // DEV USE
+    // if (configData?.debugmode) {
+    //   console.log('Memoizing configData:', configData);
+    // }
+    return configData || { offline: true, showadmin: false };
+  }, [configData]);
 
   if (loading) {
     return null;

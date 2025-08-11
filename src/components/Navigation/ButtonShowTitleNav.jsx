@@ -1,6 +1,8 @@
-// src/components/Navigation/ButtonShowTitleNav.jsx
 import { useState } from 'preact/hooks';
 import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
+import { useConfig } from '@/context/ConfigContext.jsx';
+import { useLocalStorage } from '@hooks/useLocalStorage';
+import { useLocation } from 'preact-iso';
 
 /**
  * @param {Object} props
@@ -13,12 +15,49 @@ import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
  * @param {string} props.imdb
  * @returns {import('preact').JSX.Element}
  */
-export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
-  const [showModal, setShowModal] = useState(false);
 
+export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
+  const { debugmode, modules } = useConfig();
+  const [showModal, setShowModal] = useState(false);
+  const [, setCurrentVid] = useLocalStorage('currentVid', null);
+  const [recentTitles, setRecentTitles] = useLocalStorage('recentTitles', []);
+  const { route } = useLocation();
+
+  // Add the title to recentTitles (max 25, no duplicates)
+  const saveRecent = (title) => {
+    setRecentTitles(prev => {
+      let titlesArr = [];
+      if (prev && Array.isArray(prev.title)) {
+        titlesArr = prev.title;
+      } else if (Array.isArray(prev)) {
+        // handle legacy array format
+        titlesArr = prev;
+      }
+      // Remove if already present
+      titlesArr = titlesArr.filter(t => t !== title);
+      // Add to front
+      titlesArr.unshift(title);
+      // Limit to 25
+      if (titlesArr.length > 25) titlesArr = titlesArr.slice(0, 25);
+      return { title: titlesArr };
+    });
+    if (debugmode) {
+      console.log('Added to Recently Watched:', title);
+    }
+  };
+
+  // Handle main button click: set currentVid, add to recent, route to /nowplaying
   const handleMainClick = () => {
-    // Placeholder for video playback
-    console.log(`Queue video: ${title} (${identifier})`);
+    if (!category || !identifier || !title) {
+      console.error('Missing required data: (category, identifier, title)');
+      return;
+    }
+    setCurrentVid({ category, identifier, title });
+    saveRecent(title);
+    if (debugmode) {
+      console.log(`Queuing video: ${title.replace(/_/g, ' ')}`);
+    }
+    route('/nowplaying');
   };
 
   return (
@@ -46,42 +85,47 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
           <li>
             <a
               class="dropdown-item moreoptions"
-              href="javascript:void(0)"
+              href="#"
               title="About this show"
-              onClick={() => setShowModal(true)}
+              onClick={e => { e.preventDefault(); setShowModal(true); }}
             >
               About this show
             </a>
           </li>
-          <div class="moduleBtns">
-            <li>
-              <a
-                class="dropdown-item moreoptions text-danger"
-                href="javascript:void(0)"
-                title="Report a problem"
-              >
-                Report a problem
-              </a>
-            </li>
-            <li>
-              <a
-                class="dropdown-item moreoptions text-secondary"
-                href="javascript:void(0)"
-                title="Share this video"
-              >
-                Share this video
-              </a>
-            </li>
-            <li>
-              <a
-                class="dropdown-item moreoptions text-secondary"
-                href="javascript:void(0)"
-                title="Add to favorites"
-              >
-                Add to favorites
-              </a>
-            </li>
-          </div>
+          {modules && (
+            <div className="moduleBtns" style={{ display: 'block' }}>
+              <li>
+                <a
+                  class="dropdown-item moreoptions text-danger"
+                  href="#"
+                  title="Report a problem"
+                  onClick={e => e.preventDefault()}
+                >
+                  Report a problem
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item moreoptions text-secondary"
+                  href="#"
+                  title="Share this video"
+                  onClick={e => e.preventDefault()}
+                >
+                  Share this video
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item moreoptions text-secondary"
+                  href="#"
+                  title="Add to favorites"
+                  onClick={e => e.preventDefault()}
+                >
+                  Add to favorites
+                </a>
+              </li>
+            </div>
+          )}
         </ul>
       </div>
       <DescriptionModal

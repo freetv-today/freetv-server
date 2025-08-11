@@ -1,9 +1,3 @@
-/*
---------------------------------------------------
-Stylesheets for Free TV
---------------------------------------------------
-*/
-
 html {
     max-width: 100vw;
 }
@@ -18,12 +12,10 @@ body {
     max-width: 100vw;
 }
 
-/* Fonts */ 
-
 @font-face {
     font-family: "Bruno Ace";
     src: url('/src/assets/fonts/BrunoAce-Regular.ttf');
-  }
+}
 
 .bruno-ace {
     font-family: "Bruno Ace", sans-serif;
@@ -40,7 +32,7 @@ body {
     z-index: 1001;
 }
 
-/* Custom select with visible carat on dark background */
+/* Top navbar: custom select (current playlist) */
 #selectPlaylistLarge {
     background-color: #222; 
     color: rgba(255,255,255,0.55); 
@@ -55,7 +47,7 @@ body {
     background-size: 3em;
 }
 
-/* Small icons */ 
+/* Top navbar: toggle menu icons (small screen) */ 
 .icon-sm {
     width: 30px;
     height: 30px;
@@ -68,7 +60,7 @@ body {
     margin-right: 7px;
 }
 
-/* Drop down menu items */
+/* Top navbar: toggle menu items */
 .dropdown-item-custom {
     display: flex;
     align-items: center;
@@ -79,15 +71,15 @@ body {
     font-weight: bold;
 }
 
-/* Active state for dropdown items */
+/* Top navbar: toggle menu active item */
 .dropdown-item-custom.active {
     color: #20B2AA;
 }
-  
 .dropdown-item-custom:hover {
     color: #20B2AA;
 }
 
+/* Top navbar: toggle menu select list */
 .dropdown-menu-custom {
     min-width: 200px;
 }
@@ -100,14 +92,7 @@ body {
     margin-bottom: 0;
 }
 
-.moreoptions {
-    background-color: white;
-}
-.moreoptions:hover {
-    background-color: var(--bs-warning);
-}
-
-/* Large icons */
+/* Top navbar: large icons */
 .icon-btn {
     width: 40px;
     height: 40px;
@@ -121,7 +106,7 @@ body {
     transform: scale(1.3);
 }
 
-/* Home */
+/* Top navbar: large icons - Home */
 .home-icon {
     background-image: url('/src/assets/home-white.svg');
 }
@@ -129,7 +114,7 @@ body {
     background-image: url('/src/assets/home-blue.svg');
 }
   
-/* Recent */
+/* Top navbar: large icons - Recent */
 .recent-icon {
     background-image: url('/src/assets/recent-white.svg');
 }
@@ -137,7 +122,7 @@ body {
     background-image: url('/src/assets/recent-blue.svg');
 }
   
-/* Search */
+/* Top navbar: large icons - Search */
 .search-icon {
     background-image: url('/src/assets/search-white.svg');
 }
@@ -145,7 +130,7 @@ body {
     background-image: url('/src/assets/search-blue.svg');
 }
   
-/* Help */
+/* Top navbar: large icons - Help */
 .help-icon {
     background-image: url('/src/assets/help-white.svg');
 }
@@ -153,7 +138,7 @@ body {
     background-image: url('/src/assets/help-blue.svg');
 }
 
-/* Admin */
+/* Top navbar: large icons - Admin */
 .admin-icon {
     background-image: url('/src/assets/admin-white.svg');
 }
@@ -161,7 +146,7 @@ body {
     background-image: url('/src/assets/admin-blue.svg');
 }
 
-/* Active icons */
+/* Top navbar: large icons - active icon state */
 .icon-btn.active.home-icon, .dropdown-item-custom.active .home-icon {
     background-image: url('/src/assets/home-blue.svg');
 }
@@ -178,7 +163,22 @@ body {
     background-image: url('/src/assets/admin-blue.svg');
 }
 
-/* Horizontal scrollbar for Category buttons container */
+/* Title buttons: split-button dropdown menu */
+.moreoptions {
+    background-color: white;
+}
+
+/* Title buttons: split-button dropdown hover color (yellow) */
+.moreoptions:hover {
+    background-color: var(--bs-warning);
+}
+
+/* Title buttons: split-button dropdown -- extra modules */
+.moduleBtns {
+    display: none;
+}
+
+/* Category buttons menu with horizontal scrollbar */
 .btn-scroll-container {
     overflow-x: auto;
     white-space: nowrap;
@@ -188,9 +188,32 @@ body {
     margin-right: 0.5rem;
 }
 
+/* Video Player styles */
+#vidviewer {
+  width: 100%;
+  min-height: 70vh;
+  border: 0;
+}
+
+#vidspin {
+  margin-top: 5rem;
+}
+
+#vidNavBtns {
+  display: flex;
+  align-items: center;
+}
+
+/* Subnav template: responsive sidebar menu */
 @media (min-width: 992px) {
     .sidebar-fixed-width {
         width: 300px;
         flex: 0 0 300px;
+    }
+}
+
+@media (max-width: 426px) {
+    #vidNavBtns {
+        display: none;
     }
 }

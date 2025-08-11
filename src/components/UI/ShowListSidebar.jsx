@@ -43,7 +43,7 @@ export function ShowListSidebar({ context, category }) {
           />
         ))
       ) : (
-        <p class="text-center">No shows available.</p>
+        <p class="text-center my-3 text-danger fw-bold">No recently watched shows available.</p>
       )}
     </aside>
   );

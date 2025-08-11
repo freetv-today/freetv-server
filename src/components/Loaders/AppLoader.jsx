@@ -34,7 +34,7 @@ export function AppLoader() {
       // Check if we have valid cached data
       if (showData && visitData && !config.offline) {
         if (config.debugmode) {
-          console.log('Using cached showData and visitData, skipping fetch');
+          console.log('Using existing showData and visitData');
         }
         const updatedVisitData = { ...visitData, lastVisit: new Date().toJSON() };
         setVisitData(updatedVisitData);
@@ -82,19 +82,19 @@ export function AppLoader() {
         const data = await response.json();
 
         if (!Array.isArray(data.shows)) {
-          throw new Error('Invalid show data: shows must be an array');
+          throw new Error('Invalid show data: application cannot load');
         }
 
         if (shouldUpdateData(showData, data)) {
           if (config.debugmode) {
-            console.log('No show data or outdated, using new data');
+            console.log('Loaded new show data from JSON');
           }
           setShowData(data);
           try {
             localStorage.setItem('showData', JSON.stringify(data));
           } catch (e) {
             if (config.debugmode) {
-              console.warn('Failed to save showData to localStorage, continuing with state:', e);
+              console.warn('Failed to save show data to local storage: ', e);
             }
           }
         } else {
@@ -118,7 +118,7 @@ export function AppLoader() {
       // Handle visit data
       if (!visitData) {
         if (config.debugmode) {
-          console.log('No visit data found, creating new visit data');
+          console.log('No previous visit data. Creating new visit data...');
         }
         const tstamp = new Date().toJSON();
         const code = generateNewCode();

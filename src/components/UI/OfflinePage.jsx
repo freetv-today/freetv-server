@@ -4,7 +4,7 @@ export function OfflinePage() {
     <div className="container-fluid text-center">
       <h1 className="display-5">Free TV is Temporarily Offline</h1>
       <p>
-        <a href="/" target="_top">
+        <a href="/">
           <img src="/src/assets/offline-cloud.svg" width="175" alt="Offline" title="Offline" />
         </a>
       </p>

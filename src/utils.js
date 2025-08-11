@@ -1,6 +1,3 @@
-// ------------------------------------------------------------------------
-// Javascript utilities for Free TV app
-// ------------------------------------------------------------------------
 
 export function generateToken(length) {
   const a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
@@ -38,4 +35,10 @@ export async function enforceMinLoadingTime(startTime, minTime = 1200) {
   if (remainingTime > 0) {
     await new Promise((resolve) => setTimeout(resolve, remainingTime));
   }
+}
+
+export function confirmPlaylistReload() {
+  return window.confirm(
+    "To show or hide the Episode Playlist you'll have to reload the page. Do you wish to proceed?"
+  );
 }

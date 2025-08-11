@@ -15,19 +15,19 @@ import { useState, useEffect } from 'preact/hooks';
  * @returns {import('preact').JSX.Element}
  */
 export function DescriptionModal({ show, onClose, title, category, identifier, desc, start, end, imdb }) {
-  const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/img/vintage-tv.png');
+  const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
 
   useEffect(() => {
     if (imdb) {
       const img = new Image();
-      img.src = `/src/assets/img/thumbs/${imdb}.jpg`;
+      img.src = `/src/assets/thumbs/${imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
-      img.onerror = () => setThumbnailSrc('/src/assets/img/vintage-tv.png');
+      img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
     }
   }, [imdb]);
 
-  // Format aired dates
-  const airedText = start === end ? start : `${start} &ndash; ${end}`;
+  // Format aired dates (e.g. appears as 1963 – 1967)
+  const airedText = start === end ? start : `${start} \u2013 ${end}`;
 
   // Generate links
   const links = (
@@ -35,18 +35,18 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
       {imdb && (
         <li class="pb-1">
           <a href={`https://www.imdb.com/title/${imdb}/`} target="_blank" rel="noopener noreferrer">
-            IMDB Page <img src="/src/assets/img/external-link.svg" width="14" class="ms-2" alt="External Link" />
+            IMDB Page <img src="/src/assets/external-link.svg" width="14" class="ms-2" alt="External Link" />
           </a>
         </li>
       )}
       <li class="pb-1">
         <a href={`https://archive.org/details/${identifier}`} target="_blank" rel="noopener noreferrer">
-          Archive.org <img src="/src/assets/img/external-link.svg" width="14" class="ms-2" alt="External Link" />
+          Archive.org <img src="/src/assets/external-link.svg" width="14" class="ms-2" alt="External Link" />
         </a>
       </li>
       <li class="pb-2">
         <a href={`https://archive.org/download/${identifier}`} target="_blank" rel="noopener noreferrer">
-          Download Files <img src="/src/assets/img/external-link.svg" width="14" class="ms-2" alt="External Link" />
+          Download Files <img src="/src/assets/external-link.svg" width="14" class="ms-2" alt="External Link" />
         </a>
       </li>
     </ul>

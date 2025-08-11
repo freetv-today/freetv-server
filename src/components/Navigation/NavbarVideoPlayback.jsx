@@ -1,16 +1,15 @@
-// src/components/Navigation/NavbarMain.jsx
+// src/components/Navigation/NavbarVideoPlayback.jsx
 import { ButtonHomeNav } from '@components/Navigation/ButtonHomeNav';
 import { ButtonRecentNav } from '@components/Navigation/ButtonRecentNav';
 import { ButtonSearchNav } from '@components/Navigation/ButtonSearchNav';
 import { ButtonHelpNav } from '@components/Navigation/ButtonHelpNav';
 import { ButtonAdminNav } from '@components/Navigation/ButtonAdminNav';
+import { ButtonVideoNav } from '@components/Navigation/ButtonVideoNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { ToggleDropDownMenu } from '@components/UI/ToggleDropDownMenu';
-import { SelectLarge } from '@components/UI/SelectLarge';
 import { useConfig } from '@/context/ConfigContext.jsx';
 
-// this navbar is displayed on all pages except video playback (/nowplaying)
-export function NavbarMain() {
+export function NavbarVideoPlayback() {
   const { showadmin } = useConfig();
   return (
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
@@ -47,13 +46,9 @@ export function NavbarMain() {
           <ImageSmallLogo />
         </div>
 
-        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center">
-          <div className="pt-1 pe-2">
-            <span className="navbar-text fw-bold">Playlist: </span>
-          </div>
-          <div>
-            <SelectLarge />
-          </div>
+        <div id="vidNavBtns" className="order-2 order-md-3 me-2">
+          {/* <!-- only appears when video is playing  --> */}
+          <ButtonVideoNav />
         </div>
 
       </div>

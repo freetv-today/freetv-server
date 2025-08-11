@@ -39,11 +39,16 @@ export function AlertProvider({ children }) {
 
   // Remove an alert by ID
   const removeAlert = (id) => {
-    console.log('Removing alert with id:', id); // Debug log
+    console.log('Removing alert with id:', id); 
     setAlerts((prev) => prev.filter((alert) => alert.id !== id));
   };
 
-  console.log('Rendering AlertProvider with alerts:', alerts); // Debug log
+  if (alerts.length > 0) {
+    console.log('Array of alerts to display: ', alerts); 
+  } else {
+    console.log('There are no alerts to display');
+  }
+  
   
   return (
     <AlertContext.Provider value={{ alerts, addAlert, removeAlert }}>
