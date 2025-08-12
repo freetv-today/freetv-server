@@ -20,36 +20,29 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
   const { debugmode, modules } = useConfig();
   const [showModal, setShowModal] = useState(false);
   const [, setCurrentVid] = useLocalStorage('currentVid', null);
-  const [recentTitles, setRecentTitles] = useLocalStorage('recentTitles', []);
+  const [recentTitles, setRecentTitles] = useLocalStorage('recentTitles', { title: [] });
   const { route } = useLocation();
 
   // Add the title to recentTitles (max 25, no duplicates)
   const saveRecent = (title) => {
     setRecentTitles(prev => {
-      let titlesArr = [];
-      if (prev && Array.isArray(prev.title)) {
-        titlesArr = prev.title;
-      } else if (Array.isArray(prev)) {
-        // handle legacy array format
-        titlesArr = prev;
-      }
-      // Remove if already present
+      let titlesArr = Array.isArray(prev?.title) ? prev.title : [];
       titlesArr = titlesArr.filter(t => t !== title);
-      // Add to front
       titlesArr.unshift(title);
-      // Limit to 25
       if (titlesArr.length > 25) titlesArr = titlesArr.slice(0, 25);
       return { title: titlesArr };
     });
     if (debugmode) {
-      console.log('Added to Recently Watched:', title);
+      console.log('Adding to Recently Watched');
     }
   };
 
   // Handle main button click: set currentVid, add to recent, route to /nowplaying
   const handleMainClick = () => {
     if (!category || !identifier || !title) {
-      console.error('Missing required data: (category, identifier, title)');
+      if (debugmode) {
+        console.error('Missing required data: (category, identifier, title)');
+      }
       return;
     }
     setCurrentVid({ category, identifier, title });

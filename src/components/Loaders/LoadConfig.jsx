@@ -25,10 +25,6 @@ export function LoadConfig() {
     async function fetchConfig() {
 
       let config = configData;
-      // DEBUG
-      // if (config?.debugmode) {
-      //   console.log('Current configData:', config);
-      // }
       try {
         localStorage.setItem('test', 'test');
         localStorage.removeItem('test');
@@ -51,11 +47,9 @@ export function LoadConfig() {
         const validatedConfig = {
           database: newConfig.database || '',
           offline: newConfig.offline ?? false,
-          showadmin: newConfig.showadmin ?? false,
           showads: newConfig.showads ?? false,
           appdata: newConfig.appdata ?? false,
           modules: newConfig.modules ?? false,
-          updates: newConfig.updates ?? false,
           debugmode: newConfig.debugmode ?? false,
           name: newConfig.name || 'Free TV',
           version: newConfig.version || 'Unknown',
@@ -103,11 +97,7 @@ export function LoadConfig() {
 
   // Memoize configData to prevent unnecessary re-renders
   const memoizedConfig = useMemo(() => {
-    // DEV USE
-    // if (configData?.debugmode) {
-    //   console.log('Memoizing configData:', configData);
-    // }
-    return configData || { offline: true, showadmin: false };
+    return configData || { offline: true };
   }, [configData]);
 
   if (loading) {

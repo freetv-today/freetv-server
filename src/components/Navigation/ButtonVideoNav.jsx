@@ -1,24 +1,20 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { confirmPlaylistReload } from '@/utils.js';
-import { useRef } from 'preact/hooks';
 
 export function ButtonVideoNav() {
   const [embedPlaylist, setEmbedPlaylist] = useLocalStorage('embedPlaylist', true);
-  const prevValue = useRef(embedPlaylist);
 
-  const handlePlaylistToggle = () => {
+  const handlePlaylistToggle = (e) => {
+    // Prevent the checkbox from toggling automatically
+    e.preventDefault();
+
     const newValue = !embedPlaylist;
     if (confirmPlaylistReload()) {
       setEmbedPlaylist(newValue);
       window.location.reload();
-    } else {
-      // revert toggle
-      setEmbedPlaylist(prevValue.current);
     }
+    // If cancelled, do nothing: the checked prop will keep the button in sync
   };
-
-  // Keep prevValue in sync
-  prevValue.current = embedPlaylist;
 
   return (
     <span>
@@ -36,7 +32,8 @@ export function ButtonVideoNav() {
         class="btn-check"
         autoComplete="off"
         checked={embedPlaylist}
-        onChange={handlePlaylistToggle}
+        onClick={handlePlaylistToggle}
+        readOnly
       />
       <label
         class="btn btn-sm btn-outline-warning fw-bold"

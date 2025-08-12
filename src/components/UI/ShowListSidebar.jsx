@@ -1,6 +1,7 @@
 // src/components/UI/ShowListSidebar.jsx
 import { useShowData } from '@/context/ShowDataContext.jsx';
 import { ButtonShowTitleNav } from '@components/Navigation/ButtonShowTitleNav';
+import { useLocalStorage } from '@hooks/useLocalStorage';
 
 /**
  * @param {Object} props
@@ -9,7 +10,9 @@ import { ButtonShowTitleNav } from '@components/Navigation/ButtonShowTitleNav';
  * @returns {import('preact').JSX.Element}
  */
 export function ShowListSidebar({ context, category }) {
+
   const showData = useShowData();
+  const [recentTitles] = useLocalStorage('recentTitles', { title: [] });
 
   let shows = [];
 
@@ -23,8 +26,11 @@ export function ShowListSidebar({ context, category }) {
         return titleA.localeCompare(titleB);
       }) || [];
   } else if (context === 'recent') {
-    // Placeholder for recent titles
-    shows = [];
+      shows = recentTitles.title
+      .map(title =>
+        showData?.shows?.find(show => show.title === title)
+      )
+      .filter(Boolean); // Remove any not found
   }
 
   return (

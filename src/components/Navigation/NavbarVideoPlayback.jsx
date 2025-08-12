@@ -3,14 +3,12 @@ import { ButtonHomeNav } from '@components/Navigation/ButtonHomeNav';
 import { ButtonRecentNav } from '@components/Navigation/ButtonRecentNav';
 import { ButtonSearchNav } from '@components/Navigation/ButtonSearchNav';
 import { ButtonHelpNav } from '@components/Navigation/ButtonHelpNav';
-import { ButtonAdminNav } from '@components/Navigation/ButtonAdminNav';
 import { ButtonVideoNav } from '@components/Navigation/ButtonVideoNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { ToggleDropDownMenu } from '@components/UI/ToggleDropDownMenu';
-import { useConfig } from '@/context/ConfigContext.jsx';
 
 export function NavbarVideoPlayback() {
-  const { showadmin } = useConfig();
+
   return (
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
       <div className="container-fluid p-0 m-0 d-flex justify-content-between">
@@ -20,7 +18,6 @@ export function NavbarVideoPlayback() {
           <ButtonRecentNav />
           <ButtonSearchNav />
           <ButtonHelpNav />
-          {showadmin && <ButtonAdminNav />}
         </div>
 
         <nav id="smallToggle" className="d-md-none order-1">

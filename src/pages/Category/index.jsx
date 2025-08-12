@@ -6,6 +6,7 @@ import { ShowListSidebar } from '@components/UI/ShowListSidebar.jsx';
 import { capitalizeFirstLetter } from '@/utils.js';
 
 export function Category() {
+  
   const { params } = useRoute(); // Use useRoute for dynamic route params
   const category = params.name;
   const { debugmode } = useConfig();
@@ -14,6 +15,7 @@ export function Category() {
     document.title = `Free TV: ${capitalizeFirstLetter(category)}`;
     if (debugmode) {
 		  console.log('Rendered Category page (pages/Category/index.jsx)');
+      console.log(`Selected Category: ${capitalizeFirstLetter(category)}`);
 	  }
   }, [debugmode, category]);
 
