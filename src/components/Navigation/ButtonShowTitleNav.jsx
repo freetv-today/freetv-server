@@ -1,8 +1,7 @@
 import { useState } from 'preact/hooks';
 import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
 import { useConfig } from '@/context/ConfigContext.jsx';
-import { useLocalStorage } from '@hooks/useLocalStorage';
-import { useLocation } from 'preact-iso';
+import { useQueueVideo } from '@hooks/useQueueVideo';
 
 /**
  * @param {Object} props
@@ -17,25 +16,10 @@ import { useLocation } from 'preact-iso';
  */
 
 export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
+
   const { debugmode, modules } = useConfig();
   const [showModal, setShowModal] = useState(false);
-  const [, setCurrentVid] = useLocalStorage('currentVid', null);
-  const [recentTitles, setRecentTitles] = useLocalStorage('recentTitles', { title: [] });
-  const { route } = useLocation();
-
-  // Add the title to recentTitles (max 25, no duplicates)
-  const saveRecent = (title) => {
-    setRecentTitles(prev => {
-      let titlesArr = Array.isArray(prev?.title) ? prev.title : [];
-      titlesArr = titlesArr.filter(t => t !== title);
-      titlesArr.unshift(title);
-      if (titlesArr.length > 25) titlesArr = titlesArr.slice(0, 25);
-      return { title: titlesArr };
-    });
-    if (debugmode) {
-      console.log('Adding to Recently Watched');
-    }
-  };
+  const { queueVideo } = useQueueVideo();
 
   // Handle main button click: set currentVid, add to recent, route to /nowplaying
   const handleMainClick = () => {
@@ -45,12 +29,10 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
       }
       return;
     }
-    setCurrentVid({ category, identifier, title });
-    saveRecent(title);
     if (debugmode) {
       console.log(`Queuing video: ${title.replace(/_/g, ' ')}`);
     }
-    route('/nowplaying');
+    queueVideo({ category, identifier, title });
   };
 
   return (

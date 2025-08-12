@@ -42,3 +42,13 @@ export function confirmPlaylistReload() {
     "To show or hide the Episode Playlist you'll have to reload the page. Do you wish to proceed?"
   );
 }
+
+export function showAlert(message, inputId) {
+  alert(message);
+  if (inputId) {
+    setTimeout(() => {
+      const el = document.getElementById(inputId);
+      if (el) el.focus();
+    }, 0);
+  }
+}

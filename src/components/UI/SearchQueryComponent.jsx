@@ -1,5 +1,8 @@
 import { useState } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
+import { showAlert } from '@/utils';
+
+const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
 
 export function SearchQueryComponent({ onSearch }) {
   const [searchQuery, setsearchQuery] = useLocalStorage('searchQuery', '');
@@ -14,8 +17,26 @@ export function SearchQueryComponent({ onSearch }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setsearchQuery(query.trim());
-    onSearch(query.trim());
+    const trimmed = query.trim();
+    if (trimmed.length < 3) {
+      showAlert("Your search query must be at least 3 characters long", "searchquery");
+      return;
+    }
+    // Remove punctuation and split into words
+    const filtered = trimmed
+      .replace(/[&,:\-.]/g, '')
+      .split(/\s+/)
+      .filter(word => !IGNORED_WORDS.includes(word.toLowerCase()));
+    if (filtered.length === 0) {
+      showAlert(
+        "Your search query only contains words that are ignored in the search (such as 'the', 'and', 'a', 'or', and 'but'). Please include more specific search terms.",
+        "searchquery"
+      );
+      return;
+    }
+    setsearchQuery(trimmed);
+    // Pass the query as-is so the parent can match substrings in all fields, including year
+    onSearch(trimmed);
   };
 
   const handleClear = () => {

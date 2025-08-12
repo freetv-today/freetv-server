@@ -46,7 +46,8 @@ export function Search() {
     const filtered = showData.shows.filter(show =>
       show.title.toLowerCase().includes(qLower) ||
       show.category.toLowerCase().includes(qLower) ||
-      (show.desc && show.desc.toLowerCase().includes(qLower))
+      (show.desc && show.desc.toLowerCase().includes(qLower)) ||
+      (show.start && String(show.start).includes(qLower))
     );
     setResults(filtered);
   };
