@@ -1,17 +1,18 @@
 // src/components/Navigation/CategoriesMenuNav.jsx
+import { useContext } from 'preact/hooks';
+import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { ButtonCategoryNav } from '@components/Navigation/ButtonCategoryNav';
-import { useShowData } from '@/context/ShowDataContext.jsx';
 import { useLocation } from 'preact-iso';
 import { capitalizeFirstLetter } from '@/utils.js';
 
 export function CategoriesMenuNav() {
 
-  const showData = useShowData();
+  const { showData } = useContext(PlaylistContext);
   const { url } = useLocation();
 
   // Filter out empty categories, get unique categories, and sort alphabetically
   const categories = [
-    ...new Set(showData?.shows?.filter(item => item.category.trim() !== '').map(item => item.category)),
+    ...new Set(showData?.filter(item => item.category.trim() !== '').map(item => item.category)),
   ].sort((a, b) => a.localeCompare(b));
 
   return (

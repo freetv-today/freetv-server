@@ -6,7 +6,6 @@ import { App } from '@components/App.jsx';
 import { ErrorPage } from '@components/UI/ErrorPage.jsx';
 import { OfflinePage } from '@components/UI/OfflinePage.jsx';
 import { generateNewCode, shouldUpdateData, enforceMinLoadingTime } from '@/utils.js';
-import { ShowDataProvider } from '@context/ShowDataContext.jsx';
 import { useConfig } from '@context/ConfigContext.jsx';
 
 export function AppLoader() {
@@ -162,9 +161,5 @@ export function AppLoader() {
     return <OfflinePage />;
   }
 
-  return (
-    <ShowDataProvider showData={showData || { shows: [], lastupdated: null }}>
-      <App />
-    </ShowDataProvider>
-  );
+  return <App />;
 }

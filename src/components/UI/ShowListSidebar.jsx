@@ -1,5 +1,6 @@
 // src/components/UI/ShowListSidebar.jsx
-import { useShowData } from '@/context/ShowDataContext.jsx';
+import { useContext } from 'preact/hooks';
+import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { ButtonShowTitleNav } from '@components/Navigation/ButtonShowTitleNav';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
@@ -11,15 +12,14 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
  */
 export function ShowListSidebar({ context, category }) {
 
-  const showData = useShowData();
+  const { showData } = useContext(PlaylistContext);
   const [recentTitles] = useLocalStorage('recentTitles', { title: [] });
 
   let shows = [];
 
   if (context === 'category' && category) {
     // Filter shows by category, sort alphabetically (ignoring "The")
-    shows = showData?.shows
-      ?.filter(item => item.category.toLowerCase() === category.toLowerCase() && item.status === 'active')
+    shows = showData?.filter(item => item.category.toLowerCase() === category.toLowerCase() && item.status === 'active')
       .sort((a, b) => {
         const titleA = a.title.replace(/^The\s+/i, '');
         const titleB = b.title.replace(/^The\s+/i, '');
@@ -28,7 +28,7 @@ export function ShowListSidebar({ context, category }) {
   } else if (context === 'recent') {
       shows = recentTitles.title
       .map(title =>
-        showData?.shows?.find(show => show.title === title)
+        showData?.find(show => show.title === title)
       )
       .filter(Boolean); // Remove any not found
   }

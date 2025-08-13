@@ -2,10 +2,13 @@
 import { render } from 'preact';
 import { LocationProvider } from 'preact-iso';
 import { LoadConfig } from '@components/Loaders/LoadConfig';
+import { PlaylistProvider } from '@/context/PlaylistContext.jsx';
 
 render(
   <LocationProvider>
-    <LoadConfig />
+    <PlaylistProvider>
+      <LoadConfig />
+    </PlaylistProvider>
   </LocationProvider>,
   document.getElementById('app')
 );

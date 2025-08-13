@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'preact/hooks';
 import { useConfig } from '@/context/ConfigContext.jsx';
-import { useShowData } from '@/context/ShowDataContext.jsx';
+import { useContext } from 'preact/hooks';
+import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { SearchResults } from '@components/UI/SearchResults';
 import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
 
 export function Search() {
   const { debugmode } = useConfig();
-  const showData = useShowData();
+  const { showData } = useContext(PlaylistContext);
   // Try to restore query from localStorage
   const getInitialQuery = () => {
     try {
@@ -43,7 +44,7 @@ export function Search() {
       return;
     }
     const qLower = q.toLowerCase();
-    const filtered = showData.shows.filter(show =>
+    const filtered = showData.filter(show =>
       show.title.toLowerCase().includes(qLower) ||
       show.category.toLowerCase().includes(qLower) ||
       (show.desc && show.desc.toLowerCase().includes(qLower)) ||
