@@ -10,20 +10,17 @@ export function SelectSmall() {
   }
 
   return (
-    <>
-      {loading && <SpinnerLoadingAppData />}
-      <select
-        id="selectPlaylistSmall"
-        class="form-select form-select-sm mt-1"
-        value={currentPlaylist || ''}
-        onChange={handleChange}
-      >
-        {playlists.map(pl => (
-          <option value={pl.filename} key={pl.filename}>
-            {pl.dbtitle}
-          </option>
-        ))}
-      </select>
-    </>
+    <select
+      id="selectPlaylistSmall"
+      class="form-select form-select-sm mt-1"
+      value={currentPlaylist || ''}
+      onChange={handleChange}
+    >
+      {playlists.map(pl => (
+        <option value={pl.filename} key={pl.filename}>
+          {pl.dbtitle}
+        </option>
+      ))}
+    </select>
   );
 }

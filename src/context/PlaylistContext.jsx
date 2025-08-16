@@ -5,13 +5,15 @@
  * @property {Function} changePlaylist
  * @property {boolean} loading
  * @property {Array} showData
+ * @property {boolean} playlistSwitching
  */
 
 /** @type {import('preact').Context<PlaylistContextValue>} */
 
 import { useLocation } from 'preact-iso';
 import { createContext } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData.jsx';
 
 export const PlaylistContext = createContext(
   /** @type {PlaylistContextValue} */ ({
@@ -20,53 +22,161 @@ export const PlaylistContext = createContext(
     changePlaylist: () => {},
     loading: false,
     showData: [],
+    playlistSwitching: false,
   })
 );
 
 export function PlaylistProvider({ children }) {
-  const [playlists, setPlaylists] = useState([]);
-  const [currentPlaylist, setCurrentPlaylist] = useState(null);
-  const [showData, setShowData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { route } = useLocation();
+  // Synchronously hydrate from localStorage
+  function getLocalStorageJson(key) {
+    try {
+      const val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : null;
+    } catch {
+      return null;
+    }
+  }
 
-  // Load playlists index on mount
+  const [playlists, setPlaylists] = useState([]);
+  const [currentPlaylist, setCurrentPlaylist] = useState(() => localStorage.getItem('playlist') || null);
+  const [showData, setShowData] = useState(() => {
+    const data = getLocalStorageJson('showData');
+    return data && data.shows ? data.shows : [];
+  });
+  const [loading, setLoading] = useState(false);
+  const [playlistSwitching, setPlaylistSwitching] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+  const { route, path } = useLocation();
+  const hasInitialized = useRef(false);
+
+  // On mount, fetch playlists index and only fetch playlist if missing/stale
+  // Initialization effect (runs once)
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    // Restore configData
+    function getConfigFromLocalStorage() {
+      const config = getLocalStorageJson('configData');
+      if (config && config.lastupdated) return config;
+      return null;
+    }
+    // Restore visitData or create if missing
+    function ensureVisitData() {
+      let visitData = getLocalStorageJson('visitData');
+      if (!visitData) {
+        const tstamp = new Date().toJSON();
+        const code = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        visitData = { lastVisit: tstamp, start: tstamp, end: '', token: code };
+        localStorage.setItem('visitData', JSON.stringify(visitData));
+        sessionStorage.setItem('token', code);
+      } else {
+        visitData.lastVisit = new Date().toJSON();
+        localStorage.setItem('visitData', JSON.stringify(visitData));
+      }
+    }
+    ensureVisitData();
+    // Fetch config if missing
+    let configData = getConfigFromLocalStorage();
+    if (!configData) {
+      fetch('/config.json')
+        .then(res => res.json())
+        .then(cfg => {
+          localStorage.setItem('configData', JSON.stringify(cfg));
+        });
+    }
     fetch('/playlists/index.json')
       .then(res => res.json())
       .then(data => {
         setPlaylists(data.playlists || []);
-        // Get default playlist from localStorage or index.json
         const saved = localStorage.getItem('playlist');
         const defaultPlaylist = saved || data.default || (data.playlists[0] && data.playlists[0].filename);
-        if (defaultPlaylist) {
-          changePlaylist(defaultPlaylist, false);
+        let showDataLS = getLocalStorageJson('showData');
+        let playlistLS = localStorage.getItem('playlist') || defaultPlaylist;
+        // Find the correct playlist entry in index.json
+        const playlistEntry = (data.playlists || []).find(p => p.filename === playlistLS);
+        const indexLastUpdated = playlistEntry ? playlistEntry.lastupdated : null;
+        if (
+          !showDataLS ||
+          !showDataLS.lastupdated ||
+          !indexLastUpdated ||
+          showDataLS.lastupdated !== indexLastUpdated ||
+          !playlistLS
+        ) {
+          // If data is missing/stale, always reset to home and show initial spinner
+          if (path !== '/') route('/');
+          changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
+        } else {
+          setCurrentPlaylist(playlistLS);
+          setShowData(showDataLS.shows || []);
+          setInitializing(false);
         }
       });
+    // eslint-disable-next-line
   }, []);
 
+  // Route change effect: re-check data on navigation (for client-side nav)
+  useEffect(() => {
+    if (initializing) return;
+    // On every route change, check if showData is missing/stale
+    fetch('/playlists/index.json')
+      .then(res => res.json())
+      .then(data => {
+        const saved = localStorage.getItem('playlist');
+        const defaultPlaylist = saved || data.default || (data.playlists[0] && data.playlists[0].filename);
+        let showDataLS = getLocalStorageJson('showData');
+        let playlistLS = localStorage.getItem('playlist') || defaultPlaylist;
+        const playlistEntry = (data.playlists || []).find(p => p.filename === playlistLS);
+        const indexLastUpdated = playlistEntry ? playlistEntry.lastupdated : null;
+        if (
+          !showDataLS ||
+          !showDataLS.lastupdated ||
+          !indexLastUpdated ||
+          showDataLS.lastupdated !== indexLastUpdated ||
+          !playlistLS
+        ) {
+          // If data is missing/stale, always reset to home and show initial spinner
+          if (path !== '/') route('/');
+          changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
+        }
+      });
+    // eslint-disable-next-line
+  }, [path]);
+
   // Change playlist and load its data
-  function changePlaylist(filename, showSpinner = true) {
+  function changePlaylist(filename, showSpinner = true, isInitial = false) {
+    console.log('[PlaylistProvider] changePlaylist called:', { filename, showSpinner, isInitial });
+    if (isInitial) {
+      setInitializing(true);
+    } else {
+      setPlaylistSwitching(true);
+    }
     setLoading(showSpinner);
+    const minLoadingTime = 1200;
+    const startTime = Date.now();
     fetch(`/playlists/${filename}`)
       .then(res => res.json())
       .then(data => {
         setCurrentPlaylist(filename);
         setShowData(data.shows || []);
         localStorage.setItem('playlist', filename);
-        localStorage.setItem('showData', JSON.stringify(data.shows || []));
-        setLoading(false);
-        // Redirect to home after playlist change
-        route('/');
+        localStorage.setItem('showData', JSON.stringify(data));
+        const elapsed = Date.now() - startTime;
+        const wait = Math.max(0, minLoadingTime - elapsed);
+        setTimeout(() => {
+          setLoading(false);
+          if (isInitial) {
+            setInitializing(false);
+            route('/');
+          } else {
+            setPlaylistSwitching(false);
+            route('/');
+          }
+        }, wait);
       });
   }
 
-  // On mount, restore showData from localStorage if available
-  useEffect(() => {
-    const savedData = localStorage.getItem('showData');
-    if (savedData) setShowData(JSON.parse(savedData));
-  }, []);
-
+  // Render logic: block rendering until initialization check is complete
+  if (initializing) return <SpinnerLoadingAppData />;
   return (
     <PlaylistContext.Provider value={{
       playlists,
@@ -74,6 +184,7 @@ export function PlaylistProvider({ children }) {
       showData,
       loading,
       changePlaylist,
+      playlistSwitching,
     }}>
       {children}
     </PlaylistContext.Provider>

@@ -10,21 +10,18 @@ export function SelectLarge() {
   }
 
   return (
-    <>
-      {loading && <SpinnerLoadingAppData />}
-      <select
-        id="selectPlaylistLarge"
-        class="form-select form-select-sm selectlist-nav"
-        data-bs-theme="dark"
-        value={currentPlaylist || ''}
-        onChange={handleChange}
-      >
-        {playlists.map(pl => (
-          <option value={pl.filename} key={pl.filename}>
-            {pl.dbtitle}
-          </option>
-        ))}
-      </select>
-    </>
+    <select
+      id="selectPlaylistLarge"
+      class="form-select form-select-sm selectlist-nav"
+      data-bs-theme="dark"
+      value={currentPlaylist || ''}
+      onChange={handleChange}
+    >
+      {playlists.map(pl => (
+        <option value={pl.filename} key={pl.filename}>
+          {pl.dbtitle}
+        </option>
+      ))}
+    </select>
   );
 }

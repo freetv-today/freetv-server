@@ -9,52 +9,27 @@ import { generateNewCode, shouldUpdateData, enforceMinLoadingTime } from '@/util
 import { useConfig } from '@context/ConfigContext.jsx';
 
 export function AppLoader() {
-  const [loading, setLoading] = useState(true);
   const [showData, setShowData] = useLocalStorage('showData', null);
   const [visitData, setVisitData] = useLocalStorage('visitData', null);
   const [error, setError] = useState(null);
   const config = useConfig();
   const hasUpdatedVisitData = useRef(false);
-  const hasInitialized = useRef(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (hasInitialized.current) {
-      if (config.debugmode) {
-        console.log('Skipping duplicate initialization in AppLoader');
-      }
-      return;
-    }
-    hasInitialized.current = true;
-
     async function initialize() {
       const minLoadingTime = 1200;
       const startTime = Date.now();
 
-      // Check if we have valid cached data
-      if (showData && visitData && !config.offline) {
-        if (config.debugmode) {
-          console.log('Using existing showData and visitData');
-        }
-        const updatedVisitData = { ...visitData, lastVisit: new Date().toJSON() };
-        setVisitData(updatedVisitData);
-        hasUpdatedVisitData.current = true;
-        await enforceMinLoadingTime(startTime, minLoadingTime);
-        setLoading(false);
-        return;
-      }
-
-      // Check offline mode
+      // If config.offline, always show spinner and load empty data
       if (config.offline) {
-        if (config.debugmode) {
-          console.log('Offline mode enabled, using empty showData');
-        }
         setShowData({ shows: [], lastupdated: null });
         await enforceMinLoadingTime(startTime, minLoadingTime);
         setLoading(false);
         return;
       }
 
-      // Check localStorage availability
+      // Otherwise, show spinner and fetch new show data
       try {
         localStorage.setItem('test', 'test');
         localStorage.removeItem('test');
@@ -70,9 +45,6 @@ export function AppLoader() {
 
       // Fetch show data
       const databaseUrl = config.database;
-      if (config.debugmode) {
-        console.log(`Fetching show data from ${databaseUrl}`);
-      }
       try {
         const response = await fetch(databaseUrl);
         if (!response.ok) {
@@ -84,27 +56,11 @@ export function AppLoader() {
           throw new Error('Invalid show data: application cannot load');
         }
 
-        if (shouldUpdateData(showData, data)) {
-          if (config.debugmode) {
-            console.log('Loaded new show data from JSON');
-          }
-          setShowData(data);
-          try {
-            localStorage.setItem('showData', JSON.stringify(data));
-          } catch (e) {
-            if (config.debugmode) {
-              console.warn('Failed to save show data to local storage: ', e);
-            }
-          }
-        } else {
-          if (config.debugmode) {
-            console.log('Using cached show data');
-          }
-        }
+        setShowData(data);
+        try {
+          localStorage.setItem('showData', JSON.stringify(data));
+        } catch (e) {}
       } catch (error) {
-        if (config.debugmode) {
-          console.error('Error fetching show data:', error);
-        }
         setError({
           type: 'Data Loading Error',
           message: 'Unable to load show data. Please try again later.',
@@ -116,9 +72,6 @@ export function AppLoader() {
 
       // Handle visit data
       if (!visitData) {
-        if (config.debugmode) {
-          console.log('No previous visit data. Creating new visit data...');
-        }
         const tstamp = new Date().toJSON();
         const code = generateNewCode();
         const vdo = {
@@ -131,23 +84,16 @@ export function AppLoader() {
         sessionStorage.setItem('token', code);
         hasUpdatedVisitData.current = true;
       } else if (!hasUpdatedVisitData.current) {
-        if (config.debugmode) {
-          console.log('Updating existing visit data');
-        }
         const updatedVisitData = { ...visitData, lastVisit: new Date().toJSON() };
         setVisitData(updatedVisitData);
         hasUpdatedVisitData.current = true;
       }
 
       await enforceMinLoadingTime(startTime, minLoadingTime);
-      if (config.debugmode) {
-        console.log('Initialization complete, rendering App');
-      }
       setLoading(false);
     }
-
     initialize();
-  }, [config]); // Add config as dependency to handle changes in offline mode
+  }, [config]);
 
   if (loading) {
     return <SpinnerLoadingAppData />;

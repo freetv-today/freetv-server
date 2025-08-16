@@ -8,23 +8,11 @@ import { shouldUpdateData } from '@/utils.js';
 
 export function LoadConfig() {
 
-  const [loading, setLoading] = useState(true);
   const [configData, setConfigData] = useLocalStorage('configData', null);
   const [error, setError] = useState(null);
-  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (hasInitialized.current) {
-      if (configData?.debugmode) {
-        console.log('Free TV app has already been initialized');
-      }
-      return;
-    }
-    hasInitialized.current = true;
-
     async function fetchConfig() {
-
-      let config = configData;
       try {
         localStorage.setItem('test', 'test');
         localStorage.removeItem('test');
@@ -33,7 +21,6 @@ export function LoadConfig() {
           type: 'Storage Error',
           message: 'Device storage is required. Please enable local storage in your browser.',
         });
-        setLoading(false);
         return;
       }
 
@@ -60,56 +47,25 @@ export function LoadConfig() {
           throw new Error('Invalid configuration: database URL is required');
         }
 
-        if (shouldUpdateData(config, validatedConfig)) {
-          if (validatedConfig.debugmode) {
-            console.log('Initializing Free TV application...');
-            console.log(
-              !config
-                ? 'No data found in local storage'
-                : 'Newer configuration detected, updating from /config.json'
-            );
-          }
-          config = validatedConfig;
-          setConfigData(config);
-          if (validatedConfig.debugmode) {
-            console.log('Configuration data loaded and saved to local storage');
-          }
-        } else if (config?.debugmode) {
-          console.log('Using existing configuration data from local storage');
-        }
+        setConfigData(validatedConfig);
       } catch (error) {
-        if (config?.debugmode) {
-          console.error('Error fetching config:', error);
-        }
         setError({
           type: 'Configuration Error',
           message: 'Unable to load configuration. Please try again later.',
         });
-        setLoading(false);
         return;
       }
-
-      setLoading(false);
     }
-
     fetchConfig();
-  }, []); // Empty dependency array
-
-  // Memoize configData to prevent unnecessary re-renders
-  const memoizedConfig = useMemo(() => {
-    return configData || { offline: true };
-  }, [configData]);
-
-  if (loading) {
-    return null;
-  }
+  }, []);
 
   if (error) {
     return <ErrorPage type={error.type} message={error.message} />;
   }
 
+  // Always provide config context and AppLoader (which will only run if needed)
   return (
-    <ConfigProvider config={memoizedConfig}>
+    <ConfigProvider config={configData || { offline: true }}>
       <AppLoader />
     </ConfigProvider>
   );
