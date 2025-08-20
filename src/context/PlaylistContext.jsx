@@ -166,10 +166,18 @@ export function PlaylistProvider({ children }) {
           setLoading(false);
           if (isInitial) {
             setInitializing(false);
-            route('/');
+            if (path && path.startsWith('/dashboard')) {
+              route(path); // stay on current admin subpage
+            } else {
+              route('/');
+            }
           } else {
             setPlaylistSwitching(false);
-            route('/');
+            if (path && path.startsWith('/dashboard')) {
+              route(path); // stay on current admin subpage
+            } else {
+              route('/');
+            }
           }
         }, wait);
       });

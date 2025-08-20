@@ -12,18 +12,18 @@ body {
     max-width: 100vw;
 }
 
+/* Fonts */
 @font-face {
     font-family: "Bruno Ace";
     src: url('/src/assets/fonts/BrunoAce-Regular.ttf');
 }
-
 .bruno-ace {
     font-family: "Bruno Ace", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
 
-/* Top navbar menu */
+/* Top navbar */
 #navbar {
     height: 60px;
     min-width: 410px;
@@ -32,7 +32,7 @@ body {
     z-index: 1001;
 }
 
-/* Top navbar: custom select (current playlist) */
+/* Top navbar: playlist select */
 #selectPlaylistLarge {
     background-color: #222; 
     color: rgba(255,255,255,0.55); 
@@ -83,11 +83,9 @@ body {
 .dropdown-menu-custom {
     min-width: 200px;
 }
-
 .dropdown-menu-custom .dropdown-item-custom {
     margin-bottom: 10px;
 }
-
 .dropdown-menu-custom .dropdown-item-custom:last-child {
     margin-bottom: 0;
 }
@@ -113,12 +111,18 @@ body {
 .home-icon:hover, .dropdown-item-custom:hover .home-icon {
     background-image: url('/src/assets/home-blue.svg');
 }
-  
+.icon-btn.active.home-icon, .dropdown-item-custom.active .home-icon {
+    background-image: url('/src/assets/home-blue.svg');
+}
+
 /* Top navbar: large icons - Recent */
 .recent-icon {
     background-image: url('/src/assets/recent-white.svg');
 }
 .recent-icon:hover, .dropdown-item-custom:hover .recent-icon {
+    background-image: url('/src/assets/recent-blue.svg');
+}
+.icon-btn.active.recent-icon, .dropdown-item-custom.active .recent-icon {
     background-image: url('/src/assets/recent-blue.svg');
 }
   
@@ -129,6 +133,9 @@ body {
 .search-icon:hover, .dropdown-item-custom:hover .search-icon {
     background-image: url('/src/assets/search-blue.svg');
 }
+.icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
+    background-image: url('/src/assets/search-blue.svg');
+}
   
 /* Top navbar: large icons - Help */
 .help-icon {
@@ -137,43 +144,19 @@ body {
 .help-icon:hover, .dropdown-item-custom:hover .help-icon {
     background-image: url('/src/assets/help-blue.svg');
 }
-
-/* Top navbar: large icons - Admin */
-.admin-icon {
-    background-image: url('/src/assets/admin-white.svg');
-}
-.admin-icon:hover, .dropdown-item-custom:hover .admin-icon {
-    background-image: url('/src/assets/admin-blue.svg');
-}
-
-/* Top navbar: large icons - active icon state */
-.icon-btn.active.home-icon, .dropdown-item-custom.active .home-icon {
-    background-image: url('/src/assets/home-blue.svg');
-}
-.icon-btn.active.recent-icon, .dropdown-item-custom.active .recent-icon {
-    background-image: url('/src/assets/recent-blue.svg');
-}
-.icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
-    background-image: url('/src/assets/search-blue.svg');
-}
 .icon-btn.active.help-icon, .dropdown-item-custom.active .help-icon {
     background-image: url('/src/assets/help-blue.svg');
-}
-.icon-btn.active.admin-icon, .dropdown-item-custom.active .admin-icon {
-    background-image: url('/src/assets/admin-blue.svg');
 }
 
 /* Title buttons: split-button dropdown menu */
 .moreoptions {
     background-color: white;
 }
-
-/* Title buttons: split-button dropdown hover color (yellow) */
 .moreoptions:hover {
     background-color: var(--bs-warning);
 }
 
-/* Title buttons: split-button dropdown -- extra modules */
+/* Title buttons: split-button dropdown menu: modules */
 .moduleBtns {
     display: none;
 }
@@ -195,10 +178,12 @@ body {
   border: 0;
 }
 
+/* Spinner Loading Video */
 #vidspin {
   margin-top: 5rem;
 }
 
+/* Navbar Video Playback */
 #vidNavBtns {
   display: flex;
   align-items: center;
@@ -212,6 +197,7 @@ body {
     }
 }
 
+/* Navbar Video Playback buttons (Back & Episode Playlist) */
 @media (max-width: 426px) {
     #vidNavBtns {
         display: none;

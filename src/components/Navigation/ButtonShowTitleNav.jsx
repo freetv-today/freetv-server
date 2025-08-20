@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
+import { ReportProblemModal } from '@components/UI/ReportProblemModal.jsx';
 import { useConfig } from '@/context/ConfigContext.jsx';
 import { useQueueVideo } from '@hooks/useQueueVideo';
 
@@ -19,6 +20,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
 
   const { debugmode, modules } = useConfig();
   const [showModal, setShowModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const { queueVideo } = useQueueVideo();
 
   // Handle main button click: set currentVid, add to recent, route to /nowplaying
@@ -74,7 +76,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
                   class="dropdown-item moreoptions text-danger"
                   href="#"
                   title="Report a problem"
-                  onClick={e => e.preventDefault()}
+                  onClick={e => { e.preventDefault(); setShowReportModal(true); }}
                 >
                   Report a problem
                 </a>
@@ -114,6 +116,19 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
         end={end}
         imdb={imdb}
       />
+      {showReportModal && (
+        <ReportProblemModal
+          show={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          title={title}
+          category={category}
+          identifier={identifier}
+          desc={desc}
+          start={start}
+          end={end}
+          imdb={imdb}
+        />
+      )}
     </>
   );
 }

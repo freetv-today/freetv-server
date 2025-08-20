@@ -10,7 +10,7 @@ const ALERT_TYPES = [
   { value: 'blue', label: 'Blue (Custom)' },
 ];
 
-export default function TestAlerts() {
+export function TestAlerts() {
   const [mode, setMode] = useState('showalert');
   const [alertType, setAlertType] = useState('danger');
   const [heading, setHeading] = useState('Test Heading');

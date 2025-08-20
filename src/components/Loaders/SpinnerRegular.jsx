@@ -1,3 +1,6 @@
+// This is a simple Bootstrap spinner with no graphics
+
+// DEV NOTE: NOT CURRENTLY USED!
 
 export function SpinnerRegular() {
   return (

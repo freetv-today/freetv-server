@@ -9,15 +9,23 @@ import { LayoutSubnav } from '@components/Layouts/LayoutSubnav.jsx';
 import { LayoutFullpage } from '@components/Layouts/LayoutFullpage.jsx';
 import { LayoutSearch } from '@components/Layouts/LayoutSearch.jsx';
 import { LayoutVidviewer } from '@components/Layouts/LayoutVidviewer.jsx';
+import { LayoutAdmin } from '@components/Layouts/LayoutAdmin.jsx';
 import { Home } from '@pages/Home';
 import { Recent } from '@pages/Recent';
 import { Search } from '@pages/Search';
 import { Help } from '@pages/Help';
-import { Admin } from '@pages/Admin';
+// Admin pages
+import { Admin } from '@pages/Admin/index.jsx';
+import { Dashboard } from '@pages/Admin/dashboard.jsx';
+import { AdminSearch } from '@pages/Admin/search.jsx';
+import { AdminProblems } from '@pages/Admin/problems.jsx';
+import { AdminSettings } from '@pages/Admin/settings.jsx';
+import { AdminUsers } from '@pages/Admin/users.jsx';
 import { Category } from '@pages/Category';
 import { NowPlaying } from '@pages/NowPlaying';
 import { NotFound } from '@pages/_404.jsx';
-import TestAlerts from '@pages/TestAlerts';
+import { TestAlerts } from '@pages/TestAlerts.jsx';
+import { TestPage } from '@/pages/TestPage.jsx';
 import '@/style.css';
 
 // Predefined route components
@@ -27,9 +35,15 @@ const CategoryRoute = () => <LayoutSubnav><Category /></LayoutSubnav>;
 const SearchRoute = () => <LayoutSearch><Search /></LayoutSearch>;
 const HelpRoute = () => <LayoutFullpage><Help /></LayoutFullpage>;
 const AdminRoute = () => <LayoutFullpage><Admin /></LayoutFullpage>;
+const DashboardRoute = () => <LayoutAdmin><Dashboard /></LayoutAdmin>;
+const AdminSearchRoute = () => <LayoutAdmin><AdminSearch /></LayoutAdmin>;
+const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
+const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
+const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
 const NowPlayingRoute = () => <LayoutVidviewer><NowPlaying /></LayoutVidviewer>;
-const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 const TestAlertsRoute = () => <LayoutFullpage><TestAlerts /></LayoutFullpage>;
+const TestPageRoute = () => <LayoutFullpage><TestPage /></LayoutFullpage>;
+const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 
 export function App() {
   const { playlistSwitching } = useContext(PlaylistContext);
@@ -50,8 +64,14 @@ export function App() {
           <Route path="/search" component={SearchRoute} />
           <Route path="/help" component={HelpRoute} />
           <Route path="/admin" component={AdminRoute} />
+          <Route path="/dashboard" component={DashboardRoute} />
+          <Route path="/dashboard/search" component={AdminSearchRoute} />
+          <Route path="/dashboard/problems" component={AdminProblemsRoute} />
+          <Route path="/dashboard/settings" component={AdminSettingsRoute} />
+          <Route path="/dashboard/users" component={AdminUsersRoute} />
           <Route path="/nowplaying" component={NowPlayingRoute} />
           <Route path="/test-alerts" component={TestAlertsRoute} />
+          <Route path="/test" component={TestPageRoute} />
           <Route default component={NotFoundRoute} />
         </Router>
       </main>

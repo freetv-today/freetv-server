@@ -8,7 +8,7 @@
     "shows": [
         {
             "category": "action",
-            "status": "active",
+            "status": "disabled",
             "identifier": "big-trouble-little-china",
             "title": "Big Trouble In Little China",
             "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vulputate scelerisque lorem non vestibulum. Pellentesque pellentesque tincidunt augue at pretium.",

@@ -1,0 +1,126 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.outerwrapper {
+    min-width: 375px; 
+    padding: 30px;
+}
+
+.loginform {
+    border: 3px solid var(--bs-secondary); 
+    padding: 10px; 
+    border-radius: 24px;
+}
+
+.disabled-item {
+    opacity: 0.6;
+}
+
+.disabled-item td {
+    position: relative;
+}
+
+.disabled-item td::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+.noselect {
+    user-select: none;
+}
+
+.position-relative {
+    position: relative;
+    min-height: 50px;
+}
+
+.tinybtn {
+    --bs-btn-padding-y: .2rem; 
+    --bs-btn-padding-x: .3rem; 
+    --bs-btn-font-size: .70rem;
+}
+
+.disabled-item {
+    opacity: 0.6;
+}
+
+.disabled-item td {
+    position: relative;
+}
+
+.disabled-item td::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+.noselect {
+    user-select: none;
+}
+
+/* Admin Dashboard top navbar: large icons - Castle (home) */
+.castle-icon {
+    background-image: url('/src/assets/castle-white.svg');
+}
+.castle-icon:hover, .dropdown-item-custom:hover .castle-icon {
+    background-image: url('/src/assets/castle-blue.svg');
+}
+.icon-btn.active.castle-icon, .dropdown-item-custom.active .castle-icon {
+    background-image: url('/src/assets/castle-blue.svg');
+}
+
+/* Admin Dashboard top navbar: large icons - Search */
+.search-icon {
+    background-image: url('/src/assets/search-white.svg');
+}
+.search-icon:hover, .dropdown-item-custom:hover .search-icon {
+    background-image: url('/src/assets/search-blue.svg');
+}
+.icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
+    background-image: url('/src/assets/search-blue.svg');
+}
+
+/* Admin Dashboard top navbar: large icons - Problems */
+.problems-icon {
+    background-image: url('/src/assets/problems-white.svg');
+}
+.problems-icon:hover, .dropdown-item-custom:hover .problems-icon {
+    background-image: url('/src/assets/problems-blue.svg');
+}
+.icon-btn.active.problems-icon, .dropdown-item-custom.active .problems-icon {
+    background-image: url('/src/assets/problems-blue.svg');
+}
+
+/* Admin Dashboard top navbar: large icons - Users */
+.users-icon {
+    background-image: url('/src/assets/users-white.svg');
+}
+.users-icon:hover, .dropdown-item-custom:hover .users-icon {
+    background-image: url('/src/assets/users-blue.svg');
+}
+.icon-btn.active.users-icon, .dropdown-item-custom.active .users-icon {
+    background-image: url('/src/assets/users-blue.svg');
+}
+
+/* Admin Dashboard top navbar: large icons - Settings */
+.settings-icon {
+    background-image: url('/src/assets/settings-white.svg');
+}
+.settings-icon:hover, .dropdown-item-custom:hover .settings-icon {
+    background-image: url('/src/assets/settings-blue.svg');
+}
+.icon-btn.active.settings-icon, .dropdown-item-custom.active .settings-icon {
+    background-image: url('/src/assets/settings-blue.svg');
+}
