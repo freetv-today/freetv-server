@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-07-29T14:22:37.189Z",
+    "lastupdated": "2025-08-20T19:40:29.000Z",
     "dbtitle": "Movies",
     "dbversion": "1.0",
     "author": "Ken Dawson",
@@ -9,16 +9,6 @@
         {
             "category": "action",
             "status": "disabled",
-            "identifier": "big-trouble-little-china",
-            "title": "Big Trouble In Little China",
-            "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vulputate scelerisque lorem non vestibulum. Pellentesque pellentesque tincidunt augue at pretium.",
-            "start": "1986",
-            "end": "1986",
-            "imdb": "tt0090728"
-        },
-        {
-            "category": "action",
-            "status": "active",
             "identifier": "true-lies-1994-d-theater",
             "title": "True Lies",
             "desc": "A fearless, globe-trotting, terrorist-battling secret agent has his life turned upside down when he discovers his wife might be having an affair with a used-car salesman while terrorists smuggle nuclear war heads into the United States.",
@@ -28,17 +18,7 @@
         },
         {
             "category": "comedy",
-            "status": "active",
-            "identifier": "ItsAMadMadMadMadWorld_201407",
-            "title": "Its a Mad, Mad, Mad, Mad World",
-            "desc": "A group of motorists witnesses a car crash in the California desert, and after the driver's dying words indicate the location of a hidden stash of loot, they turn against each other in a race across the state to get to it.",
-            "start": "1963",
-            "end": "1963",
-            "imdb": "tt0057193"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
+            "status": "disabled",
             "identifier": "galaxy-quest_DVD",
             "title": "Galaxy Quest",
             "desc": "The alumni cast of a space opera television series have to play their roles as the real thing when an alien race needs their help. However, they also have to defend both Earth and the alien race from a reptilian warlord.",

@@ -2,14 +2,17 @@ import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 
 export function Admin() {
-    const { url } = useLocation();
+        const { url } = useLocation();
     const params = new URLSearchParams(url.split('?')[1] || '');
+    // Log when Admin page mounts
+    console.log('[Admin] page mount, url:', url);
     const loggedOut = params.get('loggedout') === '1';
 
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState(loggedOut ? 'You have been logged out of your account.' : '');
-    const [loading, setLoading] = useState(false);
-    const { route } = useLocation();
+        const [error, setError] = useState('');
+        const [success, setSuccess] = useState(loggedOut ? 'You have been logged out of your account.' : '');
+        const [loading, setLoading] = useState(false);
+        const { route } = useLocation();
+        // (Removed window.PlaylistContextDebug usage)
 
     useEffect(() => {
         document.title = "Free TV: Admin";

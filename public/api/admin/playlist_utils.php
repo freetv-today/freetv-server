@@ -1,0 +1,35 @@
+<?php
+// playlist_utils.php - Shared playlist utility functions
+
+function rebuild_index($playlists_dir = null) {
+    if (!$playlists_dir) {
+        $playlists_dir = __DIR__ . '/../../playlists';
+    }
+    $files = glob($playlists_dir . '/*.json');
+    $playlists = [];
+    foreach ($files as $file) {
+        $filename = basename($file);
+        if ($filename === 'index.json') continue;
+        $content = file_get_contents($file);
+        $data = json_decode($content, true);
+        if ($data) {
+            $playlists[] = [
+                'filename' => $filename,
+                'dbtitle' => $data['dbtitle'] ?? 'Unknown',
+                'lastupdated' => $data['lastupdated'] ?? '',
+                'author' => $data['author'] ?? 'Unknown'
+            ];
+        }
+    }
+    // Sort by filename ascending
+    usort($playlists, function($a, $b) {
+        return strcmp($a['filename'], $b['filename']);
+    });
+    $index = [
+        'default' => 'freetv.json',
+        'playlists' => $playlists
+    ];
+    $json = json_encode($index, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    $written = file_put_contents($playlists_dir . '/index.json', $json);
+    return $written !== false;
+}

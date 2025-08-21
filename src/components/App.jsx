@@ -21,6 +21,8 @@ import { AdminSearch } from '@pages/Admin/search.jsx';
 import { AdminProblems } from '@pages/Admin/problems.jsx';
 import { AdminSettings } from '@pages/Admin/settings.jsx';
 import { AdminUsers } from '@pages/Admin/users.jsx';
+import EditShow from '@pages/Admin/EditShow.jsx';
+const EditShowRoute = () => <LayoutAdmin><EditShow /></LayoutAdmin>;
 import { Category } from '@pages/Category';
 import { NowPlaying } from '@pages/NowPlaying';
 import { NotFound } from '@pages/_404.jsx';
@@ -46,7 +48,10 @@ const TestPageRoute = () => <LayoutFullpage><TestPage /></LayoutFullpage>;
 const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 
 export function App() {
-  const { playlistSwitching } = useContext(PlaylistContext);
+  const ctx = useContext(PlaylistContext);
+  const { playlistSwitching, currentPlaylist, currentPlaylistData } = ctx;
+  // Log key context state on every render
+  console.log('[App] render, playlistSwitching:', playlistSwitching, 'currentPlaylist:', currentPlaylist, 'currentPlaylistData:', currentPlaylistData);
 
   // Only render spinner in LayoutFullpage during playlist switching, nothing else
   if (playlistSwitching) {
@@ -65,6 +70,7 @@ export function App() {
           <Route path="/help" component={HelpRoute} />
           <Route path="/admin" component={AdminRoute} />
           <Route path="/dashboard" component={DashboardRoute} />
+          <Route path="/dashboard/edit/:imdb" component={EditShowRoute} />
           <Route path="/dashboard/search" component={AdminSearchRoute} />
           <Route path="/dashboard/problems" component={AdminProblemsRoute} />
           <Route path="/dashboard/settings" component={AdminSettingsRoute} />

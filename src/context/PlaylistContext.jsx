@@ -5,6 +5,7 @@
  * @property {Function} changePlaylist
  * @property {boolean} loading
  * @property {Array} showData
+ * @property {Object|null} currentPlaylistData
  * @property {boolean} playlistSwitching
  */
 
@@ -22,6 +23,7 @@ export const PlaylistContext = createContext(
     changePlaylist: () => {},
     loading: false,
     showData: [],
+    currentPlaylistData: null,
     playlistSwitching: false,
   })
 );
@@ -38,14 +40,25 @@ export function PlaylistProvider({ children }) {
   }
 
   const [playlists, setPlaylists] = useState([]);
-  const [currentPlaylist, setCurrentPlaylist] = useState(() => localStorage.getItem('playlist') || null);
+  const [currentPlaylist, setCurrentPlaylist] = useState(() => {
+    const val = localStorage.getItem('playlist') || null;
+    console.log('[PlaylistProvider] INIT currentPlaylist:', val);
+    return val;
+  });
   const [showData, setShowData] = useState(() => {
     const data = getLocalStorageJson('showData');
-    return data && data.shows ? data.shows : [];
+    const shows = data && data.shows ? data.shows : [];
+    console.log('[PlaylistProvider] INIT showData:', shows);
+    return shows;
   });
   const [loading, setLoading] = useState(false);
   const [playlistSwitching, setPlaylistSwitching] = useState(false);
   const [initializing, setInitializing] = useState(true);
+  const [currentPlaylistData, setCurrentPlaylistData] = useState(() => {
+    const data = getLocalStorageJson('showData');
+    console.log('[PlaylistProvider] INIT currentPlaylistData:', data);
+    return data || null;
+  });
   const { route, path } = useLocation();
   const hasInitialized = useRef(false);
 
@@ -95,6 +108,7 @@ export function PlaylistProvider({ children }) {
         // Find the correct playlist entry in index.json
         const playlistEntry = (data.playlists || []).find(p => p.filename === playlistLS);
         const indexLastUpdated = playlistEntry ? playlistEntry.lastupdated : null;
+        console.log('[PlaylistProvider] useEffect (init):', {playlistLS, showDataLS, indexLastUpdated});
         if (
           !showDataLS ||
           !showDataLS.lastupdated ||
@@ -108,7 +122,9 @@ export function PlaylistProvider({ children }) {
         } else {
           setCurrentPlaylist(playlistLS);
           setShowData(showDataLS.shows || []);
+          setCurrentPlaylistData(showDataLS);
           setInitializing(false);
+          console.log('[PlaylistProvider] set state (init):', {playlistLS, showData: showDataLS.shows, currentPlaylistData: showDataLS});
         }
       });
     // eslint-disable-next-line
@@ -137,6 +153,8 @@ export function PlaylistProvider({ children }) {
           // If data is missing/stale, always reset to home and show initial spinner
           if (path !== '/') route('/');
           changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
+        } else {
+          console.log('[PlaylistProvider] useEffect (route change):', {playlistLS, showDataLS, indexLastUpdated});
         }
       });
     // eslint-disable-next-line
@@ -158,23 +176,31 @@ export function PlaylistProvider({ children }) {
       .then(data => {
         setCurrentPlaylist(filename);
         setShowData(data.shows || []);
+        setCurrentPlaylistData(data);
         localStorage.setItem('playlist', filename);
         localStorage.setItem('showData', JSON.stringify(data));
+        console.log('[PlaylistProvider] changePlaylist loaded:', { filename, data });
         const elapsed = Date.now() - startTime;
         const wait = Math.max(0, minLoadingTime - elapsed);
         setTimeout(() => {
           setLoading(false);
+          // If on /dashboard/edit/:imdb, always redirect to /dashboard after playlist change
+          const isDashboardEdit = path && path.startsWith('/dashboard/edit/');
           if (isInitial) {
             setInitializing(false);
-            if (path && path.startsWith('/dashboard')) {
-              route(path); // stay on current admin subpage
+            if (isDashboardEdit) {
+              route('/dashboard');
+            } else if (path && path.startsWith('/dashboard')) {
+              route(path); // stay on other dashboard subpages
             } else {
               route('/');
             }
           } else {
             setPlaylistSwitching(false);
-            if (path && path.startsWith('/dashboard')) {
-              route(path); // stay on current admin subpage
+            if (isDashboardEdit) {
+              route('/dashboard');
+            } else if (path && path.startsWith('/dashboard')) {
+              route(path);
             } else {
               route('/');
             }
@@ -190,6 +216,7 @@ export function PlaylistProvider({ children }) {
       playlists,
       currentPlaylist,
       showData,
+      currentPlaylistData,
       loading,
       changePlaylist,
       playlistSwitching,
