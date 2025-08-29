@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import useSearchResults from '@/hooks/useSearchResults.js';
 import { useConfig } from '@/context/ConfigContext.jsx';
 import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext.jsx';
@@ -19,7 +20,14 @@ export function Search() {
     }
   };
   const [query, setQuery] = useState(getInitialQuery());
-  const [results, setResults] = useState(null);
+  // Use shared hook for search results
+  const results = useSearchResults(showData, query, {
+    filterFn: (show, q) =>
+      (show.title && show.title.toLowerCase().includes(q)) ||
+      (show.category && show.category.toLowerCase().includes(q)) ||
+      (show.desc && show.desc.toLowerCase().includes(q)) ||
+      (show.start && String(show.start).includes(q))
+  });
 
   useEffect(() => {
     document.title = "Free TV: Search";
@@ -31,26 +39,14 @@ export function Search() {
   // Auto-run search if query exists on mount
   useEffect(() => {
     if (query && query.length >= 3) {
-      handleSearch(query);
+      setQuery(query);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle search logic
+  // Only update query state; results are derived from hook
   const handleSearch = (q) => {
     setQuery(q);
-    if (!q || q.length < 3) {
-      setResults(null);
-      return;
-    }
-    const qLower = q.toLowerCase();
-    const filtered = showData.filter(show =>
-      show.title.toLowerCase().includes(qLower) ||
-      show.category.toLowerCase().includes(qLower) ||
-      (show.desc && show.desc.toLowerCase().includes(qLower)) ||
-      (show.start && String(show.start).includes(qLower))
-    );
-    setResults(filtered);
   };
 
   return (

@@ -49,6 +49,7 @@ export function SearchQueryComponent({ onSearch }) {
   const handleClear = () => {
     setQuery('');
     setsearchQuery('');
+    localStorage.removeItem('searchQuery');
     onSearch('');
   };
 

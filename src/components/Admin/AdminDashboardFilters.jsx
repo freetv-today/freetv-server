@@ -50,9 +50,9 @@ export function AdminDashboardFilters({
           )}
         </div>
         {/* Center: Current Playlist */}
-        <div className="col-12 col-md-4 text-center fw-bold">
+        <div className="col-12 col-md-4 text-center">
           {playlistName && (
-            <span>Current playlist: <span className="fw-bold text-secondary">"{playlistName}"</span></span>
+            <div className="small">Current Playlist:<br/><span className="font-monospace text-success">"{playlistName}"</span></div>
           )}
         </div>
         {/* Right: Hide Disabled */}

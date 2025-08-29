@@ -4,7 +4,7 @@
         {
             "filename": "freetv.json",
             "dbtitle": "Default TV Shows",
-            "lastupdated": "2025-08-12T01:33:54.018Z",
+            "lastupdated": "2025-08-29T14:55:26.000Z",
             "author": "Ken Dawson"
         },
         {
@@ -16,7 +16,7 @@
         {
             "filename": "ftv-movies.json",
             "dbtitle": "Movies",
-            "lastupdated": "2025-01-09T03:01:16.544Z",
+            "lastupdated": "2025-08-29T14:35:56.000Z",
             "author": "Ken Dawson"
         }
     ]

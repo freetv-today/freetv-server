@@ -1,5 +1,6 @@
 import { useMemo } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils.js';
+import { AdminShowActions } from './AdminShowActions.jsx';
 
 /**
  * AdminDashboardTable - displays a table of shows with per-row controls (Edit, Delete, Status toggle)
@@ -98,15 +99,12 @@ export function AdminDashboardTable({
               </button>
             </td>
             <td>
-              <button className="btn tinybtn btn-primary p-1 me-2 mt-1" title={`Edit "${show.title}"`} onClick={() => onEdit(show)}>
-                Edit
-              </button>
-              <button className="btn tinybtn btn-danger p-1 me-2 mt-1" title={`Delete "${show.title}"`} onClick={() => onDelete(show)}>
-                Delete
-              </button>
-              <button className="btn tinybtn btn-warning p-1 me-2 mt-1" title={`Test "${show.title}"`} onClick={() => onTest && onTest(show)}>
-                Test
-              </button>
+              <AdminShowActions
+                show={show}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onTest={onTest}
+              />
             </td>
           </tr>
         ))}
