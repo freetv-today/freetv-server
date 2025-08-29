@@ -5,11 +5,15 @@ import { ButtonAdminProblemsNav } from '@components/Navigation/ButtonAdminProble
 import { ButtonAdminUsersNav } from '@components/Navigation/ButtonAdminUsersNav';
 import { ButtonAdminSettingsNav } from '@components/Navigation/ButtonAdminSettingsNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
-import { ToggleDropDownMenu } from '@components/UI/ToggleDropDownMenu';
+import { AdminToggleDropDownMenu } from '@components/UI/AdminToggleDropDownMenu';
 import { SelectLarge } from '@components/UI/SelectLarge';
+import { useAdminLogout } from '@/hooks/useAdminLogout.js';
 
 // Accept problemCount as a prop
+
 export function NavbarAdmin({ problemCount }) {
+  const handleLogout = useAdminLogout();
+
   return (
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
       <div className="container-fluid p-0 m-0 d-flex justify-content-between">
@@ -22,7 +26,7 @@ export function NavbarAdmin({ problemCount }) {
           <ButtonAdminSettingsNav />
         </div>
 
-        <nav id="smallToggle" className="d-md-none order-1">
+        <nav id="smallToggle" className="d-md-none order-1 ms-2">
           <button
             className="navbar-toggler"
             type="button"
@@ -32,7 +36,7 @@ export function NavbarAdmin({ problemCount }) {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <ToggleDropDownMenu />
+          <AdminToggleDropDownMenu />
         </nav>
 
         <div id="sm_logoblock" className="d-md-none order-3 flex-row align-items-center text-nowrap">
@@ -45,9 +49,21 @@ export function NavbarAdmin({ problemCount }) {
           <ImageSmallLogo />
         </div>
 
-        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center">
-          <div className="pt-1 pe-2">
-            <span className="navbar-text fw-bold">Playlist: </span>
+        {/* Logout button (desktop only) */}
+        <div className="d-none d-md-flex align-items-center order-md-3">
+          <button
+            className="btn btn-outline-light btn-sm px-3"
+            type="button"
+            title="Log Out"
+            onClick={handleLogout}
+          >          
+          Log Out
+          </button>
+        </div>
+
+        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center pe-1">
+          <div className="pe-1">
+            <span className="navbar-text fw-bold">Playlist:</span>
           </div>
           <div>
             <SelectLarge />

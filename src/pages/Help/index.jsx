@@ -23,7 +23,7 @@ export function Help() {
 
             <p class="text-center my-5">
                 <Link href="https://downdetector.com/status/internetarchive/" target="_blank" class="btn btn-lg btn-danger shadow border border-1 border-dark" title="Open new tab or window showing Internet Archive Network Status">
-                    <img src="/src/assets/health-white.svg" height="40" class="me-2" />
+                    <img src="/src/assets/help/health-white.svg" height="40" class="me-2" />
                     Internet Archive Network Status
                 </Link>
             </p>
@@ -47,11 +47,11 @@ export function Help() {
             <div class="d-flex flex-row w-100 justify-content-center align-middle gap-3 mb-4">
                 <div class="text-center text-secondary">
                     Small Screen<br/>
-                    <Link href="/src/assets/help_freetv_ui_sm.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Small Screen interface"><img src="/src/assets/help_freetv_ui_sm.png" class="img-fluid border border-2 border-dark" /></Link>
+                    <Link href="/src/assets/help/help_freetv_ui_sm.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Small Screen interface"><img src="/src/assets/help/help_freetv_ui_sm.png" class="img-fluid border border-2 border-dark" /></Link>
                 </div>
                 <div class="text-center text-secondary">
                     Large Screen<br/>
-                    <Link href="/src/assets/help_freetv_ui_lg.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Large Screen interface"><img src="/src/assets/help_freetv_ui_lg.png" class="img-fluid border border-2 border-dark" /></Link>     
+                    <Link href="/src/assets/help/help_freetv_ui_lg.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Large Screen interface"><img src="/src/assets/help/help_freetv_ui_lg.png" class="img-fluid border border-2 border-dark" /></Link>     
                 </div>
             </div>
 
@@ -79,11 +79,11 @@ export function Help() {
             <div class="d-flex flex-row w-100 justify-content-center align-middle gap-3">
                 <div class="text-center text-secondary">
                     Small Screen<br/>
-                    <Link href="/src/assets/help_video_ui_sm.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Small Screen interface"><img src="/src/assets/help_video_ui_sm.png" class="img-fluid border border-2 border-dark"/></Link>
+                    <Link href="/src/assets/help/help_video_ui_sm.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Small Screen interface"><img src="/src/assets/help/help_video_ui_sm.png" class="img-fluid border border-2 border-dark"/></Link>
                 </div>
                 <div class="text-center text-secondary">
                     Large Screen<br/>
-                    <Link href="/src/assets/help_video_ui_lg.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Large Screen interface"><img src="/src/assets/help_video_ui_lg.png" class="img-fluid border border-2 border-dark" /></Link>     
+                    <Link href="/src/assets/help/help_video_ui_lg.png" target="_blank" class="text-decoration-none" title="Click to see full-sized version of Large Screen interface"><img src="/src/assets/help/help_video_ui_lg.png" class="img-fluid border border-2 border-dark" /></Link>     
                 </div>
             </div>
 
@@ -101,26 +101,26 @@ export function Help() {
             <ul class="mb-5 fs-5">
                 <li>
                     <p class="fs-5 fw-bold py-3">Navigating between videos in playlist:</p>
-                    <p><img src="/src/assets/help_playlisthidden-nav.png" class="img-fluid" /></p>
+                    <p><img src="/src/assets/help/help_playlisthidden-nav.png" class="img-fluid" /></p>
                 </li>
                 <li>
                     <p class="fs-5 fw-bold py-3">Full Screen mode:</p>
-                    <p><img src="/src/assets/help_fullscreen.png" class="img-fluid" /></p>
+                    <p><img src="/src/assets/help/help_fullscreen.png" class="img-fluid" /></p>
                     <p>You can also double-click (or tap) anywhere in the video <em>while it is playing</em> to expand to full screen. To exit from full screen mode you can double-click (or tap) again or, if you have a keyboard, press the <kbd>ESC</kbd> key.</p>
                 </li>
                 <li>
                     <p class="fs-5 fw-bold py-3">Picture In Picture (PiP) mode:</p>
-                    <p><img src="/src/assets/help_pip.png" class="img-fluid" /></p>
+                    <p><img src="/src/assets/help/help_pip.png" class="img-fluid" /></p>
                     <p>This mode shrinks the video to a small square that you can move around on your screen. This allows you to watch Free TV while you continue to work on other things! Just minimize the browser window while Picture in Picture (PiP) mode is enabled. Whether this icon appears, or works, depends on your device. The PiP feature is typically used for large screen viewing on a desktop or laptop computer. It may not function, or be available on small screen mobile devices. </p>
                 </li>
                 <li>
                     <p class="fs-5 fw-bold py-3">Screen casting:</p>
-                    <p><img src="/src/assets/help_casting.png" class="img-fluid" /></p>
+                    <p><img src="/src/assets/help/help_casting.png" class="img-fluid" /></p>
                     <p>Screen casting allows you to wirelessly stream video from your local device (e.g. a phone or tablet) to a supported remote device (usually a TV). This typically involves a smart TV or device connected to the TV which supports screen casting. You can learn more about how to <Link class="fw-bold" href="https://support.google.com/chromecast/answer/3228332?hl=en" target="_blank">Cast from Chrome to your TV</Link> from Google. There are other instructions available explaining how to <Link class="fw-bold" href="https://www.airdroid.com/screen-mirror/chromecast-from-firefox/" target="_blank">set it up using the Firefox</Link> web browser or, by using <Link class="fw-bold" href="https://support.apple.com/en-us/102661" target="_blank">Apple AirPlay</Link> with iOS devices.</p>
                 </li>
                 <li>
                     <p class="fs-5 fw-bold py-3">Rewind 10 Seconds:</p>
-                    <p><img src="/src/assets/help_rewind.png" class="img-fluid" /></p>
+                    <p><img src="/src/assets/help/help_rewind.png" class="img-fluid" /></p>
                 </li>
             </ul>
 
@@ -147,7 +147,7 @@ export function Help() {
                         <p><strong>No.</strong> All of the content for this app comes from The Internet Archive: a digital library of Internet sites and other cultural artifacts. Any content on this site can be found by going dirctly to the Internet Archive and <Link class="fw-bold" href="https://archive.org/details/movies" target="_blank">searching</Link> their archive of shows. This site is simply a hand-curated list of shows organized by category.</p>
 
                         <figure class="figure p-2 border border-2 border-primary text-end float-md-end me-md-3 w-md-50 m-3">
-                            <Link class="fw-bold" href="/src/assets/archive-org.png" target="_blank"><img src="/src/assets/archive-org.png" width="350" class="figure-img rounded" /></Link>
+                            <Link class="fw-bold" href="/src/assets/archive-org.png" target="_blank"><img src="/src/assets/help/archive-org.png" width="350" class="figure-img rounded" /></Link>
                             <figcaption class="text-center figure-caption">Screenshot of the Internet Archive website</figcaption>
                         </figure>
 
@@ -156,7 +156,7 @@ export function Help() {
                         <p>The Internet Archive serves millions of people each day and is one of the top 300 web sites in the world. A single copy of the Internet Archive library collection occupies 145+ Petabytes of server space (and they store at least 2 copies of everything). The Internet Archive is funded through <Link class="fw-bold" href="https://archive.org/donate" target="_blank">donations</Link>, grants, and by providing web archiving and book digitization services for their partners. As with most libraries they value the privacy of their patrons, so they avoid keeping the IP (Internet Protocol) addresses of readers or viewers. The Internet Archive is a California non-profit charity that is tax-exempt under section 501c3 of the Internal Revenue Code.</p>
 
                         <p class="text-center my-5">
-                            <Link href="https://archive.org" title="Link opens in a new tab or window" target="_blank" class="btn btn-large btn-outline-dark fw-bold p-4 shadow">Visit the Internet Archive<img src="/src/assets/external-link.svg" width="15" class="ms-2" /></Link>
+                            <Link href="https://archive.org" title="Link opens in a new tab or window" target="_blank" class="btn btn-large btn-outline-dark fw-bold p-4 shadow">Visit the Internet Archive<img src="/src/assets/help/external-link.svg" width="15" class="ms-2" /></Link>
                         </p>
 
                         </div>
@@ -173,7 +173,7 @@ export function Help() {
                         <p>The first thing to do is to find out if the problem is on your end, or if the problem is coming from the server. You can also check <Link class="fw-bold" href="https://downdetector.com/status/internetarchive/" target="_blank">Downdetector</Link> to see if other people have reported issues with the Internet Archive. All of the shows here are streamed directly from the <Link class="fw-bold" href="https://help.archive.org/" target="_blank">Internet Archive</Link> web servers. It they having issues with their server (or their internet connection) then you may experience errors while trying to stream video. You can test your Internet connection by going to a different video web site (e.g. youtube.com) and playing some video. If the video from YouTube is working on your device, then the problem is most likely coming from the Internet Archive server.</p>
                         <p class="py-4"><Link href="https://help.archive.org/help/problems-or-errors/" class="btn btn-large btn-outline-dark fw-bold shadow" target="_blank">Troubleshooting Video Problems and Errors</Link></p>
                         <p>If you are getting an error from The Internet Archive which says "<b>this item is no longer available</b>" this means that the show was removed from the archive. Please report these to us by using the dropdown menu next to each show title button:</p>
-                        <p><img src="/src/assets/help_report_problem.png" class="img-fluid" title="How to report problems to us" /></p>
+                        <p><img src="/src/assets/help/help_report_problem.png" class="img-fluid" title="How to report problems to us" /></p>
                         </div>
                     </div>
                     </div>
@@ -187,7 +187,7 @@ export function Help() {
                         <div class="accordion-body">
                         <p>Next to each show title there is a button with a down arrow. Just click this button to reveal a dropdown menu. From here, you can click on "About this show" to see a brief summary of the show.</p> 
                         <p>If you click the "IMDB Page" button, it will open up a new tab or window with the <Link class="fw-bold" href="https://www.imdb.com" target="_blank">IMDB</Link> page for that TV show where you can look up actors, directors, dates, plot summaries, etc.</p>
-                        <p><img src="/src/assets/help_more_info.png" class="img-fluid" alt="More Info" title="More Info" /></p>
+                        <p><img src="/src/assets/help/help_more_info.png" class="img-fluid" alt="More Info" title="More Info" /></p>
                         <p>If you click the Archive.org or Download buttons it will take you to the Internet Archive where you can see details about the currently-playing video and download files. If you are having problems playing a video, you can click the "Report a problem" button to let us know about it.</p>
                         </div>
                     </div>
@@ -205,12 +205,12 @@ export function Help() {
                                     
                                 <p><b>While you're using Free TV</b>, you can click the down arrow on the right side of every show title button. This will show the Actions Menu. If you click on "Download", it will open a page on the Internet Archive site which displays available formats and options.</p>
 
-                                <p class="my-4"><img src="/src/assets/help_download_show.png" class="img-fluid" title="Download option in the Actions Menu" /></p>
+                                <p class="my-4"><img src="/src/assets/help/help_download_show.png" class="img-fluid" title="Download option in the Actions Menu" /></p>
                                 <p>
                                     <b>While a video is playing</b>, you should seen an icon on the video player menu bar and in the upper-right corner which looks like a Roman-style building (the Internet Archive logo). Click this icon to go to the details page on the Internet Archive site. If you scroll down on that page, you'll see a section which says "Download Options". Select your file format and download the TV shows you want.
                                 </p>
                                 <p>
-                                    <img src="/src/assets/more-formats.png" class="img-fluid" title="Click this icon to go to the Internet Archive site" />
+                                    <img src="/src/assets/help/more-formats.png" class="img-fluid" title="Click this icon to go to the Internet Archive site" />
                                 </p>
                             </div>
                         </div>
@@ -244,12 +244,12 @@ export function Help() {
                                 
                                 <p>The most common issue that people encounter is that Season 2 or Season 3 episodes might appear in the playlist before Season 1 episodes. So, if you encounter this problem, scroll down and find the Season 1 episode you want to watch and click to play. Take a look at this sample video playlist below:</p>
                                 <p>
-                                    <img src="/src/assets/help_garfield-problem.jpg" class="img-fluid" title="Playlist tracks are out of order" />
+                                    <img src="/src/assets/help/help_garfield-problem.jpg" class="img-fluid" title="Playlist tracks are out of order" />
                                 </p>
                                 <p>As you can see, <code>Season 03, Episode 49</code> is listed first in the playlist, followed by <code>Season 01, Episode 25</code> and <code>Season 01, Episode 26</code>.</p> 
                                 <p>But, if you scroll down in the same playlist, you will see the first episode: <code>Season 1, Episode 1 &ndash; Peace and Quiet</code>:</p>
                                 <p>
-                                    <img src="/src/assets/help_garfield-solution.jpg" class="img-fluid" title="Playlist tracks are out of order" />
+                                    <img src="/src/assets/help/help_garfield-solution.jpg" class="img-fluid" title="Playlist tracks are out of order" />
                                 </p>
                                 <p>You can click on this file in the playlist to watch the first episode. Using this method, you can jump around to different tracks in the playlist and watch the show episodes in the correct order. Some of the shows on the Internet Archive are DVD rips which contain extras. Often times, these extras appear in the playlist above the episode tracks. Try scrolling down, finding the season and episode you want, and clicking to play in the order you want.</p>
                             </div>
@@ -287,13 +287,13 @@ export function Help() {
 
             <div class="my-5 text-center">
                 <h1 class="display-4 bruno-ace">Free TV</h1>
-                <Link class="fw-bold" href="/"><img src="/src/assets/freetv.png" width="185" title="Free TV" alt="Free TV Logo" /></Link>
+                <Link class="fw-bold" href="/"><img src="/src/assets/help/freetv.png" width="185" title="Free TV" alt="Free TV Logo" /></Link>
             </div>
 
             <div class="my-5 fs-4 fw-bold text-center">
                 <Link href="https://archive.org" class="fw-bold link-dark text-decoration-none" target="_blank" title="Powered by the Internet Archive">
                     Powered by the Internet Archive 
-                    <img src="/src/assets/internet_archive-black.svg" width="65" title="The Internet Archive" alt="The Internet Archive" class="ms-2" />
+                    <img src="/src/assets/help/internet_archive-black.svg" width="65" title="The Internet Archive" alt="The Internet Archive" class="ms-2" />
                 </Link>
             </div>
 

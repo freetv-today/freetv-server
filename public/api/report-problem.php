@@ -37,7 +37,7 @@ $imdb = $input['imdb'] ?? '';
 $date = date('c');
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
-$logDir = $_SERVER['DOCUMENT_ROOT'] . '/pages/admin/modules/reporting';
+$logDir = $_SERVER['DOCUMENT_ROOT'] . '/logs';
 $logFile = $logDir . '/errors.json';
 $ipLogFile = $logDir . '/report-ip-log.json';
 
@@ -77,8 +77,6 @@ if (file_exists($ipLogFile)) {
 //     exit;
 // }
 
-
-
 // Always add this attempt to the IP log (even for duplicates)
 $now = time();
 $window = 300; // 5 minutes
@@ -104,7 +102,6 @@ if (count($ipLog['ips'][$ip]) > $maxReports) {
     ]);
     exit;
 }
-
 
 // 1. Check for duplicate report for this identifier from this IP
 foreach ($errors['reports'] as &$report) {

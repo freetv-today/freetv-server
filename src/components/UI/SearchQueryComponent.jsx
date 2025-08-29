@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { showAlert } from '@/utils';
 
@@ -7,6 +7,13 @@ const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
 export function SearchQueryComponent({ onSearch }) {
   const [searchQuery, setsearchQuery] = useLocalStorage('searchQuery', '');
   const [query, setQuery] = useState(searchQuery || '');
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   // Update localStorage whenever query changes
   const handleInput = (e) => {
@@ -51,6 +58,7 @@ export function SearchQueryComponent({ onSearch }) {
         <input
           id="searchquery"
           type="text"
+          ref={inputRef}
           class="form-control rounded fw-bold fs-5 ps-2"
           title="Type your keywords here"
           placeholder="Search..."

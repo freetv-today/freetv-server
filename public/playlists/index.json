@@ -4,19 +4,19 @@
         {
             "filename": "freetv.json",
             "dbtitle": "Default TV Shows",
-            "lastupdated": "2025-07-29T14:22:37.189Z",
+            "lastupdated": "2025-08-12T01:33:54.018Z",
             "author": "Ken Dawson"
         },
         {
             "filename": "ftv-holidays.json",
             "dbtitle": "Holiday Shows",
-            "lastupdated": "2025-07-29T14:22:37.189Z",
+            "lastupdated": "2025-01-09T03:01:16.544Z",
             "author": "Ken Dawson"
         },
         {
             "filename": "ftv-movies.json",
             "dbtitle": "Movies",
-            "lastupdated": "2025-08-20T19:40:29.000Z",
+            "lastupdated": "2025-01-09T03:01:16.544Z",
             "author": "Ken Dawson"
         }
     ]

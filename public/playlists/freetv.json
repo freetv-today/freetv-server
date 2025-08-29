@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-07-29T14:22:37.189Z",
+    "lastupdated": "2025-08-12T01:33:54.018Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -7,16 +7,6 @@
     "email": "admin@freetv.today",
     "link": "https://freetv.today/",
     "shows": [
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "CuriousGeorgeFull",
-            "title": "Curious George",
-            "desc": "Follows the mischievous adventures of a monkey by the name of George.",
-            "start": "2006",
-            "end": "2022",
-            "imdb": "tt0449545"
-        },
         {
             "category": "animation",
             "status": "active",
@@ -916,16 +906,6 @@
             "start": "1991",
             "end": "1992",
             "imdb": "tt0179552"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "the-adventures-of-brisco-county-jr.-1993",
-            "title": "Adventures of Brisco County, Jr.",
-            "desc": "A bounty hunter rides the Old West, fighting bad guys, many with futuristic-type gadgets.",
-            "start": "1993",
-            "end": "1994",
-            "imdb": "tt0105932"
         },
         {
             "category": "kids",

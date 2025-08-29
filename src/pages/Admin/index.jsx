@@ -1,32 +1,54 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 
-export function Admin() {
-        const { url } = useLocation();
+export function AdminLogin() {
+
+    const { url, route } = useLocation();
     const params = new URLSearchParams(url.split('?')[1] || '');
     // Log when Admin page mounts
     console.log('[Admin] page mount, url:', url);
     const loggedOut = params.get('loggedout') === '1';
 
-        const [error, setError] = useState('');
-        const [success, setSuccess] = useState(loggedOut ? 'You have been logged out of your account.' : '');
-        const [loading, setLoading] = useState(false);
-        const { route } = useLocation();
-        // (Removed window.PlaylistContextDebug usage)
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(loggedOut ? 'You have been logged out of your account.' : '');
+    const [loading, setLoading] = useState(false);
+    const [checkingSession, setCheckingSession] = useState(true);
+
+    // Check for valid admin session on mount
+    useEffect(() => {
+        let isMounted = true;
+        fetch('/api/admin/session.php', { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                if (isMounted && data.loggedIn) {
+                    route('/dashboard');
+                } else {
+                    setCheckingSession(false);
+                }
+            })
+            .catch(() => {
+                if (isMounted) setCheckingSession(false);
+            });
+        return () => { isMounted = false; };
+    }, [route]);
 
     useEffect(() => {
         document.title = "Free TV: Admin";
+        // add the css link if it doesn't already exist
+        if (!document.getElementById('admin-css')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = '/pages/admin/admin.css';
+        link.href = '/assets/admin.css';
         link.id = 'admin-css';
         document.head.appendChild(link);
-
+        }
+        // Remove on unmount
         return () => {
-            const el = document.getElementById('admin-css');
-            if (el) el.remove();
+        const el = document.getElementById('admin-css');
+        if (el) el.remove();
         };
     }, []);
+
 
     // Remove ?loggedout=1 from URL after showing the alert
     useEffect(() => {
@@ -80,6 +102,10 @@ export function Admin() {
     }
     function dismissSuccess() {
         setSuccess('');
+    }
+
+    if (checkingSession) {
+        return null;
     }
 
     return (

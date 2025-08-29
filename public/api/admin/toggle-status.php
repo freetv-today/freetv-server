@@ -1,5 +1,5 @@
 <?php
-// public/api/admin/toggle-status.php
+ini_set('display_errors', 0);
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/playlist_utils.php';

@@ -42,13 +42,13 @@ export function PlaylistProvider({ children }) {
   const [playlists, setPlaylists] = useState([]);
   const [currentPlaylist, setCurrentPlaylist] = useState(() => {
     const val = localStorage.getItem('playlist') || null;
-    console.log('[PlaylistProvider] INIT currentPlaylist:', val);
+    // console.log('[PlaylistProvider] INIT currentPlaylist:', val);
     return val;
   });
   const [showData, setShowData] = useState(() => {
     const data = getLocalStorageJson('showData');
     const shows = data && data.shows ? data.shows : [];
-    console.log('[PlaylistProvider] INIT showData:', shows);
+    // console.log('[PlaylistProvider] INIT showData:', shows);
     return shows;
   });
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ export function PlaylistProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
   const [currentPlaylistData, setCurrentPlaylistData] = useState(() => {
     const data = getLocalStorageJson('showData');
-    console.log('[PlaylistProvider] INIT currentPlaylistData:', data);
+    // console.log('[PlaylistProvider] INIT currentPlaylistData:', data);
     return data || null;
   });
   const { route, path } = useLocation();
@@ -108,7 +108,7 @@ export function PlaylistProvider({ children }) {
         // Find the correct playlist entry in index.json
         const playlistEntry = (data.playlists || []).find(p => p.filename === playlistLS);
         const indexLastUpdated = playlistEntry ? playlistEntry.lastupdated : null;
-        console.log('[PlaylistProvider] useEffect (init):', {playlistLS, showDataLS, indexLastUpdated});
+        //console.log('[PlaylistProvider] useEffect (init):', {playlistLS, showDataLS, indexLastUpdated});
         if (
           !showDataLS ||
           !showDataLS.lastupdated ||
@@ -124,7 +124,7 @@ export function PlaylistProvider({ children }) {
           setShowData(showDataLS.shows || []);
           setCurrentPlaylistData(showDataLS);
           setInitializing(false);
-          console.log('[PlaylistProvider] set state (init):', {playlistLS, showData: showDataLS.shows, currentPlaylistData: showDataLS});
+          //console.log('[PlaylistProvider] set state (init):', {playlistLS, showData: showDataLS.shows, currentPlaylistData: showDataLS});
         }
       });
     // eslint-disable-next-line
@@ -151,10 +151,10 @@ export function PlaylistProvider({ children }) {
           !playlistLS
         ) {
           // If data is missing/stale, always reset to home and show initial spinner
-          if (path !== '/') route('/');
+          if (path !== '/') { route('/'); } 
           changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
         } else {
-          console.log('[PlaylistProvider] useEffect (route change):', {playlistLS, showDataLS, indexLastUpdated});
+          //console.log('[PlaylistProvider] useEffect (route change):', {playlistLS, showDataLS, indexLastUpdated});
         }
       });
     // eslint-disable-next-line
@@ -162,7 +162,7 @@ export function PlaylistProvider({ children }) {
 
   // Change playlist and load its data
   function changePlaylist(filename, showSpinner = true, isInitial = false) {
-    console.log('[PlaylistProvider] changePlaylist called:', { filename, showSpinner, isInitial });
+    //console.log('[PlaylistProvider] changePlaylist called:', { filename, showSpinner, isInitial });
     if (isInitial) {
       setInitializing(true);
     } else {
@@ -179,7 +179,7 @@ export function PlaylistProvider({ children }) {
         setCurrentPlaylistData(data);
         localStorage.setItem('playlist', filename);
         localStorage.setItem('showData', JSON.stringify(data));
-        console.log('[PlaylistProvider] changePlaylist loaded:', { filename, data });
+        //console.log('[PlaylistProvider] changePlaylist loaded:', { filename, data });
         const elapsed = Date.now() - startTime;
         const wait = Math.max(0, minLoadingTime - elapsed);
         setTimeout(() => {

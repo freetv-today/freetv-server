@@ -2,13 +2,14 @@ import { useContext, useMemo, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { AdminShowForm } from '@/components/Admin/AdminShowForm.jsx';
+import { useLocalStorage } from '@/hooks/useLocalStorage.jsx';
 
-export default function EditShow() {
+export function EditShow() {
   const { url, route } = useLocation();
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
 
   // Extract imdb param from url
   const imdb = (() => {
@@ -37,7 +38,6 @@ export default function EditShow() {
   async function handleSave(updatedShow) {
     setSaving(true);
     setError(null);
-    setSuccess(null);
     try {
       const res = await fetch('/api/admin/update-show.php', {
         method: 'POST',
@@ -51,12 +51,11 @@ export default function EditShow() {
       if (!res.ok || !data.success) {
         setError(data && data.message ? data.message : 'Save failed.');
       } else {
-        setSuccess('Show updated successfully. Page will be reloaded to refresh playlist data.');
-        // Reload playlist data after dismiss
-        setTimeout(() => {
-          changePlaylist(currentPlaylist, true, false);
-          route('/dashboard');
-        }, 1500);
+        // Call the PHP utility to rebuild the index
+        await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
+        await changePlaylist(currentPlaylist, true, false);
+        setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
+        route('/dashboard');
       }
     } catch (err) {
       setError('Save failed.');
@@ -72,15 +71,15 @@ export default function EditShow() {
   return (
     <div class="container mt-4" style={{ maxWidth: 700 }}>
       <h2 class="mb-3">Edit Show</h2>
+      {error && <div class="alert alert-danger mb-3">{error}</div>}
       <AdminShowForm
         initialData={show}
         onSave={handleSave}
         onCancel={handleCancel}
         saving={saving}
-        error={error}
+        error={null}
         categories={categories}
       />
-      {success && <div class="alert alert-success mt-3">{success}</div>}
     </div>
   );
 }

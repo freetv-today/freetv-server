@@ -6,7 +6,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $user = $data['user'] ?? '';
 $pass = $data['pass'] ?? '';
 
-$users = json_decode(file_get_contents(__DIR__ . '/../../pages/admin/apdata.key'), true)['users'];
+$users = json_decode(file_get_contents(__DIR__ . '/../../assets/apdata.key'), true)['users'];
 $found = null;
 foreach ($users as $u) {
     if ($u['username'] === $user && $u['status'] === 'active') {

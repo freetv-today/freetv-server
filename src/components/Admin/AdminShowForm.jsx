@@ -75,6 +75,7 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
     for (const key of ['category', 'status', 'identifier', 'title', 'desc', 'start', 'end', 'imdb']) {
       if (!form[key] || String(form[key]).trim() === '') v[key] = 'Required';
     }
+    if (form.desc && form.desc.length > 255) v.desc = 'Description must be 255 characters or less';
     // Start/end: 4-digit years
     if (form.start && !/^\d{4}$/.test(form.start)) v.start = 'Must be 4-digit year';
     if (form.end && !/^\d{4}$/.test(form.end)) v.end = 'Must be 4-digit year';
@@ -106,9 +107,9 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div class="mb-3">
-        <label class="form-label">Category</label>
+    <form onSubmit={handleSubmit} class="mb-5">
+      <div class="mb-3 w-50">
+        <label class="form-label fw-bold">Category</label>
         <select
           class="form-select form-select-sm"
           name="category"
@@ -124,8 +125,8 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
         {validation.category && <div class="text-danger small">{validation.category}</div>}
       </div>
       <div class="mb-3">
-        <label class="form-label">Status</label>
-        <div class="btn-group" role="group">
+        <label class="form-label fw-bold">Status</label>
+        <div class="btn-group ms-2" role="group">
           <input type="radio" class="btn-check" name="status" id="statusActive" autoComplete="off" checked={form.status === 'active'} onChange={() => handleStatusToggle('active')} />
           <label class={`btn btn-sm btn-outline-success${form.status === 'active' ? ' active' : ''}`} htmlFor="statusActive">Active</label>
           <input type="radio" class="btn-check" name="status" id="statusDisabled" autoComplete="off" checked={form.status === 'disabled'} onChange={() => handleStatusToggle('disabled')} />
@@ -134,41 +135,41 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
         {validation.status && <div class="text-danger small">{validation.status}</div>}
       </div>
       <div class="mb-3">
-        <label class="form-label">Identifier</label>
+        <label class="form-label fw-bold">Identifier</label>
         <input type="text" class="form-control form-control-sm" name="identifier" value={form.identifier} onInput={handleChange} required />
         {validation.identifier && <div class="text-danger small">{validation.identifier}</div>}
       </div>
       <div class="mb-3">
-        <label class="form-label">Title</label>
+        <label class="form-label fw-bold">Title</label>
         <input type="text" class="form-control form-control-sm" name="title" value={form.title} onInput={handleChange} required />
         {validation.title && <div class="text-danger small">{validation.title}</div>}
       </div>
-      <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea class="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} />
+      <div class="mb-2">
+        <label class="form-label fw-bold">Description</label>
+        <textarea class="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} maxlength={255} />
         {validation.desc && <div class="text-danger small">{validation.desc}</div>}
       </div>
-      <div class="row">
-        <div class="col">
-          <label class="form-label">Start Year</label>
-          <input type="text" class="form-control form-control-sm" name="start" value={form.start} onInput={handleChange} required maxLength={4} />
+      <div class="row w-50">
+        <div class="col mt-2">
+          <label class="form-label fw-bold">Start Year</label>
+          <input type="text" class="form-control form-control-sm yearfield" name="start" value={form.start} onInput={handleChange} required maxLength={4} />
           {validation.start && <div class="text-danger small">{validation.start}</div>}
         </div>
-        <div class="col">
-          <label class="form-label">End Year</label>
-          <input type="text" class="form-control form-control-sm" name="end" value={form.end} onInput={handleChange} required maxLength={4} />
+        <div class="col mt-2">
+          <label class="form-label fw-bold">End Year</label>
+          <input type="text" class="form-control form-control-sm yearfield" name="end" value={form.end} onInput={handleChange} required maxLength={4} />
           {validation.end && <div class="text-danger small">{validation.end}</div>}
         </div>
       </div>
-      <div class="mb-3 mt-3">
-        <label class="form-label">IMDB ID</label>
+      <div class="mb-3 mt-3 w-50">
+        <label class="form-label fw-bold">IMDB ID</label>
         <input type="text" class="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required />
         {validation.imdb && <div class="text-danger small">{validation.imdb}</div>}
       </div>
       {error && <div class="alert alert-danger">{error}</div>}
-      <div class="mt-4 d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" class="btn btn-primary btn-sm" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+      <div class="mt-5 d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
+        <button type="submit" class="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
       </div>
     </form>
   );

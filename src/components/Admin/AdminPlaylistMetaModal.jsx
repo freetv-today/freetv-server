@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useContext } from 'preact/hooks';
+import { useLocalStorage } from '@/hooks/useLocalStorage.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 
 /**
  * AdminPlaylistMetaModal - Modal for editing playlist meta data
@@ -11,6 +13,8 @@ import { useState, useEffect } from 'preact/hooks';
  * @param {function(Object):void} props.onSave - Called with updated meta on save
  */
 export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onSave }) {
+  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+  const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
   const [form, setForm] = useState({
     lastupdated: meta?.lastupdated || '',
     dbtitle: meta?.dbtitle || '',
@@ -39,11 +43,21 @@ export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onS
     setTouched(true);
   }
 
-
-
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onSave(form);
+    // 1. Save meta (calls update-meta.php via onSave)
+    await onSave(form);
+    // 2. Rebuild index.json (wait for it to finish)
+    await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
+    // 3. Refresh playlist data in context (wait for it to finish)
+    if (typeof changePlaylist === 'function' && currentPlaylist) {
+      await changePlaylist(currentPlaylist, true, false);
+    }
+    // 4. Set adminMsg and close modal (only if no error)
+    if (!error) {
+      setAdminMsg({ type: 'success', text: 'Playlist meta data updated successfully.' });
+      onClose();
+    }
   }
 
   if (!show || !meta) return null;

@@ -4,11 +4,12 @@ import { useAdminSession } from '@/hooks/useAdminSession.js';
 import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable.jsx';
 import { AdminDashboardFilters } from '@/components/Admin/AdminDashboardFilters.jsx';
-
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin.jsx';
 import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal.jsx';
 import { AdminPlaylistMetaModal } from '@/components/Admin/AdminPlaylistMetaModal.jsx';
 import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal.jsx';
+import { AdminMessage } from '@/components/Admin/AdminMessage.jsx';
 
 export function Dashboard() {
     const user = useAdminSession();
@@ -29,8 +30,7 @@ export function Dashboard() {
     const [showToDelete, setShowToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState(null);
-    const [alertMsg, setAlertMsg] = useState(null);
-    const [alertType, setAlertType] = useState('success');
+    // AdminMessage now handles alert messages via localStorage
 
     // State for playlist meta modal
     const [showMetaModal, setShowMetaModal] = useState(false);
@@ -54,7 +54,6 @@ export function Dashboard() {
     }
 
     function handleEdit(show) {
-        // Navigate to edit page for this show
         location.route(`/dashboard/edit/${show.imdb}`);
     }
 
@@ -64,9 +63,16 @@ export function Dashboard() {
         setDeleteError(null);
     }
 
+    // For AdminMessage
+    const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+
     async function handleStatusToggle(show) {
-        if (!currentPlaylist || !show || !show.imdb) return;
+        if (!currentPlaylist || !show || !show.imdb) {
+            console.error('Function handleStatusToggle requires both a show and imdb value');
+            return; 
+        }
         try {
+            // Use the correct endpoint
             const res = await fetch('/api/admin/toggle-status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,18 +81,31 @@ export function Dashboard() {
                     imdb: show.imdb
                 })
             });
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                setAlertType('danger');
-                setAlertMsg(data && data.message ? data.message : 'Failed to toggle status.');
-            } else {
+
+            let text, data;
+            try {
+                text = await res.text();
+                console.log('[handleStatusToggle] Raw response:', text);
+                data = JSON.parse(text);
+            } catch (jsonErr) {
+                setAdminMsg({ type: 'danger', text: 'Status change failed: Invalid server response.' });
+                return;
+            }
+            
+            // Log for debugging
+            console.log('[handleStatusToggle] Response:', res.status, data);
+
+            if (res.ok && data && data.success) {
+                // Success: update context and show message
+                await changePlaylist(currentPlaylist, true, false);
                 const newStatus = data.status === 'active' ? 'Active' : 'Disabled';
-                setAlertType('success');
-                setAlertMsg(`Status for "${show.title}" has been changed to ${newStatus}. Playlist data must be reloaded...`);
+                setAdminMsg({ type: 'success', text: `Status for "${show.title}" has been changed to ${newStatus}.` });
+            } else {
+                // Error: show error message from backend
+                setAdminMsg({ type: 'danger', text: data && data.message ? data.message : 'Status change failed.' });
             }
         } catch (err) {
-            setAlertType('danger');
-            setAlertMsg('Failed to toggle status.');
+            setAdminMsg({ type: 'danger', text: 'Status change failed: Network or server error.' });
         }
     }
 
@@ -95,7 +114,6 @@ export function Dashboard() {
         setShowTestModal(true);
     }
 
-    // Delete show API call
     async function handleDeleteConfirm() {
         if (!showToDelete || !currentPlaylist) return;
         setDeleting(true);
@@ -112,32 +130,25 @@ export function Dashboard() {
             const data = await res.json();
             if (!res.ok || !data.success) {
                 setDeleteError(data && data.message ? data.message : 'Delete failed.');
-                setAlertType('danger');
-                setAlertMsg(data && data.message ? data.message : 'Delete failed.');
             } else {
                 setShowDeleteModal(false);
                 setShowToDelete(null);
-                setAlertType('success');
-                setAlertMsg('Show deleted successfully. Page will be reloaded to refresh playlist data.');
-                // Do NOT reload playlist data yet; wait for alert dismiss
+                // Rebuild the playlist index after successful delete
+                await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
+                // Success message handled by AdminMessage in modal
             }
         } catch (err) {
             setDeleteError('Delete failed.');
-            setAlertType('danger');
-            setAlertMsg('Delete failed.');
         } finally {
             setDeleting(false);
         }
     }
 
-
-    // Handler for Playlist Meta Data button (from NavbarSubNavAdmin)
     function handleOpenMetaModal() {
         setShowMetaModal(true);
         setMetaError(null);
     }
 
-    // Handler for saving meta data
     async function handleSaveMeta(updatedMeta) {
         setMetaSaving(true);
         setMetaError(null);
@@ -153,17 +164,12 @@ export function Dashboard() {
             const data = await res.json();
             if (!res.ok || !data.success) {
                 setMetaError(data && data.message ? data.message : 'Save failed.');
-                setAlertType('danger');
-                setAlertMsg(data && data.message ? data.message : 'Save failed.');
             } else {
                 setShowMetaModal(false);
-                setAlertType('success');
-                setAlertMsg('Playlist meta data updated successfully. Page will be reloaded to refresh playlist data.');
+                // Success message handled by AdminMessage in modal
             }
         } catch (err) {
             setMetaError('Save failed.');
-            setAlertType('danger');
-            setAlertMsg('Save failed.');
         } finally {
             setMetaSaving(false);
         }
@@ -173,11 +179,12 @@ export function Dashboard() {
         document.title = "Free TV: Admin Dashboard";
     }, []);
 
-    if (!user) return <div className="container mt-5">Loading...</div>;
+    if (!user) return null;
 
     return (
         <div className="container mt-3">
             <h1 class="text-center mb-2">Admin Dashboard</h1>
+            <AdminMessage />
             <NavbarSubNavAdmin onMetaClick={handleOpenMetaModal} />
             <AdminDashboardFilters
                 shows={showData || []}
@@ -187,22 +194,6 @@ export function Dashboard() {
                 setHideDisabled={setHideDisabled}
                 playlistName={playlistName}
             />
-            {alertMsg && (
-                <div className={`alert alert-${alertType} mt-2`} role="alert">
-                    {alertMsg}
-                    <button
-                        type="button"
-                        className="btn-close float-end"
-                        aria-label="Close"
-                        onClick={() => {
-                            setAlertMsg(null);
-                            if (alertType === 'success') {
-                                changePlaylist(currentPlaylist, true, false);
-                            }
-                        }}
-                    ></button>
-                </div>
-            )}
             <AdminDashboardTable
                 shows={showData || []}
                 onEdit={handleEdit}

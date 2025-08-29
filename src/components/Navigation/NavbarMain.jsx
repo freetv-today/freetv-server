@@ -20,7 +20,7 @@ export function NavbarMain() {
           <ButtonHelpNav />
         </div>
 
-        <nav id="smallToggle" className="d-md-none order-1">
+        <nav id="smallToggle" className="d-md-none order-1 ms-2">
           <button
             className="navbar-toggler"
             type="button"
@@ -43,9 +43,9 @@ export function NavbarMain() {
           <ImageSmallLogo />
         </div>
 
-        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center">
-          <div className="pt-1 pe-2">
-            <span className="navbar-text fw-bold">Playlist: </span>
+        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center pe-1">
+          <div className="pe-1">
+            <span className="navbar-text fw-bold">Playlist:</span>
           </div>
           <div>
             <SelectLarge />

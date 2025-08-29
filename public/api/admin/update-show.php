@@ -1,5 +1,7 @@
 <?php
 // public/api/admin/update-show.php
+// (used for both "Add" and "Edit" show admin pages)
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -33,6 +35,8 @@ if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
     exit;
 }
 
+
+$add = isset($input['add']) ? (bool)$input['add'] : false;
 $found = false;
 foreach ($data['shows'] as &$item) {
     if (isset($item['imdb']) && $item['imdb'] === $show['imdb']) {
@@ -42,9 +46,13 @@ foreach ($data['shows'] as &$item) {
     }
 }
 if (!$found) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Show not found']);
-    exit;
+    if ($add) {
+        $data['shows'][] = $show;
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
 }
 
 // Update lastupdated timestamp

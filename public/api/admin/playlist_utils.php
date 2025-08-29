@@ -33,3 +33,12 @@ function rebuild_index($playlists_dir = null) {
     $written = file_put_contents($playlists_dir . '/index.json', $json);
     return $written !== false;
 }
+
+// If accessed via HTTP, run the rebuild and return JSON
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+    if (php_sapi_name() !== 'cli') {
+        header('Content-Type: application/json');
+        $success = rebuild_index();
+        echo json_encode(['success' => $success]);
+    }
+}
