@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from 'preact/hooks';
-import { useLocation } from 'preact-iso';
 import { useAdminSession } from '@/hooks/useAdminSession.js';
 import { PlaylistContext } from '@/context/PlaylistContext.jsx';
 import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable.jsx';
