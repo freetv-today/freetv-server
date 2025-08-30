@@ -1,6 +1,6 @@
 import { render } from 'preact';
 import { LocationProvider } from 'preact-iso';
-import { AppLoader } from './components/Loaders/AppLoader.jsx';
+import { AppLoader } from './components/Loaders/AppLoader';
 
 render(
   <LocationProvider>

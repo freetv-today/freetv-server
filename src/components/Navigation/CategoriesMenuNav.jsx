@@ -1,9 +1,9 @@
 // src/components/Navigation/CategoriesMenuNav.jsx
 import { useContext } from 'preact/hooks';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
 import { ButtonCategoryNav } from '@components/Navigation/ButtonCategoryNav';
 import { useLocation } from 'preact-iso';
-import { capitalizeFirstLetter } from '@/utils.js';
+import { capitalizeFirstLetter } from '@/utils';
 
 export function CategoriesMenuNav() {
 

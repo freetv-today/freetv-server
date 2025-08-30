@@ -1,5 +1,5 @@
 import { useContext } from 'preact/hooks';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 export function SelectLarge() {

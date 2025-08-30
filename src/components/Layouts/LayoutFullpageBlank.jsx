@@ -1,4 +1,4 @@
-import { NavbarBlank } from "@components/Navigation/NavbarBlank";
+import { NavbarBlank } from '@components/Navigation/NavbarBlank';
 
 export function LayoutFullpageBlank({ children }) {
   return (

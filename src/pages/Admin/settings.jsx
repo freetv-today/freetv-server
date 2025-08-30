@@ -1,6 +1,6 @@
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext.jsx';
-import { useAdminSession } from '@/hooks/useAdminSession.js';
+import { useConfig } from '@/context/ConfigContext';
+import { useAdminSession } from '@/hooks/useAdminSession';
 
 export function AdminSettings() {
     const { debugmode } = useConfig();

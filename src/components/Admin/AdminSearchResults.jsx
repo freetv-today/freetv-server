@@ -1,5 +1,5 @@
-import { capitalizeFirstLetter } from '@/utils.js';
-import { AdminShowActions } from './AdminShowActions.jsx';
+import { capitalizeFirstLetter } from '@/utils';
+import { AdminShowActions } from './AdminShowActions';
 
 /**
  * AdminSearchResults - displays admin search results in a table with admin actions

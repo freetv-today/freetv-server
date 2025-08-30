@@ -1,14 +1,14 @@
 import { useEffect, useState, useContext } from 'preact/hooks';
-import { useAdminSession } from '@/hooks/useAdminSession.js';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
-import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable.jsx';
-import { AdminDashboardFilters } from '@/components/Admin/AdminDashboardFilters.jsx';
-import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin.jsx';
-import { AdminMessage } from '@/components/Admin/AdminMessage.jsx';
-import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal.jsx';
-import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal.jsx';
-import { AdminPlaylistMetaModal } from '@/components/Admin/AdminPlaylistMetaModal.jsx';
-import { useAdminShowActions } from '@/hooks/useAdminShowActions.js';
+import { useAdminSession } from '@/hooks/useAdminSession';
+import { PlaylistContext } from '@/context/PlaylistContext';
+import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable';
+import { AdminDashboardFilters } from '@/components/Admin/AdminDashboardFilters';
+import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
+import { AdminMessage } from '@/components/Admin/AdminMessage';
+import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal';
+import { AdminPlaylistMetaModal } from '@/components/Admin/AdminPlaylistMetaModal';
+import { useAdminShowActions } from '@/hooks/useAdminShowActions';
 
 export function Dashboard() {
     const user = useAdminSession();

@@ -1,7 +1,16 @@
-// src/components/Loaders/SpinnerLoadingVideo.jsx
+
 export function SpinnerLoadingVideo({ title }) {
   return (
-    <div className="container text-center mt-5">
+    <div
+      style={{
+        background: '#FFF',
+        display: 'flex',
+        height: '80vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2000,
+      }}
+    >
       <div id="vidspin" className="text-center">
         <h2 className="text-dark mb-4 fs-3">Loading...</h2>
         <h3 className="text-success fw-bold mb-2">{title}</h3>

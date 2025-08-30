@@ -1,16 +1,16 @@
 // src/App.jsx
 import { Router, Route } from 'preact-iso';
 import { useContext } from 'preact/hooks';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
-import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 // Layout templates 
-import { LayoutDefault } from '@components/Layouts/LayoutDefault.jsx';
-import { LayoutSubnav } from '@components/Layouts/LayoutSubnav.jsx';
-import { LayoutFullpage } from '@components/Layouts/LayoutFullpage.jsx';
-import { LayoutFullpageBlank } from '@components/Layouts/LayoutFullpageBlank.jsx';
-import { LayoutSearch } from '@components/Layouts/LayoutSearch.jsx';
-import { LayoutVidviewer } from '@components/Layouts/LayoutVidviewer.jsx';
-import { LayoutAdmin } from '@components/Layouts/LayoutAdmin.jsx';
+import { LayoutDefault } from '@components/Layouts/LayoutDefault';
+import { LayoutSubnav } from '@components/Layouts/LayoutSubnav';
+import { LayoutFullpage } from '@components/Layouts/LayoutFullpage';
+import { LayoutFullpageBlank } from '@components/Layouts/LayoutFullpageBlank';
+import { LayoutSearch } from '@components/Layouts/LayoutSearch';
+import { LayoutVidviewer } from '@components/Layouts/LayoutVidviewer';
+import { LayoutAdmin } from '@components/Layouts/LayoutAdmin';
 // Front-end pages
 import { Home } from '@pages/Home';
 import { Recent } from '@pages/Recent';
@@ -19,17 +19,17 @@ import { Help } from '@pages/Help';
 import { Category } from '@pages/Category';
 import { NowPlaying } from '@pages/NowPlaying';
 // Back-end pages
-import { AdminLogin } from '@pages/Admin/index.jsx';
-import { Dashboard } from '@pages/Admin/dashboard.jsx';
-import { AdminSearch } from '@pages/Admin/search.jsx';
-import { AdminProblems } from '@pages/Admin/problems.jsx';
-import { AdminSettings } from '@pages/Admin/settings.jsx';
-import { AdminUsers } from '@pages/Admin/users.jsx';
-import { EditShow } from '@pages/Admin/EditShow.jsx';
-import { AddShow } from '@pages/Admin/AddShow.jsx';
+import { AdminLogin } from '@pages/Admin/index';
+import { Dashboard } from '@pages/Admin/dashboard';
+import { AdminSearch } from '@pages/Admin/search';
+import { AdminProblems } from '@pages/Admin/problems';
+import { AdminSettings } from '@pages/Admin/settings';
+import { AdminUsers } from '@pages/Admin/users';
+import { EditShow } from '@pages/Admin/EditShow';
+import { AddShow } from '@pages/Admin/AddShow';
 // Other pages
-import { NotFound } from '@pages/_404.jsx';
-import { TestPage } from '@/pages/TestPage.jsx';
+import { NotFound } from '@pages/_404';
+import { TestPage } from '@/pages/TestPage';
 // Default style sheet
 import '@/style.css';
 

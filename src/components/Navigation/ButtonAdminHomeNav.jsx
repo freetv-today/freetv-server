@@ -1,4 +1,4 @@
-import { Link } from '@components/UI/Link.jsx';
+import { Link } from '@components/UI/Link';
 
 export function ButtonAdminHomeNav() {
   return (

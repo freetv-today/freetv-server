@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
-import { useLocalStorage } from '@/hooks/useLocalStorage.jsx';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { PlaylistContext } from '@/context/PlaylistContext';
 
 /**
  * AdminPlaylistMetaModal - Modal for editing playlist meta data

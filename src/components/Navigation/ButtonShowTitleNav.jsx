@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
-import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
-import { ReportProblemModal } from '@components/UI/ReportProblemModal.jsx';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { DescriptionModal } from '@components/UI/DescriptionModal';
+import { ReportProblemModal } from '@components/UI/ReportProblemModal';
+import { useConfig } from '@/context/ConfigContext';
 import { useQueueVideo } from '@hooks/useQueueVideo';
 
 /**
@@ -23,17 +23,8 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
   const [showReportModal, setShowReportModal] = useState(false);
   const { queueVideo } = useQueueVideo();
 
-  // Handle main button click: set currentVid, add to recent, route to /nowplaying
+  // Main function to queue video and save to recent
   const handleMainClick = () => {
-    if (!category || !identifier || !title) {
-      if (debugmode) {
-        console.error('Missing required data: (category, identifier, title)');
-      }
-      return;
-    }
-    if (debugmode) {
-      console.log(`Queuing video: ${title.replace(/_/g, ' ')}`);
-    }
     queueVideo({ category, identifier, title });
   };
 

@@ -1,4 +1,4 @@
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { useConfig } from '@/context/ConfigContext';
 import { useLocation } from 'preact-iso';
 import { useEffect } from 'preact/hooks';
 

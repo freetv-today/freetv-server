@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { confirmPlaylistReload } from '@/utils.js';
+import { confirmPlaylistReload } from '@/utils';
 
 export function ButtonVideoNav() {
   const [embedPlaylist, setEmbedPlaylist] = useLocalStorage('embedPlaylist', true);

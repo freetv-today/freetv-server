@@ -1,4 +1,3 @@
-// src/components/Navigation/NavbarVideoPlayback.jsx
 import { ButtonHomeNav } from '@components/Navigation/ButtonHomeNav';
 import { ButtonRecentNav } from '@components/Navigation/ButtonRecentNav';
 import { ButtonSearchNav } from '@components/Navigation/ButtonSearchNav';
@@ -33,7 +32,7 @@ export function NavbarVideoPlayback() {
           <ToggleDropDownMenu />
         </nav>
 
-        <div id="sm_logoblock" className="d-md-none order-3 flex-row align-items-center text-nowrap">
+        <div id="sm_logoblock" className="d-md-none order-3 flex-row align-items-center text-nowrap smLogo">
           {/* <!-- small screen logo --> */}
           <ImageSmallLogo />
         </div>

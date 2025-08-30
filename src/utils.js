@@ -1,12 +1,12 @@
 
 export function generateToken(length) {
-  const a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+  const a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split('');
   const b = [];
   for (let i = 0; i < length; i++) {
     const j = Math.floor(Math.random() * a.length);
     b[i] = a[j];
   }
-  return b.join("");
+  return b.join('');
 }
 
 export function generateNewCode() {
@@ -39,7 +39,7 @@ export async function enforceMinLoadingTime(startTime, minTime = 1200) {
 
 export function confirmPlaylistReload() {
   return window.confirm(
-    "To show or hide the Episode Playlist you'll have to reload the page. Do you wish to proceed?"
+    'To show or hide the Episode Playlist you\'ll have to reload the page. Do you wish to proceed?'
   );
 }
 

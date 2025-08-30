@@ -23,6 +23,17 @@ body {
     font-style: normal;
 }
 
+.nowplaying-bg {
+  background: #000;
+  min-height: 90vh;
+}
+
+.timeoutMsg {
+    background: #FFF;
+    width: 100%;
+    min-height: 90vh;
+}
+
 /* Top navbar */
 #navbar {
     height: 60px;
@@ -174,13 +185,8 @@ body {
 /* Video Player styles */
 #vidviewer {
   width: 100%;
-  min-height: 70vh;
+  min-height: 90vh;
   border: 0;
-}
-
-/* Spinner Loading Video */
-#vidspin {
-  margin-top: 5rem;
 }
 
 /* Navbar Video Playback */
@@ -198,8 +204,8 @@ body {
 }
 
 /* Navbar Video Playback buttons (Back & Episode Playlist) */
-@media (max-width: 426px) {
-    #vidNavBtns {
+@media (max-width: 450px) {
+    .smLogo {
         display: none;
     }
 }

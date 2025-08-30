@@ -1,6 +1,6 @@
 import { useState, useCallback, useContext } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
 /**
@@ -18,7 +18,7 @@ export function useAdminShowActions() {
   const [deleteError, setDeleteError] = useState(null);
   const [showTestModal, setShowTestModal] = useState(false);
   const [testShow, setTestShow] = useState(null);
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+  const [, setAdminMsg] = useLocalStorage('adminMsg', null);
 
   // Edit handler (navigate to edit page)
   const handleEdit = useCallback((show) => {
@@ -57,7 +57,7 @@ export function useAdminShowActions() {
       try {
         text = await res.text();
         data = JSON.parse(text);
-      } catch (jsonErr) {
+      } catch {
         setAdminMsg({ type: 'danger', text: 'Status change failed: Invalid server response.' });
         return;
       }
@@ -66,7 +66,7 @@ export function useAdminShowActions() {
       } else {
         setAdminMsg({ type: 'danger', text: data && data.error ? data.error : 'Status change failed.' });
       }
-    } catch (err) {
+    } catch {
       setAdminMsg({ type: 'danger', text: 'Status change failed: Network or server error.' });
     }
   }, [currentPlaylist, changePlaylist, setAdminMsg]);
@@ -94,7 +94,7 @@ export function useAdminShowActions() {
         setAdminMsg({ type: 'success', text: 'Show deleted successfully.' });
         await changePlaylist(currentPlaylist, true, false);
       }
-    } catch (err) {
+    } catch {
       setDeleteError('Delete failed.');
     } finally {
       setDeleting(false);

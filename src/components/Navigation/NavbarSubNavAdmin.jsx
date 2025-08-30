@@ -1,5 +1,3 @@
-
-// this navbar appears on the Admin dashboard 
 import { useLocation } from 'preact-iso';
 
 export function NavbarSubNavAdmin({ onMetaClick }) {

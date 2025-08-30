@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks';
-import { capitalizeFirstLetter } from '@/utils.js';
-import { AdminShowActions } from './AdminShowActions.jsx';
+import { capitalizeFirstLetter } from '@/utils';
+import { AdminShowActions } from './AdminShowActions';
 
 /**
  * AdminDashboardTable - displays a table of shows with per-row controls (Edit, Delete, Status toggle)

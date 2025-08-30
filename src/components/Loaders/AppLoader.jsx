@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'preact/hooks';
-import { ConfigProvider } from '@/context/ConfigContext.jsx';
-import { PlaylistProvider } from '@/context/PlaylistContext.jsx';
-import { App } from '@components/App.jsx';
-import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData.jsx';
-import { ErrorPage } from '@components/UI/ErrorPage.jsx';
-import { OfflinePage } from '@components/UI/OfflinePage.jsx';
-import { shouldUpdateData, enforceMinLoadingTime } from '@/utils.js';
+import { ConfigProvider } from '@/context/ConfigContext';
+import { PlaylistProvider } from '@/context/PlaylistContext';
+import { App } from '@components/App';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { ErrorPage } from '@components/UI/ErrorPage';
+import { OfflinePage } from '@components/UI/OfflinePage';
+import { shouldUpdateData, enforceMinLoadingTime } from '@/utils';
 
 export function AppLoader() {
     const [config, setConfig] = useState(null);

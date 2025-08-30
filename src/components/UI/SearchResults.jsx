@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
-import { capitalizeFirstLetter } from "@/utils";
+import { capitalizeFirstLetter } from '@/utils';
 import { useQueueVideo } from '@hooks/useQueueVideo';
-import { DescriptionModal } from '@components/UI/DescriptionModal.jsx';
+import { DescriptionModal } from '@components/UI/DescriptionModal';
 
 export function SearchResults({ results }) {
   const { queueVideo } = useQueueVideo();

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
 
 /**
  * useSearchResults - shared hook for filtering and searching show data

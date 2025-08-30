@@ -1,8 +1,8 @@
 import { useContext, useMemo, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
-import { AdminShowForm } from '@/components/Admin/AdminShowForm.jsx';
-import { useLocalStorage } from '@/hooks/useLocalStorage.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
+import { AdminShowForm } from '@/components/Admin/AdminShowForm';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export function EditShow() {
   const { url, route } = useLocation();

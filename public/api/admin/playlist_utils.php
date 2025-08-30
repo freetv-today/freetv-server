@@ -1,7 +1,10 @@
 <?php
+
 // playlist_utils.php - Shared playlist utility functions
 
-function rebuild_index($playlists_dir = null) {
+function rebuild_index($playlists_dir = null)
+{
+
     if (!$playlists_dir) {
         $playlists_dir = __DIR__ . '/../../playlists';
     }
@@ -9,7 +12,9 @@ function rebuild_index($playlists_dir = null) {
     $playlists = [];
     foreach ($files as $file) {
         $filename = basename($file);
-        if ($filename === 'index.json') continue;
+        if ($filename === 'index.json') {
+            continue;
+        }
         $content = file_get_contents($file);
         $data = json_decode($content, true);
         if ($data) {
@@ -22,7 +27,8 @@ function rebuild_index($playlists_dir = null) {
         }
     }
     // Sort by filename ascending
-    usort($playlists, function($a, $b) {
+    usort($playlists, function ($a, $b) {
+
         return strcmp($a['filename'], $b['filename']);
     });
     $index = [

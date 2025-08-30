@@ -1,5 +1,6 @@
 <?php
-// Module: Report Problem 
+
+// Module: Report Problem
 // Works with src/components/Navigation/ButtonShowTitleNav.jsx to
 // allow users to report problems titles which need to be removed
 
@@ -10,9 +11,7 @@ $MSG_TOO_MANY_REQUESTS = 'You are submitting problem reports too quickly. Please
 $MSG_ALREADY_REPORTED = 'You have already reported this title.';
 $MSG_SUCCESS = 'Thank you! Your problem report has been received.';
 $MSG_WRITE_ERROR = 'Could not write to log file.';
-
 header('Content-Type: application/json; charset=utf-8');
-
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -32,15 +31,11 @@ $title = $input['title'];
 $category = $input['category'] ?? '';
 $identifier = $input['identifier'];
 $imdb = $input['imdb'] ?? '';
-
-
 $date = date('c');
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-
 $logDir = $_SERVER['DOCUMENT_ROOT'] . '/logs';
 $logFile = $logDir . '/errors.json';
 $ipLogFile = $logDir . '/report-ip-log.json';
-
 // Ensure log directory exists
 if (!is_dir($logDir)) {
     mkdir($logDir, 0777, true);
@@ -79,20 +74,20 @@ if (file_exists($ipLogFile)) {
 
 // Always add this attempt to the IP log (even for duplicates)
 $now = time();
-$window = 300; // 5 minutes
+$window = 300;
+// 5 minutes
 $maxReports = 2;
 if (!isset($ipLog['ips'][$ip]) || !is_array($ipLog['ips'][$ip])) {
     $ipLog['ips'][$ip] = [];
 }
 // Remove timestamps older than 5 minutes
-$ipLog['ips'][$ip] = array_filter($ipLog['ips'][$ip], function($ts) use ($now, $window) {
+$ipLog['ips'][$ip] = array_filter($ipLog['ips'][$ip], function ($ts) use ($now, $window) {
+
     return (strtotime($ts) > ($now - $window));
 });
 $ipLog['ips'][$ip][] = $date;
-
 // Save IP log immediately (in case of early exit)
 file_put_contents($ipLogFile, json_encode($ipLog, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
 // Check rate limit BEFORE logging to errors.json
 if (count($ipLog['ips'][$ip]) > $maxReports) {
     http_response_code(429);
@@ -110,7 +105,7 @@ foreach ($errors['reports'] as &$report) {
         $report['identifier'] === $identifier &&
         $report['status'] === 'reported'
     ) {
-        // If this IP has already reported this show, return error (but attempt is still counted)
+    // If this IP has already reported this show, return error (but attempt is still counted)
         if (isset($report['reportingIps']) && in_array($ip, $report['reportingIps'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => $MSG_ALREADY_REPORTED]);
@@ -134,17 +129,16 @@ foreach ($errors['reports'] as &$report) {
         if (count($ipLog['ips'][$ip]) > $maxReports) {
             http_response_code(429);
             echo json_encode([
-                'success' => false,
-                'message' => $MSG_TOO_MANY_REQUESTS
+            'success' => false,
+            'message' => $MSG_TOO_MANY_REQUESTS
             ]);
             exit;
         }
-    echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
+        echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
         exit;
     }
 }
 unset($report);
-
 // 2. If not found, add new report
 $errors['reports'][] = [
     'title' => $title,
@@ -171,7 +165,6 @@ if (count($ipLog['ips'][$ip]) > $maxReports) {
     exit;
 }
 echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
-
 // Check for existing report for this identifier (status 'reported')
 $found = false;
 foreach ($errors['reports'] as &$report) {
@@ -181,7 +174,7 @@ foreach ($errors['reports'] as &$report) {
         $report['status'] === 'reported'
     ) {
         $found = true;
-        // Check if this IP has already reported this show
+    // Check if this IP has already reported this show
         if (isset($report['reportingIps']) && in_array($ip, $report['reportingIps'])) {
             echo json_encode(['success' => false, 'message' => $MSG_ALREADY_REPORTED]);
             exit;
@@ -193,21 +186,21 @@ foreach ($errors['reports'] as &$report) {
         $report['reportingIps'][] = $ip;
         $report['reportCount'] = isset($report['reportCount']) && is_numeric($report['reportCount'])
             ? $report['reportCount'] + 1
-            : 2; // If first time, set to 2 (since it was 1 before)
+            : 2;
+    // If first time, set to 2 (since it was 1 before)
         // Optionally update date to most recent report
         $report['date'] = $date;
-        // Save and return success
+    // Save and return success
         if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
             exit;
         }
-    echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
+        echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
         exit;
     }
 }
 unset($report);
-
 // If not found, add new report
 $errors['reports'][] = [
     'title' => $title,
@@ -219,7 +212,6 @@ $errors['reports'][] = [
     'reportCount' => 1,
     'status' => 'reported'
 ];
-
 if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);

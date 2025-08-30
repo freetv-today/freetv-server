@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'preact/hooks';
-import useSearchResults from '@/hooks/useSearchResults.js';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import useSearchResults from '@/hooks/useSearchResults';
+import { useConfig } from '@/context/ConfigContext';
 import { useContext } from 'preact/hooks';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import { PlaylistContext } from '@/context/PlaylistContext';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { SearchResults } from '@components/UI/SearchResults';
-import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
+import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 
 export function Search() {
   const { debugmode } = useConfig();

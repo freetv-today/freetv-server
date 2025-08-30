@@ -1,9 +1,9 @@
 // src/pages/Category/index.jsx
 import { useRoute } from 'preact-iso';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext.jsx';
-import { ShowListSidebar } from '@components/UI/ShowListSidebar.jsx';
-import { capitalizeFirstLetter } from '@/utils.js';
+import { useConfig } from '@/context/ConfigContext';
+import { ShowListSidebar } from '@components/UI/ShowListSidebar';
+import { capitalizeFirstLetter } from '@/utils';
 
 export function Category() {
   

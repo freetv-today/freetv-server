@@ -1,12 +1,83 @@
-import { VideoPlayer } from '@components/UI/VideoPlayer.jsx';
-import { useEffect } from 'preact/hooks';
+import { useEffect, useState, useRef } from 'preact/hooks';
+import { useLocalStorage } from '@hooks/useLocalStorage';
+import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo.jsx';
+import { Link } from '@components/UI/Link.jsx';
 
 export function NowPlaying() {
+
+  const [currentVid] = useLocalStorage('currentVid', null);
+  const [loading, setLoading] = useState(true);
+  const [timeoutError, setTimeoutError] = useState(false);
+  const timeoutRef = useRef(null);
+
+  // Effect for timeout logic (runs on loading/timeoutError change)
+  useEffect(() => {
+    if (loading && !timeoutError) {
+      timeoutRef.current = setTimeout(() => {
+        setTimeoutError(true);
+        setLoading(false);
+      }, 90000);
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [loading, timeoutError]);
+
+  // Effect to clear currentVid ONLY on unmount
   useEffect(() => {
     return () => {
-      // Remove currentVid from localStorage when leaving NowPlaying
+      // Remove the key entirely from localStorage
       localStorage.removeItem('currentVid');
     };
   }, []);
-  return <VideoPlayer />;
+
+  if (!currentVid) {
+    return (
+      <div class="container text-center my-5">
+        <h2 class="text-danger mb-4">No data for last-watched video</h2>
+        <p>You can only return to, or reload this URL while the current video is playing.<br/>After you navigate away from the currently-playing video you'll have to load a new video again.</p>
+        <p>Check out your <Link href="/recent" class="link-primary">recently-watched videos</Link>.</p>
+        <p><img src="/src/assets/sadface.svg" width="80" /></p>
+      </div>
+    );
+  }
+
+  const { identifier, title } = currentVid;
+  const archiveUrl = `https://archive.org/embed/${identifier}?playlist=1&list_height=250`;
+
+  const handleIframeLoad = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setLoading(false);
+    setTimeoutError(false);
+    // Log only once per load
+    if (title) {
+      console.log(`Video ${title} loaded`);
+    }
+  };
+
+  return (
+    <div className={loading ? "" : "timeoutMsg"}>
+      {loading && !timeoutError && <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />}
+      {timeoutError && (
+        <div class="container text-center my-5">
+          <h2 class="text-danger mb-4">Timeout: the video failed to load</h2>
+          <p>The Internet Archive server did not respond within 90 seconds.<br/>Please check your internet connection and/or reload to try again.</p>
+          <p>If you keep having trouble, check out the <Link href="/help" class="primary-link">Help</Link> page for troubleshooting tips.</p>
+          <p><img src="/src/assets/sadface.svg" width="80" /></p>
+        </div>
+      )}
+      {!timeoutError && (
+        <iframe
+          id="vidviewer"
+          width="640" 
+          height="480"
+          src={archiveUrl}
+          style={{ display: loading ? 'none' : 'block' }}
+          allowFullScreen
+          onLoad={handleIframeLoad}
+          title={title}
+        />
+      )}
+    </div>
+  );
 }

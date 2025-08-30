@@ -1,5 +1,5 @@
-import { NavbarMain } from "@components/Navigation/NavbarMain";
-import { CategoriesMenuNav } from "@components/Navigation/CategoriesMenuNav";
+import { NavbarMain } from '@components/Navigation/NavbarMain';
+import { CategoriesMenuNav } from '@components/Navigation/CategoriesMenuNav';
 
 export function LayoutSubnav({ children }) {
   return (

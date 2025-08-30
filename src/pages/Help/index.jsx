@@ -1,6 +1,6 @@
 import { useEffect } from 'preact/hooks';
 import { Link } from '@components/UI/Link';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { useConfig } from '@/context/ConfigContext';
 
 export function Help() {
     const { debugmode } = useConfig();

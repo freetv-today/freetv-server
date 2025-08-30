@@ -1,6 +1,6 @@
 import { ShowListSidebar } from '@components/UI/ShowListSidebar';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { useConfig } from '@/context/ConfigContext';
 
 export function Recent() {
   const { debugmode } = useConfig();

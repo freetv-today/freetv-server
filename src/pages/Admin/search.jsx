@@ -1,15 +1,15 @@
 
 import { useState, useEffect, useContext } from 'preact/hooks';
-import useSearchResults from '@/hooks/useSearchResults.js';
-import { useConfig } from '@/context/ConfigContext.jsx';
-import { useAdminSession } from '@/hooks/useAdminSession.js';
-import { PlaylistContext } from '@/context/PlaylistContext.jsx';
+import useSearchResults from '@/hooks/useSearchResults';
+import { useConfig } from '@/context/ConfigContext';
+import { useAdminSession } from '@/hooks/useAdminSession';
+import { PlaylistContext } from '@/context/PlaylistContext';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
-import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
-import { AdminSearchResults } from '@components/Admin/AdminSearchResults.jsx';
-import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal.jsx';
-import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal.jsx';
-import { useAdminShowActions } from '@/hooks/useAdminShowActions.js';
+import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
+import { AdminSearchResults } from '@components/Admin/AdminSearchResults';
+import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal';
+import { useAdminShowActions } from '@/hooks/useAdminShowActions';
 
 export function AdminSearch() {
     const { debugmode } = useConfig();

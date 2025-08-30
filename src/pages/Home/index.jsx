@@ -1,6 +1,6 @@
-import { ImageLargeLogo } from "@components/UI/ImageLargeLogo";
+import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { useConfig } from '@/context/ConfigContext';
 
 export function Home() {
 	const { debugmode } = useConfig();

@@ -1,16 +1,16 @@
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { useConfig } from '@/context/ConfigContext.jsx';
+import { useConfig } from '@/context/ConfigContext';
 import { useLocation } from 'preact-iso';
 
 /**
- * Returns a function to queue a video and save it to recently watched.
+ * Custom hook to queue a video and add it to recently watched.
  * Usage: const { queueVideo } = useQueueVideo();
  */
 export function useQueueVideo() {
+  
   const { debugmode } = useConfig();
   const [, setCurrentVid] = useLocalStorage('currentVid', null);
-  const [recentTitles, setRecentTitles] = useLocalStorage('recentTitles', { title: [] });
-  const { route } = useLocation();
+  const [, setRecentTitles] = useLocalStorage('recentTitles', { title: [] });  const { route } = useLocation();
 
   // Save to recently watched (max 25, no duplicates)
   const saveRecent = (title) => {

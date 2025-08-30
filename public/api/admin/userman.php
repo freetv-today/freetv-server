@@ -12,21 +12,26 @@ header('Content-Type: application/json');
 $apdata_path = __DIR__ . '/../../assets/apdata.key';
 
 // Helper: Load users
-function load_users($path) {
+function load_users($path)
+{
     $data = json_decode(file_get_contents($path), true);
     return $data['users'] ?? [];
 }
 
 // Helper: Save users
-function save_users($path, $users) {
+function save_users($path, $users)
+{
     $data = ["users" => $users];
     return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
 }
 
 // Helper: Find user by id
-function find_user_index($users, $id) {
+function find_user_index($users, $id)
+{
     foreach ($users as $i => $u) {
-        if ($u['id'] == $id) return $i;
+        if ($u['id'] == $id) {
+            return $i;
+        }
     }
     return -1;
 }
@@ -42,7 +47,7 @@ $users = load_users($apdata_path);
 switch ($action) {
     case 'list':
         // List all users
-        $safeUsers = array_map(function($u) {
+        $safeUsers = array_map(function ($u) {
             $copy = $u;
             unset($copy['password']);
             return $copy;

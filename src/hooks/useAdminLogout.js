@@ -1,4 +1,3 @@
-
 import { useLocation } from 'preact-iso';
 
 /**
@@ -16,9 +15,9 @@ export function useAdminLogout() {
 				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
 			});
-		} catch (e) {
-			// ignore error, just redirect
-		}
+		   } catch {
+			   // ignore error, just redirect
+		   }
 		route('/admin?loggedout=1');
 	};
 }

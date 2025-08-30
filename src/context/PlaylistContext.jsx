@@ -14,8 +14,8 @@
 import { useLocation } from 'preact-iso';
 import { createContext } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData.jsx';
-import { generateNewCode } from '@/utils.js';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { generateNewCode } from '@/utils';
 
 export const PlaylistContext = createContext(
   /** @type {PlaylistContextValue} */ ({

@@ -1,4 +1,4 @@
-import { useLocalStorage } from '@/hooks/useLocalStorage.jsx';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useEffect } from 'preact/hooks';
 
 /**

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext.jsx';
-import { useAdminSession } from '@/hooks/useAdminSession.js';
-import { UserModal } from '@/components/Admin/UserModal.jsx';
-import { PasswordModal } from '@/components/Admin/PasswordModal.jsx';
-import { ConfirmDeleteModal } from '@/components/Admin/ConfirmDeleteModal.jsx';
+import { useConfig } from '@/context/ConfigContext';
+import { useAdminSession } from '@/hooks/useAdminSession';
+import { UserModal } from '@/components/Admin/UserModal';
+import { PasswordModal } from '@/components/Admin/PasswordModal';
+import { ConfirmDeleteModal } from '@/components/Admin/ConfirmDeleteModal';
 
 export function AdminUsers() {
     const { debugmode } = useConfig();
