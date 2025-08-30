@@ -133,3 +133,23 @@ body {
 .icon-btn.active.logout-icon, .dropdown-item-custom.active .logout-icon {
     background-image: url('/src/assets/logout-blue.svg');
 }
+
+.infoBtnAdmin {
+    width: 24px;
+    height: 24px;
+    background-image: url('/src/assets/info-circle-black.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    cursor: pointer;
+    background-color: white;
+}
+
+.infoBtnAdmin:hover {
+    background-image: url('/src/assets/info-circle-blue.svg');
+}
+
+.customBlue {
+    color: #20B2AA;
+}

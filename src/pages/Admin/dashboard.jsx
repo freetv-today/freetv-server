@@ -4,6 +4,7 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/Admin/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
+import { AdminInfoModal } from '@/components/Admin/AdminInfoModal';
 import { AdminMessage } from '@/components/Admin/AdminMessage';
 import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal';
 import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal';
@@ -43,6 +44,9 @@ export function Dashboard() {
     const [showMetaModal, setShowMetaModal] = useState(false);
     const [metaSaving, setMetaSaving] = useState(false);
     const [metaError, setMetaError] = useState(null);
+
+    // State for info modal
+    const [showInfoModal, setShowInfoModal] = useState(false);
 
     // Handle sorting when header is clicked
     function handleSort(column) {
@@ -97,11 +101,17 @@ export function Dashboard() {
 
     if (!user) return null;
 
+    // Calculate stats for info modal
+    const totalShows = showData ? showData.length : 0;
+    const activeShows = showData ? showData.filter(s => s.status === 'active').length : 0;
+    const disabledShows = showData ? showData.filter(s => s.status === 'disabled').length : 0;
+    const totalPlaylists = (Array.isArray(currentPlaylistData?.playlists) ? currentPlaylistData.playlists.length : undefined) || (Array.isArray((useContext(PlaylistContext).playlists)) ? useContext(PlaylistContext).playlists.length : 0);
+
     return (
         <div className="container mt-3">
             <h1 class="text-center mb-2">Admin Dashboard</h1>
             <AdminMessage />
-            <NavbarSubNavAdmin onMetaClick={handleOpenMetaModal} />
+            <NavbarSubNavAdmin onMetaClick={handleOpenMetaModal} onInfoClick={() => setShowInfoModal(true)} />
             <AdminDashboardFilters
                 shows={showData || []}
                 filterCategory={filterCategory}
@@ -142,6 +152,16 @@ export function Dashboard() {
                 saving={metaSaving}
                 error={metaError}
                 onSave={handleSaveMeta}
+            />
+            <AdminInfoModal
+                show={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                stats={{
+                  totalShows,
+                  activeShows,
+                  disabledShows,
+                  totalPlaylists
+                }}
             />
         </div>
     );

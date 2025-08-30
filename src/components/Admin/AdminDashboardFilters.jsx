@@ -52,7 +52,7 @@ export function AdminDashboardFilters({
         {/* Center: Current Playlist */}
         <div className="col-12 col-md-4 text-center">
           {playlistName && (
-            <div className="small">Current Playlist:<br/><span className="font-monospace text-success">"{playlistName}"</span></div>
+            <div className="small"><span className="text-nowrap fw-bold">Current Playlist: </span><br/><span className="font-monospace customBlue">"{playlistName}"</span></div>
           )}
         </div>
         {/* Right: Hide Disabled */}
