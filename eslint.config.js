@@ -16,6 +16,7 @@ export default [
         alert: 'readonly',
         setTimeout: 'readonly',
         console: 'readonly',
+        history: 'readonly',
         // Add more browser globals if needed
       },
     },

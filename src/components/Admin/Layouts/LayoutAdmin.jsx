@@ -1,6 +1,6 @@
 import { useEffect } from 'preact/hooks';
-import { NavbarAdmin } from '@components/Navigation/NavbarAdmin';
-import { useProblemCount } from '@/hooks/useProblemCount';
+import { NavbarAdmin } from '@components/Admin/Navigation/NavbarAdmin';
+import { useProblemCount } from '@hooks/Admin/useProblemCount';
 
 export function LayoutAdmin ({ children }) {
   const problemCount = useProblemCount();

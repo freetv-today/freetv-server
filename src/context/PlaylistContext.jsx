@@ -1,4 +1,12 @@
+import { useLocation } from 'preact-iso';
+import { createContext } from 'preact';
+import { useState, useEffect, useRef } from 'preact/hooks';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { generateNewCode } from '@/utils';
+
 /**
+ * @type {import('preact').Context<PlaylistContextValue>}
  * @typedef {Object} PlaylistContextValue
  * @property {Array} playlists
  * @property {string|null} currentPlaylist
@@ -8,14 +16,6 @@
  * @property {Object|null} currentPlaylistData
  * @property {boolean} playlistSwitching
  */
-
-/** @type {import('preact').Context<PlaylistContextValue>} */
-
-import { useLocation } from 'preact-iso';
-import { createContext } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
-import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { generateNewCode } from '@/utils';
 
 export const PlaylistContext = createContext(
   /** @type {PlaylistContextValue} */ ({
@@ -30,6 +30,8 @@ export const PlaylistContext = createContext(
 );
 
 export function PlaylistProvider({ children }) {
+  const log = useDebugLog();
+
   // Synchronously hydrate from localStorage
   function getLocalStorageJson(key) {
     try {
@@ -68,21 +70,27 @@ export function PlaylistProvider({ children }) {
     // Restore configData
     function getConfigFromLocalStorage() {
       const config = getLocalStorageJson('configData');
-      if (config && config.lastupdated) return config;
+      if (config && config.lastupdated) {
+        log('Using saved data from local storage');
+        return config; 
+      } 
       return null;
     }
     // Restore visitData or create if missing
     function ensureVisitData() {
       let visitData = getLocalStorageJson('visitData');
       if (!visitData) {
+        log('Creating new visitData timestamp...');
         const tstamp = new Date().toJSON();
         const code = generateNewCode();
         visitData = { lastVisit: tstamp, start: tstamp, end: '', token: code };
         localStorage.setItem('visitData', JSON.stringify(visitData));
         sessionStorage.setItem('token', code);
+        log('Saving visitData to local storage');
       } else {
         visitData.lastVisit = new Date().toJSON();
         localStorage.setItem('visitData', JSON.stringify(visitData));
+        log('Updating visitData timestamp');
       }
     }
     ensureVisitData();
@@ -93,6 +101,7 @@ export function PlaylistProvider({ children }) {
         .then(res => res.json())
         .then(cfg => {
           localStorage.setItem('configData', JSON.stringify(cfg));
+          log('Saving configuration data to local storage');
         });
     }
     fetch('/playlists/index.json')
@@ -114,7 +123,7 @@ export function PlaylistProvider({ children }) {
           !playlistLS
         ) {
           // If data is missing/stale, always reset to home and show initial spinner
-          if (path !== '/') route('/');
+          if (path !== '/') { route('/'); } 
           changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
         } else {
           setCurrentPlaylist(playlistLS);
@@ -158,8 +167,10 @@ export function PlaylistProvider({ children }) {
   function changePlaylist(filename, showSpinner = true, isInitial = false) {
     if (isInitial) {
       setInitializing(true);
+      log('Loading default playlist data');
     } else {
       setPlaylistSwitching(true);
+      log('Switching playlists...');
     }
     setLoading(showSpinner);
     const minLoadingTime = 1200;
@@ -171,6 +182,7 @@ export function PlaylistProvider({ children }) {
         setShowData(data.shows || []);
         setCurrentPlaylistData(data);
         localStorage.setItem('playlist', filename);
+        log(`Current playlist is: ${filename}`);
         localStorage.setItem('showData', JSON.stringify(data));
         const elapsed = Date.now() - startTime;
         const wait = Math.max(0, minLoadingTime - elapsed);

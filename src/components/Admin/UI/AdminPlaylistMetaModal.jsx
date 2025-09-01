@@ -1,18 +1,22 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaylistContext } from '@/context/PlaylistContext';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 /**
  * AdminPlaylistMetaModal - Modal for editing playlist meta data
  * @param {Object} props
  * @param {boolean} props.show - Whether the modal is visible
- * @param {() => void} props.onClose - Function to close the modal
+ * @param {(reason: 'cancel' | 'save') => void} props.onClose - Function to close the modal
  * @param {Object} props.meta - The meta data object
  * @param {boolean} props.saving - Whether the save is in progress
  * @param {string|null} props.error - Error message, if any
  * @param {function(Object):void} props.onSave - Called with updated meta on save
  */
+
 export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onSave }) {
+  
+  const log = useDebugLog();
   const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
   const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
   const [form, setForm] = useState({
@@ -56,7 +60,8 @@ export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onS
     // 4. Set adminMsg and close modal (only if no error)
     if (!error) {
       setAdminMsg({ type: 'success', text: 'Playlist meta data updated successfully.' });
-      onClose();
+      log('Playlist meta data saved');
+      onClose('save');
     }
   }
 
@@ -69,7 +74,7 @@ export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onS
           <form onSubmit={handleSubmit}>
             <div class="modal-header">
               <h5 class="modal-title">Edit Playlist Meta Data</h5>
-              <button type="button" class="btn-close" aria-label="Close" onClick={onClose}></button>
+          <button type="button" class="btn-close" aria-label="Close" onClick={() => onClose('cancel')}></button>
             </div>
             <div class="modal-body">
               <div class="mb-3" title="Timestamp will be updated automatically when changes are saved">
@@ -99,7 +104,7 @@ export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onS
               {error && <div class="alert alert-danger">{error}</div>}
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary btn-sm" onClick={onClose} disabled={saving}>Cancel</button>
+              <button type="button" class="btn btn-secondary btn-sm" onClick={() => onClose('cancel')} disabled={saving}>Cancel</button>
               <button type="submit" class="btn btn-primary btn-sm" disabled={saving || !touched}>
                 {saving ? 'Saving...' : 'Save'}
               </button>

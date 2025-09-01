@@ -1,7 +1,7 @@
 import { useContext, useMemo, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
-import { AdminShowForm } from '@/components/Admin/AdminShowForm';
+import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export function EditShow() {

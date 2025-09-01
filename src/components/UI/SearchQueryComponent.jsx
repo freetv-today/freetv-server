@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { showAlert } from '@/utils';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
 
@@ -8,6 +9,7 @@ export function SearchQueryComponent({ onSearch }) {
   const [searchQuery, setsearchQuery] = useLocalStorage('searchQuery', '');
   const [query, setQuery] = useState(searchQuery || '');
   const inputRef = useRef(null);
+  const log = useDebugLog();
 
   useEffect(() => {
     if (inputRef.current) {
@@ -51,6 +53,7 @@ export function SearchQueryComponent({ onSearch }) {
     setsearchQuery('');
     localStorage.removeItem('searchQuery');
     onSearch('');
+    log('Clearing search query from local storage');
   };
 
   return (

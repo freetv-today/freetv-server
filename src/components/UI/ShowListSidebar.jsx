@@ -3,6 +3,8 @@ import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { ButtonShowTitleNav } from '@components/Navigation/ButtonShowTitleNav';
 import { useLocalStorage } from '@hooks/useLocalStorage';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { capitalizeFirstLetter } from '@/utils';
 
 /**
  * @param {Object} props
@@ -10,8 +12,9 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
  * @param {string} [props.category]
  * @returns {import('preact').JSX.Element}
  */
-export function ShowListSidebar({ context, category }) {
 
+export function ShowListSidebar({ context, category }) {
+  const log = useDebugLog();
   const { showData } = useContext(PlaylistContext);
   const [recentTitles] = useLocalStorage('recentTitles', { title: [] });
 
@@ -32,6 +35,8 @@ export function ShowListSidebar({ context, category }) {
       )
       .filter(Boolean); // Remove any not found
   }
+  log(`Selected category: ${capitalizeFirstLetter(category)}`);
+  log(`There are ${shows.length} titles in this category`);
 
   return (
     <aside class="sidebar-fixed-width p-1 mb-1 mb-lg-0">

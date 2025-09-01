@@ -1,9 +1,8 @@
 import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
-import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 export function SelectLarge() {
-  const { playlists, currentPlaylist, changePlaylist, loading } = useContext(PlaylistContext);
+  const { playlists, currentPlaylist, changePlaylist } = useContext(PlaylistContext);
 
   function handleChange(e) {
     changePlaylist(e.target.value);

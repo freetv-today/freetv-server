@@ -1,18 +1,17 @@
-import { useConfig } from '@/context/ConfigContext';
 import { useLocation } from 'preact-iso';
 import { useEffect } from 'preact/hooks';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function NotFound() {
-    const { debugmode } = useConfig();
+
     const { url } = useLocation();
+    const log = useDebugLog();
 
     useEffect(() => {
         document.title = "Free TV: Not Found";
-        if (debugmode) {
-            console.error(`The requested route (${url}) does not exist`);
-            console.log('Rendered 404 page (pages/_404.jsx)');
-        }
-    }, [debugmode, url]);
+        log(`The requested route (${url}) does not exist`,'error');
+        log('Rendered 404 page (pages/_404.jsx)');
+    }, [url]);
 
     return (
         <div class="text-center">

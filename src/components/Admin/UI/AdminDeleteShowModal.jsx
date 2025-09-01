@@ -7,7 +7,7 @@ import { capitalizeFirstLetter } from '@/utils';
  * AdminDeleteShowModal - Modal for confirming deletion of a show
  * @param {Object} props
  * @param {boolean} props.show - Whether the modal is visible
- * @param {() => void} props.onClose - Function to close the modal
+ * @param {(reason: 'cancel' | 'save') => void} props.onClose - Function to close the modal
  * @param {Object} props.showData - The show object to delete
  * @param {boolean} props.deleting - Whether the delete is in progress
  * @param {string|null} props.error - Error message, if any
@@ -43,7 +43,7 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
     }
     // 4. Set adminMsg (short message) and close modal
     setAdminMsg({ type: 'success', text: 'Show deleted successfully.' });
-    onClose();
+    onClose('save');
   }
 
   return (
@@ -52,7 +52,7 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Delete Show</h5>
-            <button type="button" class="btn-close" aria-label="Close" onClick={onClose}></button>
+            <button type="button" class="btn-close" aria-label="Close" onClick={() => onClose('cancel')}></button>
           </div>
           <div class="modal-body">
             <p>Are you sure you want to delete the following show?</p>
@@ -71,7 +71,7 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
             {error && <div class="alert alert-danger">{error}</div>}
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onClick={onClose} disabled={deleting}>Cancel</button>
+            <button type="button" class="btn btn-secondary" onClick={() => onClose('cancel')} disabled={deleting}>Cancel</button>
             <button type="button" class="btn btn-danger" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting...' : 'Delete'}
             </button>

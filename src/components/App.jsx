@@ -10,7 +10,7 @@ import { LayoutFullpage } from '@components/Layouts/LayoutFullpage';
 import { LayoutFullpageBlank } from '@components/Layouts/LayoutFullpageBlank';
 import { LayoutSearch } from '@components/Layouts/LayoutSearch';
 import { LayoutVidviewer } from '@components/Layouts/LayoutVidviewer';
-import { LayoutAdmin } from '@components/Layouts/LayoutAdmin';
+import { LayoutAdmin } from '@components/Admin/Layouts/LayoutAdmin';
 // Front-end pages
 import { Home } from '@pages/Home';
 import { Recent } from '@pages/Recent';
@@ -53,22 +53,25 @@ const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 
 export function App() {
   const ctx = useContext(PlaylistContext);
-  const { playlistSwitching, currentPlaylist, currentPlaylistData } = ctx;
+  const { playlistSwitching } = ctx;
 
-  // Only render spinner in LayoutFullpage during playlist switching, nothing else
+  // Render spinner during playlist switching
   if (playlistSwitching) {
     return <LayoutFullpage><SpinnerLoadingAppData /></LayoutFullpage>;
   }
 
-  // Only render the app when not switching playlists
+  // Render the app when not switching playlists
   return (
       <main>
         <Router>
+          {/* Front-end */}
           <Route path="/" component={HomeRoute} exact />
           <Route path="/recent" component={RecentRoute} />
           <Route path="/category/:name" component={CategoryRoute} />
           <Route path="/search" component={SearchRoute} />
           <Route path="/help" component={HelpRoute} />
+          <Route path="/nowplaying" component={NowPlayingRoute} />
+          {/* Back-end */}
           <Route path="/admin" component={AdminLoginRoute} />
           <Route path="/dashboard" component={DashboardRoute} />
           <Route path="/dashboard/edit/:imdb" component={EditShowRoute} />
@@ -77,7 +80,7 @@ export function App() {
           <Route path="/dashboard/problems" component={AdminProblemsRoute} />
           <Route path="/dashboard/settings" component={AdminSettingsRoute} />
           <Route path="/dashboard/users" component={AdminUsersRoute} />
-          <Route path="/nowplaying" component={NowPlayingRoute} />
+          {/* Other routes */}
           <Route path="/test" component={TestPageRoute} />
           <Route default component={NotFoundRoute} />
         </Router>

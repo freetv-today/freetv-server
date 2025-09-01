@@ -1,17 +1,15 @@
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext';
-import { useAdminSession } from '@/hooks/useAdminSession';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 
 export function AdminProblems() {
-    const { debugmode } = useConfig();
+    const log = useDebugLog();
     const user = useAdminSession();
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard - Problems";
-        if (debugmode) {
-            console.log('Rendered Admin Problems page (pages/Admin/problems.jsx)');
-        }
-    }, [debugmode]);
+        log('Rendered Admin Problems page (pages/Admin/problems.jsx)');
+    }, []);
 
     if (!user) return null;
 

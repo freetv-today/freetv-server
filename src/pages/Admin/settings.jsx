@@ -1,19 +1,35 @@
 import { useEffect } from 'preact/hooks';
 import { useConfig } from '@/context/ConfigContext';
-import { useAdminSession } from '@/hooks/useAdminSession';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 
 export function AdminSettings() {
-    const { debugmode } = useConfig();
+    const { name, version, author, email, link, lastupdated, offline, appdata, collector, showads, gid, modules, debugmode } = useConfig();
+    const log = useDebugLog();
     const user = useAdminSession();
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard - Settings";
-        if (debugmode) {
-            console.log('Rendered Admin Settings page (pages/Admin/settings.jsx)');
-        }
-    }, [debugmode]);
+        log('Rendered Admin Settings page (pages/Admin/settings.jsx)');
+    }, []);
 
     if (!user) return null;
+
+    log('Settings for /assets/config.json', 'group');
+    log(`Name: ${name}`);
+    log(`Version ${version}`);
+    log(`Author: ${author}`);
+    log(`Email: ${email}`);
+    log(`Link: ${link}`);
+    log(`Last upated: ${lastupdated}`);
+    log(`Offline: ${offline}`);
+    log(`App data: ${appdata}`);
+    log(`Collector: ${collector}`);
+    log(`Show ads: ${showads}`);
+    log(`Google ID: ${gid}`);
+    log(`Modules: ${modules}`);
+    log(`Debug mode: ${debugmode}`);
+    log('','end');
 
     return (
         <>

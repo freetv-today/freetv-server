@@ -1,16 +1,14 @@
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function Home() {
-	const { debugmode } = useConfig();
+	const log = useDebugLog();
 	
 	useEffect(() => {
 		document.title = "Free TV: Home";
-		if (debugmode) {
-			console.log('Rendered Home page (pages/Home/index.jsx)');
-		}
-	}, [debugmode]);
+		log('Rendered Home page (pages/Home/index.jsx)');
+	}, []);
 
 	return (
 		<ImageLargeLogo />

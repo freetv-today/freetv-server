@@ -1,13 +1,13 @@
 // src/components/Navigation/NavbarMain.jsx
-import { ButtonAdminHomeNav } from '@components/Navigation/ButtonAdminHomeNav';
-import { ButtonAdminSearchNav } from '@components/Navigation/ButtonAdminSearchNav';
-import { ButtonAdminProblemsNav } from '@components/Navigation/ButtonAdminProblemsNav';
-import { ButtonAdminUsersNav } from '@components/Navigation/ButtonAdminUsersNav';
-import { ButtonAdminSettingsNav } from '@components/Navigation/ButtonAdminSettingsNav';
+import { ButtonAdminHomeNav } from '@components/Admin/Navigation/ButtonAdminHomeNav';
+import { ButtonAdminSearchNav } from '@components/Admin/Navigation/ButtonAdminSearchNav';
+import { ButtonAdminProblemsNav } from '@components/Admin/Navigation/ButtonAdminProblemsNav';
+import { ButtonAdminUsersNav } from '@components/Admin/Navigation/ButtonAdminUsersNav';
+import { ButtonAdminSettingsNav } from '@components/Admin/Navigation/ButtonAdminSettingsNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
-import { AdminToggleDropDownMenu } from '@components/UI/AdminToggleDropDownMenu';
+import { AdminToggleDropDownMenu } from '@components/Admin/Navigation/AdminToggleDropDownMenu';
 import { SelectLarge } from '@components/UI/SelectLarge';
-import { useAdminLogout } from '@/hooks/useAdminLogout';
+import { useAdminLogout } from '@hooks/Admin/useAdminLogout';
 
 // Accept problemCount as a prop
 

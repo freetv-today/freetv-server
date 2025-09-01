@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from '@/utils';
-import { AdminShowActions } from './AdminShowActions';
+import { AdminShowActions } from '@components/Admin/Navigation/AdminShowActions';
 
 /**
  * AdminSearchResults - displays admin search results in a table with admin actions

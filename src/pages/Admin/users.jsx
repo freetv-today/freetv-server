@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext';
-import { useAdminSession } from '@/hooks/useAdminSession';
-import { UserModal } from '@/components/Admin/UserModal';
-import { PasswordModal } from '@/components/Admin/PasswordModal';
-import { ConfirmDeleteModal } from '@/components/Admin/ConfirmDeleteModal';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { formatDateTime } from '@/utils';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
+import { UserModal } from '@/components/Admin/UI/UserModal';
+import { PasswordModal } from '@/components/Admin/UI/PasswordModal';
+import { ConfirmDeleteModal } from '@/components/Admin/UI/ConfirmDeleteModal';
 
 export function AdminUsers() {
-    const { debugmode } = useConfig();
+    const log = useDebugLog();
     const user = useAdminSession();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -17,10 +18,8 @@ export function AdminUsers() {
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard - User Manager";
-        if (debugmode) {
-            console.log('Rendered Admin User Manager page (pages/Admin/users.jsx)');
-        }
-    }, [debugmode]);
+        log('Rendered Admin User Manager page (pages/Admin/users.jsx)');
+    }, []);
 
     useEffect(() => {
         fetchUsers();
@@ -172,8 +171,8 @@ export function AdminUsers() {
                                     <td>{user.username}</td>
                                     <td>{user.role}</td>
                                     <td>{user.status}</td>
-                                    <td>{user.created ? new Date(user.created).toLocaleString(undefined, { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                                    <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString(undefined, { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td>{formatDateTime(user.created)}</td>
+                                    <td>{formatDateTime(user.lastLogin)}</td>
                                     <td>
                                         <button className="btn btn-sm btn-secondary me-1" onClick={() => handleEditUser(user)} disabled={user.role === 'admin'}>Edit</button>
                                         <button className="btn btn-sm btn-warning me-1" onClick={() => handleChangePass(user)}>Change Password</button>

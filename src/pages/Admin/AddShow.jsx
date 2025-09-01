@@ -1,15 +1,23 @@
-import { useContext, useMemo, useState, useRef } from 'preact/hooks';
+import { useContext, useMemo, useState, useEffect } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
-import { AdminShowForm } from '@/components/Admin/AdminShowForm';
+import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function AddShow() {
+
+  const log = useDebugLog();
   const { route } = useLocation();
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+  const [setAdminMsg] = useLocalStorage('adminMsg', null);
+
+  useEffect(() => {
+    document.title = "Free TV: Admin Dashboard - Add Show";
+    log('Rendered Add Show page (pages/Admin/AddShow.jsx)');
+  }, []);  
 
   // Get unique categories for select
   const categories = useMemo(() => {

@@ -1,23 +1,19 @@
 // src/pages/Category/index.jsx
 import { useRoute } from 'preact-iso';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext';
 import { ShowListSidebar } from '@components/UI/ShowListSidebar';
 import { capitalizeFirstLetter } from '@/utils';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function Category() {
-  
   const { params } = useRoute(); // Use useRoute for dynamic route params
   const category = params.name;
-  const { debugmode } = useConfig();
+  const log = useDebugLog();
   
   useEffect(() => {
     document.title = `Free TV: ${capitalizeFirstLetter(category)}`;
-    if (debugmode) {
-		  console.log('Rendered Category page (pages/Category/index.jsx)');
-      console.log(`Selected Category: ${capitalizeFirstLetter(category)}`);
-	  }
-  }, [debugmode, category]);
+    log('Rendered Category page (pages/Category/index.jsx)');
+  }, [category]);
 
   return (
     <div class="container-fluid mt-3 mb-5" style="min-height: calc(100vh - 112px);">

@@ -1,16 +1,13 @@
 import { ShowListSidebar } from '@components/UI/ShowListSidebar';
 import { useEffect } from 'preact/hooks';
-import { useConfig } from '@/context/ConfigContext';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function Recent() {
-  const { debugmode } = useConfig();
-
+  const log = useDebugLog();
   useEffect(() => {
     document.title = "Free TV: Recent";
-    if (debugmode) {
-		  console.log('Rendered Recent page (pages/Recent/index.jsx)');
-	  }
-  }, [debugmode]);
+    log('Rendered Recent page (pages/Recent/index.jsx)');
+  }, []);
 
   return (
     <div class="container-fluid mt-3 mb-5" style="min-height: calc(100vh - 112px);">

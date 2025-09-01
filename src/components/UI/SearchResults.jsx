@@ -2,15 +2,21 @@ import { useState } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils';
 import { useQueueVideo } from '@hooks/useQueueVideo';
 import { DescriptionModal } from '@components/UI/DescriptionModal';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function SearchResults({ results }) {
+  const log = useDebugLog();
   const { queueVideo } = useQueueVideo();
   const [showModal, setShowModal] = useState(false);
   const [selectedShow, setSelectedShow] = useState(null);
 
   if (!results) return null;
+  let query = localStorage.getItem('searchQuery');
   if (results.length === 0) {
+    log(`No search results found for query: ${query}`, 'warn');
     return <p class="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
+  } else {
+    log(`Displaying ${results.length} results for query: ${query}`);
   }
 
   const handleShowInfo = (show) => {
@@ -62,7 +68,10 @@ export function SearchResults({ results }) {
                   style={{ minWidth: '200px', maxWidth: '600px', whiteSpace: 'normal' }}
                   title={show.desc}
                 >
-                  {show.desc}
+                  {/* Use Bootstrap class to truncate long text with ellipses (...) */}
+                  <span class="d-inline-block text-truncate" style="max-width: 275px;">
+                    {show.desc}
+                  </span>
                 </td>
                 <td style={{ width: '110px' }}>
                   <button

@@ -2,13 +2,14 @@ import { useEffect, useState, useRef } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo.jsx';
 import { Link } from '@components/UI/Link.jsx';
+import { useDebugLog } from '@hooks/useDebugLog';
 
 export function NowPlaying() {
-
   const [currentVid] = useLocalStorage('currentVid', null);
   const [loading, setLoading] = useState(true);
   const [timeoutError, setTimeoutError] = useState(false);
   const timeoutRef = useRef(null);
+  const log = useDebugLog();
 
   // Effect for timeout logic (runs on loading/timeoutError change)
   useEffect(() => {
@@ -16,21 +17,22 @@ export function NowPlaying() {
       timeoutRef.current = setTimeout(() => {
         setTimeoutError(true);
         setLoading(false);
-      }, 90000);
+      }, 90000);  // default timeout is 90 seconds
     }
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [loading, timeoutError]);
 
-  // Effect to clear currentVid ONLY on unmount
+  // Effect to clear currentVid on unmount (e.g. leaving the page)
   useEffect(() => {
     return () => {
-      // Remove the key entirely from localStorage
+      // Remove key from local storage
       localStorage.removeItem('currentVid');
     };
   }, []);
 
+  // if user returns to the route and there is no currentVid data
   if (!currentVid) {
     return (
       <div class="container text-center my-5">
@@ -51,7 +53,7 @@ export function NowPlaying() {
     setTimeoutError(false);
     // Log only once per load
     if (title) {
-      console.log(`Video ${title} loaded`);
+      log(`Video ${title} loaded`);
     }
   };
 

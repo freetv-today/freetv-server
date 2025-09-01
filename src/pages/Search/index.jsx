@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'preact/hooks';
-import useSearchResults from '@/hooks/useSearchResults';
-import { useConfig } from '@/context/ConfigContext';
+import { useSearchResults } from '@/hooks/useSearchResults';
 import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { SearchResults } from '@components/UI/SearchResults';
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function Search() {
-  const { debugmode } = useConfig();
+  const log = useDebugLog();
   const { showData } = useContext(PlaylistContext);
+
   // Try to restore query from localStorage
   const getInitialQuery = () => {
     try {
@@ -19,6 +20,7 @@ export function Search() {
       return '';
     }
   };
+
   const [query, setQuery] = useState(getInitialQuery());
   // Use shared hook for search results
   const results = useSearchResults(showData, query, {
@@ -31,10 +33,8 @@ export function Search() {
 
   useEffect(() => {
     document.title = "Free TV: Search";
-    if (debugmode) {
-      console.log('Rendered Search page (pages/Search/index.jsx)');
-    }
-  }, [debugmode]);
+    log('Rendered Search page (pages/Search/index.jsx)');
+  }, []);
 
   // Auto-run search if query exists on mount
   useEffect(() => {

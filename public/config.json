@@ -1,7 +1,10 @@
 {
     "name": "Free TV",
-    "version": "2.0.4 - beta",
-    "lastupdated": "2025-08-28T12:48:02.623Z",
+    "version": "2.0.5 - beta",
+    "author": "Ken Dawson",
+    "email": "support@freetv.today",
+    "link": "https://freetv.today",
+    "lastupdated": "2025-08-31T13:03:05.608Z",
     "offline": false,
     "appdata": true,
     "collector":"https://freetv.today/api/beacon.php",

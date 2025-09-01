@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
+import { useDebugLog } from '@/hooks/useDebugLog';
+import { resetUrl } from '@/utils';
 
 export function AdminLogin() {
 
+    const log = useDebugLog();
     const { url, route } = useLocation();
     const params = new URLSearchParams(url.split('?')[1] || '');
-    // Log when Admin page mounts
-    console.log('[Admin] page mount, url:', url);
     const loggedOut = params.get('loggedout') === '1';
 
     const [error, setError] = useState('');
@@ -21,8 +22,11 @@ export function AdminLogin() {
             .then(res => res.json())
             .then(data => {
                 if (isMounted && data.loggedIn) {
+                    log('You are already logged in. Redirected to Admin Dashboard');
                     route('/dashboard');
                 } else {
+                    log('Rendered Admin Dashboard login (pages/Admin/index.jsx)');
+                    log('Please log in to your Admin Dashboard account');
                     setCheckingSession(false);
                 }
             })
@@ -33,28 +37,25 @@ export function AdminLogin() {
     }, [route]);
 
     useEffect(() => {
-        document.title = "Free TV: Admin";
-        // add the css link if it doesn't already exist
+        // add admin.css link if it doesn't already exist
         if (!document.getElementById('admin-css')) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = '/assets/admin.css';
-        link.id = 'admin-css';
-        document.head.appendChild(link);
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/assets/admin.css';
+            link.id = 'admin-css';
+            document.head.appendChild(link);
         }
-        // Remove on unmount
+        // Remove admin.css on unmount
         return () => {
-        const el = document.getElementById('admin-css');
-        if (el) el.remove();
+            const el = document.getElementById('admin-css');
+            if (el) el.remove();
         };
     }, []);
-
 
     // Remove ?loggedout=1 from URL after showing the alert
     useEffect(() => {
         if (loggedOut) {
-            const baseUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, baseUrl);
+            setTimeout(resetUrl, 1000);
         }
     }, [loggedOut]);
 
@@ -73,6 +74,10 @@ export function AdminLogin() {
             return () => clearTimeout(timer);
         }
     }, [error]);
+
+    useEffect(() => {
+		document.title = "Free TV: Admin Dashboard";
+	}, []);
         
     async function handleLogin(e) {
         e.preventDefault();

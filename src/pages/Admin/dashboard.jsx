@@ -1,19 +1,22 @@
 import { useEffect, useState, useContext } from 'preact/hooks';
-import { useAdminSession } from '@/hooks/useAdminSession';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { PlaylistContext } from '@/context/PlaylistContext';
-import { AdminDashboardTable } from '@/components/Admin/AdminDashboardTable';
-import { AdminDashboardFilters } from '@/components/Admin/AdminDashboardFilters';
-import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
-import { AdminInfoModal } from '@/components/Admin/AdminInfoModal';
-import { AdminMessage } from '@/components/Admin/AdminMessage';
-import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal';
-import { AdminPlaylistMetaModal } from '@/components/Admin/AdminPlaylistMetaModal';
-import { useAdminShowActions } from '@/hooks/useAdminShowActions';
+import { AdminDashboardTable } from '@/components/Admin/UI/AdminDashboardTable';
+import { AdminDashboardFilters } from '@/components/Admin/UI/AdminDashboardFilters';
+import { NavbarSubNavAdmin } from '@/components/Admin/Navigation/NavbarSubNavAdmin';
+import { AdminInfoModal } from '@/components/Admin/UI/AdminInfoModal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
+import { AdminTestVideoModal } from '@/components/Admin/UI/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/UI/AdminDeleteShowModal';
+import { AdminPlaylistMetaModal } from '@/components/Admin/UI/AdminPlaylistMetaModal';
+import { useAdminShowActions } from '@hooks/Admin/useAdminShowActions';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function Dashboard() {
+
+    const log = useDebugLog();
     const user = useAdminSession();
-    const { showData, currentPlaylist, changePlaylist, currentPlaylistData } = useContext(PlaylistContext);
+    const { showData, currentPlaylist, currentPlaylistData } = useContext(PlaylistContext);
     const playlistMeta = currentPlaylistData || null;
     const playlistName = playlistMeta ? playlistMeta.dbtitle : '';
 
@@ -48,6 +51,27 @@ export function Dashboard() {
     // State for info modal
     const [showInfoModal, setShowInfoModal] = useState(false);
 
+    // Generic modal close handler
+    function handleCloseModal(modal, reason) {
+        switch (modal) {
+            case 'meta':
+                if (reason === 'cancel') log('Playlist Meta Data operation was cancelled');
+                setShowMetaModal(false);
+                break;
+            case 'deleteShow':
+                if (reason === 'cancel') log('Delete Show operation was cancelled');
+                closeDeleteModal();
+                break;
+            case 'info':
+                if (reason === 'cancel') log('Playlist Information operation was cancelled');
+                setShowInfoModal(false);
+                break;
+            // Add more cases for other modals as needed
+            default:
+                break;
+        }
+    }
+
     // Handle sorting when header is clicked
     function handleSort(column) {
         if (sortBy === column) {
@@ -59,8 +83,14 @@ export function Dashboard() {
     }
 
     function handleOpenMetaModal() {
+        log('Editing Playlist Meta Data');
         setShowMetaModal(true);
         setMetaError(null);
+    }
+
+    function handleOpenInfoModal() {
+        log('Viewing Playlist Information');
+        setShowInfoModal(true);
     }
 
     async function handleSaveMeta(updatedMeta) {
@@ -79,14 +109,6 @@ export function Dashboard() {
             const data = await res.json();
             if (!res.ok || !data.success) {
                 setMetaError(data && data.message ? data.message : 'Save failed.');
-            } else {
-                // Optionally, rebuild index and refresh context
-                await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
-                if (typeof changePlaylist === 'function' && currentPlaylist) {
-                    await changePlaylist(currentPlaylist, true, false);
-                }
-                setShowMetaModal(false);
-                // Optionally, set a success message via AdminMessage/localStorage
             }
         } catch (err) {
             setMetaError('Save failed.');
@@ -97,6 +119,7 @@ export function Dashboard() {
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard";
+        log('Rendered Dashboard page (pages/Admin/dashboard.jsx)');
     }, []);
 
     if (!user) return null;
@@ -111,7 +134,10 @@ export function Dashboard() {
         <div className="container mt-3">
             <h1 class="text-center mb-2">Admin Dashboard</h1>
             <AdminMessage />
-            <NavbarSubNavAdmin onMetaClick={handleOpenMetaModal} onInfoClick={() => setShowInfoModal(true)} />
+            <NavbarSubNavAdmin 
+                onMetaClick={handleOpenMetaModal} 
+                onInfoClick={handleOpenInfoModal}
+            />
             <AdminDashboardFilters
                 shows={showData || []}
                 filterCategory={filterCategory}
@@ -139,7 +165,7 @@ export function Dashboard() {
             />
             <AdminDeleteShowModal
                 show={showDeleteModal}
-                onClose={closeDeleteModal}
+                onClose={reason => handleCloseModal('deleteShow', reason)}
                 showData={showToDelete}
                 deleting={deleting}
                 error={deleteError}
@@ -147,7 +173,7 @@ export function Dashboard() {
             />
             <AdminPlaylistMetaModal
                 show={showMetaModal}
-                onClose={() => setShowMetaModal(false)}
+                onClose={reason => handleCloseModal('meta', reason)}
                 meta={playlistMeta}
                 saving={metaSaving}
                 error={metaError}
@@ -155,7 +181,7 @@ export function Dashboard() {
             />
             <AdminInfoModal
                 show={showInfoModal}
-                onClose={() => setShowInfoModal(false)}
+                onClose={reason => handleCloseModal('info', reason)}
                 stats={{
                   totalShows,
                   activeShows,

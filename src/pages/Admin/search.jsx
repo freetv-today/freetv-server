@@ -1,18 +1,17 @@
-
 import { useState, useEffect, useContext } from 'preact/hooks';
-import useSearchResults from '@/hooks/useSearchResults';
-import { useConfig } from '@/context/ConfigContext';
-import { useAdminSession } from '@/hooks/useAdminSession';
+import { useSearchResults } from '@/hooks/useSearchResults';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
-import { AdminSearchResults } from '@components/Admin/AdminSearchResults';
-import { AdminTestVideoModal } from '@/components/Admin/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@/components/Admin/AdminDeleteShowModal';
-import { useAdminShowActions } from '@/hooks/useAdminShowActions';
+import { AdminSearchResults } from '@components/Admin/UI/AdminSearchResults';
+import { AdminTestVideoModal } from '@/components/Admin/UI/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/UI/AdminDeleteShowModal';
+import { useAdminShowActions } from '@hooks/Admin/useAdminShowActions';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function AdminSearch() {
-    const { debugmode } = useConfig();
+    const log = useDebugLog();
     const user = useAdminSession();
     const { showData } = useContext(PlaylistContext);
     const {
@@ -52,10 +51,8 @@ export function AdminSearch() {
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard - Search";
-        if (debugmode) {
-            console.log('Rendered Admin Search page (pages/Admin/search.jsx)');
-        }
-    }, [debugmode]);
+        log('Rendered Admin Search page (pages/Admin/search.jsx)');
+    }, []);
 
     // Auto-run search if query exists on mount
     useEffect(() => {

@@ -1,19 +1,23 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { confirmPlaylistReload } from '@/utils';
+import { useDebugLog } from '@hooks/useDebugLog';
 
+// Yellow nav buttons which appear on NowPlaying screen
+// The Episode Playlist toggle button controls whether the
+// playlist from Internet Archive (&playlist=1) is shown or not
 export function ButtonVideoNav() {
+  const log = useDebugLog();
   const [embedPlaylist, setEmbedPlaylist] = useLocalStorage('embedPlaylist', true);
 
   const handlePlaylistToggle = (e) => {
     // Prevent the checkbox from toggling automatically
     e.preventDefault();
-
     const newValue = !embedPlaylist;
     if (confirmPlaylistReload()) {
       setEmbedPlaylist(newValue);
-      window.location.reload();
+      log('Episode Playlist button has been toggled');
+      setTimeout('window.location.reload();', 500);
     }
-    // If cancelled, do nothing: the checked prop will keep the button in sync
   };
 
   return (

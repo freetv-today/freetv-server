@@ -6,7 +6,7 @@ export function AdminInfoModal({ show, onClose, stats }) {
   useEffect(() => {
     if (!show) return;
     function onKey(e) {
-      if (e.key === 'Escape') onClose();
+  if (e.key === 'Escape') onClose('cancel');
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -21,7 +21,7 @@ export function AdminInfoModal({ show, onClose, stats }) {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Current Playlist Information</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+            <button type="button" className="btn-close" aria-label="Close" onClick={() => onClose('cancel')}></button>
           </div>
           <div className="modal-body">
             <ul className="list-group list-group-flush">
@@ -40,7 +40,7 @@ export function AdminInfoModal({ show, onClose, stats }) {
             </ul>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
+            <button type="button" className="btn btn-secondary" onClick={() => onClose('cancel')}>Close</button>
           </div>
         </div>
       </div>

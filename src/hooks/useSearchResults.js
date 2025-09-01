@@ -7,7 +7,8 @@ import { useMemo } from 'preact/hooks';
  * @param {Object} [options] - Optional config (e.g., custom filter function)
  * @returns {Array} filteredResults - The filtered search results
  */
-export default function useSearchResults(showData, query, options = {}) {
+
+export function useSearchResults(showData, query, options = {}) {
   const { filterFn } = options;
 
   // Memoize filtered results for performance
