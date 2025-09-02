@@ -1,4 +1,3 @@
-// src/components/UI/Link.jsx
 import { useLocation } from 'preact-iso';
 
 export function Link({ href, class: className, activeClass = 'active', children, ...props }) {

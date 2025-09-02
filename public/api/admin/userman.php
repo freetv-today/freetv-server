@@ -77,14 +77,17 @@ switch ($action) {
             exit;
         }
         $id = max(array_column($users, 'id')) + 1;
-        $created = date('c');
+        // ISO8601 with milliseconds and Z
+        $dt = new DateTime('now', new DateTimeZone('UTC'));
+        $millis = (int)($dt->format('u') / 1000);
+        $iso8601 = $dt->format('Y-m-d\TH:i:s') . '.' . str_pad($millis, 3, '0', STR_PAD_LEFT) . 'Z';
         $users[] = [
             'id' => $id,
             'username' => $username,
             'password' => password_hash($password, PASSWORD_DEFAULT),
             'role' => $role,
             'status' => $status,
-            'created' => $created,
+            'created' => $iso8601,
             'lastLogin' => ''
         ];
         save_users($apdata_path, $users);

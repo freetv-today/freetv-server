@@ -1,4 +1,3 @@
-// src/components/Navigation/NavbarMain.jsx
 import { ButtonAdminHomeNav } from '@components/Admin/Navigation/ButtonAdminHomeNav';
 import { ButtonAdminSearchNav } from '@components/Admin/Navigation/ButtonAdminSearchNav';
 import { ButtonAdminProblemsNav } from '@components/Admin/Navigation/ButtonAdminProblemsNav';
@@ -12,6 +11,7 @@ import { useAdminLogout } from '@hooks/Admin/useAdminLogout';
 // Accept problemCount as a prop
 
 export function NavbarAdmin({ problemCount }) {
+
   const handleLogout = useAdminLogout();
 
   return (

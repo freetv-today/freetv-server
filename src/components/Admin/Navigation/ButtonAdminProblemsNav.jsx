@@ -5,7 +5,6 @@ export function ButtonAdminProblemsNav({ count }) {
     <Link
       href="/dashboard/problems"
       class="btn btn-sm icon-btn problems-icon me-2 position-relative"
-      title="Admin Dashboard Problems"
     >
       {count > 0 && (
         <span

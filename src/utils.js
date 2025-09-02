@@ -32,6 +32,7 @@ export function generateNewCode() {
 // accepts 1 argument: string to modify
 // Usage: capitalizeFirstLetter('foobar') -- returns 'Foobar'
 export function capitalizeFirstLetter(string) {
+  if (!string || typeof string !== 'string') return '';
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 

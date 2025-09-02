@@ -6,6 +6,7 @@ export function UserModal({ show, onClose, onSubmit, user, mode }) {
   const [role, setRole] = useState(user?.role || 'editor');
   const [status, setStatus] = useState(user?.status || 'active');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export function UserModal({ show, onClose, onSubmit, user, mode }) {
     setStatus(user?.status || 'active');
     setPassword('');
     setError('');
+    setShowPassword(false);
   }, [user, show]);
 
   function handleSubmit(e) {
@@ -74,7 +76,24 @@ export function UserModal({ show, onClose, onSubmit, user, mode }) {
             {mode === 'add' && (
               <div className="mb-3">
                 <label className="form-label">Password</label>
-                <input className="form-control" type="password" value={password} onInput={e => setPassword(e.currentTarget.value)} />
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onInput={e => setPassword(e.currentTarget.value)}
+                />
+                <div className="form-check mt-2">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="showAddPassword"
+                    checked={showPassword}
+                    onChange={e => setShowPassword(e.currentTarget.checked)}
+                  />
+                  <label className="form-check-label" htmlFor="showAddPassword">
+                    Show password
+                  </label>
+                </div>
               </div>
             )}
           </div>

@@ -35,7 +35,9 @@ export function ShowListSidebar({ context, category }) {
       )
       .filter(Boolean); // Remove any not found
   }
-  log(`Selected category: ${capitalizeFirstLetter(category)}`);
+  if (category) {
+    log(`Selected category: ${capitalizeFirstLetter(category)}`);
+  }
   log(`There are ${shows.length} titles in this category`);
 
   return (
