@@ -9,7 +9,7 @@ export function ButtonAdminProblemsNav({ count }) {
       {count > 0 && (
         <span
           className="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
-          style={{ top: '18%' }}
+          style={{ top: '17%' }}
           title={`There are ${count} problems`}
         >
           {count}

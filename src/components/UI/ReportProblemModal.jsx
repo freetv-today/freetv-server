@@ -13,9 +13,10 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {string} props.start - Start year
  * @param {string} props.end - End year
  * @param {string} props.imdb - IMDB id
+ * @param {string} props.playlist - Playlist filename
  * @returns {import('preact').JSX.Element|null}
  */
-export function ReportProblemModal({ show, onClose, title, category, identifier, desc, start, end, imdb }) {
+export function ReportProblemModal({ show, onClose, title, category, identifier, desc, start, end, imdb, playlist }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -52,7 +53,7 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
       const response = await fetch('/api/report-problem.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, category, identifier, desc, start, end, imdb })
+        body: JSON.stringify({ title, category, identifier, desc, start, end, imdb, playlist })
       });
       let data = null;
       try {

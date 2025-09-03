@@ -3,8 +3,8 @@ import { NavbarAdmin } from '@components/Admin/Navigation/NavbarAdmin';
 import { useProblemCount } from '@hooks/Admin/useProblemCount';
 
 export function LayoutAdmin ({ children }) {
-  const problemCount = useProblemCount();
 
+  const problemCount = useProblemCount();
   useEffect(() => {
     // Only add the link if it doesn't already exist
     if (!document.getElementById('admin-css')) {

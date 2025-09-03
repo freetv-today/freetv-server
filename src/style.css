@@ -110,6 +110,7 @@ body {
     background-position: center;
     background-size: 30px 30px;
     transition: background-image 0.3s ease;
+    border: none;
 }
 .icon-btn:hover {
     transform: scale(1.3);

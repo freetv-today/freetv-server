@@ -1,4 +1,4 @@
-import { Router, Route } from 'preact-iso';
+import { Router, Route, useLocation } from 'preact-iso';
 import { useContext, useEffect } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
@@ -58,11 +58,15 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
+  const { url } = useLocation();
   const ctx = useContext(PlaylistContext);
   const { playlistSwitching } = ctx;
 
   // Render spinner during playlist switching
   if (playlistSwitching) {
+    if (url && url.startsWith('/dashboard')) {
+      return <LayoutAdmin><SpinnerLoadingAppData /></LayoutAdmin>;
+    }
     return <LayoutFullpage><SpinnerLoadingAppData /></LayoutFullpage>;
   }
 

@@ -1,6 +1,6 @@
 <?php
 
-// Module: Report Problem
+// Report Problem
 // Works with src/components/Navigation/ButtonShowTitleNav.jsx to
 // allow users to report problems titles which need to be removed
 
@@ -11,6 +11,8 @@ $MSG_TOO_MANY_REQUESTS = 'You are submitting problem reports too quickly. Please
 $MSG_ALREADY_REPORTED = 'You have already reported this title.';
 $MSG_SUCCESS = 'Thank you! Your problem report has been received.';
 $MSG_WRITE_ERROR = 'Could not write to log file.';
+$MSG_API_ERROR = 'Could not connect to Internet Archive API server';
+
 header('Content-Type: application/json; charset=utf-8');
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -27,15 +29,75 @@ if (!$input || !isset($input['title'], $input['identifier'])) {
     exit;
 }
 
+
 $title = $input['title'];
 $category = $input['category'] ?? '';
 $identifier = $input['identifier'];
 $imdb = $input['imdb'] ?? '';
+$playlist = $input['playlist'] ?? '';
 $date = date('c');
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 $logDir = $_SERVER['DOCUMENT_ROOT'] . '/logs';
 $logFile = $logDir . '/errors.json';
 $ipLogFile = $logDir . '/report-ip-log.json';
+
+// For playlist file path
+$playlistFile = '';
+if ($playlist && preg_match('/^[\w\-\.]+\.json$/', $playlist)) {
+    $playlistFile = $_SERVER['DOCUMENT_ROOT'] . '/playlists/' . $playlist;
+}
+
+// Construct API URL for Internet Archive
+$url = "https://archive.org/metadata/{$identifier}/is_dark";
+
+// DEV USE: for testing to make API lookup fail
+// $url = "https://this-domain-does-not-exist-123456789.com/metadata/{$identifier}/is_dark";
+
+// Fetch API response from Internet Archive server
+// (@ suppresses warnings if fails)
+
+$archiveApiError = false;
+$isDark = false;
+$data = null;
+$response = @file_get_contents($url);
+if ($response === false) {
+    // API error: log report with archiveApiError flag, but do not attempt to disable
+    $archiveApiError = true;
+} else {
+    $data = json_decode($response, true);
+    if (isset($data['result']) && $data['result'] === true) {
+        $isDark = true;
+    } elseif (isset($data['error']) && str_contains($data['error'], "Couldn't get 'is_dark'")) {
+        $isDark = false; // file is not flagged as "is_dark"
+    } elseif (isset($data['error'])) {
+        // Other errors (e.g., item not found): treat as not dark, but log error
+        $archiveApiError = true;
+    }
+}
+
+// If title is flagged as "is_dark" from the Internet Archive, try to disable in playlist
+if ($isDark && $playlistFile && file_exists($playlistFile)) {
+    $playlistData = json_decode(file_get_contents($playlistFile), true);
+    if (isset($playlistData['shows']) && is_array($playlistData['shows'])) {
+        $found = false;
+        foreach ($playlistData['shows'] as &$show) {
+            if (isset($show['identifier']) && $show['identifier'] === $identifier) {
+                $show['status'] = 'disabled';
+                $found = true;
+            }
+        }
+        unset($show);
+        if ($found) {
+            // Update lastupdated
+            $playlistData['lastupdated'] = gmdate('Y-m-d\TH:i:s.v\Z');
+            file_put_contents($playlistFile, json_encode($playlistData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            // Call rebuild_index
+            require_once __DIR__ . '/admin/playlist_utils.php';
+            rebuild_index();
+        }
+    }
+}
+
 // Ensure log directory exists
 if (!is_dir($logDir)) {
     mkdir($logDir, 0777, true);
@@ -120,6 +182,9 @@ foreach ($errors['reports'] as &$report) {
             ? $report['reportCount'] + 1
             : 2;
         $report['date'] = $date;
+        if ($archiveApiError) {
+            $report['archiveApiError'] = true;
+        }
         if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
@@ -140,7 +205,9 @@ foreach ($errors['reports'] as &$report) {
 }
 unset($report);
 // 2. If not found, add new report
-$errors['reports'][] = [
+// Build new report entry
+$reportEntry = [
+    'playlist' => $playlist,
     'title' => $title,
     'category' => $category,
     'identifier' => $identifier,
@@ -150,6 +217,10 @@ $errors['reports'][] = [
     'reportCount' => 1,
     'status' => 'reported'
 ];
+if ($archiveApiError) {
+    $reportEntry['archiveApiError'] = true;
+}
+$errors['reports'][] = $reportEntry;
 if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
@@ -203,6 +274,7 @@ foreach ($errors['reports'] as &$report) {
 unset($report);
 // If not found, add new report
 $errors['reports'][] = [
+    'playlist' => $playlist,
     'title' => $title,
     'category' => $category,
     'identifier' => $identifier,
