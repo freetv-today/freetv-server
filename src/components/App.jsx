@@ -1,8 +1,8 @@
-// src/App.jsx
 import { Router, Route } from 'preact-iso';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { handleKeyPress } from '@/utils';
 // Layout templates 
 import { LayoutDefault } from '@components/Layouts/LayoutDefault';
 import { LayoutSubnav } from '@components/Layouts/LayoutSubnav';
@@ -52,6 +52,12 @@ const TestPageRoute = () => <LayoutFullpage><TestPage /></LayoutFullpage>;
 const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 
 export function App() {
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   const ctx = useContext(PlaylistContext);
   const { playlistSwitching } = ctx;
 

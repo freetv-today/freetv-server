@@ -93,3 +93,12 @@ export function formatDateTime(date, options = {}) {
   const defaultOptions = { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
   return d.toLocaleString(undefined, { ...defaultOptions, ...options });
 }
+
+// Handle keypress events
+export function handleKeyPress(event) {
+  // Check if SHIFT + A is pressed
+  if (event.shiftKey && event.key === 'A') {
+    event.preventDefault();
+    window.location.href = '/admin';
+  }
+}

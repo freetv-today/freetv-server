@@ -18,7 +18,7 @@ import { useQueueVideo } from '@hooks/useQueueVideo';
 
 export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
 
-  const { debugmode, modules } = useConfig();
+  const { modules } = useConfig();
   const [showModal, setShowModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const { queueVideo } = useQueueVideo();
@@ -72,6 +72,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
                   Report a problem
                 </a>
               </li>
+              {/* 
               <li>
                 <a
                   class="dropdown-item moreoptions text-secondary"
@@ -91,7 +92,8 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
                 >
                   Add to favorites
                 </a>
-              </li>
+              </li> 
+              */}
             </div>
           )}
         </ul>

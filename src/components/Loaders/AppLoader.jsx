@@ -104,7 +104,7 @@ export function AppLoader() {
     return (
         <ConfigProvider config={config}>
             <PlaylistProvider>
-                <App setConfig={setConfig} />
+                <App />
             </PlaylistProvider>
         </ConfigProvider>
     );
