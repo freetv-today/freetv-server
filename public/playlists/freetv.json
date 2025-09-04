@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-08-30T15:32:21.000Z",
+    "lastupdated": "2025-08-12T01:33:54.018Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -170,6 +170,16 @@
         {
             "category": "comedy",
             "status": "active",
+            "identifier": "abbott_costello_the_vacation",
+            "title": "Abbott & Costello",
+            "desc": "The Abbott and Costello Show features Bud Abbott and Lou Costello as out-of-work actors and roommates staying at Mr. Field's Hollywood boarding house.",
+            "start": "1952",
+            "end": "1957",
+            "imdb": "tt0044229"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
             "identifier": "FawltyTowers",
             "title": "Fawlty Towers",
             "desc": "Hotel owner Basil Fawlty's incompetence, short fuse, and arrogance form a combination that ensures accidents and trouble are never far away.",
@@ -236,6 +246,16 @@
             "start": "1962",
             "end": "1968",
             "imdb": "tt0055686"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "the-red-green-show",
+            "title": "The Red Green Show",
+            "desc": "Red Green airs his handyman show from Possum Lodge, Canada, and experiences some zany adventures in real life.",
+            "start": "1991",
+            "end": "2006",
+            "imdb": "tt0101177"
         },
         {
             "category": "documentary",
@@ -316,6 +336,16 @@
             "start": "1963",
             "end": "1967",
             "imdb": "tt0056757"
+        },
+        {
+            "category": "drama",
+            "status": "active",
+            "identifier": "GreenHornetTV",
+            "title": "The Green Hornet",
+            "desc": "A newspaper publisher and his Asian valet/martial arts expert battle crime as the feared Green Hornet and Kato.",
+            "start": "1966",
+            "end": "1967",
+            "imdb": "tt0059991"
         },
         {
             "category": "drama",
@@ -516,6 +546,16 @@
             "start": "1968",
             "end": "1970",
             "imdb": "tt0062565"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "GreenAcresCompleteSeries",
+            "title": "Green Acres",
+            "desc": "A New York City attorney and his wife attempt to live as farmers in the bizarre community of Hooterville.",
+            "start": "1965",
+            "end": "1971",
+            "imdb": "tt0058808"
         },
         {
             "category": "comedy",
