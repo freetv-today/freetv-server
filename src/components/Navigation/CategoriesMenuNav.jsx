@@ -16,7 +16,7 @@ export function CategoriesMenuNav() {
   ].sort((a, b) => a.localeCompare(b));
 
   return (
-    <div id="mainnav" class="border-bottom border-2 border-dark w-100 p-2 btn-scroll-container text-center">
+    <div id="mainnav" className="border-bottom border-2 border-dark w-100 p-2 btn-scroll-container text-center">
       {categories.map((category) => (
         <ButtonCategoryNav
           key={category}

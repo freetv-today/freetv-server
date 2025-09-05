@@ -26,7 +26,7 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
   useEffect(() => {
     if (imdb) {
       const img = new window.Image();
-      img.src = `/src/assets/thumbs/${imdb}.jpg`;
+      img.src = `/thumbs/${imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
       img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
     } else {
@@ -87,26 +87,26 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
 
   // Modal implementation matches DescriptionModal.jsx, but only shows Title, Category, IMDB, and thumbnail
   return (
-    <div class={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Report a Problem</h5>
-            <button type="button" class="btn-close" aria-label="Close" onClick={onClose}></button>
+    <div className={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Report a Problem</h5>
+            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
           </div>
-          <div class="modal-body">
+          <div className="modal-body">
             {submitted ? (
-              <div class="alert alert-success">
+              <div className="alert alert-success">
                 Thank you! Your problem report has been received.
               </div>
             ) : (
               <>
                 <p>Are you sure you want to report a problem with the following show?</p>
-                <div class="d-flex flex-row gap-2 mb-4 justify-content-center align-middle">
-                  <div class="m-0">
+                <div className="d-flex flex-row gap-2 mb-4 justify-content-center align-middle">
+                  <div className="m-0">
                     <img src={thumbnailSrc} width="100" alt={`${title} Thumbnail`} />
                   </div>
-                  <div class="flex-grow-1 p-2">
+                  <div className="flex-grow-1 p-2">
                     <ul>
                       <li><strong>Title:</strong> {title}</li>
                       <li><strong>Category:</strong> {capitalizeFirstLetter(category)}</li>
@@ -114,17 +114,17 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
                     </ul>
                   </div>
                 </div>
-                {error && <div class="alert alert-danger">{error}</div>}
+                {error && <div className="alert alert-danger">{error}</div>}
               </>
             )}
           </div>
-          <div class="modal-footer">
+          <div className="modal-footer">
             {submitted ? (
-              <button type="button" class="btn btn-secondary" onClick={onClose}>Close</button>
+              <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
             ) : (
               <>
-                <button type="button" class="btn btn-secondary" onClick={onClose} disabled={submitting}>Cancel</button>
-                <button type="button" class="btn btn-danger" onClick={handleSubmit} disabled={submitting || rateLimited}>
+                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>Cancel</button>
+                <button type="button" className="btn btn-danger" onClick={handleSubmit} disabled={submitting || rateLimited}>
                   {submitting ? 'Reporting...' : 'Report Problem'}
                 </button>
               </>

@@ -1,7 +1,7 @@
 export function HelpLicenseInfo() {
   return (
     <section>
-      <h2 class="fs-3 my-5 fw-bold">License</h2>
+      <h2 className="fs-3 my-5 fw-bold">License</h2>
       <p>This software is licensed under the <a href="https://opensource.org/license/mit" target="_blank">MIT License</a></p>
       <p>Copyright &copy; 2024 Ken Dawson</p>
 

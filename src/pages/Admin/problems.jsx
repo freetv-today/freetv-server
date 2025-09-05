@@ -50,7 +50,7 @@ export function AdminProblems() {
     }, [currentPlaylist, currentPlaylistData, markingOk]);
 
     if (!user) return null;
-    if (loading) return <div class="text-center mt-5">Loading...</div>;
+    if (loading) return <div className="text-center mt-5">Loading...</div>;
 
     // Action handlers
     const handleMarkAsOk = async (item) => {
@@ -123,12 +123,12 @@ export function AdminProblems() {
     );
 
     return (
-        <div class="container mt-5">
-            <h2 class="text-center mb-4">Problems Which Need To Be Fixed</h2>
+        <div className="container mt-5">
+            <h2 className="text-center mb-4">Problems Which Need To Be Fixed</h2>
             {/* Reported Problems Table */}
             <h4>Reported Problems</h4>
-            <div class="table-responsive mb-5">
-                <table class="table table-bordered table-striped">
+            <div className="table-responsive mb-5">
+                <table className="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Category</th>
@@ -139,7 +139,7 @@ export function AdminProblems() {
                     </thead>
                     <tbody>
                         {reportedProblems.length === 0 ? (
-                            <tr><td colSpan={4} class="text-center">No reported problems.</td></tr>
+                            <tr><td colSpan={4} className="text-center">No reported problems.</td></tr>
                         ) : (
                             reportedProblems.map(item => (
                                 <tr key={item.identifier}>
@@ -156,8 +156,8 @@ export function AdminProblems() {
 
             {/* Disabled Items Table */}
             <h4>Disabled Items</h4>
-            <div class="table-responsive mb-3">
-                <table class="table table-bordered table-striped">
+            <div className="table-responsive mb-3">
+                <table className="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Category</th>
@@ -168,7 +168,7 @@ export function AdminProblems() {
                     </thead>
                     <tbody>
                         {disabledItems.length === 0 ? (
-                            <tr><td colSpan={4} class="text-center">No disabled items.</td></tr>
+                            <tr><td colSpan={4} className="text-center">No disabled items.</td></tr>
                         ) : (
                             disabledItems.map(item => (
                                 <tr key={item.identifier}>

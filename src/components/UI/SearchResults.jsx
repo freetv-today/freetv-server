@@ -14,7 +14,7 @@ export function SearchResults({ results }) {
   let query = localStorage.getItem('searchQuery');
   if (results.length === 0) {
     log(`No search results found for query: ${query}`, 'warn');
-    return <p class="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
+    return <p className="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
   } else {
     log(`Displaying ${results.length} results for query: ${query}`);
   }
@@ -35,24 +35,24 @@ export function SearchResults({ results }) {
   });
 
   return (
-    <div class="container-fluid my-4">
-      <h2 class="fs-2 fw-bold mb-4 text-center">Search Results:</h2>
-      <div class="table-responsive">
-        <table class="table align-middle">
+    <div className="container-fluid my-4">
+      <h2 className="fs-2 fw-bold mb-4 text-center">Search Results:</h2>
+      <div className="table-responsive">
+        <table className="table align-middle">
           <thead>
             <tr>
-              <th class="w-auto text-nowrap">Category</th>
-              <th class="w-auto text-nowrap pe-2">Title</th>
-              <th class="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>Year</th>
-              <th class="d-none d-md-table-cell flex-grow-1 ps-2" style={{ minWidth: '200px' }}>Description</th>
+              <th className="w-auto text-nowrap">Category</th>
+              <th className="w-auto text-nowrap pe-2">Title</th>
+              <th className="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>Year</th>
+              <th className="d-none d-md-table-cell flex-grow-1 ps-2" style={{ minWidth: '200px' }}>Description</th>
               <th style={{ width: '110px' }}></th>
             </tr>
           </thead>
           <tbody>
             {sortedResults.map(show => (
               <tr key={show.identifier}>
-                <td class="w-auto text-nowrap">{capitalizeFirstLetter(show.category)}</td>
-                <td class="w-auto text-nowrap pe-2">
+                <td className="w-auto text-nowrap">{capitalizeFirstLetter(show.category)}</td>
+                <td className="w-auto text-nowrap pe-2">
                   <a
                     href="#"
                     onClick={e => { e.preventDefault(); handleShowInfo(show); }}
@@ -62,20 +62,20 @@ export function SearchResults({ results }) {
                     {show.title}
                   </a>
                 </td>
-                <td class="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>{show.start}</td>
+                <td className="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>{show.start}</td>
                 <td
-                  class="d-none d-md-table-cell flex-grow-1 ps-2"
+                  className="d-none d-md-table-cell flex-grow-1 ps-2"
                   style={{ minWidth: '200px', maxWidth: '600px', whiteSpace: 'normal' }}
                   title={show.desc}
                 >
                   {/* Use Bootstrap class to truncate long text with ellipses (...) */}
-                  <span class="d-inline-block text-truncate" style="max-width: 275px;">
+                  <span className="d-inline-block text-truncate" style="max-width: 275px;">
                     {show.desc}
                   </span>
                 </td>
                 <td style={{ width: '110px' }}>
                   <button
-                    class="btn btn-sm btn-primary fw-bold"
+                    className="btn btn-sm btn-primary fw-bold"
                     onClick={() => queueVideo({ category: show.category, identifier: show.identifier, title: show.title })}
                   >
                     Watch &#9654;

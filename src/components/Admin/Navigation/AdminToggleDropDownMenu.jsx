@@ -1,25 +1,52 @@
 import { SelectSmall } from '@components/UI/SelectSmall';
 import { useAdminLogout } from '@hooks/Admin/useAdminLogout';
+import { Link } from '@components/UI/Link';
 
 export function AdminToggleDropDownMenu() {
 	const handleLogout = useAdminLogout();
 	return (
-		<ul class="dropdown-menu dropdown-menu-dark dropdown-menu-custom p-2 pb-3">
-			<li class="pt-1 px-1">
+		<ul className="dropdown-menu dropdown-menu-dark dropdown-menu-custom p-2 pb-3">
+			<li className="pt-1 px-1">
 				Playlist:
 				<SelectSmall />
 				<hr/>
 			</li>
-			<li><a class="dropdown-item-custom" href="/dashboard"><span class="icon-sm castle-icon"></span>Home</a></li>
-			<li><a class="dropdown-item-custom" href="/dashboard/search"><span class="icon-sm search-icon"></span>Search</a></li>
-			<li><a class="dropdown-item-custom" href="/dashboard/problems"><span class="icon-sm problems-icon"></span>Problems</a></li>
-			<li><a class="dropdown-item-custom" href="/dashboard/users"><span class="icon-sm users-icon"></span>Users</a></li>
-			<li><a class="dropdown-item-custom" href="/dashboard/settings"><span class="icon-sm settings-icon"></span>Settings</a></li>
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard">
+					<span className="icon-sm castle-icon"></span>Dashboard
+				</Link>
+			</li>
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard/search">
+				<span className="icon-sm search-icon"></span>Search
+				</Link>
+			</li>
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard/thumbnails">
+				<span className="icon-sm thumbs-icon"></span>Thumbnails
+				</Link>
+			</li>			
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard/problems">
+					<span className="icon-sm problems-icon"></span>Problems
+					<span className="position-absolute start-100 translate-middle badge rounded-pill bg-danger" style={{ top: '17%' }}></span>
+				</Link>
+			</li>
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard/users">
+					<span className="icon-sm users-icon"></span>User Manager
+				</Link>
+			</li>
+			<li>
+				<Link className="dropdown-item-custom" href="/dashboard/settings">
+					<span className="icon-sm settings-icon"></span>Settings
+				</Link>
+			</li>
 			<hr/>
 			<li>
-				<a class="dropdown-item-custom" href="#" onClick={handleLogout}>
-					<span class="icon-sm logout-icon"></span>Log Out
-				</a>
+				<Link className="dropdown-item-custom" href="#" onClick={handleLogout}>
+					<span className="icon-sm logout-icon"></span>Log Out
+				</Link>
 			</li>
 		</ul>
 	);

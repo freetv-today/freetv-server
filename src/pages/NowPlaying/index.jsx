@@ -35,10 +35,10 @@ export function NowPlaying() {
   // if user returns to the route and there is no currentVid data
   if (!currentVid) {
     return (
-      <div class="container text-center my-5">
-        <h2 class="text-danger mb-4">No data for last-watched video</h2>
+      <div className="container text-center my-5">
+        <h2 className="text-danger mb-4">No data for last-watched video</h2>
         <p>You can only return to, or reload this URL while the current video is playing.<br/>After you navigate away from the currently-playing video you'll have to load a new video again.</p>
-        <p>Check out your <Link href="/recent" class="link-primary">recently-watched videos</Link>.</p>
+        <p>Check out your <Link href="/recent" className="link-primary">recently-watched videos</Link>.</p>
         <p><img src="/src/assets/sadface.svg" width="80" /></p>
       </div>
     );
@@ -61,10 +61,10 @@ export function NowPlaying() {
     <div className={loading ? "" : "timeoutMsg"}>
       {loading && !timeoutError && <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />}
       {timeoutError && (
-        <div class="container text-center my-5">
-          <h2 class="text-danger mb-4">Timeout: the video failed to load</h2>
+        <div className="container text-center my-5">
+          <h2 className="text-danger mb-4">Timeout: the video failed to load</h2>
           <p>The Internet Archive server did not respond within 90 seconds.<br/>Please check your internet connection and/or reload to try again.</p>
-          <p>If you keep having trouble, check out the <Link href="/help" class="primary-link">Help</Link> page for troubleshooting tips.</p>
+          <p>If you keep having trouble, check out the <Link href="/help" className="primary-link">Help</Link> page for troubleshooting tips.</p>
           <p><img src="/src/assets/sadface.svg" width="80" /></p>
         </div>
       )}

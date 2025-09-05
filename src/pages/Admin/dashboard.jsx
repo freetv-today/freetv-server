@@ -132,7 +132,7 @@ export function Dashboard() {
 
     return (
         <div className="container mt-3">
-            <h1 class="text-center mb-2">Admin Dashboard</h1>
+            <h1 className="text-center mb-2">Admin Dashboard</h1>
             <AdminMessage />
             <NavbarSubNavAdmin 
                 onMetaClick={handleOpenMetaModal} 

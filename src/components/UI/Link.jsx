@@ -17,7 +17,7 @@ export function Link({ href, class: className, activeClass = 'active', children,
   };
 
   return (
-    <a href={href} class={classes} onClick={handleClick} {...props}>
+    <a href={href} className={classes} onClick={handleClick} {...props}>
       {children}
     </a>
   );

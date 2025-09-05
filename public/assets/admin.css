@@ -1,4 +1,5 @@
 html {
+    min-width: 420px;
     max-width: 100vw;
 }
 
@@ -9,6 +10,7 @@ body {
     margin: 0;
     padding: 0;
     padding-top: 60px;
+    min-width: 420px;
     max-width: 100vw;
 }
 
@@ -24,8 +26,7 @@ body {
 }
 
 .outerwrapper {
-    min-width: 375px; 
-    padding: 30px;
+    padding: 25px;
 }
 
 .loginform {
@@ -88,6 +89,17 @@ body {
 }
 .icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
     background-image: url('/src/assets/search-blue.svg');
+}
+
+/* Admin Dashboard top navbar: Thumbnails */
+.thumbs-icon {
+    background-image: url('/src/assets/thumbnails-white.svg');
+}
+.thumbs-icon:hover, .dropdown-item-custom:hover .thumbs-icon {
+    background-image: url('/src/assets/thumbnails-blue.svg');
+}
+.icon-btn.active.thumbs-icon, .dropdown-item-custom.active .thumbs-icon {
+    background-image: url('/src/assets/thumbnails-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Problems */

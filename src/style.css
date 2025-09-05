@@ -148,6 +148,17 @@ body {
 .icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
     background-image: url('/src/assets/search-blue.svg');
 }
+
+/* Top navbar: large icons - Favorites */
+.favorites-icon {
+    background-image: url('/src/assets/heart-white.svg');
+}
+.favorites-icon:hover, .dropdown-item-custom:hover .favorites-icon {
+    background-image: url('/src/assets/heart-blue.svg');
+}
+.icon-btn.active.favorites-icon, .dropdown-item-custom.active .favorites-icon {
+    background-image: url('/src/assets/heart-blue.svg');
+}
   
 /* Top navbar: large icons - Help */
 .help-icon {

@@ -13,7 +13,7 @@ import { AdminShowActions } from '@components/Admin/Navigation/AdminShowActions'
 export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onStatusToggle }) {
   if (!results) return null;
   if (results.length === 0) {
-    return <p class="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
+    return <p className="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
   }
 
   return (

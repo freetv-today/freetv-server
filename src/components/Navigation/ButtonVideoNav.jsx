@@ -24,7 +24,7 @@ export function ButtonVideoNav() {
     <span>
       <button
         id="backBtn"
-        class="btn btn-sm btn-outline-warning fw-bold ms-2 me-2"
+        className="btn btn-sm btn-outline-warning fw-bold ms-2 me-2"
         title="Go back to the previous page"
         onClick={() => window.history.back()}
       >
@@ -33,14 +33,14 @@ export function ButtonVideoNav() {
       <input
         id="playlistBtn"
         type="checkbox"
-        class="btn-check"
+        className="btn-check"
         autoComplete="off"
         checked={embedPlaylist}
         onClick={handlePlaylistToggle}
         readOnly
       />
       <label
-        class="btn btn-sm btn-outline-warning fw-bold"
+        className="btn btn-sm btn-outline-warning fw-bold"
         htmlFor="playlistBtn"
         title="Episode Playlist"
       >

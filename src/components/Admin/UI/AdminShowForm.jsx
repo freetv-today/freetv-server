@@ -107,11 +107,11 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
   }
 
   return (
-    <form onSubmit={handleSubmit} class="mb-5">
-      <div class="mb-3 w-50">
-        <label class="form-label fw-bold">Category</label>
+    <form onSubmit={handleSubmit} className="mb-5">
+      <div className="mb-3 w-50">
+        <label className="form-label fw-bold">Category</label>
         <select
-          class="form-select form-select-sm"
+          className="form-select form-select-sm"
           name="category"
           value={form.category}
           onInput={handleChange}
@@ -122,54 +122,54 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
             <option value={cat} key={cat}>{capitalizeFirstLetter(cat)}</option>
           ))}
         </select>
-        {validation.category && <div class="text-danger small">{validation.category}</div>}
+        {validation.category && <div className="text-danger small">{validation.category}</div>}
       </div>
-      <div class="mb-3">
-        <label class="form-label fw-bold">Status</label>
-        <div class="btn-group ms-2" role="group">
-          <input type="radio" class="btn-check" name="status" id="statusActive" autoComplete="off" checked={form.status === 'active'} onChange={() => handleStatusToggle('active')} />
-          <label class={`btn btn-sm btn-outline-success${form.status === 'active' ? ' active' : ''}`} htmlFor="statusActive">Active</label>
-          <input type="radio" class="btn-check" name="status" id="statusDisabled" autoComplete="off" checked={form.status === 'disabled'} onChange={() => handleStatusToggle('disabled')} />
-          <label class={`btn btn-sm btn-outline-danger${form.status === 'disabled' ? ' active' : ''}`} htmlFor="statusDisabled">Disabled</label>
+      <div className="mb-3">
+        <label className="form-label fw-bold">Status</label>
+        <div className="btn-group ms-2" role="group">
+          <input type="radio" className="btn-check" name="status" id="statusActive" autoComplete="off" checked={form.status === 'active'} onChange={() => handleStatusToggle('active')} />
+          <label className={`btn btn-sm btn-outline-success${form.status === 'active' ? ' active' : ''}`} htmlFor="statusActive">Active</label>
+          <input type="radio" className="btn-check" name="status" id="statusDisabled" autoComplete="off" checked={form.status === 'disabled'} onChange={() => handleStatusToggle('disabled')} />
+          <label className={`btn btn-sm btn-outline-danger${form.status === 'disabled' ? ' active' : ''}`} htmlFor="statusDisabled">Disabled</label>
         </div>
-        {validation.status && <div class="text-danger small">{validation.status}</div>}
+        {validation.status && <div className="text-danger small">{validation.status}</div>}
       </div>
-      <div class="mb-3">
-        <label class="form-label fw-bold">Identifier</label>
-        <input type="text" class="form-control form-control-sm" name="identifier" value={form.identifier} onInput={handleChange} required />
-        {validation.identifier && <div class="text-danger small">{validation.identifier}</div>}
+      <div className="mb-3">
+        <label className="form-label fw-bold">Identifier</label>
+        <input type="text" className="form-control form-control-sm" name="identifier" value={form.identifier} onInput={handleChange} required />
+        {validation.identifier && <div className="text-danger small">{validation.identifier}</div>}
       </div>
-      <div class="mb-3">
-        <label class="form-label fw-bold">Title</label>
-        <input type="text" class="form-control form-control-sm" name="title" value={form.title} onInput={handleChange} required />
-        {validation.title && <div class="text-danger small">{validation.title}</div>}
+      <div className="mb-3">
+        <label className="form-label fw-bold">Title</label>
+        <input type="text" className="form-control form-control-sm" name="title" value={form.title} onInput={handleChange} required />
+        {validation.title && <div className="text-danger small">{validation.title}</div>}
       </div>
-      <div class="mb-2">
-        <label class="form-label fw-bold">Description</label>
-        <textarea class="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} maxlength={255} />
-        {validation.desc && <div class="text-danger small">{validation.desc}</div>}
+      <div className="mb-2">
+        <label className="form-label fw-bold">Description</label>
+        <textarea className="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} maxlength={255} />
+        {validation.desc && <div className="text-danger small">{validation.desc}</div>}
       </div>
-      <div class="row w-50">
-        <div class="col mt-2">
-          <label class="form-label fw-bold">Start Year</label>
-          <input type="text" class="form-control form-control-sm yearfield" name="start" value={form.start} onInput={handleChange} required maxLength={4} />
-          {validation.start && <div class="text-danger small">{validation.start}</div>}
+      <div className="row w-50">
+        <div className="col mt-2">
+          <label className="form-label fw-bold">Start Year</label>
+          <input type="text" className="form-control form-control-sm yearfield" name="start" value={form.start} onInput={handleChange} required maxLength={4} />
+          {validation.start && <div className="text-danger small">{validation.start}</div>}
         </div>
-        <div class="col mt-2">
-          <label class="form-label fw-bold">End Year</label>
-          <input type="text" class="form-control form-control-sm yearfield" name="end" value={form.end} onInput={handleChange} required maxLength={4} />
-          {validation.end && <div class="text-danger small">{validation.end}</div>}
+        <div className="col mt-2">
+          <label className="form-label fw-bold">End Year</label>
+          <input type="text" className="form-control form-control-sm yearfield" name="end" value={form.end} onInput={handleChange} required maxLength={4} />
+          {validation.end && <div className="text-danger small">{validation.end}</div>}
         </div>
       </div>
-      <div class="mb-3 mt-3 w-50">
-        <label class="form-label fw-bold">IMDB ID</label>
-        <input type="text" class="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required />
-        {validation.imdb && <div class="text-danger small">{validation.imdb}</div>}
+      <div className="mb-3 mt-3 w-50">
+        <label className="form-label fw-bold">IMDB ID</label>
+        <input type="text" className="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required />
+        {validation.imdb && <div className="text-danger small">{validation.imdb}</div>}
       </div>
-      {error && <div class="alert alert-danger">{error}</div>}
-      <div class="mt-5 d-flex justify-content-center gap-2">
-        <button type="button" class="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" class="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="mt-5 d-flex justify-content-center gap-2">
+        <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
+        <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
       </div>
     </form>
   );

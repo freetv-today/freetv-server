@@ -41,7 +41,7 @@ export function ShowListSidebar({ context, category }) {
   log(`There are ${shows.length} titles in this category`);
 
   return (
-    <aside class="sidebar-fixed-width p-1 mb-1 mb-lg-0">
+    <aside className="sidebar-fixed-width p-1 mb-1 mb-lg-0">
       {shows.length > 0 ? (
         shows.map(show => (
           <ButtonShowTitleNav
@@ -56,7 +56,7 @@ export function ShowListSidebar({ context, category }) {
           />
         ))
       ) : (
-        <p class="text-center my-3 text-danger fw-bold">No recently watched shows available.</p>
+        <p className="text-center my-3 text-danger fw-bold">No recently watched shows available.</p>
       )}
     </aside>
   );

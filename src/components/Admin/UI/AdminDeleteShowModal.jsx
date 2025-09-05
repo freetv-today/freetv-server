@@ -21,7 +21,7 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
   useEffect(() => {
     if (showData && showData.imdb) {
       const img = new window.Image();
-      img.src = `/src/assets/thumbs/${showData.imdb}.jpg`;
+      img.src = `/thumbs/${showData.imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
       img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
     } else {
@@ -47,20 +47,20 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
   }
 
   return (
-    <div class={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Delete Show</h5>
-            <button type="button" class="btn-close" aria-label="Close" onClick={() => onClose('cancel')}></button>
+    <div className={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Delete Show</h5>
+            <button type="button" className="btn-close" aria-label="Close" onClick={() => onClose('cancel')}></button>
           </div>
-          <div class="modal-body">
+          <div className="modal-body">
             <p>Are you sure you want to delete the following show?</p>
-            <div class="d-flex flex-row gap-2 mb-4 justify-content-center align-middle">
-              <div class="m-0">
+            <div className="d-flex flex-row gap-2 mb-4 justify-content-center align-middle">
+              <div className="m-0">
                 <img src={thumbnailSrc} width="100" alt={`${showData.title} Thumbnail`} />
               </div>
-              <div class="flex-grow-1 p-2">
+              <div className="flex-grow-1 p-2">
                 <ul>
                   <li><strong>Title:</strong> {showData.title}</li>
                   <li><strong>Category:</strong> {capitalizeFirstLetter(showData.category)}</li>
@@ -68,11 +68,11 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
                 </ul>
               </div>
             </div>
-            {error && <div class="alert alert-danger">{error}</div>}
+            {error && <div className="alert alert-danger">{error}</div>}
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onClick={() => onClose('cancel')} disabled={deleting}>Cancel</button>
-            <button type="button" class="btn btn-danger" onClick={handleDelete} disabled={deleting}>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={() => onClose('cancel')} disabled={deleting}>Cancel</button>
+            <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>

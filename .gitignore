@@ -25,6 +25,8 @@ dist-ssr
 *.bak
 public/playlists/bak/*
 public/logs/*
+public/temp/*
+public/public/temp/tt0059968.jpg
 /admin-dashboard-roadmap.md
 /checker-script-idea.md
 /beacon-notes.md

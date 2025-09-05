@@ -11,7 +11,7 @@ export function SelectLarge() {
   return (
     <select
       id="selectPlaylistLarge"
-      class="form-select form-select-sm selectlist-nav"
+      className="form-select form-select-sm selectlist-nav"
       data-bs-theme="dark"
       value={currentPlaylist || ''}
       onChange={handleChange}

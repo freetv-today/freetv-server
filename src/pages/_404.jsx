@@ -14,10 +14,10 @@ export function NotFound() {
     }, [url]);
 
     return (
-        <div class="text-center">
-            <h1 class="mt-5 text-danger">404: Not Found</h1>
-            <p class="mt-3 text-danger">
-                The page you are looking for (<span class="text-monospace">{url}</span>) was not found.<br />
+        <div className="text-center">
+            <h1 className="mt-5 text-danger">404: Not Found</h1>
+            <p className="mt-3 text-danger">
+                The page you are looking for (<span className="text-monospace">{url}</span>) was not found.<br />
                 Please check the URL and try again.
             </p>
             <img src="/src/assets/sadface.svg" width="140" title="Not Found" />

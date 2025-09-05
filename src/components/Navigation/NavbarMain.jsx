@@ -1,7 +1,7 @@
-// src/components/Navigation/NavbarMain.jsx
 import { ButtonHomeNav } from '@components/Navigation/ButtonHomeNav';
 import { ButtonRecentNav } from '@components/Navigation/ButtonRecentNav';
 import { ButtonSearchNav } from '@components/Navigation/ButtonSearchNav';
+import { ButtonFavoritesNav } from '@components/Navigation/ButtonFavoritesNav';
 import { ButtonHelpNav } from '@components/Navigation/ButtonHelpNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { ToggleDropDownMenu } from '@components/UI/ToggleDropDownMenu';
@@ -17,6 +17,7 @@ export function NavbarMain() {
           <ButtonHomeNav />
           <ButtonRecentNav />
           <ButtonSearchNav />
+          <ButtonFavoritesNav />
           <ButtonHelpNav />
         </div>
 

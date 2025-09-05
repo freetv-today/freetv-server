@@ -30,9 +30,9 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
 
   return (
     <>
-      <div class="btn-group mb-1" style={{ width: '98%' }}>
+      <div className="btn-group mb-1" style={{ width: '98%' }}>
         <button
-          class="btn btn-sm btn-outline-dark"
+          className="btn btn-sm btn-outline-dark"
           style={{ width: 'calc(100% - 3rem)' }}
           title={`Watch ${title}`}
           aria-label={`Watch: ${title}`}
@@ -42,19 +42,29 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
         </button>
         <button
           type="button"
-          class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split"
+          className="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split"
           data-bs-toggle="dropdown"
           aria-expanded="false"
           style={{ width: '3rem' }}
         >
-          <span class="visually-hidden">Toggle Dropdown</span>
+          <span className="visually-hidden">Toggle Dropdown</span>
         </button>
-        <ul class="dropdown-menu p-2">
+        <ul className="dropdown-menu p-2">
+          <li>
+                <a
+                  className="dropdown-item moreoptions"
+                  href="#"
+                  title={`Add ${title} to favorites`}
+                  onClick={e => e.preventDefault()}
+                >
+                  Add to favorites
+                </a>
+              </li>
           <li>
             <a
-              class="dropdown-item moreoptions"
+              className="dropdown-item moreoptions"
               href="#"
-              title="About this show"
+              title={`About ${title}`}
               onClick={e => { e.preventDefault(); setShowModal(true); }}
             >
               About this show
@@ -64,36 +74,24 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
             <div className="moduleBtns" style={{ display: 'block' }}>
               <li>
                 <a
-                  class="dropdown-item moreoptions text-danger"
+                  className="dropdown-item moreoptions text-danger"
                   href="#"
-                  title="Report a problem"
+                  title={`Report a problem with ${title}`}
                   onClick={e => { e.preventDefault(); setShowReportModal(true); }}
                 >
                   Report a problem
                 </a>
               </li>
-              {/* 
               <li>
                 <a
-                  class="dropdown-item moreoptions text-secondary"
-                  href="#"
-                  title="Share this video"
-                  onClick={e => e.preventDefault()}
+                  className="dropdown-item moreoptions"
+                  href={`https://archive.org/download/${identifier}`}
+                  title={`Download files for ${title}`}
+                  target="_blank"
                 >
-                  Share this video
+                  Download files
                 </a>
               </li>
-              <li>
-                <a
-                  class="dropdown-item moreoptions text-secondary"
-                  href="#"
-                  title="Add to favorites"
-                  onClick={e => e.preventDefault()}
-                >
-                  Add to favorites
-                </a>
-              </li> 
-              */}
             </div>
           )}
         </ul>

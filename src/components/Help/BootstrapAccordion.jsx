@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 
 export function BootstrapAccordion({ items, idPrefix }) {
   return (
-    <div class="accordion" id={idPrefix}>
+    <div className="accordion" id={idPrefix}>
       {items.map((item, idx) => (
-        <div class="accordion-item" key={idx}>
-          <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button"
+        <div className="accordion-item" key={idx}>
+          <h2 className="accordion-header">
+            <button className="accordion-button collapsed" type="button"
               data-bs-toggle="collapse"
               data-bs-target={`#${idPrefix}-collapse${idx}`}
               aria-expanded="false"
@@ -14,8 +14,8 @@ export function BootstrapAccordion({ items, idPrefix }) {
               {item.title}
             </button>
           </h2>
-          <div id={`${idPrefix}-collapse${idx}`} class="accordion-collapse collapse" data-bs-parent={`#${idPrefix}`}>
-            <div class="accordion-body">
+          <div id={`${idPrefix}-collapse${idx}`} className="accordion-collapse collapse" data-bs-parent={`#${idPrefix}`}>
+            <div className="accordion-body">
               {item.content}
             </div>
           </div>

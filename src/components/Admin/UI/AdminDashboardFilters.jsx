@@ -29,9 +29,21 @@ export function AdminDashboardFilters({
 
   return (
     <>
-      <div className="row align-items-center mb-5 g-2">
+      <div className="row align-items-center mb-4 g-2 p-2">
+
+        {/* Center: Current Playlist (on top for small screens) */}
+        <div className="col-12 col-md-4 order-1 order-md-2 text-center mb-2">
+          {playlistName && (
+            <div className="small">
+              <span className="text-nowrap fw-bold">Current Playlist: </span>
+              <br />
+              <span className="font-monospace customBlue">"{playlistName}"</span>
+            </div>
+          )}
+        </div>
+
         {/* Left: Category Selector */}
-        <div className="col-12 col-md-4 d-flex align-items-center">
+        <div className="col-6 col-md-4 order-2 order-md-1 d-flex align-items-center">
           <label className="form-label me-2 mb-0 small">Category:</label>
           <select
             className="form-select form-select-sm d-inline-block w-auto small"
@@ -49,14 +61,9 @@ export function AdminDashboardFilters({
             </button>
           )}
         </div>
-        {/* Center: Current Playlist */}
-        <div className="col-12 col-md-4 text-center">
-          {playlistName && (
-            <div className="small"><span className="text-nowrap fw-bold">Current Playlist: </span><br/><span className="font-monospace customBlue">"{playlistName}"</span></div>
-          )}
-        </div>
+
         {/* Right: Hide Disabled */}
-        <div className="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
+        <div className="col-6 col-md-4 order-3 order-md-3 d-flex justify-content-end align-items-center">
           <div className="form-check">
             <input
               className="form-check-input pt-2"
@@ -70,6 +77,7 @@ export function AdminDashboardFilters({
             </label>
           </div>
         </div>
+
       </div>
     </>
   );

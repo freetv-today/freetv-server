@@ -11,7 +11,7 @@ export function SelectSmall() {
   return (
     <select
       id="selectPlaylistSmall"
-      class="form-select form-select-sm mt-1"
+      className="form-select form-select-sm mt-1"
       value={currentPlaylist || ''}
       onChange={handleChange}
     >

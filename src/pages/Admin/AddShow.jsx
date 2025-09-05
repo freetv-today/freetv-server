@@ -83,9 +83,9 @@ export function AddShow() {
   };
 
   return (
-    <div class="container mt-4" style={{ maxWidth: 700 }}>
-      <h2 class="mb-3">Add New Video</h2>
-      {error && <div class="alert alert-danger mb-3">{error}</div>}
+    <div className="container mt-4" style={{ maxWidth: 700 }}>
+      <h2 className="mb-3">Add New Video</h2>
+      {error && <div className="alert alert-danger mb-3">{error}</div>}
       <AdminShowForm
         initialData={initialData}
         onSave={handleSave}

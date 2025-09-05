@@ -71,7 +71,7 @@ export function AdminSearch() {
 
     return (
       <>
-        <h3 class="text-center mt-4">Admin Dashboard Search</h3>
+        <h3 className="text-center mt-4">Admin Dashboard Search</h3>
         <SearchQueryComponent onSearch={handleSearch} />
         {(!query || !results) ? (
           <ImageLargeLogo />

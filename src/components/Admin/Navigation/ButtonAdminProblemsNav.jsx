@@ -4,7 +4,8 @@ export function ButtonAdminProblemsNav({ count }) {
   return (
     <Link
       href="/dashboard/problems"
-      class="btn btn-sm icon-btn problems-icon me-2 position-relative"
+      className="btn btn-sm icon-btn problems-icon me-2 position-relative"
+      title="Problems"
     >
       {count > 0 && (
         <span

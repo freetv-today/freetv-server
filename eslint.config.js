@@ -29,6 +29,8 @@ export default [
       'import/extensions': ['error', 'never', { json: 'always' }],
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
+      'react/no-unknown-property': 'error',
+      // Add more strict JSX rules if needed
     },
     settings: {
       react: {

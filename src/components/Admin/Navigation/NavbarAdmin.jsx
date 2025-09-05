@@ -3,6 +3,7 @@ import { ButtonAdminSearchNav } from '@components/Admin/Navigation/ButtonAdminSe
 import { ButtonAdminProblemsNav } from '@components/Admin/Navigation/ButtonAdminProblemsNav';
 import { ButtonAdminUsersNav } from '@components/Admin/Navigation/ButtonAdminUsersNav';
 import { ButtonAdminSettingsNav } from '@components/Admin/Navigation/ButtonAdminSettingsNav';
+import { ButtonAdminThumbsNav } from './ButtonAdminThumbsNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { AdminToggleDropDownMenu } from '@components/Admin/Navigation/AdminToggleDropDownMenu';
 import { SelectLarge } from '@components/UI/SelectLarge';
@@ -21,6 +22,7 @@ export function NavbarAdmin({ problemCount }) {
         <div id="iconmenu" className="d-none d-md-flex flex-row align-items-center order-1">
           <ButtonAdminHomeNav />
           <ButtonAdminSearchNav />
+          <ButtonAdminThumbsNav />
           <ButtonAdminProblemsNav count={problemCount} />
           <ButtonAdminUsersNav />
           <ButtonAdminSettingsNav />

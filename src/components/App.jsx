@@ -15,6 +15,7 @@ import { LayoutAdmin } from '@components/Admin/Layouts/LayoutAdmin';
 import { Home } from '@pages/Home';
 import { Recent } from '@pages/Recent';
 import { Search } from '@pages/Search';
+import { Favorites } from '@pages/Favorites';
 import { Help } from '@pages/Help';
 import { Category } from '@pages/Category';
 import { NowPlaying } from '@pages/NowPlaying';
@@ -25,6 +26,7 @@ import { AdminSearch } from '@pages/Admin/search';
 import { AdminProblems } from '@pages/Admin/problems';
 import { AdminSettings } from '@pages/Admin/settings';
 import { AdminUsers } from '@pages/Admin/users';
+import { AdminThumbnails } from '@/pages/Admin/thumbnails';
 import { EditShow } from '@pages/Admin/EditShow';
 import { AddShow } from '@pages/Admin/AddShow';
 // Other pages
@@ -38,6 +40,7 @@ const HomeRoute = () => <LayoutDefault><Home /></LayoutDefault>;
 const RecentRoute = () => <LayoutSubnav><Recent /></LayoutSubnav>;
 const CategoryRoute = () => <LayoutSubnav><Category /></LayoutSubnav>;
 const SearchRoute = () => <LayoutSearch><Search /></LayoutSearch>;
+const FavoritesRoute = () => <LayoutSubnav><Favorites /></LayoutSubnav>;
 const HelpRoute = () => <LayoutFullpage><Help /></LayoutFullpage>;
 const AdminLoginRoute = () => <LayoutFullpageBlank><AdminLogin /></LayoutFullpageBlank>;
 const DashboardRoute = () => <LayoutAdmin><Dashboard /></LayoutAdmin>;
@@ -47,6 +50,7 @@ const AdminSearchRoute = () => <LayoutAdmin><AdminSearch /></LayoutAdmin>;
 const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
 const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
 const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
+const AdminThumbsRoute = () => <LayoutAdmin><AdminThumbnails /></LayoutAdmin>;
 const NowPlayingRoute = () => <LayoutVidviewer><NowPlaying /></LayoutVidviewer>;
 const TestPageRoute = () => <LayoutFullpage><TestPage /></LayoutFullpage>;
 const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
@@ -79,6 +83,7 @@ export function App() {
           <Route path="/recent" component={RecentRoute} />
           <Route path="/category/:name" component={CategoryRoute} />
           <Route path="/search" component={SearchRoute} />
+          <Route path="/favorites" component={FavoritesRoute} />
           <Route path="/help" component={HelpRoute} />
           <Route path="/nowplaying" component={NowPlayingRoute} />
           {/* Back-end */}
@@ -90,6 +95,7 @@ export function App() {
           <Route path="/dashboard/problems" component={AdminProblemsRoute} />
           <Route path="/dashboard/settings" component={AdminSettingsRoute} />
           <Route path="/dashboard/users" component={AdminUsersRoute} />
+          <Route path="/dashboard/thumbnails" component={AdminThumbsRoute} />
           {/* Other routes */}
           <Route path="/test" component={TestPageRoute} />
           <Route default component={NotFoundRoute} />

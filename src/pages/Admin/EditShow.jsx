@@ -65,13 +65,13 @@ export function EditShow() {
   }
 
   if (!show) {
-    return <div class="container mt-5"><div class="alert alert-danger">Show not found.</div></div>;
+    return <div className="container mt-5"><div className="alert alert-danger">Show not found.</div></div>;
   }
 
   return (
-    <div class="container mt-4" style={{ maxWidth: 700 }}>
-      <h2 class="mb-3">Edit Show</h2>
-      {error && <div class="alert alert-danger mb-3">{error}</div>}
+    <div className="container mt-4" style={{ maxWidth: 700 }}>
+      <h2 className="mb-3">Edit Show</h2>
+      {error && <div className="alert alert-danger mb-3">{error}</div>}
       <AdminShowForm
         initialData={show}
         onSave={handleSave}
