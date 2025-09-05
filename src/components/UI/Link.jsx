@@ -1,6 +1,6 @@
 import { useLocation } from 'preact-iso';
 
-export function Link({ href, class: className, activeClass = 'active', children, ...props }) {
+export function Link({ href, className, activeClass = 'active', children, ...props }) {
   const { url, route } = useLocation();
   // Normalize URLs for comparison
   const cleanUrl = url ? url.replace(/\/$/, '') : '';

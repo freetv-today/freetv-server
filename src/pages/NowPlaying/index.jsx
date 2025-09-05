@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo.jsx';
-import { Link } from '@components/UI/Link.jsx';
+import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo';
+import { Link } from '@components/UI/Link';
 import { useDebugLog } from '@hooks/useDebugLog';
 
 export function NowPlaying() {
