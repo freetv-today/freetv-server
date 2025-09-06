@@ -3,12 +3,14 @@ import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { ButtonShowTitleNav } from '@components/Navigation/ButtonShowTitleNav';
 import { useLocalStorage } from '@hooks/useLocalStorage';
+import { useSignalEffect } from '@preact/signals';
+import { favoritesSignal } from '@hooks/useFavoritesList';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { capitalizeFirstLetter } from '@/utils';
 
 /**
  * @param {Object} props
- * @param {'category' | 'recent'} props.context
+ * @param {'category' | 'recent' | 'favorites'} props.context
  * @param {string} [props.category]
  * @returns {import('preact').JSX.Element}
  */
@@ -17,8 +19,18 @@ export function ShowListSidebar({ context, category }) {
   const log = useDebugLog();
   const { showData } = useContext(PlaylistContext);
   const [recentTitles] = useLocalStorage('recentTitles', { title: [] });
+  const [favoritesList] = useLocalStorage('favoritesList', { title: [] });
 
   let shows = [];
+
+  // Force rerender when favoritesSignal changes
+  useSignalEffect(() => {
+    favoritesSignal.value;
+  });
+
+  log(`ShowListSidebar context: ${context}`);
+  log('recentTitles:', recentTitles);
+  log('favoritesList:', favoritesList);
 
   if (context === 'category' && category) {
     // Filter shows by category, sort alphabetically (ignoring "The")
@@ -29,11 +41,15 @@ export function ShowListSidebar({ context, category }) {
         return titleA.localeCompare(titleB);
       }) || [];
   } else if (context === 'recent') {
-      shows = recentTitles.title
-      .map(title =>
-        showData?.find(show => show.title === title)
-      )
+    shows = recentTitles.title
+      .map(title => showData?.find(show => show.title === title))
       .filter(Boolean); // Remove any not found
+    log('Shows for recent:', shows);
+  } else if (context === 'favorites') {
+    shows = favoritesList.title
+      .map(title => showData?.find(show => show.title === title))
+      .filter(Boolean); // Remove any not found
+    log('Shows for favorites:', shows);
   }
   if (category) {
     log(`Selected category: ${capitalizeFirstLetter(category)}`);

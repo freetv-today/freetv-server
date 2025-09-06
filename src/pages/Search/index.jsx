@@ -6,6 +6,7 @@ import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { SearchResults } from '@components/UI/SearchResults';
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { AdBar } from '@/components/UI/AdBar';
 
 export function Search() {
   const log = useDebugLog();
@@ -53,7 +54,10 @@ export function Search() {
     <>
       <SearchQueryComponent onSearch={handleSearch} />
       {(!query || !results) ? (
-        <ImageLargeLogo />
+        <>
+          <AdBar/>
+          <ImageLargeLogo />
+        </>
       ) : (
         <SearchResults results={results} />
       )}

@@ -54,10 +54,6 @@ body {
     pointer-events: none;
 }
 
-.noselect {
-    user-select: none;
-}
-
 .position-relative {
     position: relative;
     min-height: 50px;

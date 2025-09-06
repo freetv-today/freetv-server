@@ -30,6 +30,7 @@ import { AdminThumbnails } from '@/pages/Admin/thumbnails';
 import { EditShow } from '@pages/Admin/EditShow';
 import { AddShow } from '@pages/Admin/AddShow';
 // Other pages
+import { ShowToastAlert } from '@components/UI/ToastAlerts';
 import { NotFound } from '@pages/_404';
 import { TestPage } from '@/pages/TestPage';
 // Default style sheet
@@ -59,6 +60,17 @@ export function App() {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
+    // Initialize Bootstrap toasts globally
+    // @ts-ignore
+    const bootstrap = window.bootstrap;
+    if (bootstrap && document.body) {
+      const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+      toastElList.forEach(function (toastEl) {
+        if (!toastEl.toastInstance) {
+          toastEl.toastInstance = new bootstrap.Toast(toastEl, {});
+        }
+      });
+    }
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
@@ -100,6 +112,7 @@ export function App() {
           <Route path="/test" component={TestPageRoute} />
           <Route default component={NotFoundRoute} />
         </Router>
+        <ShowToastAlert />
       </main>
   );
 }

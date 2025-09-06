@@ -9,6 +9,7 @@ import { HelpVersionInfo } from '@components/Help/HelpVersionInfo';
 import { HelpLicenseInfo } from '@components/Help/HelpLicenseInfo';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { resetUrl } from '@/utils';
+import { AdBar } from '@/components/UI/AdBar';
 
 export function Help() {
     const log = useDebugLog();
@@ -20,8 +21,9 @@ export function Help() {
 
     return (
         <div id="top" className="mt-5">
-            <div className="container mt-0 mb-5">
-                <h1 className="fs-1 fw-bold mb-4">Free TV Help</h1>
+            <div className="container">
+                <AdBar/>
+                <h1 className="fs-1 fw-bold my-4 text-center">Free TV Help</h1>
                 <HelpAnnouncement />
                 <div className="text-center my-5">
                     <a href="https://downdetector.com/status/internetarchive/" target="_blank" className="btn btn-lg btn-danger shadow border border-1 border-dark" title="Open new tab or window showing Internet Archive Network Status">

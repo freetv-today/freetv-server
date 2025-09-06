@@ -23,6 +23,12 @@ body {
     font-style: normal;
 }
 
+.noselect {
+  -webkit-user-select: none; 
+  -ms-user-select: none;
+  user-select: none;    
+}
+
 .nowplaying-bg {
   background: #000;
   min-height: 90vh;
@@ -171,12 +177,19 @@ body {
     background-image: url('/src/assets/help-blue.svg');
 }
 
-/* Title buttons: split-button dropdown menu */
+/* Show Title buttons (split-button dropdown menu) */
+.dropdown-item {
+   color: black;
+}
+.dropdown-item:active, .dropdown-item:visited, .dropdown-item:hover {
+    color: black;
+}
+
 .moreoptions {
     background-color: white;
 }
 .moreoptions:hover {
-    background-color: var(--bs-warning);
+    background-color: rgba(13, 110, 253, 0.1);
 }
 
 /* Title buttons: split-button dropdown menu: modules */
@@ -207,6 +220,26 @@ body {
   align-items: center;
 }
 
+/* Ad Sizing */
+
+.largeAd {
+  max-width: 728px;
+  max-height: 90px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.smallAd {
+  max-width: 468px;
+  max-height: 60px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* MEDIA QUERIES: */
+
 /* Subnav template: responsive sidebar menu */
 @media (min-width: 992px) {
     .sidebar-fixed-width {
@@ -221,3 +254,24 @@ body {
         display: none;
     }
 }
+
+/* Toast alert sizing */
+@media (min-width: 768px) {
+  #app-toast {
+    left: auto !important;
+    right: 1rem !important;
+    transform: none !important;
+    width: auto !important;
+    margin: 1rem !important;
+  }
+}
+@media (max-width: 767.98px) {
+  #app-toast {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+} 

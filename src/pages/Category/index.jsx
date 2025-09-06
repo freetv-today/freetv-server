@@ -3,15 +3,14 @@ import { useEffect } from 'preact/hooks';
 import { ShowListSidebar } from '@components/UI/ShowListSidebar';
 import { capitalizeFirstLetter } from '@/utils';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { useConfig } from '@/context/ConfigContext';
+import { AdBar } from '@/components/UI/AdBar';
 
 export function Category() {
 
-  const { params } = useRoute(); // Use useRoute for dynamic route params
+  const { params } = useRoute(); // useRoute for dynamic route params
   const category = params.name;
   const log = useDebugLog();
-  const { showads } = useConfig();
-  
+ 
   useEffect(() => {
     document.title = `Free TV: ${capitalizeFirstLetter(category)}`;
     log('Rendered Category page (pages/Category/index.jsx)');
@@ -27,10 +26,7 @@ export function Category() {
 
         <section className="flex-fill bg-white p-2 border rounded text-center order-1 order-lg-2">
 
-          {/* Ad Banner */}
-          {showads && (
-            <img src="/src/assets/sample_leaderboard.png" className="img-fluid" />
-          )}
+          <AdBar />
           
           <h1 className="mt-3">{capitalizeFirstLetter(category)}</h1>
 

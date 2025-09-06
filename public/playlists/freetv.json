@@ -1,11 +1,11 @@
 {
-    "lastupdated": "2025-08-12T01:33:54.018Z",
+    "lastupdated": "2025-09-06T02:52:12.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
     "author": "Ken Dawson",
     "email": "admin@freetv.today",
-    "link": "https://freetv.today/",
+    "link": "https:\/\/freetv.today\/",
     "shows": [
         {
             "category": "animation",
@@ -342,7 +342,7 @@
             "status": "active",
             "identifier": "GreenHornetTV",
             "title": "The Green Hornet",
-            "desc": "A newspaper publisher and his Asian valet/martial arts expert battle crime as the feared Green Hornet and Kato.",
+            "desc": "A newspaper publisher and his Asian valet\/martial arts expert battle crime as the feared Green Hornet and Kato.",
             "start": "1966",
             "end": "1967",
             "imdb": "tt0059991"
@@ -490,29 +490,9 @@
         {
             "category": "sci-fi",
             "status": "active",
-            "identifier": "JimmyAndTheFederationGang",
-            "title": "Star Trek Season 1",
-            "desc": "Season 1: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
-            "start": "1966",
-            "end": "1969",
-            "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
             "identifier": "JimmyAndTheFederationGang-2",
             "title": "Star Trek Season 2",
             "desc": "Season 2: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
-            "start": "1966",
-            "end": "1969",
-            "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "JimmyAndTheFederationGang3",
-            "title": "Star Trek Season 3",
-            "desc": "Season 3: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
             "start": "1966",
             "end": "1969",
             "imdb": "tt0060028"
@@ -641,8 +621,8 @@
             "category": "mystery",
             "status": "active",
             "identifier": "HardyBoysNancyDrew",
-            "title": "Hardy Boys/Nancy Drew Mysteries",
-            "desc": "The Hardy Boys/Nancy Drew Mysteries is a television series which aired for three seasons on ABC. The series starred Parker Stevenson and Shaun Cassidy as detective brothers Frank and Joe Hardy, respectively, and Pamela Sue Martin as amateur sleuth Nancy Drew.",
+            "title": "Hardy Boys\/Nancy Drew Mysteries",
+            "desc": "The Hardy Boys\/Nancy Drew Mysteries is a television series which aired for three seasons on ABC. The series starred Parker Stevenson and Shaun Cassidy as detective brothers Frank and Joe Hardy, respectively, and Pamela Sue Martin as amateur sleuth Nancy Drew.",
             "start": "1977",
             "end": "1979",
             "imdb": "tt0075513"
@@ -966,16 +946,6 @@
             "start": "1992",
             "end": "1992",
             "imdb": "tt1245441"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "russia-land-of-the-tsars",
-            "title": "Russia, Land of the Tsars",
-            "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",
-            "start": "2003",
-            "end": "2003",
-            "imdb": "tt0368537"
         },
         {
             "category": "documentary",

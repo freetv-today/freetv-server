@@ -56,14 +56,20 @@ export function AppLoader() {
                         console.log(`Welcome to ${configData.name} (version ${configData.version})`);
                         console.log('DEBUG MODE: %cON', 'font-weight: bold; color: lime;');
                     } else {
-                        // if debug mode is false, show app info
-                        console.groupCollapsed(`Application Info`);
-                        console.log(`Name: ${configData.name}`);
-                        console.log(`Version: ${configData.version}`);
-                        console.log(`Author: ${configData.author}`);
-                        console.log(`Email: ${configData.email}`);
-                        console.log(`Last Updated: ${formatDateTime(configData.lastupdated)}`);
-                        console.groupEnd();
+                        // if debug mode is false, show app info in console instead
+                        let fetchedInfo = null
+                        const appinfo = await fetch('/assets/app.info.json');
+                        if (!appinfo.ok) throw new Error('Failed to fetch App Data');
+                        fetchedInfo = await appinfo.json();
+                        if (fetchedInfo) {
+                            console.groupCollapsed(`Application Info`);
+                            console.log(`Name: ${fetchedInfo.name}`);
+                            console.log(`Version: ${fetchedInfo.version}`);
+                            console.log(`Author: ${fetchedInfo.author}`);
+                            console.log(`Email: ${fetchedInfo.email}`);
+                            console.log(`Last Updated: ${formatDateTime(configData.lastupdated)}`);
+                            console.groupEnd();                            
+                        }
                     }
                 }
             } catch (err) {

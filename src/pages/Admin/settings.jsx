@@ -15,11 +15,6 @@ export function AdminSettings() {
 
     // Form state
     const [form, setForm] = useState({
-        name: configData.name || '',
-        version: configData.version || '',
-        author: configData.author || '',
-        email: configData.email || '',
-        link: configData.link || '',
         collector: configData.collector || '',
         gid: configData.gid || '',
         offline: !!configData.offline,
@@ -31,11 +26,6 @@ export function AdminSettings() {
     // Set the initial form state on mount
     useEffect(() => {
         initialFormRef.current = {
-            name: configData.name || '',
-            version: configData.version || '',
-            author: configData.author || '',
-            email: configData.email || '',
-            link: configData.link || '',
             collector: configData.collector || '',
             gid: configData.gid || '',
             offline: !!configData.offline,
@@ -174,11 +164,6 @@ export function AdminSettings() {
 
                 {/* Main Fields */}
                 {[ 
-                    {label: 'App Name', name: 'name', type: 'text'},
-                    {label: 'Version', name: 'version', type: 'text'},
-                    {label: 'Author', name: 'author', type: 'text'},
-                    {label: 'Email', name: 'email', type: 'email'},
-                    {label: 'Link', name: 'link', type: 'text'},
                     {label: 'Collector', name: 'collector', type: 'text'},
                     {label: 'Google ID', name: 'gid', type: 'text'}
                 ].map(field => (
