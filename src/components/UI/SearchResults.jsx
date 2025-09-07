@@ -3,6 +3,7 @@ import { capitalizeFirstLetter } from '@/utils';
 import { useQueueVideo } from '@hooks/useQueueVideo';
 import { DescriptionModal } from '@components/UI/DescriptionModal';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { Link } from '@components/UI/Link';
 
 export function SearchResults({ results }) {
   const log = useDebugLog();
@@ -10,13 +11,18 @@ export function SearchResults({ results }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedShow, setSelectedShow] = useState(null);
 
+  // Only include shows with status 'active'
+  const activeResults = Array.isArray(results)
+    ? results.filter(show => show.status === 'active')
+    : [];
+
   if (!results) return null;
   let query = localStorage.getItem('searchQuery');
-  if (results.length === 0) {
+  if (activeResults.length === 0) {
     log(`No search results found for query: ${query}`, 'warn');
     return <p className="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
   } else {
-    log(`Displaying ${results.length} results for query: ${query}`);
+    log(`Displaying ${activeResults.length} results for query: ${query}`);
   }
 
   const handleShowInfo = (show) => {
@@ -25,7 +31,7 @@ export function SearchResults({ results }) {
   };
 
   // Sort results by year (start) ascending
-  const sortedResults = [...results].sort((a, b) => {
+  const sortedResults = [...activeResults].sort((a, b) => {
     const yearA = parseInt(a.start, 10);
     const yearB = parseInt(b.start, 10);
     if (isNaN(yearA) && isNaN(yearB)) return 0;
@@ -36,14 +42,14 @@ export function SearchResults({ results }) {
 
   return (
     <div className="container-fluid my-4">
-      <h2 className="fs-2 fw-bold mb-4 text-center">Search Results:</h2>
+      <h2 className="fs-2 fw-bold mb-5 text-center">Search Results:</h2>
       <div className="table-responsive">
         <table className="table align-middle">
           <thead>
             <tr>
               <th className="w-auto text-nowrap">Category</th>
               <th className="w-auto text-nowrap pe-2">Title</th>
-              <th className="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>Year</th>
+              <th className="d-none d-sm-table-cell w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>Year</th>
               <th className="d-none d-md-table-cell flex-grow-1 ps-2" style={{ minWidth: '200px' }}>Description</th>
               <th style={{ width: '110px' }}></th>
             </tr>
@@ -51,34 +57,38 @@ export function SearchResults({ results }) {
           <tbody>
             {sortedResults.map(show => (
               <tr key={show.identifier}>
-                <td className="w-auto text-nowrap">{capitalizeFirstLetter(show.category)}</td>
-                <td className="w-auto text-nowrap pe-2">
+                <td className="w-auto text-nowrap">
+                  <Link href={`/category/${show.category}`} className="text-decoration-none link-dark">{capitalizeFirstLetter(show.category)}</Link>
+                </td>
+                <td className="w-auto text-nowrap text-truncate pe-2" style={{ minWidth: '200px', maxWidth: '300px'}}>
                   <a
                     href="#"
                     onClick={e => { e.preventDefault(); handleShowInfo(show); }}
                     title={`More info about ${show.title}`}
-                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
                   >
                     {show.title}
                   </a>
                 </td>
-                <td className="w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px', width: '1%' }}>{show.start}</td>
+                <td className="d-none d-sm-table-cell w-auto text-nowrap ps-1 pe-2" style={{ minWidth: '60px' }}>
+                  {show.start}
+                </td>
                 <td
                   className="d-none d-md-table-cell flex-grow-1 ps-2"
                   style={{ minWidth: '200px', maxWidth: '600px', whiteSpace: 'normal' }}
                   title={show.desc}
                 >
                   {/* Use Bootstrap class to truncate long text with ellipses (...) */}
-                  <span className="d-inline-block text-truncate" style="max-width: 275px;">
+                  <span className="d-inline-block text-truncate" style={{maxWidth: '275px'}}>
                     {show.desc}
                   </span>
                 </td>
-                <td style={{ width: '110px' }}>
+                <td>
                   <button
                     className="btn btn-sm btn-primary fw-bold"
                     onClick={() => queueVideo({ category: show.category, identifier: show.identifier, title: show.title })}
+                    title={`Watch ${show.title}`}
                   >
-                    Watch &#9654;
+                    <span className="d-none d-md-block">Watch</span> &#9654;
                   </button>
                 </td>
               </tr>

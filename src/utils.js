@@ -94,6 +94,14 @@ export function formatDateTime(date, options = {}) {
   return d.toLocaleString(undefined, { ...defaultOptions, ...options });
 }
 
+// Returns a random category 
+// Accepts 1 argument: an array of categories
+export function getRandomCategory(categories) {
+  if (!Array.isArray(categories) || categories.length === 0) return null;
+  const idx = Math.floor(Math.random() * categories.length);
+  return categories[idx];
+}
+
 // Handle keypress events
 export function handleKeyPress(event) {
   // Check if SHIFT + A is pressed

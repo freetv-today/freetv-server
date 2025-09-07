@@ -1,6 +1,3 @@
-
-
-import { useSignal } from '@preact/signals';
 import { toastSignal } from '@/signals/toastSignal';
 import { useEffect } from 'preact/hooks';
 
@@ -17,7 +14,7 @@ export function ShowToastAlert() {
                     if (bootstrap && toast['toastInstance']) {
                         toast['toastInstance'].show();
                     } else if (bootstrap) {
-                        toast['toastInstance'] = new bootstrap.Toast(toast, {});
+                        toast['toastInstance'] = new bootstrap.Toast(toast, {delay: 3000}); // 3 second dela
                         toast['toastInstance'].show();
                     }
                 }

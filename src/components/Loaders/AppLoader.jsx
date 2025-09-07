@@ -41,9 +41,18 @@ export function AppLoader() {
             let needsUpdate = false;
             let fetchedConfig = null;
             try {
+
+                // Fetch config data
                 const response = await fetch('/config.json');
                 if (!response.ok) throw new Error('Failed to fetch config');
                 fetchedConfig = await response.json();
+                
+                // Fetch app info data
+                let fetchedInfo = null
+                const appinfo = await fetch('/assets/app.info.json');
+                if (!appinfo.ok) throw new Error('Failed to fetch App Data');
+                fetchedInfo = await appinfo.json();
+
                 // If no config in storage or config is outdated, update it
                 if (!storedConfig || shouldUpdateData(storedConfig, fetchedConfig)) {
                     needsUpdate = true;
@@ -53,14 +62,12 @@ export function AppLoader() {
                     // the hook depends on config data which hasn't been saved to local storage yet
                     if (configData.debugmode) {
                         // if debug mode is true, start logging
-                        console.log(`Welcome to ${configData.name} (version ${configData.version})`);
-                        console.log('DEBUG MODE: %cON', 'font-weight: bold; color: lime;');
+                        if (fetchedInfo) {
+                            console.log(`Welcome to ${fetchedInfo.name} (version ${fetchedInfo.version})`);
+                            console.log('DEBUG MODE: %cON', 'font-weight: bold; color: lime;');
+                        }
                     } else {
                         // if debug mode is false, show app info in console instead
-                        let fetchedInfo = null
-                        const appinfo = await fetch('/assets/app.info.json');
-                        if (!appinfo.ok) throw new Error('Failed to fetch App Data');
-                        fetchedInfo = await appinfo.json();
                         if (fetchedInfo) {
                             console.groupCollapsed(`Application Info`);
                             console.log(`Name: ${fetchedInfo.name}`);

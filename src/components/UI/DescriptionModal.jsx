@@ -1,5 +1,6 @@
 // src/components/UI/DescriptionModal.jsx
 import { useState, useEffect } from 'preact/hooks';
+import { capitalizeFirstLetter } from '@/utils';
 
 /**
  * @param {Object} props
@@ -34,19 +35,19 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
     <ul>
       {imdb && (
         <li className="pb-1">
-          <a href={`https://www.imdb.com/title/${imdb}/`} target="_blank" rel="noopener noreferrer">
-            IMDB Page <img src="/src/assets/external-link.svg" width="14" className="ms-2" alt="External Link" />
+          <a href={`https://www.imdb.com/title/${imdb}/`} title="View the IMDB page for this show" target="_blank" rel="noopener noreferrer">
+            IMDB Page<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
           </a>
         </li>
       )}
       <li className="pb-1">
-        <a href={`https://archive.org/details/${identifier}`} target="_blank" rel="noopener noreferrer">
-          Archive.org <img src="/src/assets/external-link.svg" width="14" className="ms-2" alt="External Link" />
+        <a href={`https://archive.org/details/${identifier}`} title="View the Internet Archive page for this show" target="_blank" rel="noopener noreferrer">
+          Archive.org<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
         </a>
       </li>
       <li className="pb-2">
-        <a href={`https://archive.org/download/${identifier}`} target="_blank" rel="noopener noreferrer">
-          Download Files <img src="/src/assets/external-link.svg" width="14" className="ms-2" alt="External Link" />
+        <a href={`https://archive.org/download/${identifier}`} title="Download show files from the Internet Archive" target="_blank" rel="noopener noreferrer">
+          Download Files<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
         </a>
       </li>
     </ul>
@@ -57,7 +58,7 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">{title}</h5>
+            <h5 className="modal-title"><strong>Title:</strong> {title}</h5>
             <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
           </div>
           <div className="modal-body">
@@ -67,11 +68,17 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
               </div>
               <div className="flex-grow-1 p-2">
                 <div className="d-flex flex-column h-100 p-2">
-                  <div className="flex-fill pb-3">{desc}</div>
+                  <div className="flex-fill pb-2"><strong>Category:</strong> {capitalizeFirstLetter(category)}</div>
+                  <div className="flex-fill pb-3"><strong>Description:</strong> {desc}</div>
                   <div className="flex-fill pb-3">Originally Aired: {airedText}</div>
                   <div className="flex-fill">{links}</div>
                 </div>
               </div>
+            </div>
+            <div className="d-flex justify-content-center mt-2">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>
+                Close
+              </button>
             </div>
           </div>
         </div>

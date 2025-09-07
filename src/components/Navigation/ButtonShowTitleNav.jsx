@@ -67,18 +67,19 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
               About this show
             </a>
           </li>
+          {/* ---- These buttons are controlled by config setting 'modules' ----  */}
           {modules && (
             <div className="moduleBtns" style={{ display: 'block' }}>
               <li>
                 {isFavorite ? (
                   <a
-                    className="dropdown-item moreoptions text-danger"
+                    className="dropdown-item moreoptions"
                     href="#"
                     title={`Remove ${title} from favorites`}
                     onClick={e => {
                       e.preventDefault();
                       removeFromFavorites(title);
-                      triggerToast('Show was removed from Favorites', 'danger');
+                      triggerToast('Show was removed from Favorites', 'dark');
                     }}
                   >
                     Remove from favorites
@@ -91,7 +92,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
                     onClick={e => {
                       e.preventDefault();
                       addToFavorites(title);
-                      triggerToast('Show was added to Favorites', 'success');
+                      triggerToast('Show was added to Favorites', 'dark');
                     }}
                   >
                     Add to favorites

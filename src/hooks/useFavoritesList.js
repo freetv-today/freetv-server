@@ -11,18 +11,18 @@ export function useFavoritesList() {
     setFavorites(prev => {
       let arr = Array.isArray(prev?.title) ? [...prev.title] : [];
       if (!arr.includes(title)) arr.unshift(title);
-      favoritesSignal.value++;
       return { title: arr };
     });
+    favoritesSignal.value++;
   };
 
   const removeFromFavorites = (title) => {
     setFavorites(prev => {
       let arr = Array.isArray(prev?.title) ? prev.title : [];
       arr = arr.filter(t => t !== title);
-      favoritesSignal.value++;
       return { title: arr };
     });
+    favoritesSignal.value++;
   };
 
   return { favorites, addToFavorites, removeFromFavorites };

@@ -13,8 +13,13 @@ export function useLocalStorage(key, initialValue) {
 
   const setValue = value => {
     try {
-      // Support functional updates
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      let latestValue = storedValue;
+      // Always get the latest value from localStorage for functional updates
+      if (value instanceof Function) {
+        const item = window.localStorage.getItem(key);
+        latestValue = item ? JSON.parse(item) : initialValue;
+      }
+      const valueToStore = value instanceof Function ? value(latestValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (err) {

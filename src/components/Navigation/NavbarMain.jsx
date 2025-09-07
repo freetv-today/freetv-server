@@ -13,7 +13,7 @@ export function NavbarMain() {
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
       <div className="container-fluid p-0 m-0 d-flex justify-content-between">
 
-        <div id="iconmenu" className="d-none d-md-flex flex-row align-items-center order-1">
+        <div id="iconmenu" className="d-none d-md-flex flex-row align-items-center order-md-1">
           <ButtonHomeNav />
           <ButtonRecentNav />
           <ButtonSearchNav />
@@ -34,17 +34,11 @@ export function NavbarMain() {
           <ToggleDropDownMenu />
         </nav>
 
-        <div id="sm_logoblock" className="d-md-none order-3 flex-row align-items-center text-nowrap">
-          {/* <!-- small screen logo --> */}
-          <ImageSmallLogo />
-        </div>
-
         <div id="lg_logoblock" className="d-none d-md-flex flex-row align-items-center order-md-2">
-          {/* <!-- medium and large screen logo --> */}
           <ImageSmallLogo />
         </div>
 
-        <div id="playlistSelector" className="d-none d-md-flex order-md-4 flex-row flex-nowrap align-items-center pe-1">
+        <div id="playlistSelector" className="order-2 order-md-3 d-flex flex-row flex-nowrap align-items-center pe-1">
           <div className="pe-1">
             <span className="navbar-text fw-bold">Playlist:</span>
           </div>
@@ -56,4 +50,6 @@ export function NavbarMain() {
       </div>
     </nav>
   )
+
+
 }

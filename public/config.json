@@ -3,8 +3,8 @@
     "offline": false,
     "appdata": true,
     "collector": "https://freetv.today/api/beacon.php",
-    "showads": true,
+    "showads": false,
     "gid": "ca-pub-3363180839557246",
     "modules": true,
-    "debugmode": false
+    "debugmode": true
 }

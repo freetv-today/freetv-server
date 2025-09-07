@@ -6,8 +6,14 @@ import { useDebugLog } from '@hooks/useDebugLog';
 // The Episode Playlist toggle button controls whether the
 // playlist from Internet Archive (&playlist=1) is shown or not
 export function ButtonVideoNav() {
+
   const log = useDebugLog();
   const [embedPlaylist, setEmbedPlaylist] = useLocalStorage('embedPlaylist', true);
+
+  let btnState = 'Off';
+  if (embedPlaylist) {
+    btnState = 'On';
+  }
 
   const handlePlaylistToggle = (e) => {
     // Prevent the checkbox from toggling automatically
@@ -42,7 +48,7 @@ export function ButtonVideoNav() {
       <label
         className="btn btn-sm btn-outline-warning fw-bold"
         htmlFor="playlistBtn"
-        title="Episode Playlist"
+        title={`Episode Playlist is ${btnState}`}
       >
         Episode Playlist
       </label>

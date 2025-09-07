@@ -3,6 +3,7 @@ import { createContext } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { toastSignal } from '@/signals/toastSignal';
 import { generateNewCode } from '@/utils';
 
 /**
@@ -156,9 +157,10 @@ export function PlaylistProvider({ children }) {
           !playlistLS
         ) {
           // If data is missing/stale, always reset to home and show initial spinner
+          toastSignal.value = { ...toastSignal.value, show: false };
           if (path !== '/') { route('/'); } 
           changePlaylist(defaultPlaylist, true, true); // isInitial = true, show spinner
-        } 
+        }
       });
     // eslint-disable-next-line
   }, [path]);

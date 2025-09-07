@@ -57,36 +57,40 @@ export function SearchQueryComponent({ onSearch }) {
   };
 
   return (
-    <div className="w-100 border-bottom border-2 border-dark p-3">
-      <form className="w-75 input-group mx-auto" onSubmit={handleSubmit}>
-        <input
-          id="searchquery"
-          type="text"
-          ref={inputRef}
-          className="form-control rounded fw-bold fs-5 ps-2"
-          title="Type your keywords here"
-          placeholder="Search..."
-          style={{ minWidth: '200px' }}
-          value={query}
-          onInput={handleInput}
-        />
-        <button
-          id="searchbutton"
-          type="submit"
-          title="Run the search"
-          className="ms-2 mt-1 p-0 py-1 px-2 rounded fw-bold btn btn-sm btn-success gobtn"
-        >
-          GO
-        </button>
-        <button
-          type="button"
-          className="ms-2 mt-1 p-0 py-1 px-2 rounded fw-bold btn btn-sm btn-danger"
-          title="Clear previous search queries"
-          onClick={handleClear}
-        >
-          CLEAR
-        </button>
-      </form>
+    <div className="container-fluid">
+      <div className="row justify-content-center border-bottom border-2 border-dark p-2">
+        <div className="col-12 col-sm-9 col-lg-6">
+          <form className="input-group" onSubmit={handleSubmit}>
+            <input 
+              id="searchquery"
+              type="text"
+              ref={inputRef}
+              className="form-control rounded fw-bold fs-5 ps-2"
+              title="Type your keywords here"
+              placeholder="Search..."
+              style={{ minWidth: '200px' }}
+              value={query}
+              onInput={handleInput}
+            />
+            <button
+              id="searchbutton"
+              type="submit"
+              title="Run the search"
+              className="ms-2 mt-1 p-0 py-1 px-2 rounded fw-bold btn btn-sm btn-success gobtn"
+            >
+              GO
+            </button>
+            <button
+              type="button"
+              className="ms-2 mt-1 p-0 py-1 px-2 rounded fw-bold btn btn-sm btn-danger"
+              title="Clear previous search queries"
+              onClick={handleClear}
+            >
+              CLEAR
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

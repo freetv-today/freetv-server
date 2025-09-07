@@ -3,13 +3,23 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
 import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo';
 import { Link } from '@components/UI/Link';
 import { useDebugLog } from '@hooks/useDebugLog';
+import { showVidNavBtnsSignal } from '@signals/showVidNavBtns';
 
 export function NowPlaying() {
   const [currentVid] = useLocalStorage('currentVid', null);
+  const [embedPlaylist] = useLocalStorage('embedPlaylist', null);
   const [loading, setLoading] = useState(true);
   const [timeoutError, setTimeoutError] = useState(false);
   const timeoutRef = useRef(null);
   const log = useDebugLog();
+
+  // Hide nav buttons only when loading, error, or no video
+  useEffect(() => {
+    if (loading || timeoutError || !currentVid) {
+      showVidNavBtnsSignal.value = false;
+    }
+    // Do not set to true here; only set to true in handleIframeLoad
+  }, [loading, timeoutError, currentVid]);
 
   // Effect for timeout logic (runs on loading/timeoutError change)
   useEffect(() => {
@@ -37,20 +47,23 @@ export function NowPlaying() {
     return (
       <div className="container text-center my-5">
         <h2 className="text-danger mb-4">No data for last-watched video</h2>
-        <p>You can only return to, or reload this URL while the current video is playing.<br/>After you navigate away from the currently-playing video you'll have to load a new video again.</p>
-        <p>Check out your <Link href="/recent" className="link-primary">recently-watched videos</Link>.</p>
+        <p>You can only return to, or reload this URL while the current video is playing. After you navigate away from this page you have to reload a new video again. Try checking your <Link href="/recent" className="link-primary">recently-watched videos</Link>.</p>
         <p><img src="/src/assets/sadface.svg" width="80" /></p>
       </div>
     );
   }
 
   const { identifier, title } = currentVid;
-  const archiveUrl = `https://archive.org/embed/${identifier}?playlist=1&list_height=250`;
+  const archiveUrl = embedPlaylist
+  ? `https://archive.org/embed/${identifier}?playlist=1`
+  : `https://archive.org/embed/${identifier}`;
 
   const handleIframeLoad = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setLoading(false);
     setTimeoutError(false);
+    // Show nav buttons only after video loads
+    showVidNavBtnsSignal.value = true;
     // Log only once per load
     if (title) {
       log(`Video ${title} loaded`);
