@@ -4,23 +4,29 @@ import { ConfigProvider } from '@/context/ConfigContext';
 import { PlaylistProvider } from '@/context/PlaylistContext';
 import { App } from '@components/App';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { ErrorPage } from '@components/UI/ErrorPage';
-import { OfflinePage } from '@components/UI/OfflinePage';
+import { ErrorPage } from '@pages/ErrorPage';
+import { OfflinePage } from '@pages/OfflinePage';
 import { shouldUpdateData, enforceMinLoadingTime, formatDateTime } from '@/utils';
 
 // Loads config and show data from JSON then loads App and shows default page
 export function AppLoader() {
+
+    const infoFile = '/assets/app.nfo';
+    const configFile = '/config.json';
+    const minLoadingTime = 1200;  // show spinner for 1.2 seconds (minimum)
+
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const location = useLocation();
+
     useEffect(() => {
         async function loadConfig() {
             // Storage check
             try {
                 localStorage.setItem('test', 'test');
                 localStorage.removeItem('test');
-            } catch (e) {
+            } catch {
                 let msg = 'Storage test failed! Please enable storage on your device and reload.';
                 setError({
                     type: 'Storage Error',
@@ -43,14 +49,14 @@ export function AppLoader() {
             try {
 
                 // Fetch config data
-                const response = await fetch('/config.json');
-                if (!response.ok) throw new Error('Failed to fetch config');
+                const response = await fetch(configFile);
+                if (!response.ok) throw new Error('Failed to fetch config file');
                 fetchedConfig = await response.json();
                 
                 // Fetch app info data
                 let fetchedInfo = null
-                const appinfo = await fetch('/assets/app.info.json');
-                if (!appinfo.ok) throw new Error('Failed to fetch App Data');
+                const appinfo = await fetch(infoFile);
+                if (!appinfo.ok) throw new Error('Failed to fetch app info');
                 fetchedInfo = await appinfo.json();
 
                 // If no config in storage or config is outdated, update it
@@ -79,7 +85,7 @@ export function AppLoader() {
                         }
                     }
                 }
-            } catch (err) {
+            } catch {
                 let msg = 'Unable to load configuration file. Please try again. If the problem persists, contact: support@freetv.today.';
                 setError({
                     type: 'Configuration Error',
@@ -93,8 +99,6 @@ export function AppLoader() {
                 if (configData.debugmode) {
                     console.log('Loading configuration data...');
                 }
-                // Show spinner for at least 1.2s if loading data
-                const minLoadingTime = 1200;
                 const startTime = Date.now();
                 await enforceMinLoadingTime(startTime, minLoadingTime);
             }

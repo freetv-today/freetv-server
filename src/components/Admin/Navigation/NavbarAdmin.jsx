@@ -6,7 +6,7 @@ import { ButtonAdminSettingsNav } from '@components/Admin/Navigation/ButtonAdmin
 import { ButtonAdminThumbsNav } from './ButtonAdminThumbsNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { AdminToggleDropDownMenu } from '@components/Admin/Navigation/AdminToggleDropDownMenu';
-import { SelectLarge } from '@components/UI/SelectLarge';
+import { SelectLarge } from '@components/Navigation/SelectLarge';
 import { useAdminLogout } from '@hooks/Admin/useAdminLogout';
 
 // Accept problemCount as a prop

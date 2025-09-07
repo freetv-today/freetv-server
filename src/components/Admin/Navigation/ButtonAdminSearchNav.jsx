@@ -1,4 +1,4 @@
-import { Link } from '@components/UI/Link';
+import { Link } from '@components/Navigation/Link';
 
 export function ButtonAdminSearchNav() {
   return (

@@ -1,6 +1,3 @@
-// src/components/UI/OfflinePage.jsx
-import React from 'react';
-import './OfflinePage'; // Assuming this is the intended import without the .jsx extension
 
 export function OfflinePage() {
   return (

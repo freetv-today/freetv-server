@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
-import { DescriptionModal } from '@components/UI/DescriptionModal';
-import { ReportProblemModal } from '@components/UI/ReportProblemModal';
+import { DescriptionModal } from '@components/Modals/DescriptionModal';
+import { ReportProblemModal } from '@components/Modals/ReportProblemModal';
 import { useConfig } from '@/context/ConfigContext';
 import { useQueueVideo } from '@hooks/useQueueVideo';
 import { useFavoritesList } from '@hooks/useFavoritesList';
@@ -17,7 +17,6 @@ import { triggerToast } from '@/signals/toastSignal';
  * @param {string} props.imdb
  * @returns {import('preact').JSX.Element}
  */
-
 
 export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
   const { modules } = useConfig();

@@ -1,4 +1,3 @@
-// src/context/ConfigContext.jsx
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 

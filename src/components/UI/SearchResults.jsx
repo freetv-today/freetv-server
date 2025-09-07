@@ -1,9 +1,9 @@
 import { useState } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils';
 import { useQueueVideo } from '@hooks/useQueueVideo';
-import { DescriptionModal } from '@components/UI/DescriptionModal';
+import { DescriptionModal } from '@components/Modals/DescriptionModal';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { Link } from '@components/UI/Link';
+import { Link } from '@components/Navigation/Link';
 
 export function SearchResults({ results }) {
   const log = useDebugLog();

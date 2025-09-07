@@ -1,5 +1,5 @@
-// src/components/Navigation/ButtonCategoryNav.jsx
-import { Link } from '@/components/UI/Link';
+
+import { Link } from '@/components/Navigation/Link';
 
 export function ButtonCategoryNav({ name, category, isActive }) {
   return (

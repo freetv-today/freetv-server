@@ -1,4 +1,3 @@
-import { SelectSmall } from '@components/UI/SelectSmall';
 
 export function ToggleDropDownMenu() {
   return (

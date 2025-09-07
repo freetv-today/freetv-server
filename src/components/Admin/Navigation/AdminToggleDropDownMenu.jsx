@@ -1,6 +1,6 @@
-import { SelectSmall } from '@components/UI/SelectSmall';
+import { SelectSmall } from '@components/Navigation/SelectSmall';
 import { useAdminLogout } from '@hooks/Admin/useAdminLogout';
-import { Link } from '@components/UI/Link';
+import { Link } from '@components/Navigation/Link';
 
 export function AdminToggleDropDownMenu() {
 	const handleLogout = useAdminLogout();

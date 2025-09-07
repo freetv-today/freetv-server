@@ -1,6 +1,6 @@
 import { useLocation } from 'preact-iso';
-import { Link } from '../components/UI/Link';
 import { useEffect } from 'preact/hooks';
+import { Link } from '@components/Navigation/Link';
 import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function NotFound() {

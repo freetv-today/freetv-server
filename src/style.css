@@ -18,6 +18,7 @@ body {
 @font-face {
     font-family: "Bruno Ace";
     src: url('/src/assets/fonts/BrunoAce-Regular.ttf');
+    font-display: swap;
 }
 .bruno-ace {
     font-family: "Bruno Ace", sans-serif;
@@ -247,7 +248,7 @@ body {
 }
 
 .descTxtBlock {
-    max-width: 430px;
+    max-width: 420px;
 }
 
 /* =============== MEDIA QUERIES: =============== */

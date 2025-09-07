@@ -1,4 +1,3 @@
-// src/components/UI/DescriptionModal.jsx
 import { useState, useEffect } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils';
 
@@ -15,6 +14,7 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {string} props.imdb
  * @returns {import('preact').JSX.Element}
  */
+
 export function DescriptionModal({ show, onClose, title, category, identifier, desc, start, end, imdb }) {
   const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
 

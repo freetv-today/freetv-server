@@ -1,4 +1,3 @@
-// src/hooks/useCategories.js
 import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 
