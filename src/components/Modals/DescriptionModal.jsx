@@ -64,7 +64,7 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
           <div className="modal-body">
             <div className="d-flex flex-row gap-2 mb-4 justify-content-center align-middle">
               <div className="m-0">
-                <img id="thumbnail" src={thumbnailSrc} width="100" alt={`${title} Thumbnail`} />
+                <img id="thumbnail" src={thumbnailSrc} width="200" alt={`${title} Thumbnail`} />
               </div>
               <div className="flex-grow-1 p-2">
                 <div className="d-flex flex-column h-100 p-2">

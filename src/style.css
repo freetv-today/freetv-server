@@ -1,5 +1,5 @@
 html {
-    min-width: 425px;
+    min-width: 400px;
     max-width: 100vw;
 }
 
@@ -10,7 +10,7 @@ body {
     margin: 0;
     padding: 0;
     padding-top: 60px;
-    min-width: 425px;
+    min-width: 400px;
     max-width: 100vw;
 }
 
@@ -46,10 +46,9 @@ body {
 /* ==============  Top navbar ============== */
 #navbar {
     height: 60px;
-    min-width: 410px;
+    min-width: 400px;
     max-width: 100vw;
     white-space: nowrap;
-    z-index: 1001;
 }
 
 /* Toggle menu select list items */
@@ -245,10 +244,6 @@ body {
   width: 100%;
   height: auto;
   margin: 0 auto;
-}
-
-.descTxtBlock {
-    max-width: 420px;
 }
 
 /* =============== MEDIA QUERIES: =============== */

@@ -83,7 +83,7 @@ export function ShowListSidebar({ context, category }) {
         <>
           <p className="text-center mt-3 text-danger fw-bold">
             {context === 'favorites'
-              ? `You haven't added any shows to your Favorites`
+              ? `You haven't added any shows to your Favorites yet`
               : context === 'recent'
                 ? 'No recently watched shows available'
                 : 'No shows available in this category'}

@@ -54,7 +54,7 @@ export function NavbarAdmin({ problemCount }) {
         {/* Logout button (desktop only) */}
         <div className="d-none d-md-flex align-items-center order-md-3">
           <button
-            className="btn btn-outline-light btn-sm px-3"
+            className="btn btn-outline-light btn-sm px-2 px-lg-3"
             type="button"
             title="Log Out"
             onClick={handleLogout}

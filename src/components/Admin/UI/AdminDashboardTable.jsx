@@ -85,29 +85,35 @@ export function AdminDashboardTable({
         </tr>
       </thead>
       <tbody>
-        {filteredShows.map((show, idx) => (
-          <tr key={show.id || show.title + idx} className={show.status === 'disabled' ? 'disabled-item' : ''}>
-            <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
-            <td>{show.title}</td>
-            <td>
-              <button
-                className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                onClick={() => onStatusToggle(show)}
-                title={show.status === 'disabled' ? 'Enable' : 'Disable'}
-              >
-                {show.status === 'disabled' ? 'Disabled' : 'Active'}
-              </button>
-            </td>
-            <td>
-              <AdminShowActions
-                show={show}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onTest={onTest}
-              />
-            </td>
+        {filteredShows.length === 0 ? (
+          <tr>
+            <td colSpan={4} className="text-center text-muted py-4">No shows to display.</td>
           </tr>
-        ))}
+        ) : (
+          filteredShows.map((show, idx) => (
+            <tr key={show.id || show.title + idx} className={show.status === 'disabled' ? 'disabled-item' : ''}>
+              <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
+              <td>{show.title}</td>
+              <td>
+                <button
+                  className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                  onClick={() => onStatusToggle(show)}
+                  title={show.status === 'disabled' ? 'Enable' : 'Disable'}
+                >
+                  {show.status === 'disabled' ? 'Disabled' : 'Active'}
+                </button>
+              </td>
+              <td>
+                <AdminShowActions
+                  show={show}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onTest={onTest}
+                />
+              </td>
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );
