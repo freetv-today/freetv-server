@@ -11,6 +11,7 @@ export function NavbarSubNavAdmin({ onMetaClick, onInfoClick }) {
           className="btn btn-outline-secondary rounded-pill btn-sm me-2 mt-2 fw-bold px-4 py-2" 
           title="Create New Playlist" 
           aria-label="Create New Playlist"
+          onClick={() => route('/dashboard/playlist')}
         >
           <span className="me-1">{"\u271A"}</span> Create New Playlist
         </button>

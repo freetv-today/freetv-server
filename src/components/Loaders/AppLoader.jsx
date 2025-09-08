@@ -58,6 +58,7 @@ export function AppLoader() {
                 const appinfo = await fetch(infoFile);
                 if (!appinfo.ok) throw new Error('Failed to fetch app info');
                 fetchedInfo = await appinfo.json();
+                localStorage.setItem('appInfo', JSON.stringify(fetchedInfo));  
 
                 // If no config in storage or config is outdated, update it
                 if (!storedConfig || shouldUpdateData(storedConfig, fetchedConfig)) {
@@ -81,7 +82,7 @@ export function AppLoader() {
                             console.log(`Author: ${fetchedInfo.author}`);
                             console.log(`Email: ${fetchedInfo.email}`);
                             console.log(`Last Updated: ${formatDateTime(configData.lastupdated)}`);
-                            console.groupEnd();                            
+                            console.groupEnd();                       
                         }
                     }
                 }

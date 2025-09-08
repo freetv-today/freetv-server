@@ -5,12 +5,13 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 import { AdminSearchResults } from '@components/Admin/UI/AdminSearchResults';
-import { AdminTestVideoModal } from '@/components/Admin/UI/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@/components/Admin/UI/AdminDeleteShowModal';
+import { AdminTestVideoModal } from '@/components/Admin/Modals/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/Modals/AdminDeleteShowModal';
 import { useAdminShowActions } from '@hooks/Admin/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
 
 export function AdminSearch() {
+
     const log = useDebugLog();
     const user = useAdminSession();
     const { showData } = useContext(PlaylistContext);
@@ -39,6 +40,7 @@ export function AdminSearch() {
         return '';
       }
     };
+    
     const [query, setQuery] = useState(getInitialQuery());
     // Use shared hook for search results
     const results = useSearchResults(showData, query, {

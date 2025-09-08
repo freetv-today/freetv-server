@@ -3,8 +3,11 @@ import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 
 export function EditShow() {
+
+  const user = useAdminSession();
   const { url, route } = useLocation();
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
   const [saving, setSaving] = useState(false);
@@ -67,6 +70,8 @@ export function EditShow() {
   if (!show) {
     return <div className="container mt-5"><div className="alert alert-danger">Show not found.</div></div>;
   }
+
+  if (!user) return null;
 
   return (
     <div className="container mt-4" style={{ maxWidth: 700 }}>

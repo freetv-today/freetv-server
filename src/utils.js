@@ -110,3 +110,12 @@ export function handleKeyPress(event) {
     window.location.href = '/admin';
   }
 }
+
+// Get app info from local storage
+export function getAppInfo() {
+  let d = localStorage.getItem('appInfo');
+  if (d) {
+    let info = JSON.parse(d);
+    return info;
+  }
+}

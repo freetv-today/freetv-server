@@ -37,7 +37,7 @@ export function AdminDashboardFilters({
             <div className="small">
               <span className="text-nowrap fw-bold">Current Playlist: </span>
               <br />
-              <span className="font-monospace customBlue">"{playlistName}"</span>
+              <span className="font-monospace">"{playlistName}"</span>
             </div>
           )}
         </div>

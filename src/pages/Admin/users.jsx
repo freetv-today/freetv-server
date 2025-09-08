@@ -3,9 +3,9 @@ import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { formatDateTime } from '@/utils';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
-import { UserModal } from '@/components/Admin/UI/UserModal';
-import { PasswordModal } from '@/components/Admin/UI/PasswordModal';
-import { ConfirmDeleteModal } from '@/components/Admin/UI/ConfirmDeleteModal';
+import { UserModal } from '@/components/Admin/Modals/UserModal';
+import { PasswordModal } from '@/components/Admin/Modals/PasswordModal';
+import { ConfirmDeleteModal } from '@/components/Admin/Modals/ConfirmDeleteModal';
 
 export function AdminUsers() {
     const log = useDebugLog();

@@ -29,6 +29,7 @@ import { AdminUsers } from '@pages/Admin/users';
 import { AdminThumbnails } from '@/pages/Admin/thumbnails';
 import { EditShow } from '@pages/Admin/EditShow';
 import { AddShow } from '@pages/Admin/AddShow';
+import { AddPlaylist } from '@pages/Admin/AddPlaylist';
 // Other pages
 import { ShowToastAlert } from '@components/UI/ToastAlerts';
 import { NotFound } from '@pages/_404';
@@ -36,23 +37,28 @@ import { TestPage } from '@/pages/TestPage';
 // Default style sheet
 import '@/style.css';
 
-// Predefined route components
+// Predefined route components:
+
+// Front-end routes
 const HomeRoute = () => <LayoutDefault><Home /></LayoutDefault>;
 const RecentRoute = () => <LayoutSubnav><Recent /></LayoutSubnav>;
 const CategoryRoute = () => <LayoutSubnav><Category /></LayoutSubnav>;
 const SearchRoute = () => <LayoutSearch><Search /></LayoutSearch>;
 const FavoritesRoute = () => <LayoutSubnav><Favorites /></LayoutSubnav>;
 const HelpRoute = () => <LayoutFullpage><Help /></LayoutFullpage>;
+const NowPlayingRoute = () => <LayoutVidviewer><NowPlaying /></LayoutVidviewer>;
+// Back-end routes
 const AdminLoginRoute = () => <LayoutFullpageBlank><AdminLogin /></LayoutFullpageBlank>;
 const DashboardRoute = () => <LayoutAdmin><Dashboard /></LayoutAdmin>;
 const EditShowRoute = () => <LayoutAdmin><EditShow /></LayoutAdmin>;
 const AddShowRoute = () => <LayoutAdmin><AddShow /></LayoutAdmin>;
+const AddPlaylistRoute = () => <LayoutAdmin><AddPlaylist /></LayoutAdmin>;
 const AdminSearchRoute = () => <LayoutAdmin><AdminSearch /></LayoutAdmin>;
 const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
 const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
 const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
 const AdminThumbsRoute = () => <LayoutAdmin><AdminThumbnails /></LayoutAdmin>;
-const NowPlayingRoute = () => <LayoutVidviewer><NowPlaying /></LayoutVidviewer>;
+// Other routes
 const TestPageRoute = () => <LayoutFullpage><TestPage /></LayoutFullpage>;
 const NotFoundRoute = () => <LayoutFullpage><NotFound /></LayoutFullpage>;
 
@@ -103,6 +109,7 @@ export function App() {
           <Route path="/dashboard" component={DashboardRoute} />
           <Route path="/dashboard/edit/:imdb" component={EditShowRoute} />
           <Route path="/dashboard/add" component={AddShowRoute} />
+          <Route path="/dashboard/playlist" component={AddPlaylistRoute} />
           <Route path="/dashboard/search" component={AdminSearchRoute} />
           <Route path="/dashboard/problems" component={AdminProblemsRoute} />
           <Route path="/dashboard/settings" component={AdminSettingsRoute} />

@@ -1,7 +1,7 @@
 import { useEffect } from 'preact/hooks';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { ThumbnailManager } from '@/components/Admin/ThumbnailManager';
+import { ThumbnailManager } from '@/components/Admin/UI/ThumbnailManager';
 
 export function AdminThumbnails() {
 

@@ -2,12 +2,13 @@ import { useEffect, useState, useContext } from 'preact/hooks';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { PlaylistContext } from '@/context/PlaylistContext';
-import { AdminTestVideoModal } from '@components/Admin/UI/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@components/Admin/UI/AdminDeleteShowModal';
-import { DeleteReportedProblemModal } from '@components/Admin/UI/DeleteReportedProblemModal';
+import { AdminTestVideoModal } from '@components/Admin/Modals/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@components/Admin/Modals/AdminDeleteShowModal';
+import { DeleteReportedProblemModal } from '@components/Admin/Modals/DeleteReportedProblemModal';
 import { capitalizeFirstLetter, formatDateTime } from '@/utils';
 
 export function AdminProblems() {
+    
     const log = useDebugLog();
     const user = useAdminSession();
     const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);

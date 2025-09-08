@@ -139,8 +139,8 @@ export function ThumbnailManager() {
     <>
       <h2 className="my-4 text-center">Thumbnail Manager</h2>
 
-      <div className="row m-2 mx-auto p-3 align-items-end rounded-3 border border-1 border-tertiary" style={{ width: '95%' }}>
-        <div className="col-3">
+      <div className="row m-2 mx-auto p-3 align-items-center rounded-3 border border-1 border-tertiary" style={{ width: '95%' }}>
+        <div className="col-4">
           {/* Infoblock */}
           <ul className="list-group list-group-flush ms-3 mb-3">
             <li className="list-group-item">Number of shows: {totalShows}</li>
@@ -149,10 +149,10 @@ export function ThumbnailManager() {
             <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('shared')}>Shows sharing a thumbnail: {showsSharingThumbnail}</li>
           </ul>
         </div>
-        <div className="col-9">
+        <div className="col-8">
           {/* Alerts */}
-          {success && showSuccess && <div className="alert alert-success alert-dismissible fade show w-50 mx-auto" role="alert">{success}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowSuccess(false)}></button></div>}
-          {error && showError && <div className="alert alert-danger alert-dismissible fade show w-50 mx-auto" role="alert">{error}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowError(false)}></button></div>}
+          {success && showSuccess && <div className="alert alert-success alert-dismissible fade show mx-auto" role="alert">{success}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowSuccess(false)}></button></div>}
+          {error && showError && <div className="alert alert-danger alert-dismissible fade show mx-auto" role="alert">{error}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowError(false)}></button></div>}
           {/* Search */}
           <form className="input-group mb-3 mx-auto" onSubmit={handleSearch}>
             <input

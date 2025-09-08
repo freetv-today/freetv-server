@@ -4,9 +4,11 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { useAdminSession } from '@hooks/Admin/useAdminSession';
 
 export function AddShow() {
 
+  const user = useAdminSession();
   const log = useDebugLog();
   const { route } = useLocation();
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
@@ -81,6 +83,8 @@ export function AddShow() {
     end: '',
     imdb: ''
   };
+
+  if (!user) return null;
 
   return (
     <div className="container mt-4" style={{ maxWidth: 700 }}>

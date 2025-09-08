@@ -4,11 +4,11 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminDashboardTable } from '@/components/Admin/UI/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/Admin/UI/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Admin/Navigation/NavbarSubNavAdmin';
-import { AdminInfoModal } from '@/components/Admin/UI/AdminInfoModal';
+import { AdminInfoModal } from '@/components/Admin/Modals/AdminInfoModal';
 import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
-import { AdminTestVideoModal } from '@/components/Admin/UI/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@/components/Admin/UI/AdminDeleteShowModal';
-import { AdminPlaylistMetaModal } from '@/components/Admin/UI/AdminPlaylistMetaModal';
+import { AdminTestVideoModal } from '@/components/Admin/Modals/AdminTestVideoModal';
+import { AdminDeleteShowModal } from '@/components/Admin/Modals/AdminDeleteShowModal';
+import { AdminPlaylistMetaModal } from '@/components/Admin/Modals/AdminPlaylistMetaModal';
 import { useAdminShowActions } from '@hooks/Admin/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
 
