@@ -1,17 +1,17 @@
-
 import { useContext, useEffect, useState, useRef } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { AdminFilenameInfoModal } from '@/components/Admin/Modals/AdminFilenameInfoModal';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 export function AddPlaylist() {
 
     const { route } = useLocation();
     const user = useAdminSession();
     const log = useDebugLog();
-    const { changePlaylist } = useContext(PlaylistContext);
+    const { changePlaylist, currentPlaylist, refreshPlaylists } = useContext(PlaylistContext);
 
     // Form state
     const [form, setForm] = useState({
@@ -23,10 +23,9 @@ export function AddPlaylist() {
         link: ''
     });
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    // Remove local success state; use signal-based admin message
     const [submitting, setSubmitting] = useState(false);
     const [showFilenameModal, setShowFilenameModal] = useState(false);
-    const [filenameWarned, setFilenameWarned] = useState(false);
     const filenameInputRef = useRef(null);
 
     useEffect(() => {
@@ -43,13 +42,6 @@ export function AddPlaylist() {
     function handleChange(e) {
         const { name, value } = e.target;
         setForm(f => ({ ...f, [name]: value }));
-        if (name === 'filename') {
-            // Warn if user types a dot followed by a letter (non-json extension)
-            if (/\.[a-zA-Z]+$/.test(value) && !/\.json$/i.test(value) && !filenameWarned) {
-                setShowFilenameModal(true);
-                setFilenameWarned(true);
-            }
-        }
     }
 
     // Validate form fields
@@ -63,10 +55,17 @@ export function AddPlaylist() {
         if (/\.json$/i.test(base)) base = base.replace(/\.json$/i, '');
         if (!validFilenameRegex.test(base)) {
             setError('Invalid file name. Only letters, numbers, dashes, and underscores are allowed.');
+            // Focus the filename input
+            setTimeout(() => {
+                if (filenameInputRef.current) filenameInputRef.current.focus();
+            }, 0);
             return false;
         }
         if (base.toLowerCase() === 'index') {
             setError('File name index.json is not allowed.');
+            setTimeout(() => {
+                if (filenameInputRef.current) filenameInputRef.current.focus();
+            }, 0);
             return false;
         }
         return true;
@@ -76,8 +75,11 @@ export function AddPlaylist() {
     async function handleSubmit(e, action) {
         e.preventDefault();
         setError(null);
-        setSuccess(null);
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            // Scroll to top if error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
         setSubmitting(true);
         try {
             const res = await fetch('/api/admin/add-playlist.php', {
@@ -87,37 +89,60 @@ export function AddPlaylist() {
             });
             const data = await res.json();
             if (!res.ok || !data.success) {
-                setError(data && data.message ? data.message : 'Failed to create playlist.');
+                const msg = data && data.message ? data.message : 'Failed to create playlist.';
+                setError(msg);
+                // Focus filename input if error is about file already existing
+                if (msg && msg.toLowerCase().includes('already exists')) {
+                    setTimeout(() => {
+                        if (filenameInputRef.current) filenameInputRef.current.focus();
+                    }, 0);
+                }
                 setSubmitting(false);
+                // Scroll to top if error
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             // Success
-            setSuccess('Playlist created successfully!');
-            // Save as Draft: go to dashboard, show admin message
             if (action === 'draft') {
-                localStorage.setItem('adminMsg', JSON.stringify({ type: 'success', text: 'Playlist created successfully.' }));
+                setAdminMsg({ type: 'success', text: 'Playlist created successfully.' });
                 route('/dashboard');
+                // After routing, refresh playlists so select list updates
+                setTimeout(() => {
+                    if (refreshPlaylists) refreshPlaylists();
+                }, 100);
             } else if (action === 'addshows') {
-                // Save and Add Shows: switch playlist, then go to add show
-                await changePlaylist(data.filename, true, false);
-                localStorage.setItem('adminMsg', JSON.stringify({ type: 'success', text: 'Playlist created and switched. You can now add shows.' }));
+                // Save and Add Shows: refresh playlists, set adminMsg, route, then switch playlist WITHOUT routing again
+                if (refreshPlaylists) await refreshPlaylists();
+                setAdminMsg({ type: 'success', text: 'Playlist created and switched. You can now add shows.' });
                 route('/dashboard/add');
+                setTimeout(async () => {
+                    await changePlaylist(data.filename, true, false, true); // suppressRoute = true
+                }, 100);
             }
         } catch (err) {
             setError('Failed to create playlist.');
+            // Scroll to top if error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } finally {
             setSubmitting(false);
         }
     }
 
-
     return (
-        <div className="container mt-3">
+        <div id="top" className="container mt-3 w-75">
+
             <h1 className="my-4 text-center">Create A New Playlist</h1>
+
             {/* Alert for error/success */}
-            {error && <div className="alert alert-danger mb-3">{error}</div>}
-            {success && <div className="alert alert-success mb-3">{success}</div>}
-            <form className="mt-4 w-75 mx-auto" onSubmit={e => handleSubmit(e, 'draft')}>
+            {error && (
+                <div className="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    {error}
+                    <button type="button" className="btn-close" aria-label="Close" onClick={() => setError(null)}></button>
+                </div>
+            )}
+            {/* Success alert removed; use AdminMessage signal-based component instead */}
+
+            <form className="mt-4 mx-auto" onSubmit={e => handleSubmit(e, 'draft')}>
                 <div className="mb-3">
                     <label className="form-label">Playlist Title <span className="text-danger">*</span></label>
                     <input type="text" className="form-control form-control-sm" name="dbtitle" placeholder="My New Playlist" value={form.dbtitle} onInput={handleChange} required />
@@ -141,8 +166,21 @@ export function AddPlaylist() {
                             required
                             autoComplete="off"
                         />
-                        <span className="input-group-text" title="">
-                            <a href="#" className="text-decoration-none" title="Open a modal with more info about file names" onClick={e => { e.preventDefault(); setShowFilenameModal(true); }}>❔</a>
+                        <span
+                            className="input-group-text"
+                            title="See more info about naming files (opens in a new window)"
+                            style={{ cursor: 'pointer', userSelect: 'none' }}
+                            onClick={e => { e.preventDefault(); setShowFilenameModal(true); }}
+                        >
+                            <a
+                                href="#"
+                                className="text-decoration-none"
+                                tabIndex={-1}
+                                style={{ pointerEvents: 'none', color: 'inherit', textDecoration: 'none' }}
+                                aria-hidden="true"
+                            >
+                                ❔
+                            </a>
                         </span>
                     </div>
                 </div>

@@ -6,21 +6,23 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {Object} props
  * @param {Object} [props.initialData] - Show data to edit (optional)
  * @param {function(Object):void} props.onSave - Called with show data on save
+ * @param {function(Object, function):void} [props.onSaveAndAddMore] - Called with show data and a reset callback when 'Save and Add More Shows' is clicked
  * @param {function():void} props.onCancel - Called on cancel
  * @param {boolean} [props.saving] - Whether save is in progress
  * @param {string|null} [props.error] - Error message
  * @param {Array<string>} [props.categories] - List of categories for select
  */
-export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = false, error = null, categories = [] }) {
+export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCancel, saving = false, error = null, categories = [] }) {
   const [form, setForm] = useState({
-    category: initialData.category || '',
-    status: initialData.status || 'active',
-    identifier: initialData.identifier || '',
-    title: initialData.title || '',
-    desc: initialData.desc || '',
-    start: initialData.start || '',
-    end: initialData.end || '',
-    imdb: initialData.imdb || ''
+  category: initialData.category || '',
+  newCategory: '',
+  status: initialData.status || 'active',
+  identifier: initialData.identifier || '',
+  title: initialData.title || '',
+  desc: initialData.desc || '',
+  start: initialData.start || '',
+  end: initialData.end || '',
+  imdb: initialData.imdb || ''
   });
   const [touched, setTouched] = useState(false);
   const [validation, setValidation] = useState({
@@ -37,6 +39,7 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
   useEffect(() => {
     setForm({
       category: initialData.category || '',
+      newCategory: '',
       status: initialData.status || 'active',
       identifier: initialData.identifier || '',
       title: initialData.title || '',
@@ -71,8 +74,12 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
 
   function validate() {
     const v = {};
-    // All fields required
-    for (const key of ['category', 'status', 'identifier', 'title', 'desc', 'start', 'end', 'imdb']) {
+    // Category: require either select or new
+    if (!form.category && !form.newCategory) {
+      v.category = 'Required';
+    }
+    // All other fields required
+    for (const key of ['status', 'identifier', 'title', 'desc', 'start', 'end', 'imdb']) {
       if (!form[key] || String(form[key]).trim() === '') v[key] = 'Required';
     }
     if (form.desc && form.desc.length > 255) v.desc = 'Description must be 255 characters or less';
@@ -102,7 +109,43 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
   function handleSubmit(e) {
     e.preventDefault();
     if (validate()) {
-      onSave(form);
+      const showData = { ...form, category: form.newCategory ? form.newCategory : form.category };
+      delete showData.newCategory;
+      onSave(showData);
+    }
+  }
+
+  // Handler for Save and Add More Shows
+  function handleSaveAndAddMoreClick(e) {
+    e.preventDefault();
+    if (validate() && typeof onSaveAndAddMore === 'function') {
+      const showData = { ...form, category: form.newCategory ? form.newCategory : form.category };
+      delete showData.newCategory;
+      onSaveAndAddMore(showData, () => {
+        // Reset form after successful add
+        setForm({
+          category: initialData.category || '',
+          newCategory: '',
+          status: initialData.status || 'active',
+          identifier: initialData.identifier || '',
+          title: initialData.title || '',
+          desc: initialData.desc || '',
+          start: initialData.start || '',
+          end: initialData.end || '',
+          imdb: initialData.imdb || ''
+        });
+        setTouched(false);
+        setValidation({
+          category: '',
+          status: '',
+          identifier: '',
+          title: '',
+          desc: '',
+          start: '',
+          end: '',
+          imdb: ''
+        });
+      });
     }
   }
 
@@ -110,18 +153,29 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
     <form onSubmit={handleSubmit} className="mb-5">
       <div className="mb-3 w-50">
         <label className="form-label fw-bold">Category</label>
-        <select
-          className="form-select form-select-sm"
-          name="category"
-          value={form.category}
-          onInput={handleChange}
-          required
-        >
-          <option value="">Select category...</option>
-          {categories.map(cat => (
-            <option value={cat} key={cat}>{capitalizeFirstLetter(cat)}</option>
-          ))}
-        </select>
+        <div className="d-flex">
+          <select
+            className="form-select form-select-sm me-2"
+            name="category"
+            value={form.category}
+            onInput={handleChange}
+            disabled={categories.length === 0}
+          >
+            <option value="">Select or type new</option>
+            {categories.map(cat => (
+              <option value={cat} key={cat}>{capitalizeFirstLetter(cat)}</option>
+            ))}
+          </select>
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            name="newCategory"
+            placeholder="New category"
+            value={form.newCategory}
+            onInput={handleChange}
+            style={{ width: 200 }}
+          />
+        </div>
         {validation.category && <div className="text-danger small">{validation.category}</div>}
       </div>
       <div className="mb-3">
@@ -170,6 +224,11 @@ export function AdminShowForm({ initialData = {}, onSave, onCancel, saving = fal
       <div className="mt-5 d-flex justify-content-center gap-2">
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
         <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+        {typeof onSaveAndAddMore === 'function' && (
+          <button type="button" className="btn btn-success" onClick={handleSaveAndAddMoreClick} disabled={saving}>
+            {saving ? 'Saving...' : 'Save and Add More Shows'}
+          </button>
+        )}
       </div>
     </form>
   );

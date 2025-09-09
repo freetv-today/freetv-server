@@ -1,0 +1,41 @@
+{
+    "lastupdated": "2025-09-09T04:07:26.000Z",
+    "dbtitle": "Foobar 5",
+    "filename": "foobar5.json",
+    "dbversion": "4.0",
+    "author": "Aasdf Afasdf",
+    "email": "asdfa@adfa.com",
+    "link": "",
+    "shows": [
+        {
+            "category": "Test",
+            "status": "active",
+            "identifier": "testtest",
+            "title": "Test Title 1",
+            "desc": "This is test description 1",
+            "start": "1980",
+            "end": "1983",
+            "imdb": "tt00000333"
+        },
+        {
+            "category": "Test",
+            "status": "active",
+            "identifier": "testtest2",
+            "title": "Test 2",
+            "desc": "Test testing test",
+            "start": "1980",
+            "end": "1983",
+            "imdb": "tt000222333"
+        },
+        {
+            "category": "Test",
+            "status": "active",
+            "identifier": "testtest2",
+            "title": "Test Test Test",
+            "desc": "adfadfadfasf asdfasdfasdf asdfa",
+            "start": "1990",
+            "end": "1993",
+            "imdb": "tt55553333"
+        }
+    ]
+}

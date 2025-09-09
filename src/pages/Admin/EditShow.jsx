@@ -2,8 +2,9 @@ import { useContext, useMemo, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
 
 export function EditShow() {
 
@@ -12,7 +13,6 @@ export function EditShow() {
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
 
   // Extract imdb param from url
   const imdb = (() => {
@@ -75,6 +75,7 @@ export function EditShow() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: 700 }}>
+      <AdminMessage />
       <h2 className="mb-3">Edit Show</h2>
       {error && <div className="alert alert-danger mb-3">{error}</div>}
       <AdminShowForm

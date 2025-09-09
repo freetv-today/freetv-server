@@ -104,9 +104,15 @@ export function getRandomCategory(categories) {
 
 // Handle keypress events
 export function handleKeyPress(event) {
-  // Check if SHIFT + A is pressed
+  // Ignore if focus is in an input, textarea, or contenteditable element
+  const tag = document.activeElement && document.activeElement.tagName;
+  const isInput = tag === 'INPUT' || tag === 'TEXTAREA' ||
+    (typeof HTMLElement !== 'undefined' && document.activeElement && document.activeElement instanceof HTMLElement && document.activeElement.isContentEditable);
+  if (isInput) return;
+  // Otherwise, check to see if SHIFT + A is pressed
   if (event.shiftKey && event.key === 'A') {
     event.preventDefault();
+    // And direct user to Admin Dashboard
     window.location.href = '/admin';
   }
 }

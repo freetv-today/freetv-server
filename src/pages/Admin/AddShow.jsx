@@ -2,9 +2,10 @@ import { useContext, useMemo, useState, useEffect } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { AdminShowForm } from '@/components/Admin/UI/AdminShowForm';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
 
 export function AddShow() {
 
@@ -14,12 +15,11 @@ export function AddShow() {
   const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [setAdminMsg] = useLocalStorage('adminMsg', null);
 
   useEffect(() => {
     document.title = "Free TV: Admin Dashboard - Add Show";
     log('Rendered Add Show page (pages/Admin/AddShow.jsx)');
-  }, []);  
+  }, []);
 
   // Get unique categories for select
   const categories = useMemo(() => {
@@ -31,8 +31,9 @@ export function AddShow() {
   function handleCancel() {
     route('/dashboard');
   }
-  
-  async function handleSave(newShow) {
+
+  // Save handler: if stayOnPage is true, show signal-based alert and reset form; else, route to dashboard
+  async function handleSave(newShow, stayOnPage = false, resetFormCallback) {
     setSaving(true);
     setError(null);
     try {
@@ -56,12 +57,15 @@ export function AddShow() {
         console.log('[AddShow] Calling playlist_utils.php to rebuild index...');
         const rebuildRes = await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
         console.log('[AddShow] Rebuild index response:', rebuildRes);
-        console.log('[AddShow] Setting admin message...');
-        setAdminMsg({ type: 'success', text: 'The new show has been added successfully.' });
-        console.log('[AddShow] Routing to /dashboard...');
-        route('/dashboard');
-        console.log('[AddShow] Refreshing playlist context...');
-        await changePlaylist(currentPlaylist, true, false);
+        if (stayOnPage) {
+          setAdminMsg({ type: 'success', text: 'The show has been added successfully.' });
+          if (typeof resetFormCallback === 'function') resetFormCallback();
+          await changePlaylist(currentPlaylist, true, false); // normal for add more
+        } else {
+          setAdminMsg({ type: 'success', text: 'The new show has been added successfully.' });
+          route('/dashboard');
+          await changePlaylist(currentPlaylist, true, false, true); // suppressRoute for dashboard
+        }
       }
     } catch (err) {
         console.error('[AddShow] Exception during add:', err);
@@ -83,16 +87,28 @@ export function AddShow() {
     end: '',
     imdb: ''
   };
+  const [formKey, setFormKey] = useState(0); // for resetting AdminShowForm
 
   if (!user) return null;
 
+  // Handler for Save and Add More Shows
+  function handleSaveAndAddMore(newShow, resetFormCallback) {
+    handleSave(newShow, true, () => {
+      setFormKey(k => k + 1); // force AdminShowForm to reset
+      if (typeof resetFormCallback === 'function') resetFormCallback();
+    });
+  }
+
   return (
     <div className="container mt-4" style={{ maxWidth: 700 }}>
+      <AdminMessage />
       <h2 className="mb-3">Add New Video</h2>
       {error && <div className="alert alert-danger mb-3">{error}</div>}
       <AdminShowForm
+        key={formKey}
         initialData={initialData}
         onSave={handleSave}
+        onSaveAndAddMore={handleSaveAndAddMore}
         onCancel={handleCancel}
         saving={saving}
         error={null}

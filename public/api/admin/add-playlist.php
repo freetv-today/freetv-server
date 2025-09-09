@@ -1,7 +1,6 @@
 <?php
 
 // add-playlist.php - Handles creation of new playlists
-
 require_once __DIR__ . '/playlist_utils.php';
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

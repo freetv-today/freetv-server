@@ -11,11 +11,12 @@ import { generateNewCode } from '@/utils';
  * @typedef {Object} PlaylistContextValue
  * @property {Array} playlists
  * @property {string|null} currentPlaylist
- * @property {Function} changePlaylist
+ * @property {Function} changePlaylist  // (filename, showSpinner, isInitial, suppressRoute)
  * @property {boolean} loading
  * @property {Array} showData
  * @property {Object|null} currentPlaylistData
  * @property {boolean} playlistSwitching
+ * @property {Function} refreshPlaylists
  */
 
 export const PlaylistContext = createContext(
@@ -23,6 +24,7 @@ export const PlaylistContext = createContext(
     playlists: [],
     currentPlaylist: null,
     changePlaylist: () => {},
+    refreshPlaylists: () => {},
     loading: false,
     showData: [],
     currentPlaylistData: null,
@@ -30,6 +32,11 @@ export const PlaylistContext = createContext(
   })
 );
 
+/**
+ * PlaylistProvider - provides playlist context
+ * @param {Object} props
+ * @param {React.ReactNode} props.children
+ */
 export function PlaylistProvider({ children }) {
   const log = useDebugLog();
 
@@ -165,8 +172,14 @@ export function PlaylistProvider({ children }) {
     // eslint-disable-next-line
   }, [path]);
 
-  // Change playlist and load its data
-  function changePlaylist(filename, showSpinner = true, isInitial = false) {
+  /**
+   * Change playlist and load its data
+   * @param {string} filename
+   * @param {boolean} [showSpinner=true]
+   * @param {boolean} [isInitial=false]
+   * @param {boolean} [suppressRoute=false] - If true, do not perform any route() navigation after loading
+   */
+  function changePlaylist(filename, showSpinner = true, isInitial = false, suppressRoute = false) {
     if (isInitial) {
       setInitializing(true);
       log('Loading default playlist data');
@@ -190,28 +203,42 @@ export function PlaylistProvider({ children }) {
         const wait = Math.max(0, minLoadingTime - elapsed);
         setTimeout(() => {
           setLoading(false);
-          // If on /dashboard/edit/:imdb, always redirect to /dashboard after playlist change
-          const isDashboardEdit = path && path.startsWith('/dashboard/edit/');
-          if (isInitial) {
-            setInitializing(false);
-            if (isDashboardEdit) {
-              route('/dashboard');
-            } else if (path && path.startsWith('/dashboard')) {
-              route(path); // stay on other dashboard subpages
+          if (!suppressRoute) {
+            // If on /dashboard/edit/:imdb, always redirect to /dashboard after playlist change
+            const isDashboardEdit = path && path.startsWith('/dashboard/edit/');
+            if (isInitial) {
+              setInitializing(false);
+              if (isDashboardEdit) {
+                route('/dashboard');
+              } else if (path && path.startsWith('/dashboard')) {
+                route(path); // stay on other dashboard subpages
+              } else {
+                route('/');
+              }
             } else {
-              route('/');
+              setPlaylistSwitching(false);
+              if (isDashboardEdit) {
+                route('/dashboard');
+              } else if (path && path.startsWith('/dashboard')) {
+                route(path);
+              } else {
+                route('/');
+              }
             }
           } else {
-            setPlaylistSwitching(false);
-            if (isDashboardEdit) {
-              route('/dashboard');
-            } else if (path && path.startsWith('/dashboard')) {
-              route(path);
-            } else {
-              route('/');
-            }
+            if (isInitial) setInitializing(false);
+            else setPlaylistSwitching(false);
           }
         }, wait);
+      });
+  }
+
+  // Refresh playlists from index.json
+  function refreshPlaylists() {
+    fetch('/playlists/index.json')
+      .then(res => res.json())
+      .then(data => {
+        setPlaylists(data.playlists || []);
       });
   }
 
@@ -225,6 +252,7 @@ export function PlaylistProvider({ children }) {
       currentPlaylistData,
       loading,
       changePlaylist,
+      refreshPlaylists,
       playlistSwitching,
     }}>
       {children}

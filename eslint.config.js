@@ -18,6 +18,7 @@ export default [
         console: 'readonly',
         history: 'readonly',
         localStorage: 'readonly',
+        HTMLElement: 'readonly',
         // Add more browser globals if needed
       },
     },
