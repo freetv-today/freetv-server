@@ -2,39 +2,9 @@
     "default": "freetv.json",
     "playlists": [
         {
-            "filename": "foobar1.json",
-            "dbtitle": "Foobar Test 1",
-            "lastupdated": "2025-09-09T02:15:55.000Z",
-            "author": "Ken Dawson"
-        },
-        {
-            "filename": "foobar2.json",
-            "dbtitle": "Foobar List 2",
-            "lastupdated": "2025-09-09T02:35:47.000Z",
-            "author": "Asase Dasdfaf"
-        },
-        {
-            "filename": "foobar3.json",
-            "dbtitle": "Foobar Test 3",
-            "lastupdated": "2025-09-09T02:36:44.000Z",
-            "author": "Adasdf Aasdf"
-        },
-        {
-            "filename": "foobar4.json",
-            "dbtitle": "Foobar 4",
-            "lastupdated": "2025-09-09T02:40:51.000Z",
-            "author": "Asdfasdf Aasdfa"
-        },
-        {
-            "filename": "foobar5.json",
-            "dbtitle": "Foobar 5",
-            "lastupdated": "2025-09-09T04:07:26.000Z",
-            "author": "Aasdf Afasdf"
-        },
-        {
             "filename": "freetv.json",
             "dbtitle": "Default TV Shows",
-            "lastupdated": "2025-08-12T01:33:54.018Z",
+            "lastupdated": "2025-09-10T03:59:02.000Z",
             "author": "Ken Dawson"
         },
         {
