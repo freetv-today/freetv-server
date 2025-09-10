@@ -85,7 +85,7 @@ export function SearchResults({ results }) {
                 <td>
                   <button
                     className="btn btn-sm btn-primary fw-bold"
-                    onClick={() => queueVideo({ category: show.category, identifier: show.identifier, title: show.title })}
+                    onClick={() => queueVideo({ imdb: show.imdb, category: show.category, identifier: show.identifier, title: show.title })}
                     title={`Watch ${show.title}`}
                   >
                     <span className="d-none d-md-block">Watch</span> &#9654;

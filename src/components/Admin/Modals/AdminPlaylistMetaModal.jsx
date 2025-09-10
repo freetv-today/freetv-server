@@ -8,38 +8,37 @@ import { useDebugLog } from '@/hooks/useDebugLog';
  * @param {Object} props
  * @param {boolean} props.show - Whether the modal is visible
  * @param {(reason: 'cancel' | 'save') => void} props.onClose - Function to close the modal
- * @param {Object} props.meta - The meta data object
  * @param {boolean} props.saving - Whether the save is in progress
  * @param {string|null} props.error - Error message, if any
  * @param {function(Object):void} props.onSave - Called with updated meta on save
  */
 
-export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onSave }) {
+export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave }) {
   
   const log = useDebugLog();
   const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
-  const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
+  const { currentPlaylist, changePlaylist, currentPlaylistData } = useContext(PlaylistContext);
   const [form, setForm] = useState({
-    lastupdated: meta?.lastupdated || '',
-    dbtitle: meta?.dbtitle || '',
-    dbversion: meta?.dbversion || '',
-    author: meta?.author || '',
-    email: meta?.email || '',
-    link: meta?.link || ''
+    lastupdated: currentPlaylistData?.lastupdated || '',
+    dbtitle: currentPlaylistData?.dbtitle || '',
+    dbversion: currentPlaylistData?.dbversion || '',
+    author: currentPlaylistData?.author || '',
+    email: currentPlaylistData?.email || '',
+    link: currentPlaylistData?.link || ''
   });
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     setForm({
-      lastupdated: meta?.lastupdated || '',
-      dbtitle: meta?.dbtitle || '',
-      dbversion: meta?.dbversion || '',
-      author: meta?.author || '',
-      email: meta?.email || '',
-      link: meta?.link || ''
+      lastupdated: currentPlaylistData?.lastupdated || '',
+      dbtitle: currentPlaylistData?.dbtitle || '',
+      dbversion: currentPlaylistData?.dbversion || '',
+      author: currentPlaylistData?.author || '',
+      email: currentPlaylistData?.email || '',
+      link: currentPlaylistData?.link || ''
     });
     setTouched(false);
-  }, [meta, show]);
+  }, [currentPlaylistData, show]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -65,7 +64,7 @@ export function AdminPlaylistMetaModal({ show, onClose, meta, saving, error, onS
     }
   }
 
-  if (!show || !meta) return null;
+  if (!show || !currentPlaylistData) return null;
 
   return (
     <div className={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>

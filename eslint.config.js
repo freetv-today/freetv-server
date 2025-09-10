@@ -19,6 +19,7 @@ export default [
         history: 'readonly',
         localStorage: 'readonly',
         HTMLElement: 'readonly',
+        navigator: 'readonly',
         // Add more browser globals if needed
       },
     },

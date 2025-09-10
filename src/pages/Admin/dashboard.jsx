@@ -174,7 +174,6 @@ export function Dashboard() {
             <AdminPlaylistMetaModal
                 show={showMetaModal}
                 onClose={reason => handleCloseModal('meta', reason)}
-                meta={playlistMeta}
                 saving={metaSaving}
                 error={metaError}
                 onSave={handleSaveMeta}

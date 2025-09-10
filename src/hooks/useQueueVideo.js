@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@hooks/useLocalStorage';
+import { logShowView } from '@/utils';
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@hooks/useDebugLog';
 
@@ -7,6 +8,7 @@ import { useDebugLog } from '@hooks/useDebugLog';
  * Usage: const { queueVideo } = useQueueVideo();
  */
 export function useQueueVideo() {
+
   const log = useDebugLog();
   const [, setCurrentVid] = useLocalStorage('currentVid', null);
   const [, setRecentTitles] = useLocalStorage('recentTitles', { title: [] });  const { route } = useLocation();
@@ -23,12 +25,13 @@ export function useQueueVideo() {
   };
 
   // Main function to queue video and save to recent
-  const queueVideo = ({ category, identifier, title }) => {
-    if (!category || !identifier || !title) {
-      log('Missing required data: (category, identifier, title)','error');
+  const queueVideo = ({ imdb, category, identifier, title }) => {
+    if (!imdb || !category || !identifier || !title) {
+      log('Missing required data: (imdb, category, identifier, title)','error');
       return;
     }
-    setCurrentVid({ category, identifier, title });
+    setCurrentVid({ imdb, category, identifier, title });
+    logShowView(imdb, category);
     log(`Queuing video: ${title.replace(/_/g, ' ')}`);
     saveRecent(title);
     log('Adding to recently-watched list');

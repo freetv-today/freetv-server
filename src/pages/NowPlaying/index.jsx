@@ -1,44 +1,25 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo';
+import { VideoLoader } from '@components/Loaders/VideoLoader';
 import { Link } from '@components/Navigation/Link';
 import { useDebugLog } from '@hooks/useDebugLog';
 import { showVidNavBtnsSignal } from '@signals/showVidNavBtns';
+import { logShowEnd } from '@/utils';
 
 export function NowPlaying() {
+
   const [currentVid] = useLocalStorage('currentVid', null);
   const [embedPlaylist] = useLocalStorage('embedPlaylist', null);
-  const [loading, setLoading] = useState(true);
-  const [timeoutError, setTimeoutError] = useState(false);
-  const timeoutRef = useRef(null);
   const log = useDebugLog();
 
-  // Hide nav buttons only when loading, error, or no video
-  useEffect(() => {
-    if (loading || timeoutError || !currentVid) {
-      showVidNavBtnsSignal.value = false;
-    }
-    // Do not set to true here; only set to true in handleIframeLoad
-  }, [loading, timeoutError, currentVid]);
-
-  // Effect for timeout logic (runs on loading/timeoutError change)
-  useEffect(() => {
-    if (loading && !timeoutError) {
-      timeoutRef.current = setTimeout(() => {
-        setTimeoutError(true);
-        setLoading(false);
-      }, 90000);  // default timeout is 90 seconds
-    }
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [loading, timeoutError]);
-
-  // Effect to clear currentVid on unmount (e.g. leaving the page)
+  // Effect to log show end and clear currentVid on unmount (e.g. leaving the page)
   useEffect(() => {
     return () => {
-      // Remove key from local storage
+      if (currentVid && currentVid.imdb) {
+        logShowEnd(currentVid.imdb);
+      }
       localStorage.removeItem('currentVid');
+      showVidNavBtnsSignal.value = false;
     };
   }, []);
 
@@ -54,45 +35,28 @@ export function NowPlaying() {
   }
 
   const { identifier, title } = currentVid;
+
+  useEffect(() => {
+    if (title) { document.title = `Free TV: ${title}`; } 
+    else { document.title = "Free TV"; }
+  }, [title]);
+
   const archiveUrl = embedPlaylist
   ? `https://archive.org/embed/${identifier}?playlist=1`
   : `https://archive.org/embed/${identifier}`;
 
-  const handleIframeLoad = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setLoading(false);
-    setTimeoutError(false);
-    // Show nav buttons only after video loads
-    showVidNavBtnsSignal.value = true;
-    // Log only once per load
-    if (title) {
-      log(`Video ${title} loaded`);
-    }
-  };
-
   return (
-    <div className={loading ? "" : "timeoutMsg"}>
-      {loading && !timeoutError && <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />}
-      {timeoutError && (
-        <div className="container text-center my-5">
-          <h2 className="text-danger mb-4">Timeout: the video failed to load</h2>
-          <p>The Internet Archive server did not respond within 90 seconds.<br/>Please check your internet connection and/or reload to try again.</p>
-          <p>If you keep having trouble, check out the <Link href="/help" className="primary-link">Help</Link> page for troubleshooting tips.</p>
-          <p><img src="/src/assets/sadface.svg" width="80" /></p>
-        </div>
-      )}
-      {!timeoutError && (
-        <iframe
-          id="vidviewer"
-          width="640" 
-          height="480"
-          src={archiveUrl}
-          style={{ display: loading ? 'none' : 'block' }}
-          allowFullScreen
-          onLoad={handleIframeLoad}
-          title={title}
-        />
-      )}
+    <div>
+      <VideoLoader
+        src={archiveUrl}
+        title={title}
+        showHelpLink={true}
+        onLoad={() => {
+          showVidNavBtnsSignal.value = true;
+          if (title) log(`Video ${title} loaded`);
+        }}
+        iframeProps={{ id: 'vidviewer', width: 640, height: 480 }}
+      />
     </div>
   );
 }

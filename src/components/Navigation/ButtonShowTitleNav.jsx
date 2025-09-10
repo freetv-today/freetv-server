@@ -19,6 +19,7 @@ import { triggerToast } from '@/signals/toastSignal';
  */
 
 export function ButtonShowTitleNav({ title, category, identifier, desc, start, end, imdb }) {
+  
   const { modules } = useConfig();
   const [showModal, setShowModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -31,7 +32,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
 
   // Main function to queue video and save to recent
   const handleMainClick = () => {
-    queueVideo({ category, identifier, title });
+    queueVideo({ imdb, category, identifier, title });
   };
 
   return (

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { ConfigProvider } from '@/context/ConfigContext';
 import { PlaylistProvider } from '@/context/PlaylistContext';
+import { VisitDataProvider } from '@/context/VisitDataContext';
 import { App } from '@components/App';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { ErrorPage } from '@pages/ErrorPage';
 import { OfflinePage } from '@pages/OfflinePage';
 import { shouldUpdateData, enforceMinLoadingTime, formatDateTime } from '@/utils';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 // Loads config and show data from JSON then loads App and shows default page
 export function AppLoader() {
@@ -15,13 +17,15 @@ export function AppLoader() {
     const configFile = '/config.json';
     const minLoadingTime = 1200;  // show spinner for 1.2 seconds (minimum)
 
-    const [config, setConfig] = useState(null);
+    const [config, setConfig] = useLocalStorage('configData', null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
+
         async function loadConfig() {
+
             // Storage check
             try {
                 localStorage.setItem('test', 'test');
@@ -36,14 +40,8 @@ export function AppLoader() {
                 setLoading(false);
                 return;
             }
-            // Try to get config from localStorage
-            let storedConfig = null;
-            try {
-                const val = localStorage.getItem('configData');
-                storedConfig = val ? JSON.parse(val) : null;
-            } catch {}
-            // Always fetch /config.json to check for updates
-            let configData = storedConfig;
+
+            let configData = config;
             let needsUpdate = false;
             let fetchedConfig = null;
             try {
@@ -61,10 +59,11 @@ export function AppLoader() {
                 localStorage.setItem('appInfo', JSON.stringify(fetchedInfo));  
 
                 // If no config in storage or config is outdated, update it
-                if (!storedConfig || shouldUpdateData(storedConfig, fetchedConfig)) {
+                if (!config || shouldUpdateData(config, fetchedConfig)) {
                     needsUpdate = true;
                     configData = fetchedConfig;
-                    localStorage.setItem('configData', JSON.stringify(fetchedConfig));
+                    setConfig(fetchedConfig);
+
                     // DEV NOTE: we're using console.log here instead of hooks/useDebugLog.jsx because
                     // the hook depends on config data which hasn't been saved to local storage yet
                     if (configData.debugmode) {
@@ -103,7 +102,6 @@ export function AppLoader() {
                 const startTime = Date.now();
                 await enforceMinLoadingTime(startTime, minLoadingTime);
             }
-            setConfig(configData);
             setLoading(false);
         }
         loadConfig();
@@ -121,9 +119,11 @@ export function AppLoader() {
 
     return (
         <ConfigProvider config={config}>
-            <PlaylistProvider>
-                <App />
-            </PlaylistProvider>
+            <VisitDataProvider>
+                <PlaylistProvider>
+                    <App />
+                </PlaylistProvider>
+            </VisitDataProvider>
         </ConfigProvider>
     );
 }

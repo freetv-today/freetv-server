@@ -84,11 +84,11 @@ export function resetUrl() {
 
 // Format JSON timestamp to user-friendly date/time
 // Usage: formatDateTime('2025-08-31T13:03:05.608Z')
-// Returns: '8/31/25, 09:03 AM'
+// Returns formatted date like: '8/31/25, 09:03 AM'
 export function formatDateTime(date, options = {}) {
   if (!date) return '-';
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
-  if (isNaN(d)) return '-';
+  if (isNaN(d)) return '00/00/00, 00:00';
   // Default options can be overridden
   const defaultOptions = { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
   return d.toLocaleString(undefined, { ...defaultOptions, ...options });
@@ -123,5 +123,69 @@ export function getAppInfo() {
   if (d) {
     let info = JSON.parse(d);
     return info;
+  }
+}
+
+// --------------------------------------
+// Analytics: App Data (Usage Tracking)
+// --------------------------------------
+
+/**
+ * logShowView
+ *
+ * Usage: logShowView(imdbId, category)
+ *
+ * This function records show/category views for analytics.
+ *
+ * @param {string} imdbId - The IMDB ID of the show/movie
+ * @param {string} [category] - The category or genre (optional)
+ */
+
+export function logShowView(imdbId, category) {
+  if (!imdbId) return;
+  try {
+    const visitData = JSON.parse(localStorage.getItem('visitData') || '{}');
+    if (!visitData) return;
+    if (!Array.isArray(visitData.recentShows)) visitData.recentShows = [];
+    // Only keep the last 20 entries for privacy and size
+    visitData.recentShows.push({
+      imdbId,
+      category: category || null,
+      start: new Date().toISOString(),
+    });
+    if (visitData.recentShows.length > 20) visitData.recentShows = visitData.recentShows.slice(-20);
+    localStorage.setItem('visitData', JSON.stringify(visitData));
+  } catch {
+    // Ignore errors for now
+  }
+}
+
+/**
+ * logShowEnd - Sets the end time for the most recent matching show in visitData.recentShows
+ *
+ * Usage: logShowEnd(imdbId)
+ *
+ * Finds the most recent entry for the given imdbId in visitData.recentShows and sets its end time.
+ * If no matching entry is found, does nothing. This is a placeholder for future analytics.
+ *
+ * @param {string} imdbId - The IMDB ID of the show/movie
+ */
+
+export function logShowEnd(imdbId) {
+  if (!imdbId) return;
+  try {
+    const visitData = JSON.parse(localStorage.getItem('visitData') || '{}');
+    if (!visitData || !Array.isArray(visitData.recentShows)) return;
+    // Find the most recent matching entry (search from end)
+    for (let i = visitData.recentShows.length - 1; i >= 0; i--) {
+      const entry = visitData.recentShows[i];
+      if (entry.imdbId === imdbId && !entry.end) {
+        entry.end = new Date().toISOString();
+        break;
+      }
+    }
+    localStorage.setItem('visitData', JSON.stringify(visitData));
+  } catch {
+    // Ignore errors for now
   }
 }

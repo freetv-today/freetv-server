@@ -1,4 +1,6 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useState, useRef } from 'preact/hooks';
+import { VideoLoader } from '@/components/Loaders/VideoLoader';
+import { useDebugLog } from '@/hooks/useDebugLog';
 
 /**
  * AdminTestVideoModal - Modal for testing a video via archive.org embed
@@ -7,7 +9,11 @@ import { useEffect } from 'preact/hooks';
  * @param {() => void} props.onClose - Function to close the modal
  * @param {Object} props.showData - The show object (must have identifier, title)
  */
+
 export function AdminTestVideoModal({ show, onClose, showData }) {
+
+  const log = useDebugLog();
+
   useEffect(() => {
     if (!show) return;
     // Prevent background scroll when modal is open
@@ -28,15 +34,16 @@ export function AdminTestVideoModal({ show, onClose, showData }) {
             <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
           </div>
           <div className="modal-body p-0" style={{ minHeight: 400 }}>
-            <iframe
+            <VideoLoader
               src={src}
-              width="100%"
-              height="480"
-              frameBorder="0"
-              allowFullScreen
-              style={{ display: 'block', width: '100%', minHeight: 400 }}
-              title={`Test Video: ${title}`}
-            ></iframe>
+              title={title}
+              showHelpLink={false}
+              onLoad={() => {
+                if (title) log(`Test Video ${title} loaded`);
+              }}
+              iframeProps={{ style: { display: 'block', width: '100%', minHeight: 400 } }}
+              timeoutMs={90000}
+            />
           </div>
         </div>
       </div>
