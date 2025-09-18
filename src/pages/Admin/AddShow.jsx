@@ -113,6 +113,7 @@ export function AddShow() {
         saving={saving}
         error={null}
         categories={categories}
+        mode="add"
       />
     </div>
   );

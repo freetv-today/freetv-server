@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { capitalizeFirstLetter } from '@/utils';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 /**
  * AdminDeleteShowModal - Modal for confirming deletion of a show
@@ -14,7 +14,7 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {() => void} props.onDeleteConfirm - Called when user confirms delete
  */
 export function AdminDeleteShowModal({ show, onClose, showData, deleting, error, onDeleteConfirm }) {
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+
   const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
   const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
 

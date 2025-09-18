@@ -29,13 +29,12 @@ if (!$input || !isset($input['title'], $input['identifier'])) {
     exit;
 }
 
-
 $title = $input['title'];
 $category = $input['category'] ?? '';
 $identifier = $input['identifier'];
 $imdb = $input['imdb'] ?? '';
 $playlist = $input['playlist'] ?? '';
-$date = date('c');
+$date = gmdate('Y-m-d\TH:i:s.v\Z');
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 $logDir = $_SERVER['DOCUMENT_ROOT'] . '/logs';
 $logFile = $logDir . '/errors.json';

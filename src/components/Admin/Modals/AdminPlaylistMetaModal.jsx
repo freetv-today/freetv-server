@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 /**
  * AdminPlaylistMetaModal - Modal for editing playlist meta data
@@ -16,7 +16,6 @@ import { useDebugLog } from '@/hooks/useDebugLog';
 export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave }) {
   
   const log = useDebugLog();
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
   const { currentPlaylist, changePlaylist, currentPlaylistData } = useContext(PlaylistContext);
   const [form, setForm] = useState({
     lastupdated: currentPlaylistData?.lastupdated || '',

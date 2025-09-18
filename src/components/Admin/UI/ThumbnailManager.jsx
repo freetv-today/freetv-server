@@ -127,13 +127,6 @@ export function ThumbnailManager() {
       const timer = setTimeout(() => setShowError(false), 4000);
       return () => clearTimeout(timer);
     }
-    return undefined;
-  }, [error, showError]);
-  useEffect(() => {
-    if (error && showError) {
-      const timer = setTimeout(() => setShowError(false), 4000);
-      return () => clearTimeout(timer);
-    }
   }, [error, showError]);
   return (
     <>

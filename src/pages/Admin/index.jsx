@@ -48,7 +48,7 @@ export function AdminLogin() {
         // Remove admin.css on unmount
         return () => {
             const el = document.getElementById('admin-css');
-            if (el) el.remove();
+            if (el) el.parentNode.removeChild(el);
         };
     }, []);
 
@@ -87,18 +87,23 @@ export function AdminLogin() {
         const form = e.target;
         const user = form.user.value;
         const pass = form.pass.value;
-        const res = await fetch('/api/admin/login.php', {
+        try {
+            const res = await fetch('/api/admin/login.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ user, pass })
-        });
-        const data = await res.json();
-        setLoading(false);
-        if (data.success) {
+            });
+            const data = await res.json();
+            setLoading(false);
+            if (data.success) {
             route('/dashboard');
-        } else {
+            } else {
             setError(data.message || 'Login failed.');
+            }
+        } catch {
+            setLoading(false);
+            setError('Network error. Please try again.');
         }
     }
 
@@ -120,13 +125,13 @@ export function AdminLogin() {
                     <div className="d-flex flex-row flex-nowrap justify-content-between align-middle">
                         <div className="flex-grow-1 p-2">
                             {success && (
-                                <div className="alert alert-success alert-dismissible fade show my-4 mx-auto text-center" style="width: 80%;" role="alert">
+                                <div className="alert alert-success alert-dismissible fade show my-4 mx-auto text-center" style={{ width: '80%' }} role="alert">
                                     {success}
                                     <button type="button" className="btn-close" aria-label="Close" onClick={dismissSuccess}></button>
                                 </div>
                             )}
                             {error && (
-                                <div className="alert alert-danger alert-dismissible fade show my-4 mx-auto text-center" style="width: 80%;" role="alert">
+                                <div className="alert alert-danger alert-dismissible fade show my-4 mx-auto text-center" style={{ width: '80%' }} role="alert">
                                     {error}
                                     <button type="button" className="btn-close" aria-label="Close" onClick={dismissError}></button>
                                 </div>

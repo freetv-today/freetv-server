@@ -3,6 +3,9 @@ import { useEffect, useState, useRef } from 'preact/hooks';
 import { useConfig } from '@/context/ConfigContext';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { useAdminSession } from '@hooks/Admin/useAdminSession';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export function AdminSettings() {
 
@@ -10,6 +13,7 @@ export function AdminSettings() {
     const initialFormRef = useRef();
     const log = useDebugLog();
     const configData = useConfig();
+    const [storedConfig, setStoredConfig] = useLocalStorage('configData', configData);
     const user = useAdminSession();
     const { route } = useLocation();
 
@@ -23,6 +27,7 @@ export function AdminSettings() {
         modules: !!configData.modules,
         debugmode: !!configData.debugmode
     });
+
     // Set the initial form state on mount
     useEffect(() => {
         initialFormRef.current = {
@@ -47,8 +52,6 @@ export function AdminSettings() {
     }
 
     const [lastUpdated, setLastUpdated] = useState(configData.lastupdated || '');
-    const [success, setSuccess] = useState('');
-    const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -74,8 +77,6 @@ export function AdminSettings() {
     async function handleSave(e) {
         e.preventDefault();
         setSaving(true);
-        setSuccess('');
-        setError('');
         try {
             const res = await fetch('/api/admin/edit-config.php?action=save', {
                 method: 'POST',
@@ -84,69 +85,51 @@ export function AdminSettings() {
             });
             const data = await res.json();
             if (data.success) {
-                setSuccess('Settings saved!');
+                setAdminMsg({ type: 'success', text: 'Settings saved!' });
                 setLastUpdated(data.lastupdated);
                 // Update config context and localStorage
                 const newConfig = { ...form, lastupdated: data.lastupdated };
                 try {
-                    localStorage.setItem('configData', JSON.stringify(newConfig));
+                    setStoredConfig(newConfig);
                 } catch {}
                 // Reset initial form state after save
-                initialFormRef.current = { ...form };
+                initialFormRef.current = { ...form, lastupdated: data.lastupdated };
                 // Scroll to top so user sees the alert
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                setError(data.message || 'Failed to save settings.');
+                let errmsg = data.message || 'Failed to save settings.';
+                setAdminMsg({ type: 'danger', text: errmsg });
             }
         } catch (err) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' });
         } finally {
             setSaving(false);
         }
     }
-    // Auto-dismiss success alert after 4 seconds
-    useEffect(() => {
-        if (success) {
-            const timer = setTimeout(() => {
-                setSuccess('');
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [success]);
 
     async function handleRefreshDate() {
-        setError('');
-        setSuccess('');
         try {
             const res = await fetch('/api/admin/edit-config.php?action=refresh');
             const data = await res.json();
             if (data.success) {
                 setLastUpdated(data.lastupdated);
-                setSuccess('Timestamp refreshed!');
+                setAdminMsg({ type: 'success', text: 'Timestamp refreshed!' });
+                setStoredConfig({ ...storedConfig, lastupdated: data.lastupdated });
             } else {
-                setError(data.message || 'Failed to refresh timestamp.');
+                setAdminMsg({ type: 'danger', text: 'Failed to refresh timestamp.' });
             }
         } catch (err) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' });
+            
         }
     }
 
     return (
         <div className="container py-4" style={{ maxWidth: 650 }}>
+
             <h2 className="text-center mt-4 mb-4">Application Settings</h2>
 
-            {success && (
-                <div className="alert alert-success alert-dismissible fade show mx-auto" role="alert" style={{maxWidth: 400}}>
-                    {success}
-                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccess('')}></button>
-                </div>
-            )}
-            {error && (
-                <div className="alert alert-danger alert-dismissible fade show mx-auto" role="alert" style={{maxWidth: 400}}>
-                    {error}
-                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
-                </div>
-            )}
+            <AdminMessage />
 
             <form className="p-3 border border-primary rounded bg-white" onSubmit={handleSave}>
                 {/* Last Updated Row */}

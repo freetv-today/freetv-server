@@ -6,14 +6,15 @@ import { useAdminSession } from '@hooks/Admin/useAdminSession';
 import { UserModal } from '@/components/Admin/Modals/UserModal';
 import { PasswordModal } from '@/components/Admin/Modals/PasswordModal';
 import { ConfirmDeleteModal } from '@/components/Admin/Modals/ConfirmDeleteModal';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
 
 export function AdminUsers() {
+
     const log = useDebugLog();
     const user = useAdminSession();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'changepass' | 'delete' | null
     const { route } = useLocation();
@@ -29,17 +30,16 @@ export function AdminUsers() {
 
     async function fetchUsers() {
         setLoading(true);
-        setError('');
         try {
             const res = await fetch('/api/admin/userman.php?action=list');
             const data = await res.json();
             if (data.success) {
                 setUsers(data.users);
             } else {
-                setError(data.message || 'Failed to fetch users.');
+                setAdminMsg({ type: 'danger', text: 'Failed to fetch users.' });
             }
         } catch (e) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' });
         }
         setLoading(false);
     }
@@ -64,15 +64,11 @@ export function AdminUsers() {
     function closeModal() {
         setSelectedUser(null);
         setModalType(null);
-        setError('');
-        setSuccess('');
     }
 
     // Backend actions
     async function handleUserModalSubmit(data) {
         setLoading(true);
-        setError('');
-        setSuccess('');
         try {
             const action = modalType === 'add' ? 'add' : 'edit';
             const res = await fetch(`/api/admin/userman.php?action=${action}`,
@@ -83,22 +79,20 @@ export function AdminUsers() {
                 });
             const result = await res.json();
             if (result.success) {
-                setSuccess(result.message);
+                setAdminMsg({ type: 'success', text: result.message })
                 closeModal();
                 fetchUsers();
             } else {
-                setError(result.message || 'Operation failed.');
+                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
             }
         } catch (e) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' })
         }
         setLoading(false);
     }
 
     async function handlePasswordModalSubmit(data) {
         setLoading(true);
-        setError('');
-        setSuccess('');
         try {
             const res = await fetch('/api/admin/userman.php?action=changepass', {
                 method: 'POST',
@@ -107,22 +101,20 @@ export function AdminUsers() {
             });
             const result = await res.json();
             if (result.success) {
-                setSuccess(result.message);
+                setAdminMsg({ type: 'success', text: result.message });
                 closeModal();
                 fetchUsers();
             } else {
-                setError(result.message || 'Operation failed.');
+                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
             }
         } catch (e) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' })
         }
         setLoading(false);
     }
 
     async function handleDeleteConfirm(user) {
         setLoading(true);
-        setError('');
-        setSuccess('');
         try {
             const res = await fetch('/api/admin/userman.php?action=delete', {
                 method: 'POST',
@@ -131,14 +123,14 @@ export function AdminUsers() {
             });
             const result = await res.json();
             if (result.success) {
-                setSuccess(result.message);
+                setAdminMsg({ type: 'success', text: result.message });
                 closeModal();
                 fetchUsers();
             } else {
-                setError(result.message || 'Operation failed.');
+                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
             }
         } catch (e) {
-            setError('Network error.');
+            setAdminMsg({ type: 'danger', text: 'Network error.' })
         }
         setLoading(false);
     }
@@ -147,9 +139,11 @@ export function AdminUsers() {
 
     return (
         <div className="container py-4">
+
             <h2>User Manager</h2>
-            {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
+
+            <AdminMessage />
+
             <div className="mb-3 text-end d-flex justify-content-end gap-2">
                 <button className="btn btn-secondary" onClick={() => route('/dashboard')}>Cancel</button>
                 <button className="btn btn-primary" onClick={handleAddUser}>Add User</button>

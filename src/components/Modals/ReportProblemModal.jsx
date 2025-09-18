@@ -16,6 +16,7 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {string} props.playlist - Playlist filename
  * @returns {import('preact').JSX.Element|null}
  */
+
 export function ReportProblemModal({ show, onClose, title, category, identifier, desc, start, end, imdb, playlist }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -92,7 +93,7 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Report a Problem</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+            <button type="button" className="btn-close" aria-label="Close" onClick={onClose} disabled={submitting}></button>
           </div>
           <div className="modal-body">
             {submitted ? (
@@ -125,7 +126,12 @@ export function ReportProblemModal({ show, onClose, title, category, identifier,
               <>
                 <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>Cancel</button>
                 <button type="button" className="btn btn-danger" onClick={handleSubmit} disabled={submitting || rateLimited}>
-                  {submitting ? 'Reporting...' : 'Report Problem'}
+                  {submitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Reporting...
+                    </>
+                  ) : 'Report Problem'}
                 </button>
               </>
             )}

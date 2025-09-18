@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import { ShowThumbnailControls } from './ShowThumbnailControls';
 import { capitalizeFirstLetter } from '@/utils';
 
 /**
@@ -11,8 +12,9 @@ import { capitalizeFirstLetter } from '@/utils';
  * @param {boolean} [props.saving] - Whether save is in progress
  * @param {string|null} [props.error] - Error message
  * @param {Array<string>} [props.categories] - List of categories for select
+ * @param {string} [props.mode] - 'add' or 'edit' (for thumbnail controls)
  */
-export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCancel, saving = false, error = null, categories = [] }) {
+export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCancel, saving = false, error = null, categories = [], mode = 'add' }) {
   const [form, setForm] = useState({
   category: initialData.category || '',
   newCategory: '',
@@ -160,6 +162,7 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
             value={form.category}
             onInput={handleChange}
             disabled={categories.length === 0}
+            style={{ minWidth: 175 }}
           >
             <option value="">Select or type new</option>
             {categories.map(cat => (
@@ -220,6 +223,13 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
         <input type="text" className="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required />
         {validation.imdb && <div className="text-danger small">{validation.imdb}</div>}
       </div>
+
+      {/* Thumbnail Controls Section */}
+      <ShowThumbnailControls
+        imdb={form.imdb}
+        title={form.title}
+        mode={mode}
+      />
       {error && <div className="alert alert-danger">{error}</div>}
       <div className="mt-5 d-flex justify-content-center gap-2">
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>

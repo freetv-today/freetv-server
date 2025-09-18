@@ -6,6 +6,8 @@ import { AdminTestVideoModal } from '@components/Admin/Modals/AdminTestVideoModa
 import { AdminDeleteShowModal } from '@components/Admin/Modals/AdminDeleteShowModal';
 import { DeleteReportedProblemModal } from '@components/Admin/Modals/DeleteReportedProblemModal';
 import { capitalizeFirstLetter, formatDateTime } from '@/utils';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
 
 export function AdminProblems() {
     
@@ -14,8 +16,8 @@ export function AdminProblems() {
     const { currentPlaylist, currentPlaylistData, changePlaylist } = useContext(PlaylistContext);
     const [reportedProblems, setReportedProblems] = useState([]);
     const [disabledItems, setDisabledItems] = useState([]);
-    const [testModal, setTestModal] = useState(null); // {item, type}
-    const [deleteModal, setDeleteModal] = useState(null); // {item, type}
+    const [testModal, setTestModal] = useState(null);
+    const [deleteModal, setDeleteModal] = useState(null);
     const [markingOk, setMarkingOk] = useState(false);
     const [deleteAllModal, setDeleteAllModal] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -72,32 +74,58 @@ export function AdminProblems() {
                     if (typeof changePlaylist === 'function' && currentPlaylist) {
                         await changePlaylist(currentPlaylist, false, false);
                     }
+                    setAdminMsg({ type: 'success', text: 'Problem marked as OK' });
+                } else {
+                    setAdminMsg({ type: 'danger', text: 'Error trying to mark problem as OK' });
                 }
+            } else {
+                setAdminMsg({ type: 'danger', text: 'Invalid error log format' });
             }
-        } catch {}
+        } catch {
+            setAdminMsg({ type: 'danger', text: 'Network error' });
+        }
         setMarkingOk(false);
     };
 
     const handleDeleteShow = async (item) => {
-        // Use existing delete-show.php endpoint
-        await fetch('/api/admin/delete-show.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ identifier: item.identifier, playlist: currentPlaylist })
-        });
-        // Refresh playlistData (assume PlaylistContext will update or force reload)
+        try {
+            const res = await fetch('/api/admin/delete-show.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: item.identifier, playlist: currentPlaylist })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setAdminMsg({ type: 'success', text: 'Show deleted' });
+            } else {
+                setAdminMsg({ type: 'danger', text: data.error || 'Error deleting show' });
+            }
+        } catch {
+            setAdminMsg({ type: 'danger', text: 'Network error' });
+        }
         setDeleteModal(null);
     };
 
     const handleDeleteAllDisabled = async () => {
         if (!currentPlaylistData || !Array.isArray(currentPlaylistData.shows)) return;
         const toDelete = currentPlaylistData.shows.filter(s => s.status === 'disabled');
+        let errorMsg = null;
         for (const item of toDelete) {
-            await fetch('/api/admin/delete-show.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ identifier: item.identifier, playlist: currentPlaylist })
-            });
+            try {
+                const res = await fetch('/api/admin/delete-show.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier: item.identifier, playlist: currentPlaylist })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    errorMsg = data.error || 'Error deleting one or more items';
+                    break;
+                }
+            } catch {
+                errorMsg = 'Network error';
+                break;
+            }
         }
         // Rebuild index.json
         await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
@@ -106,14 +134,19 @@ export function AdminProblems() {
             await changePlaylist(currentPlaylist, true, false);
         }
         setDeleteAllModal(false);
+        if (errorMsg) {
+            setAdminMsg({ type: 'danger', text: errorMsg });
+        } else {
+            setAdminMsg({ type: 'success', text: 'All disabled items deleted' });
+        }
     };
 
     // Table components
     const renderActionsReported = (item) => (
         <>
             <button type="button" className="btn tinybtn btn-warning p-1 me-2" onClick={() => setTestModal({ item, type: 'reported' })}>Test</button>
-            <button type="button" className="btn tinybtn btn-danger p-1 me-2" onClick={() => setDeleteModal({ item, type: 'reported' })}>Delete</button>
             <button type="button" className="btn tinybtn btn-success p-1 me-2" onClick={() => handleMarkAsOk(item)} disabled={markingOk}>Mark as OK</button>
+            <button type="button" className="btn tinybtn btn-danger p-1 me-2" onClick={() => setDeleteModal({ item, type: 'reported' })}>Delete</button>
         </>
     );
     const renderActionsDisabled = (item) => (
@@ -125,7 +158,11 @@ export function AdminProblems() {
 
     return (
         <div className="container mt-5">
+
             <h2 className="text-center mb-4">Problems Which Need To Be Fixed</h2>
+
+            <AdminMessage />
+
             {/* Reported Problems Table */}
             <h4>Reported Problems</h4>
             <div className="table-responsive mb-5">
@@ -217,30 +254,30 @@ export function AdminProblems() {
                     onDeleteConfirm={() => handleDeleteShow(deleteModal.item)}
                 />
             )}
-                    {deleteAllModal && (
-                        <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                            <div className="modal-dialog">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5 className="modal-title">Delete All Disabled Items</h5>
-                                        <button type="button" className="btn-close" aria-label="Close" onClick={() => setDeleteAllModal(false)}></button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <p>Are you sure you want to delete all disabled items from the current playlist?</p>
-                                        <ul>
-                                            {disabledItems.map(item => (
-                                                <li key={item.identifier}>{item.title}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" onClick={() => setDeleteAllModal(false)}>Cancel</button>
-                                        <button type="button" className="btn btn-danger" onClick={handleDeleteAllDisabled}>Delete All</button>
-                                    </div>
-                                </div>
+            {deleteAllModal && (
+                <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Delete All Disabled Items</h5>
+                                <button type="button" className="btn-close" aria-label="Close" onClick={() => setDeleteAllModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <p>Are you sure you want to delete all disabled items from the current playlist?</p>
+                                    <ul>
+                                        {disabledItems.map(item => (
+                                            <li key={item.identifier}>{item.title}</li>
+                                        ))}
+                                    </ul>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setDeleteAllModal(false)}>Cancel</button>
+                                <button type="button" className="btn btn-danger" onClick={handleDeleteAllDisabled}>Delete All</button>
                             </div>
                         </div>
-                    )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

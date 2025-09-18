@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'preact/hooks';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaylistContext } from '@/context/PlaylistContext';
 import { capitalizeFirstLetter } from '@/utils';
+import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 /**
  * DeleteReportedProblemModal - Modal for confirming deletion of a reported problem (removes from playlist and errors.json)
@@ -21,7 +21,7 @@ export function DeleteReportedProblemModal({
   error = null,
   onDeleteConfirm // not used, but accepted for compatibility
 }) {
-  const [adminMsg, setAdminMsg] = useLocalStorage('adminMsg', null);
+
   const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
   const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
   const [isDeleting, setIsDeleting] = useState(false);

@@ -85,6 +85,7 @@ export function EditShow() {
         saving={saving}
         error={null}
         categories={categories}
+        mode="edit"
       />
     </div>
   );

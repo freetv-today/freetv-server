@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-09-10T03:59:02.000Z",
+    "lastupdated": "2025-09-18T03:25:18.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -7,16 +7,6 @@
     "email": "admin@freetv.today",
     "link": "https://freetv.today/",
     "shows": [
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "g-force-guardians-of-space",
-            "title": "G-Force",
-            "desc": "G-Force: Guardians of Space - a bird-themed superhero team battles the threat of Galactor and his minions.",
-            "start": "1986",
-            "end": "1987",
-            "imdb": "tt0302109"
-        },
         {
             "category": "animation",
             "status": "active",
@@ -170,16 +160,6 @@
         {
             "category": "comedy",
             "status": "active",
-            "identifier": "abbott_costello_the_vacation",
-            "title": "Abbott & Costello",
-            "desc": "The Abbott and Costello Show features Bud Abbott and Lou Costello as out-of-work actors and roommates staying at Mr. Field's Hollywood boarding house.",
-            "start": "1952",
-            "end": "1957",
-            "imdb": "tt0044229"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
             "identifier": "FawltyTowers",
             "title": "Fawlty Towers",
             "desc": "Hotel owner Basil Fawlty's incompetence, short fuse, and arrogance form a combination that ensures accidents and trouble are never far away.",
@@ -226,16 +206,6 @@
             "start": "1969",
             "end": "1989",
             "imdb": "tt0063869"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "blackadder-remastered",
-            "title": "The Black Adder",
-            "desc": "Prince Edmund the Black Adder constantly schemes and endeavors to seize the crown from his father and brother.",
-            "start": "1982",
-            "end": "1983",
-            "imdb": "tt0084988"
         },
         {
             "category": "comedy",
@@ -530,16 +500,6 @@
         {
             "category": "comedy",
             "status": "active",
-            "identifier": "benson-complete-tv-series-ctv",
-            "title": "Benson",
-            "desc": "Sharp-tongued butler, Benson DuBois, is the governor's director of household affairs.",
-            "start": "1979",
-            "end": "1986",
-            "imdb": "tt0078569"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
             "identifier": "Ghost-Muir",
             "title": "Ghost & Mrs. Muir",
             "desc": "A house is haunted by a deceased sea captain who wreaks havoc with the new tenants who were not advised of his existence.",
@@ -596,16 +556,6 @@
             "start": "1995",
             "end": "2004",
             "imdb": "tt0111945"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "annieoakleys01",
-            "title": "Annie Oakley",
-            "desc": "A fictionalized account of the life of legendary Wild West sharpshooter Annie Oakley.",
-            "start": "1954",
-            "end": "1957",
-            "imdb": "tt0046578"
         },
         {
             "category": "western",
@@ -969,7 +919,7 @@
         },
         {
             "category": "documentary",
-            "status": "active",
+            "status": "disabled",
             "identifier": "russia-land-of-the-tsars",
             "title": "Russia, Land of the Tsars",
             "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",
@@ -1106,6 +1056,26 @@
             "start": "2005",
             "end": "2005",
             "imdb": "tt0475296"
+        },
+        {
+            "category": "kids",
+            "status": "active",
+            "identifier": "charlie-chalk-1988-the-complete-collection",
+            "title": "Charlie Chalk",
+            "desc": "A clown named Charlie Chalk arrives on the island of Merrytwit after falling asleep on his boat. He befriends the inhabitants of the island and gets into many adventures.",
+            "start": "1988",
+            "end": "1989",
+            "imdb": "tt0436999"
+        },
+        {
+            "category": "kids",
+            "status": "active",
+            "identifier": "the-hoobs-hiding",
+            "title": "The Hoobs",
+            "desc": "Hubba Hubba sends some of his Hoobs to Earth so he can learn all about humans and their behaviour.",
+            "start": "2001",
+            "end": "2003",
+            "imdb": "tt0462108"
         }
     ]
 }

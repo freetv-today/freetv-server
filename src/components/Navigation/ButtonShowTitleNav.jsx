@@ -146,7 +146,7 @@ export function ButtonShowTitleNav({ title, category, identifier, desc, start, e
           start={start}
           end={end}
           imdb={imdb}
-          playlist={typeof window !== 'undefined' ? localStorage.getItem('playlist') : ''}
+          playlist={typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('playlist')) : ''}
         />
       )}
     </>

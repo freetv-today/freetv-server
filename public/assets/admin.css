@@ -131,6 +131,16 @@
     background-image: url('/src/assets/info-circle-blue.svg');
 }
 
+/* The blue color of the hover state of the navbar icons */
 .customBlue {
     color: #20B2AA;
+}
+
+/* used by ShowThumbnailControls.jsx */
+.external-link-btn img {
+  transition: filter 0.2s;
+}
+
+.external-link-btn:hover img {
+  content: url('/src/assets/external-link-white.svg');
 }
