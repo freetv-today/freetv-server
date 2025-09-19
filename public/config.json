@@ -1,7 +1,7 @@
 {
     "lastupdated": "2025-09-18T13:27:32.851Z",
     "offline": false,
-    "appdata": true,
+    "appdata": false,
     "collector": "/api/beacon.php",
     "showads": true,
     "gid": "ca-pub-3363180839557246",
