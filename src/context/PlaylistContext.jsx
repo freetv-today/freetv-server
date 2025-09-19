@@ -8,6 +8,12 @@ import { useConfig } from '@/context/ConfigContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 /**
+ * PlaylistContext - Provides playlist data and actions to components.
+ * Use PlaylistProvider to wrap your app or relevant subtree.
+ * Access playlist state and actions with useContext(PlaylistContext).
+ */
+
+/**
  * @type {import('preact').Context<PlaylistContextValue>}
  * @typedef {Object} PlaylistContextValue
  * @property {Array} playlists
@@ -30,6 +36,12 @@ export const PlaylistContext = createContext({
     currentPlaylistData: null,
     playlistSwitching: false,
 });
+
+/**
+ * PlaylistProvider - Context provider for playlist state and actions.
+ * @param {Object} props
+ * @param {import('preact').ComponentChildren} props.children
+ */
 
 export function PlaylistProvider({ children }) {
 

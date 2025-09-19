@@ -1,7 +1,13 @@
 import { useContext } from 'preact/hooks';
 import { PlaylistContext } from '@/context/PlaylistContext';
 
+/**
+ * useCategories - Custom hook to extract and sort unique categories from show data.
+ * @returns {string[]} - Sorted array of unique categories.
+ */
+
 export function useCategories() {
+  
   const { showData } = useContext(PlaylistContext);
 
   return [

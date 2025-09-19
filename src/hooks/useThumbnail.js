@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'preact/hooks';
 
+/**
+ * useThumbnail - Custom hook for managing show thumbnails, including fetching, saving, and searching.
+ * @returns {Object} - Thumbnail state, actions, and statistics.
+ */
+
 export function useThumbnail() {
 
   const [shows, setShows] = useState([]);

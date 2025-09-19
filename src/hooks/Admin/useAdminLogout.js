@@ -1,12 +1,17 @@
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
+
 /**
- * useAdminLogout - returns a logout handler for admin dashboard
+ * useAdminLogout - Custom hook that returns a logout handler for the admin dashboard.
+ * @returns {Function} Logout handler function.
  * Usage: const handleLogout = useAdminLogout();
  */
+
 export function useAdminLogout() {
+
 	const log = useDebugLog();
 	const { route } = useLocation();
+	
 	return async function handleLogout(e) {
 		if (e && e.preventDefault) e.preventDefault();
 		log('The log out button was clicked');

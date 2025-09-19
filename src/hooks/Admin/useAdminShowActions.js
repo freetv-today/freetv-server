@@ -4,10 +4,15 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
 /**
- * useAdminShowActions - provides admin show action handlers and modal state for Admin Dashboard and Search
- * Returns:
- *   handleEdit, handleDelete, handleTest, handleStatusToggle, modal state/handlers
+ * useAdminShowActions - Custom hook providing admin show action handlers and modal state for Admin Dashboard and Search.
+ * @returns {Object} Handlers and modal state:
+ *   - handleEdit: Navigate to edit page
+ *   - handleDelete: Open delete modal
+ *   - handleTest: Open test modal
+ *   - handleStatusToggle: Toggle show status
+ *   - showDeleteModal, showToDelete, deleting, deleteError, handleDeleteConfirm, closeDeleteModal, showTestModal, testShow, closeTestModal
  */
+
 export function useAdminShowActions() {
   
   const location = useLocation();

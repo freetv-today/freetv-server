@@ -2,9 +2,10 @@ import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 
 /**
- * useAdminSession - Checks for a valid admin session and redirects to /admin if not logged in.
- * Returns the user object if logged in, or null if not.
+ * useAdminSession - Custom hook to check for a valid admin session and redirect if not logged in.
+ * @returns {Object|null} User object if logged in, or null if not.
  */
+
 export function useAdminSession() {
   const [user, setUser] = useState(null);
   const { route } = useLocation();

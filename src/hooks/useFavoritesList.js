@@ -1,10 +1,16 @@
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { signal } from '@preact/signals';
 
+/**
+ * useFavoritesList - Custom hook for managing a list of favorite titles in localStorage.
+ * @returns {{ favorites: Object, addToFavorites: Function, removeFromFavorites: Function }}
+ */
+
 // Signal to force update components using favorites
 export const favoritesSignal = signal(0);
 
 export function useFavoritesList() {
+  
   const [favorites, setFavorites] = useLocalStorage('favoritesList', { title: [] });
 
   const addToFavorites = (title) => {

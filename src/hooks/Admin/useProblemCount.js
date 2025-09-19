@@ -4,10 +4,12 @@ import { PlaylistContext } from '@/context/PlaylistContext';
 
 
 /**
- * Returns the count of reported problems and disabled items for the current playlist.
- * @returns {number}
+ * useProblemCount - Custom hook to get the count of reported problems and disabled items for the current playlist.
+ * @returns {number} Total count of reported and disabled items.
  */
+
 export function useProblemCount() {
+  
   const { currentPlaylist, currentPlaylistData } = useContext(PlaylistContext);
   const [count, setCount] = useState(0);
 

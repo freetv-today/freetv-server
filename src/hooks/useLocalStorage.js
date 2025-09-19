@@ -1,5 +1,12 @@
 import { useState } from 'preact/hooks';
 
+/**
+ * useLocalStorage - Custom hook for syncing state with localStorage.
+ * @param {string} key - The localStorage key.
+ * @param {any} initialValue - The default value if not present in localStorage.
+ * @returns {[any, Function]} - The stored value and a setter function.
+ */
+
 export function useLocalStorage(key, initialValue) {
 
   const [storedValue, setStoredValue] = useState(() => {
