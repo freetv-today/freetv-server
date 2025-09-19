@@ -27,7 +27,3 @@ dist-ssr
 /public/logs/*
 /public/temp/*
 !/public/temp/.gitkeep
-/admin-dashboard-roadmap.md
-/checker-script-idea.md
-/beacon-notes.md
-/admin-extension-ideas.md

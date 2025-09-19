@@ -31,7 +31,7 @@ export function useQueueVideo() {
       return;
     }
     setCurrentVid({ imdb, category, identifier, title });
-    logShowView(imdb, category);
+    logShowView(imdb, title, category);
     log(`Queuing video: ${title.replace(/_/g, ' ')}`);
     saveRecent(title);
     log('Adding to recently-watched list');

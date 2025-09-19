@@ -138,10 +138,12 @@ export function getAppInfo() {
  * This function records show/category views for analytics.
  *
  * @param {string} imdbId - The IMDB ID of the show/movie
+ * @param {string} title - The show title
  * @param {string} [category] - The category or genre (optional)
+ *
  */
 
-export function logShowView(imdbId, category) {
+export function logShowView(imdbId, title, category) {
   if (!imdbId) return;
   try {
     const visitData = JSON.parse(localStorage.getItem('visitData') || '{}');
@@ -151,6 +153,7 @@ export function logShowView(imdbId, category) {
     visitData.recentShows.push({
       imdbId,
       category: category || null,
+      title: title || null,
       start: new Date().toISOString(),
     });
     if (visitData.recentShows.length > 20) visitData.recentShows = visitData.recentShows.slice(-20);

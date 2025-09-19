@@ -9,7 +9,7 @@ import { logShowEnd } from '@/utils';
 export function NowPlaying() {
 
   const [currentVid] = useLocalStorage('currentVid', null);
-  const [embedPlaylist] = useLocalStorage('embedPlaylist', null);
+  const [embedPlaylist] = useLocalStorage('embedPlaylist', true);
   const log = useDebugLog();
 
   // Effect to log show end and clear currentVid on unmount (e.g. leaving the page)
@@ -42,8 +42,10 @@ export function NowPlaying() {
   }, [title]);
 
   const archiveUrl = embedPlaylist
-  ? `https://archive.org/embed/${identifier}?playlist=1`
+  ? `https://archive.org/embed/${identifier}?playlist=1&list_height=300`
   : `https://archive.org/embed/${identifier}`;
+
+  log('Archive URL is: ' + archiveUrl);
 
   return (
     <div>
@@ -55,7 +57,7 @@ export function NowPlaying() {
           showVidNavBtnsSignal.value = true;
           if (title) log(`Video ${title} loaded`);
         }}
-        iframeProps={{ id: 'vidviewer', width: 640, height: 480 }}
+        iframeProps={{ id: 'vidviewer' }}
       />
     </div>
   );

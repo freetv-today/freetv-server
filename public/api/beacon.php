@@ -33,45 +33,44 @@ if (!is_array($visitData)) {
     exit;
 }
 
-// Prepare log file
-$logDir = realpath(__DIR__ . '/../logs');
-if (!$logDir) {
+// Prepare activity log directory
+$logsDir = realpath(__DIR__ . '/../logs');
+if (!$logsDir) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Missing logs directory']);
     exit;
 }
-$logFile = $logDir . '/appdata.json';
-if (!file_exists($logFile)) {
-    file_put_contents($logFile, "[]");
+$activityDir = $logsDir . '/activity';
+if (!is_dir($activityDir)) {
+    if (!mkdir($activityDir, 0777, true)) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Could not create activity directory']);
+        exit;
+    }
 }
 
-// Append session data (token, start, end, lastVisit, version, etc.)
-$entry = [
-    'token' => $visitData['token'] ?? null,
-    'start' => $visitData['start'] ?? null,
-    'end' => $visitData['end'] ?? null,
-    'lastVisit' => $visitData['lastVisit'] ?? null,
-];
-
-// If recentShows is present and is an array, include it
-if (isset($visitData['recentShows']) && is_array($visitData['recentShows']) && count($visitData['recentShows']) > 0) {
-    $entry['recentShows'] = $visitData['recentShows'];
+// Require a valid token
+$token = $visitData['token'] ?? null;
+if (!$token) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Missing token']);
+    exit;
 }
 
-// Read, append, and write log file with file lock
+$logFile = $activityDir . '/' . preg_replace('/[^A-Z0-9\-]/i', '', $token) . '.json';
+
+// Write the latest visitData as a single JSON object
 $success = false;
 for ($i = 0; $i < 3; $i++) { // retry up to 3 times
     $fp = fopen($logFile, 'c+');
     if ($fp && flock($fp, LOCK_EX)) {
-        $log = stream_get_contents($fp);
-        $data = $log ? json_decode($log, true) : [];
-        if (!is_array($data)) {
-            $data = [];
-        }
-        $data[] = $entry;
+        // Optionally, merge with existing data if needed
+        $existing = stream_get_contents($fp);
+        $existingData = $existing ? json_decode($existing, true) : [];
+        // Merge: for now, just overwrite with latest visitData
         ftruncate($fp, 0);
         rewind($fp);
-        fwrite($fp, json_encode($data, JSON_PRETTY_PRINT));
+        fwrite($fp, json_encode($visitData, JSON_PRETTY_PRINT));
         fflush($fp);
         flock($fp, LOCK_UN);
         fclose($fp);

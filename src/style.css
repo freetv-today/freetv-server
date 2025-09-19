@@ -207,7 +207,7 @@ body {
 /* Video Player */
 #vidviewer {
   width: 100%;
-  min-height: 90vh;
+  height: 99vh;
   border: 0;
 }
 
