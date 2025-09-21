@@ -15,7 +15,7 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
  */
 export function AdminDeleteShowModal({ show, onClose, showData, deleting, error, onDeleteConfirm }) {
 
-  const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
+  const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
   const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
 
   useEffect(() => {
@@ -23,9 +23,9 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
       const img = new window.Image();
       img.src = `/thumbs/${showData.imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
-      img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
+      img.onerror = () => setThumbnailSrc('/assets/vintage-tv.png');
     } else {
-      setThumbnailSrc('/src/assets/vintage-tv.png');
+      setThumbnailSrc('/assets/vintage-tv.png');
     }
   }, [showData]);
 

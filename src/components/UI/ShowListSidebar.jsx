@@ -89,7 +89,7 @@ export function ShowListSidebar({ context, category }) {
                 : 'No shows available in this category'}
           </p>
           <p className="text-center">
-            <img src="/src/assets/sadface.svg" alt="😢" width="40" />
+            <img src="/assets/sadface.svg" alt="😢" width="40" />
           </p>
           <p className="text-center">
             <a

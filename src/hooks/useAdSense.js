@@ -12,9 +12,9 @@ export function useAdsense(enabled) {
   useEffect(() => {
     if (enabled && win.adsbygoogle) {
       try {
-        (win.adsbygoogle = win.adsbygoogle || []).push({});
+        win.adsbygoogle.push({});
       } catch {
-        // No action needed if adsbygoogle push fails
+        // Ignore errors
       }
     }
   }, [enabled]);

@@ -37,7 +37,7 @@ export function Category() {
         <section className="flex-fill bg-white p-2 border rounded text-center order-1 order-lg-2">
           <AdBar />
           <HeaderBlock
-            img="/src/assets/freetv.png"
+            img="/assets/freetv.png"
             heading={category}
             desc="Click on a show title button to watch some Free TV."
             alt="Free TV"

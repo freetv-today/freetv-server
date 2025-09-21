@@ -29,7 +29,7 @@ export function NowPlaying() {
       <div className="container text-center my-5">
         <h2 className="text-danger mb-4">No data for last-watched video</h2>
         <p>You can only return to, or reload this URL while the current video is playing. After you navigate away from this page you have to reload a new video again. Try checking your <Link href="/recent" className="link-primary">recently-watched videos</Link>.</p>
-        <p><img src="/src/assets/sadface.svg" width="80" /></p>
+        <p><img src="/assets/sadface.svg" width="80" /></p>
       </div>
     );
   }
@@ -42,13 +42,13 @@ export function NowPlaying() {
   }, [title]);
 
   const archiveUrl = embedPlaylist
-  ? `https://archive.org/embed/${identifier}?playlist=1&list_height=300`
+  ? `https://archive.org/embed/${identifier}?playlist=1&list_height=250`
   : `https://archive.org/embed/${identifier}`;
 
   log('Archive URL is: ' + archiveUrl);
 
   return (
-    <div>
+    <div className="vidViewWrapper">
       <VideoLoader
         src={archiveUrl}
         title={title}

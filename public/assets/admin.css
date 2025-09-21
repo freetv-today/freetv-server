@@ -40,85 +40,85 @@
 
 /* Admin Dashboard top navbar: Castle (home) */
 .castle-icon {
-    background-image: url('/src/assets/castle-white.svg');
+    background-image: url('/assets/castle-white.svg');
 }
 .castle-icon:hover, .dropdown-item-custom:hover .castle-icon {
-    background-image: url('/src/assets/castle-blue.svg');
+    background-image: url('/assets/castle-blue.svg');
 }
 .icon-btn.active.castle-icon, .dropdown-item-custom.active .castle-icon {
-    background-image: url('/src/assets/castle-blue.svg');
+    background-image: url('/assets/castle-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Search */
 .search-icon {
-    background-image: url('/src/assets/search-white.svg');
+    background-image: url('/assets/search-white.svg');
 }
 .search-icon:hover, .dropdown-item-custom:hover .search-icon {
-    background-image: url('/src/assets/search-blue.svg');
+    background-image: url('/assets/search-blue.svg');
 }
 .icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
-    background-image: url('/src/assets/search-blue.svg');
+    background-image: url('/assets/search-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Thumbnails */
 .thumbs-icon {
-    background-image: url('/src/assets/thumbnails-white.svg');
+    background-image: url('/assets/thumbnails-white.svg');
 }
 .thumbs-icon:hover, .dropdown-item-custom:hover .thumbs-icon {
-    background-image: url('/src/assets/thumbnails-blue.svg');
+    background-image: url('/assets/thumbnails-blue.svg');
 }
 .icon-btn.active.thumbs-icon, .dropdown-item-custom.active .thumbs-icon {
-    background-image: url('/src/assets/thumbnails-blue.svg');
+    background-image: url('/assets/thumbnails-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Problems */
 .problems-icon {
-    background-image: url('/src/assets/problems-white.svg');
+    background-image: url('/assets/problems-white.svg');
 }
 .problems-icon:hover, .dropdown-item-custom:hover .problems-icon {
-    background-image: url('/src/assets/problems-blue.svg');
+    background-image: url('/assets/problems-blue.svg');
 }
 .icon-btn.active.problems-icon, .dropdown-item-custom.active .problems-icon {
-    background-image: url('/src/assets/problems-blue.svg');
+    background-image: url('/assets/problems-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Users */
 .users-icon {
-    background-image: url('/src/assets/users-white.svg');
+    background-image: url('/assets/users-white.svg');
 }
 .users-icon:hover, .dropdown-item-custom:hover .users-icon {
-    background-image: url('/src/assets/users-blue.svg');
+    background-image: url('/assets/users-blue.svg');
 }
 .icon-btn.active.users-icon, .dropdown-item-custom.active .users-icon {
-    background-image: url('/src/assets/users-blue.svg');
+    background-image: url('/assets/users-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Settings */
 .settings-icon {
-    background-image: url('/src/assets/settings-white.svg');
+    background-image: url('/assets/settings-white.svg');
 }
 .settings-icon:hover, .dropdown-item-custom:hover .settings-icon {
-    background-image: url('/src/assets/settings-blue.svg');
+    background-image: url('/assets/settings-blue.svg');
 }
 .icon-btn.active.settings-icon, .dropdown-item-custom.active .settings-icon {
-    background-image: url('/src/assets/settings-blue.svg');
+    background-image: url('/assets/settings-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Logout */
 .logout-icon {
-    background-image: url('/src/assets/logout-white.svg');
+    background-image: url('/assets/logout-white.svg');
 }
 .logout-icon:hover, .dropdown-item-custom:hover .logout-icon {
-    background-image: url('/src/assets/logout-blue.svg');
+    background-image: url('/assets/logout-blue.svg');
 }
 .icon-btn.active.logout-icon, .dropdown-item-custom.active .logout-icon {
-    background-image: url('/src/assets/logout-blue.svg');
+    background-image: url('/assets/logout-blue.svg');
 }
 
 .infoBtnAdmin {
     width: 24px;
     height: 24px;
-    background-image: url('/src/assets/info-circle-black.svg');
+    background-image: url('/assets/info-circle-black.svg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -128,7 +128,7 @@
 }
 
 .infoBtnAdmin:hover {
-    background-image: url('/src/assets/info-circle-blue.svg');
+    background-image: url('/assets/info-circle-blue.svg');
 }
 
 /* The blue color of the hover state of the navbar icons */
@@ -142,5 +142,5 @@
 }
 
 .external-link-btn:hover img {
-  content: url('/src/assets/external-link-white.svg');
+  content: url('/assets/external-link-white.svg');
 }

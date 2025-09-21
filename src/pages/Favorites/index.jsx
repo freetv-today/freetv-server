@@ -23,7 +23,7 @@ export function Favorites() {
 				<section className="flex-fill bg-white p-2 border rounded text-center order-1 order-lg-2">
 					<AdBar/>
 					<HeaderBlock
-						img="/src/assets/heart.svg"
+						img="/assets/heart.svg"
 						heading="Favorite Shows"
 						desc="This is a list of shows you've added to Favorites. Click a show title button to continue watching more Free TV."
 						alt="Favorite Shows"

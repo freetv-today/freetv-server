@@ -16,14 +16,14 @@ import { capitalizeFirstLetter } from '@/utils';
  */
 
 export function DescriptionModal({ show, onClose, title, category, identifier, desc, start, end, imdb }) {
-  const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
+  const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
 
   useEffect(() => {
     if (imdb) {
       const img = new Image();
       img.src = `/thumbs/${imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
-      img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
+      img.onerror = () => setThumbnailSrc('/assets/vintage-tv.png');
     }
   }, [imdb]);
 
@@ -36,18 +36,18 @@ export function DescriptionModal({ show, onClose, title, category, identifier, d
       {imdb && (
         <li className="pb-1">
           <a href={`https://www.imdb.com/title/${imdb}/`} title="View the IMDB page for this show" target="_blank" rel="noopener noreferrer">
-            IMDB Page<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
+            IMDB Page<img src="/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
           </a>
         </li>
       )}
       <li className="pb-1">
         <a href={`https://archive.org/details/${identifier}`} title="View the Internet Archive page for this show" target="_blank" rel="noopener noreferrer">
-          Archive.org<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
+          Archive.org<img src="/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
         </a>
       </li>
       <li className="pb-2">
         <a href={`https://archive.org/download/${identifier}`} title="Download show files from the Internet Archive" target="_blank" rel="noopener noreferrer">
-          Download Files<img src="/src/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
+          Download Files<img src="/assets/external-link.svg" width="14" title="Opens in a new tab or window" className="ms-2" alt="External Link" />
         </a>
       </li>
     </ul>

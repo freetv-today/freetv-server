@@ -4,7 +4,7 @@ export function ErrorPage({ type = 'Error', message = 'Something went wrong. Ple
     <div className="text-center text-danger fw-bold p-4" style={{ marginTop: '100px' }}>
       <h3 className="display-5">{type}</h3>
       <p>{message}</p>
-      <img src="/src/assets/sadface.svg" alt="😢" width="100" /> 
+      <img src="/assets/sadface.svg" alt="😢" width="100" /> 
       <p><a href="/" target="_top" className="btn btn-primary">Reload</a></p>
     </div>
   );

@@ -22,7 +22,7 @@ export function DeleteReportedProblemModal({
   onDeleteConfirm // not used, but accepted for compatibility
 }) {
 
-  const [thumbnailSrc, setThumbnailSrc] = useState('/src/assets/vintage-tv.png');
+  const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
   const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
@@ -32,9 +32,9 @@ export function DeleteReportedProblemModal({
       const img = new window.Image();
       img.src = `/thumbs/${showData.imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
-      img.onerror = () => setThumbnailSrc('/src/assets/vintage-tv.png');
+      img.onerror = () => setThumbnailSrc('/assets/vintage-tv.png');
     } else {
-      setThumbnailSrc('/src/assets/vintage-tv.png');
+      setThumbnailSrc('/assets/vintage-tv.png');
     }
   }, [showData]);
 

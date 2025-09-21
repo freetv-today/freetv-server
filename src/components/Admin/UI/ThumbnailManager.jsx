@@ -85,7 +85,7 @@ export function ThumbnailManager() {
   }
 
   // Determine preview image
-  let previewImg = '/src/assets/vintage-tv.png';
+  let previewImg = '/assets/vintage-tv.png';
   if (fetching) {
     previewImg = null; // Show spinner
   } else if (fetchedImage) {

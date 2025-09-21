@@ -12,6 +12,7 @@ import { Link } from '@components/Navigation/Link';
  *   iframeProps: object (optional, extra props for iframe)
  *   timeoutMs: number (timeout in ms, default 90000)
  */
+
 export function VideoLoader({
   src,
   title,
@@ -56,7 +57,7 @@ export function VideoLoader({
             If you keep having trouble, check out the <Link href="/help" className="primary-link">Help</Link> page for troubleshooting tips.
           </p>
         )}
-        <p><img src="/src/assets/sadface.svg" width="80" /></p>
+        <p><img src="/assets/sadface.svg" width="80" /></p>
       </div>
     );
   }
@@ -66,11 +67,9 @@ export function VideoLoader({
       {loading && <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />}
       <iframe
         src={src}
-        width="100%"
-        height="480"
         frameBorder="0"
         allowFullScreen
-        style={{ display: loading ? 'none' : 'block', width: '100%', minHeight: 400 }}
+        style={{ display: loading ? 'none' : 'block'}}
         onLoad={handleIframeLoad}
         title={title}
         {...iframeProps}

@@ -17,7 +17,7 @@ body {
 /* Fonts */
 @font-face {
     font-family: "Bruno Ace";
-    src: url('/src/assets/fonts/BrunoAce-Regular.ttf');
+    src: url('/assets/fonts/BrunoAce-Regular.ttf');
     font-display: swap;
 }
 .bruno-ace {
@@ -120,57 +120,57 @@ body {
 
 /* Home */
 .home-icon {
-    background-image: url('/src/assets/home-white.svg');
+    background-image: url('/assets/home-white.svg');
 }
 .home-icon:hover, .dropdown-item-custom:hover .home-icon {
-    background-image: url('/src/assets/home-blue.svg');
+    background-image: url('/assets/home-blue.svg');
 }
 .icon-btn.active.home-icon, .dropdown-item-custom.active .home-icon {
-    background-image: url('/src/assets/home-blue.svg');
+    background-image: url('/assets/home-blue.svg');
 }
 
 /* Recent */
 .recent-icon {
-    background-image: url('/src/assets/recent-white.svg');
+    background-image: url('/assets/recent-white.svg');
 }
 .recent-icon:hover, .dropdown-item-custom:hover .recent-icon {
-    background-image: url('/src/assets/recent-blue.svg');
+    background-image: url('/assets/recent-blue.svg');
 }
 .icon-btn.active.recent-icon, .dropdown-item-custom.active .recent-icon {
-    background-image: url('/src/assets/recent-blue.svg');
+    background-image: url('/assets/recent-blue.svg');
 }
   
 /* Search */
 .search-icon {
-    background-image: url('/src/assets/search-white.svg');
+    background-image: url('/assets/search-white.svg');
 }
 .search-icon:hover, .dropdown-item-custom:hover .search-icon {
-    background-image: url('/src/assets/search-blue.svg');
+    background-image: url('/assets/search-blue.svg');
 }
 .icon-btn.active.search-icon, .dropdown-item-custom.active .search-icon {
-    background-image: url('/src/assets/search-blue.svg');
+    background-image: url('/assets/search-blue.svg');
 }
 
 /* Favorites */
 .favorites-icon {
-    background-image: url('/src/assets/heart-white.svg');
+    background-image: url('/assets/heart-white.svg');
 }
 .favorites-icon:hover, .dropdown-item-custom:hover .favorites-icon {
-    background-image: url('/src/assets/heart-blue.svg');
+    background-image: url('/assets/heart-blue.svg');
 }
 .icon-btn.active.favorites-icon, .dropdown-item-custom.active .favorites-icon {
-    background-image: url('/src/assets/heart-blue.svg');
+    background-image: url('/assets/heart-blue.svg');
 }
   
 /* Help */
 .help-icon {
-    background-image: url('/src/assets/help-white.svg');
+    background-image: url('/assets/help-white.svg');
 }
 .help-icon:hover, .dropdown-item-custom:hover .help-icon {
-    background-image: url('/src/assets/help-blue.svg');
+    background-image: url('/assets/help-blue.svg');
 }
 .icon-btn.active.help-icon, .dropdown-item-custom.active .help-icon {
-    background-image: url('/src/assets/help-blue.svg');
+    background-image: url('/assets/help-blue.svg');
 }
 
 /* Category buttons menu with horizontal scrollbar */
@@ -204,11 +204,18 @@ body {
     display: none;
 }
 
+
 /* Video Player */
+.vidViewWrapper{
+    background-color: #000;
+    padding-top: 20px;
+}
+
 #vidviewer {
   width: 100%;
-  height: 99vh;
-  border: 0;
+  height: 100vh;
+  min-height: 500px;
+  background-color: #000;
 }
 
 /* Navbar Video Player */
@@ -219,16 +226,16 @@ body {
 
 /* Add to Favorites (NavbarVideoPlayback) */
 .addfavorites-icon {
-    background-image: url('/src/assets/addfavorites-white.svg');
+    background-image: url('/assets/addfavorites-white.svg');
 }
 .addfavorites-icon:hover, .dropdown-item-custom:hover .addfavorites-icon {
-    background-image: url('/src/assets/addfavorites-blue.svg');
+    background-image: url('/assets/addfavorites-blue.svg');
 }
 .icon-btn.active.addfavorites-icon, .dropdown-item-custom.active .addfavorites-icon {
-    background-image: url('/src/assets/addfavorites-blue.svg');
+    background-image: url('/assets/addfavorites-blue.svg');
 }
 
-/* Ad Sizing */
+/* Ad Sizes */
 
 .largeAd {
   max-width: 728px;
@@ -246,15 +253,15 @@ body {
   margin: 0 auto;
 }
 
-/* =============== MEDIA QUERIES: =============== */
-
-/* Subnav template: responsive sidebar menu */
-@media (min-width: 992px) {
-    .sidebar-fixed-width {
-        width: 300px;
-        flex: 0 0 300px;
-    }
+/* used on Help */
+.preactLogo {
+    color: #673AB8;
+    text-shadow: black 1px 2px 2px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
+
+/* =============== MEDIA QUERIES: =============== */
 
 /* Small Screen */
 @media (max-width: 450px) {
@@ -277,12 +284,7 @@ body {
   }
 } 
 
-/* Between Medium and Large */
-@media ((min-width: 768px) and (max-width: 991.98px)) { 
-    /* Nothing here yet */
-}
-
-/* Large Screen */
+/* Medium + Screens  */
 @media (min-width: 768px) {
   /* Toast alert sizing */  
   #app-toast {
@@ -292,4 +294,18 @@ body {
     width: auto !important;
     margin: 1rem !important;
   }
+}
+
+/* Between Medium & Large */
+@media ((min-width: 768px) and (max-width: 991.98px)) { 
+    /* Nothing here yet */
+}
+
+/* Large + Screens */
+@media (min-width: 992px) {
+    /* Subnav template: responsive sidebar menu */
+    .sidebar-fixed-width {
+        width: 300px;
+        flex: 0 0 300px;
+    }
 }

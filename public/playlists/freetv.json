@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-09-19T02:41:45.986Z",
+    "lastupdated": "2025-09-20T12:41:51.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -519,7 +519,7 @@
         },
         {
             "category": "sci-fi",
-            "status": "active",
+            "status": "disabled",
             "identifier": "the-outer-limits-1995",
             "title": "The Outer Limits",
             "desc": "A revival of the original The Outer Limits series - an anthology of distinct story episodes, sometimes with plot twists at the end.",
@@ -969,7 +969,7 @@
         },
         {
             "category": "documentary",
-            "status": "active",
+            "status": "disabled",
             "identifier": "russia-land-of-the-tsars",
             "title": "Russia, Land of the Tsars",
             "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",

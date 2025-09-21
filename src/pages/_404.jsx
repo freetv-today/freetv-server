@@ -26,7 +26,7 @@ export function NotFound() {
                     </>)
                   : (<>The page you are looking for was not found.<br />Please return to the <Link href="/" className="">home page</Link>.</>)}
             </p>
-            <img src="/src/assets/sadface.svg" width="140" title="Not Found" />
+            <img src="/assets/sadface.svg" width="140" title="Not Found" />
         </div>
     );
 }

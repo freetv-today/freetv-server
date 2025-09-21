@@ -1,15 +1,17 @@
 import { useConfig } from '@/context/ConfigContext';
-import { formatDateTime } from '@/utils';
+import { formatDateTime, getAppInfo } from '@/utils';
 
 export function HelpVersionInfo() {
-  const { name, lastupdated, version } = useConfig();
+
+  const { lastupdated } = useConfig();
+  const appInfo = getAppInfo();
   
   return (
     <section id="version" className="mb-5">
-      <h2 className="fs-3 mb-5 fw-bold">Version</h2>
+      <h2 className="fs-3 my-5 fw-bold">Version Information</h2>
       <p>
-        App Name: {name}<br/>
-        Version: {version}<br/>
+        App Name: {appInfo.name}<br/>
+        Version: {appInfo.version}<br/>
         Last updated: {formatDateTime(lastupdated)}
       </p>
     </section>

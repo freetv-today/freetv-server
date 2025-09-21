@@ -7,11 +7,15 @@ import { HelpHowToUse } from '@components/Help/HelpHowToUse';
 import { HelpTroubleshooting } from '@components/Help/HelpTroubleshooting';
 import { HelpVersionInfo } from '@components/Help/HelpVersionInfo';
 import { HelpLicenseInfo } from '@components/Help/HelpLicenseInfo';
+import { HelpDeveloperInfo } from '@/components/Help/HelpDeveloperInfo';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { resetUrl } from '@/utils';
+import { ImageLargeLogo } from '@/components/UI/ImageLargeLogo';
 import { AdBar } from '@/components/UI/AdBar';
+import { resetUrl } from '@/utils';
+
 
 export function Help() {
+
     const log = useDebugLog();
 
     useEffect(() => {
@@ -25,12 +29,6 @@ export function Help() {
                 <AdBar/>
                 <h1 className="fs-1 fw-bold my-4 text-center">Free TV Help</h1>
                 <HelpAnnouncement />
-                <div className="text-center my-5">
-                    <a href="https://downdetector.com/status/internetarchive/" target="_blank" className="btn btn-lg btn-danger shadow border border-1 border-dark" title="Open new tab or window showing Internet Archive Network Status">
-                        <img src="/src/assets/help/health-white.svg" height="40" className="me-2" />
-                        Internet Archive Network Status
-                    </a>
-                </div>
                 <HelpAbout />
                 <HelpIndex />
                 <hr />
@@ -41,20 +39,18 @@ export function Help() {
                 <HelpFAQ />
                 <hr />
                 <HelpVersionInfo />
+                <hr />
+                <HelpDeveloperInfo />
+                <hr />
                 <HelpLicenseInfo />
-
-                <div className="my-5 text-center">
-                    <h1 className="display-4 bruno-ace">Free TV</h1>
-                    <a className="fw-bold" href="/"><img src="/src/assets/freetv.png" width="185" title="Free TV" alt="Free TV Logo" /></a>
-                </div>
+                <hr />
+                <ImageLargeLogo />
                 <div className="my-5 fs-4 fw-bold text-center">
                     <a href="https://archive.org" className="fw-bold link-dark text-decoration-none" target="_blank" title="Powered by the Internet Archive">
-                        Powered by the Internet Archive
-                        <br/>
-                        <img src="/src/assets/help/internet_archive-black.svg" width="65" title="The Internet Archive" alt="The Internet Archive" className="mt-3" />
+                        Powered by the Internet Archive<br/>
+                        <img src="/assets/help/internet_archive-black.svg" width="65" title="The Internet Archive" alt="The Internet Archive" className="mt-3" />
                     </a>
                 </div>
-                
                 <p className="text-center my-4">
                     <a
                       href="#top"
