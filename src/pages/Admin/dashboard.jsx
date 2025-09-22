@@ -5,6 +5,7 @@ import { AdminDashboardTable } from '@/components/Admin/UI/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/Admin/UI/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Admin/Navigation/NavbarSubNavAdmin';
 import { AdminInfoModal } from '@/components/Admin/Modals/AdminInfoModal';
+import AdminSortJsonModal from '@/components/Admin/Modals/AdminSortJsonModal';
 import { AdminMessage } from '@/components/Admin/UI/AdminMessage';
 import { AdminTestVideoModal } from '@/components/Admin/Modals/AdminTestVideoModal';
 import { AdminDeleteShowModal } from '@/components/Admin/Modals/AdminDeleteShowModal';
@@ -48,8 +49,12 @@ export function Dashboard() {
     const [metaSaving, setMetaSaving] = useState(false);
     const [metaError, setMetaError] = useState(null);
 
+
     // State for info modal
     const [showInfoModal, setShowInfoModal] = useState(false);
+
+    // State for sort modal
+    const [showSortModal, setShowSortModal] = useState(false);
 
     // Generic modal close handler
     function handleCloseModal(modal, reason) {
@@ -66,7 +71,10 @@ export function Dashboard() {
                 if (reason === 'cancel') log('Playlist Information operation was cancelled');
                 setShowInfoModal(false);
                 break;
-            // Add more cases for other modals as needed
+            case 'sort':
+                if (reason === 'cancel') log('Sort Playlist operation was cancelled');
+                setShowSortModal(false);
+                break;
             default:
                 break;
         }
@@ -82,6 +90,7 @@ export function Dashboard() {
         }
     }
 
+
     function handleOpenMetaModal() {
         log('Editing Playlist Meta Data');
         setShowMetaModal(true);
@@ -91,6 +100,11 @@ export function Dashboard() {
     function handleOpenInfoModal() {
         log('Viewing Playlist Information');
         setShowInfoModal(true);
+    }
+
+    function handleOpenSortModal() {
+        log('Opening Sort Playlist Modal');
+        setShowSortModal(true);
     }
 
     async function handleSaveMeta(updatedMeta) {
@@ -137,6 +151,7 @@ export function Dashboard() {
             <NavbarSubNavAdmin 
                 onMetaClick={handleOpenMetaModal} 
                 onInfoClick={handleOpenInfoModal}
+                onSortClick={handleOpenSortModal}
             />
             <AdminDashboardFilters
                 shows={showData || []}
@@ -178,15 +193,20 @@ export function Dashboard() {
                 error={metaError}
                 onSave={handleSaveMeta}
             />
-            <AdminInfoModal
-                show={showInfoModal}
-                onClose={reason => handleCloseModal('info', reason)}
-                stats={{
-                  totalShows,
-                  activeShows,
-                  disabledShows,
-                  totalPlaylists
-                }}
+                        <AdminInfoModal
+                                show={showInfoModal}
+                                onClose={reason => handleCloseModal('info', reason)}
+                                stats={{
+                                    totalShows,
+                                    activeShows,
+                                    disabledShows,
+                                    totalPlaylists
+                                }}
+                        />
+            <AdminSortJsonModal
+                show={showSortModal}
+                onClose={reason => handleCloseModal('sort', reason)}
+                playlistFilename={currentPlaylist}
             />
         </div>
     );

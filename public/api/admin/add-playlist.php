@@ -2,6 +2,14 @@
 
 // add-playlist.php - Handles creation of new playlists
 require_once __DIR__ . '/playlist_utils.php';
+
+session_start();
+if (!isset($_SESSION['admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -1,11 +1,18 @@
 <?php
 
+session_start();
+if (!isset($_SESSION['admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
 header('Content-Type: application/json');
 $thumbs_dir = __DIR__ . '/../../thumbs/'; // located in /public/thumbs/
 $playlist_data = null;
 $shows = [];
 $with_thumbnails = [];
 $missing_thumbnails = [];
+
 // Get showData from localStorage via POST (since PHP can't access browser localStorage)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
@@ -14,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shows = $json['shows'];
     }
 }
-
 
 $files = [];
 if (is_dir($thumbs_dir)) {

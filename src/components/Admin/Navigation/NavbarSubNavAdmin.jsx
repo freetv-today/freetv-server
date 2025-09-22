@@ -1,7 +1,9 @@
 import { useLocation } from 'preact-iso';
 
-export function NavbarSubNavAdmin({ onMetaClick, onInfoClick }) {
+export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
+
   const { route } = useLocation();
+  
   return (
     <nav id="subnavbar" className="navbar mb-4">
       <div className="container-fluid p-0 m-0 d-flex justify-content-center align-items-center">
@@ -38,12 +40,22 @@ export function NavbarSubNavAdmin({ onMetaClick, onInfoClick }) {
 
         <button 
           type="button" 
+          className="btn btn-outline-secondary rounded-pill btn-sm me-2 mt-2 fw-bold px-4 py-2" 
+          title="Database Sort" 
+          aria-label="Database Sort"
+          onClick={onSortClick}
+        > 
+          Database Sort
+        </button>
+
+        <button 
+          type="button" 
           className="infoBtnAdmin ms-2 mt-2" 
           title="Current Playlist Information"
           aria-label="Current Playlist Information"  
           onClick={onInfoClick}
         >
-          {/* Info Icon */}
+          {/* Info icon loaded via admin.css */}
         </button>
 
       </div>

@@ -1,15 +1,23 @@
 <?php
 
+require_once __DIR__ . '/playlist_utils.php';
+
+session_start();
+if (!isset($_SESSION['admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
 // delete-reported-problem.php
 // Clone of delete-show.php, will be customized to also remove from errors.json
-require_once __DIR__ . '/playlist_utils.php';
+
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
     exit;
 }
-
 
 $input = json_decode(file_get_contents('php://input'), true);
 $playlist = $input['playlist'] ?? null;

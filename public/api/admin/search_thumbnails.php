@@ -1,6 +1,11 @@
 <?php
 
-// public/api/admin/search_thumbnails.php
+session_start();
+if (!isset($_SESSION['admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
 header('Content-Type: application/json');
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

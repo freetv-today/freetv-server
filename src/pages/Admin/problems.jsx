@@ -221,11 +221,11 @@ export function AdminProblems() {
                 </table>
             </div>
                     {disabledItems.length > 0 && (
-                        <div className="mb-5 text-end">
+                        <div className="mb-5 text-center">
                             <button type="button" className="btn btn-sm btn-danger" onClick={() => setDeleteAllModal(true)}>Delete All Disabled Items</button>
                         </div>
                     )}
-
+            <br/>
             {/* Modals */}
             {testModal && (
                 <AdminTestVideoModal

@@ -3,6 +3,7 @@ import { useEffect } from 'preact/hooks';
 
 // Modal for displaying application info/stats, using Bootstrap modal structure for consistency
 export function AdminInfoModal({ show, onClose, stats }) {
+  
   useEffect(() => {
     if (!show) return;
     function onKey(e) {

@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-09-20T12:41:51.000Z",
+    "lastupdated": "2025-09-22T15:15:16.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -36,6 +36,26 @@
             "start": "1994",
             "end": "1997",
             "imdb": "tt0108783"
+        },
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "the-grim-adventures-of-billy-and-mandy_202212",
+            "title": "Grim Adventures of Billy & Mandy",
+            "desc": "The ill-tempered Grim Reaper gets into a wager that forces him to become the life-long companions of two scheming youngsters after he loses.",
+            "start": "2003",
+            "end": "2007",
+            "imdb": "tt0292800"
+        },
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "hamtaro_complete_series",
+            "title": "Hamtaro",
+            "desc": "The story of hamsters who get together at meetings to talk about their adventures.",
+            "start": "2000",
+            "end": "2006",
+            "imdb": "tt0318895"
         },
         {
             "category": "animation",
@@ -120,6 +140,16 @@
         {
             "category": "animation",
             "status": "active",
+            "identifier": "The.adventures.of.Tintin.animated.series",
+            "title": "The Adventures of Tintin",
+            "desc": "The adventures of the young reporter, his faithful dog and friends as they travel around the world on adventures.",
+            "start": "1991",
+            "end": "1992",
+            "imdb": "tt0179552"
+        },
+        {
+            "category": "animation",
+            "status": "active",
             "identifier": "the.-jetsons",
             "title": "The Jetsons",
             "desc": "The misadventures of a futuristic family.",
@@ -146,6 +176,36 @@
             "start": "1981",
             "end": "1989",
             "imdb": "tt0081933"
+        },
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "ThunderbirdsSeries",
+            "title": "Thunderbirds",
+            "desc": "In the year 2065, the Tracy family run International Rescue - a top-secret organization whose ongoing mission is to rescue people trapped in extraordinarily dangerous situations using their advanced Thunderbirds machines.",
+            "start": "1965",
+            "end": "1966",
+            "imdb": "tt0057790"
+        },
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "tomandjerry-completemgmcollection_202312",
+            "title": "Tom and Jerry",
+            "desc": "Tom and Jerry is an American animated media franchise and series of comedy short films created in 1940 by William Hanna and Joseph Barbera. Best known for its 161 theatrical short films by Metro-Goldwyn-Mayer, the series centers on the enmity between the titular characters of a cat named Tom and a mouse named Jerry.",
+            "start": "1940",
+            "end": "1967",
+            "imdb": "tt28335303"
+        },
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "02.-the-maharajah-of-pookajee_202306",
+            "title": "Top Cat",
+            "desc": "Top Cat is the leader of a group of alley cats, always trying to cheat someone.",
+            "start": "1961",
+            "end": "1962",
+            "imdb": "tt0054572"
         },
         {
             "category": "animation",
@@ -180,12 +240,72 @@
         {
             "category": "comedy",
             "status": "active",
+            "identifier": "ALF-The-Complete-Series",
+            "title": "ALF",
+            "desc": "When an ugly creature, who loves eating cats, crash-lands into the Tanner family's garage, they treat him as a guest and allow him to live with them as he comments on the stupidity of mankind.",
+            "start": "1986",
+            "end": "1990",
+            "imdb": "tt0090390"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "benson-complete-tv-series-ctv",
+            "title": "Benson",
+            "desc": "Sharp-tongued butler, Benson DuBois, is the governor's director of household affairs.",
+            "start": "1979",
+            "end": "1986",
+            "imdb": "tt0078569"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
             "identifier": "FawltyTowers",
             "title": "Fawlty Towers",
             "desc": "Hotel owner Basil Fawlty's incompetence, short fuse, and arrogance form a combination that ensures accidents and trouble are never far away.",
             "start": "1975",
             "end": "1979",
             "imdb": "tt0072500"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "Ghost-Muir",
+            "title": "Ghost & Mrs. Muir",
+            "desc": "A house is haunted by a deceased sea captain who wreaks havoc with the new tenants who were not advised of his existence.",
+            "start": "1968",
+            "end": "1970",
+            "imdb": "tt0062565"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "GreenAcresCompleteSeries",
+            "title": "Green Acres",
+            "desc": "A New York City attorney and his wife attempt to live as farmers in the bizarre community of Hooterville.",
+            "start": "1965",
+            "end": "1971",
+            "imdb": "tt0058808"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "swiss-miss-1938",
+            "title": "Laurel & Hardy",
+            "desc": "Laurel and Hardy were a British-American comedy team during the early Classical Hollywood era of American cinema, consisting of Englishman Stan Laurel and American Oliver Hardy.",
+            "start": "1927",
+            "end": "1955",
+            "imdb": "tt0196372"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "married-with-children-woc",
+            "title": "Married With Children",
+            "desc": "Al Bundy is the quintessential working-class dad while his wife, Peggy, always wants more.",
+            "start": "1987",
+            "end": "1997",
+            "imdb": "tt0092400"
         },
         {
             "category": "comedy",
@@ -200,12 +320,62 @@
         {
             "category": "comedy",
             "status": "active",
+            "identifier": "mr-bean-the-complete-live-action-series",
+            "title": "Mr. Bean",
+            "desc": "Bumbling, childlike Mr. Bean has trouble completing the simplest of day-to-day tasks, but his perseverance and resourcefulness frequently allow him to find ingenious ways around problems.",
+            "start": "1990",
+            "end": "1995",
+            "imdb": "tt0096657"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "newsradio-1995-99",
+            "title": "NewsRadio",
+            "desc": "Workplace sitcom explores office politics and interpersonal relationships of the staff at WNYX NewsRadio",
+            "start": "1995",
+            "end": "1999",
+            "imdb": "tt0112095"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "Petticoat_Junction_Series",
+            "title": "Petticoat Junction",
+            "desc": "The misadventures of the family staff of The Shady Rest Hotel and their neighbors of Hooterville.",
+            "start": "1963",
+            "end": "1970",
+            "imdb": "tt0056780"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
             "identifier": "bbc-red-dwarf",
             "title": "Red Dwarf",
             "desc": "The adventures of the last human alive and his friends, stranded 3 million years into deep space on the mining ship Red Dwarf.",
             "start": "1988",
             "end": "2020",
             "imdb": "tt0094535"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "ripping-yarns-1976-79",
+            "title": "Ripping Yarns",
+            "desc": "This show is a collection of tales that make for \"ripping good\" television. Sir Michael Palin played a different lead character in each yarn.",
+            "start": "1976",
+            "end": "1979",
+            "imdb": "tt0075568"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "SeinfeldComplete",
+            "title": "Seinfeld",
+            "desc": "The continuing misadventures of neurotic New York City stand-up comedian Jerry Seinfeld and his equally neurotic New York City friends.",
+            "start": "1989",
+            "end": "1998",
+            "imdb": "tt0098904"
         },
         {
             "category": "comedy",
@@ -240,6 +410,26 @@
         {
             "category": "comedy",
             "status": "active",
+            "identifier": "TheBobNewhartShow",
+            "title": "The Bob Newhart Show",
+            "desc": "The professional and personal misadventures of a psychologist and his family, patients, friends and colleagues.",
+            "start": "1972",
+            "end": "1978",
+            "imdb": "tt0068049"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "the.-drew.-carey.-show.-1995.720p.-rew.-dd-2.0.x-264",
+            "title": "The Drew Carey Show",
+            "desc": "A sitcom about Drew's personal and professional life.",
+            "start": "1995",
+            "end": "2004",
+            "imdb": "tt0111945"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
             "identifier": "the-lucy-show-lucy-buys-a-boat",
             "title": "The Lucy Show",
             "desc": "The wacky misadventures of a forever-scheming woman (Lucille Ball), her reluctant best friend, and her cantankerous boss.",
@@ -256,6 +446,36 @@
             "start": "1991",
             "end": "2006",
             "imdb": "tt0101177"
+        },
+        {
+            "category": "comedy",
+            "status": "active",
+            "identifier": "WhitestKidsUKnowSeries",
+            "title": "The Whitest Kids U Know",
+            "desc": "A sketch comedy show involving five friends.",
+            "start": "2007",
+            "end": "2011",
+            "imdb": "tt0840979"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "benjamin-franklin-documentary",
+            "title": "Ben Franklin (History Channel)",
+            "desc": "Ben Franklin rose from poverty to become a true Renaissance Man and Founding Father of America. This is the story of the man behind the myth.",
+            "start": "2004",
+            "end": "2004",
+            "imdb": "tt0437862"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "BobRossTheHappyPainter",
+            "title": "Bob Ross: the Happy Painter",
+            "desc": "The start of career, rise to fame, and death of the legendary TV painter Bob Ross.",
+            "start": "2011",
+            "end": "2011",
+            "imdb": "tt2155259"
         },
         {
             "category": "documentary",
@@ -280,6 +500,36 @@
         {
             "category": "documentary",
             "status": "active",
+            "identifier": "DinosaurPlanetDiscoveryChannel",
+            "title": "Dinosaur Planet",
+            "desc": "Four dinosaurs - a female Velociraptor in Asia, Daspletosaurus male in North America, South American female Saltasaurus, and European Pyroraptor - roam their habitats. Narrated by Christian Slater, hosted by paleontologist Scott Sampson.",
+            "start": "2003",
+            "end": "2003",
+            "imdb": "tt0389605"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "forensic-files-collection",
+            "title": "Forensic Files",
+            "desc": "Forensic Files is an American documentary television series that details how various crimes are solved with the use of forensic science.",
+            "start": "1996",
+            "end": "2011",
+            "imdb": "tt0247882"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "BBCHiroshima",
+            "title": "Hiroshima (BBC)",
+            "desc": "Documentary with dramatic reenactments with actors to describe what dropping the bomb on Hiroshima was like.",
+            "start": "2005",
+            "end": "2005",
+            "imdb": "tt0475296"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
             "identifier": "ken.-burns.-the.-civil.-war.",
             "title": "Ken Burns: Civil War",
             "desc": "American television documentary miniseries created by Ken Burns about the American Civil War.",
@@ -299,6 +549,36 @@
         },
         {
             "category": "documentary",
+            "status": "disabled",
+            "identifier": "russia-land-of-the-tsars",
+            "title": "Russia, Land of the Tsars",
+            "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",
+            "start": "2003",
+            "end": "2003",
+            "imdb": "tt0368537"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "the-great-war-1964",
+            "title": "The Great War",
+            "desc": "One of the greatest achievements of television - aired in 26 episodes from 1964. Use of extensive archival material and sound effects combined with contemporary classical music from this era.",
+            "start": "1964",
+            "end": "1964",
+            "imdb": "tt0057753"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "TheVelvetClawEp3Of7StrengthInNumbers_201901",
+            "title": "The Velvet Claw",
+            "desc": "From big cats to tiny weasels, this series follows the sometimes surprising evolution of the Carnivora - the mammals that eat meat.",
+            "start": "1992",
+            "end": "1992",
+            "imdb": "tt1245441"
+        },
+        {
+            "category": "documentary",
             "status": "active",
             "identifier": "the-world-at-war-1973",
             "title": "The World At War",
@@ -306,6 +586,16 @@
             "start": "1973",
             "end": "1973",
             "imdb": "tt0071075"
+        },
+        {
+            "category": "documentary",
+            "status": "active",
+            "identifier": "walkingwithdinosaurs1999miniseries",
+            "title": "Walking With Dinosaurs",
+            "desc": "Documentary-style series about the era of the dinosaurs, mixing real locations and CGI.",
+            "start": "1999",
+            "end": "1999",
+            "imdb": "tt0214382"
         },
         {
             "category": "documentary",
@@ -320,12 +610,62 @@
         {
             "category": "drama",
             "status": "active",
+            "identifier": "adam-12.-s-01",
+            "title": "Adam 12 Season 1",
+            "desc": "Two regular police officers patrol Los Angeles.",
+            "start": "1968",
+            "end": "1975",
+            "imdb": "tt0062539"
+        },
+        {
+            "category": "drama",
+            "status": "active",
             "identifier": "baywatch_202212",
             "title": "Baywatch",
             "desc": "At a Los Angeles beach, a team of lifeguards led by Lieutenant Mitch Buchannon save lives and participate in over the top adventures.",
             "start": "1989",
             "end": "2001",
             "imdb": "tt0096542"
+        },
+        {
+            "category": "drama",
+            "status": "active",
+            "identifier": "clueless-1996-99",
+            "title": "Clueless",
+            "desc": "A follow-up to the blockbuster movie of the same name, following the rich teenager Cher and her friends as they attend high school in Beverly Hills.",
+            "start": "1996",
+            "end": "1999",
+            "imdb": "tt0115137"
+        },
+        {
+            "category": "drama",
+            "status": "active",
+            "identifier": "due-south-1994-99",
+            "title": "Due South",
+            "desc": "The adventures of an impossibly upright Royal Canadian Mounted Police constable and his American colleagues in the city of Chicago.",
+            "start": "1994",
+            "end": "1999",
+            "imdb": "tt0108756"
+        },
+        {
+            "category": "drama",
+            "status": "active",
+            "identifier": "six-feet-under_202209",
+            "title": "Six Feet Under",
+            "desc": "When death is your business, what is your life? Laced with irony and dark situational humor, the show approaches the subject of death through the eyes of the Fisher family, who owns and operates a funeral home in Los Angeles.",
+            "start": "2001",
+            "end": "2005",
+            "imdb": "tt0248654"
+        },
+        {
+            "category": "drama",
+            "status": "active",
+            "identifier": "st.-elsewhere",
+            "title": "St. Elsewhere",
+            "desc": "The lives and work of the staff of St. Eligius Hospital, an old and disrespected Boston teaching hospital.",
+            "start": "1982",
+            "end": "1988",
+            "imdb": "tt0083483"
         },
         {
             "category": "drama",
@@ -350,6 +690,16 @@
         {
             "category": "drama",
             "status": "active",
+            "identifier": "the-net-complete-tv-series",
+            "title": "The Net",
+            "desc": "Computer programmer Angela Bennett discovers a shadowy group of cyber terrorists who completely erase her true identity. Falsely labeled a criminal, she finds herself on the run, and she'll never stop until she's got her life back.",
+            "start": "1998",
+            "end": "1999",
+            "imdb": "tt0163953"
+        },
+        {
+            "category": "drama",
+            "status": "active",
             "identifier": "1971-the-homecoming-a-christmas-story",
             "title": "The Waltons",
             "desc": "The life and trials of a 1930s and 1940s Virginia mountain family through financial depression and World War II.",
@@ -370,6 +720,16 @@
         {
             "category": "kids",
             "status": "active",
+            "identifier": "arthur-1996-complete_202203",
+            "title": "Arthur",
+            "desc": "Based on the books by Marc Brown, these are the adventures of Arthur, an 8-year-old aardvark, and his family and friends as they grow up and learn how to be good neighbors to one another.",
+            "start": "1996",
+            "end": "2006",
+            "imdb": "tt0169414"
+        },
+        {
+            "category": "kids",
+            "status": "active",
             "identifier": "barney-friends",
             "title": "Barney & Friends",
             "desc": "Barney, America's favorite purple dinosaur, and his young friends share adventures featuring songs, dances and games.",
@@ -386,6 +746,26 @@
             "start": "1997",
             "end": "2018",
             "imdb": "tt0262151"
+        },
+        {
+            "category": "kids",
+            "status": "active",
+            "identifier": "charlie-chalk-1988-the-complete-collection",
+            "title": "Charlie Chalk",
+            "desc": "A clown named Charlie Chalk arrives on the island of Merrytwit after falling asleep on his boat. He befriends the inhabitants of the island and gets into many adventures.",
+            "start": "1988",
+            "end": "1989",
+            "imdb": "tt0436999"
+        },
+        {
+            "category": "kids",
+            "status": "active",
+            "identifier": "clifford-the-big-red-dog-s-01e-20-clifford-on-parade-follow-the-leader",
+            "title": "Clifford the Big Red Dog",
+            "desc": "The adventures of a larger-than-life red dog on Bridwell Island.",
+            "start": "2000",
+            "end": "2003",
+            "imdb": "tt0233041"
         },
         {
             "category": "kids",
@@ -430,6 +810,26 @@
         {
             "category": "kids",
             "status": "active",
+            "identifier": "little-einsteins-dvd-collection-episodes_202409",
+            "title": "Little Einsteins",
+            "desc": "Four friends go on missions with their ever changing rocket ship. Every mission includes a classic song and a painting.",
+            "start": "2005",
+            "end": "2010",
+            "imdb": "tt0756522"
+        },
+        {
+            "category": "kids",
+            "status": "active",
+            "identifier": "molly-of-denali-s-01-e-03-berry-itchy-day-herring-eggs-or-bust",
+            "title": "Molly of Denali",
+            "desc": "An action-adventure comedy that follows the adventures of feisty and resourceful 10-year-old Molly Mabray, an Alaska Native girl, her dog Suki, and friends Tooey and Trini on their adventures in epically beautiful Alaska.",
+            "start": "2019",
+            "end": "2024",
+            "imdb": "tt8651594"
+        },
+        {
+            "category": "kids",
+            "status": "active",
             "identifier": "phil-of-the-future",
             "title": "Phil of the Future",
             "desc": "A family from 2121 is stuck in 2004, trying desperately to fit in.",
@@ -448,194 +848,34 @@
             "imdb": "tt0136634"
         },
         {
-            "category": "mystery",
+            "category": "kids",
             "status": "active",
-            "identifier": "poirot-series",
-            "title": "Poirot",
-            "desc": "Hercule Poirot, a Belgian detective, has an impeccable knack for getting embroiled in a mystery and solving crimes.",
-            "start": "1989",
-            "end": "2013",
-            "imdb": "tt0094525"
+            "identifier": "the-hoobs-hiding",
+            "title": "The Hoobs",
+            "desc": "Hubba Hubba sends some of his Hoobs to Earth so he can learn all about humans and their behaviour.",
+            "start": "2001",
+            "end": "2003",
+            "imdb": "tt0462108"
         },
         {
-            "category": "sci-fi",
+            "category": "kids",
             "status": "active",
-            "identifier": "AdventuresOfSupermanS01e02TheHauntedLighthouse_201901",
-            "title": "Adventures of Superman",
-            "desc": "The Man of Steel fights crime with help from his friends at the 'Daily Planet.'",
-            "start": "1952",
-            "end": "1958",
-            "imdb": "tt0044231"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "doctor-who_202210",
-            "title": "Doctor Who",
-            "desc": "The adventures of 'The Doctor', a Time Lord who changes appearance and personality by regenerating when near death.",
-            "start": "1963",
-            "end": "1989",
-            "imdb": "tt0056751"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "max-headroom-complete",
-            "title": "Max Headroom",
-            "desc": "An intrepid investigative TV reporter does his job with the help of his colleagues and a computerized version of himself.",
-            "start": "1987",
-            "end": "1988",
-            "imdb": "tt0092402"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "JimmyAndTheFederationGang",
-            "title": "Star Trek Season 1",
-            "desc": "Season 1: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
-            "start": "1966",
-            "end": "1969",
-            "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "JimmyAndTheFederationGang-2",
-            "title": "Star Trek Season 2",
-            "desc": "Season 2: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
-            "start": "1966",
-            "end": "1969",
-            "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "active",
-            "identifier": "JimmyAndTheFederationGang3",
-            "title": "Star Trek Season 3",
-            "desc": "Season 3: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
-            "start": "1966",
-            "end": "1969",
-            "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "disabled",
-            "identifier": "the-outer-limits-1995",
-            "title": "The Outer Limits",
-            "desc": "A revival of the original The Outer Limits series - an anthology of distinct story episodes, sometimes with plot twists at the end.",
-            "start": "1995",
-            "end": "2002",
-            "imdb": "tt0112111"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "benson-complete-tv-series-ctv",
-            "title": "Benson",
-            "desc": "Sharp-tongued butler, Benson DuBois, is the governor's director of household affairs.",
-            "start": "1979",
+            "identifier": "welcome-to-pooh-corner-episode-collection",
+            "title": "Welcome To Pooh Corner",
+            "desc": "Winnie the Pooh's first live-action television series. The popular \"Pooh Corner\" consisted of a mix of full-body costumes and radio controlled 'puppetronics' that kept the mouths and eyes moving.",
+            "start": "1983",
             "end": "1986",
-            "imdb": "tt0078569"
+            "imdb": "tt0277535"
         },
         {
-            "category": "comedy",
+            "category": "kids",
             "status": "active",
-            "identifier": "Ghost-Muir",
-            "title": "Ghost & Mrs. Muir",
-            "desc": "A house is haunted by a deceased sea captain who wreaks havoc with the new tenants who were not advised of his existence.",
-            "start": "1968",
-            "end": "1970",
-            "imdb": "tt0062565"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "GreenAcresCompleteSeries",
-            "title": "Green Acres",
-            "desc": "A New York City attorney and his wife attempt to live as farmers in the bizarre community of Hooterville.",
-            "start": "1965",
-            "end": "1971",
-            "imdb": "tt0058808"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "married-with-children-woc",
-            "title": "Married With Children",
-            "desc": "Al Bundy is the quintessential working-class dad while his wife, Peggy, always wants more.",
-            "start": "1987",
-            "end": "1997",
-            "imdb": "tt0092400"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "newsradio-1995-99",
-            "title": "NewsRadio",
-            "desc": "Workplace sitcom explores office politics and interpersonal relationships of the staff at WNYX NewsRadio",
-            "start": "1995",
-            "end": "1999",
-            "imdb": "tt0112095"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "Petticoat_Junction_Series",
-            "title": "Petticoat Junction",
-            "desc": "The misadventures of the family staff of The Shady Rest Hotel and their neighbors of Hooterville.",
-            "start": "1963",
-            "end": "1970",
-            "imdb": "tt0056780"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "the.-drew.-carey.-show.-1995.720p.-rew.-dd-2.0.x-264",
-            "title": "The Drew Carey Show",
-            "desc": "A sitcom about Drew's personal and professional life.",
-            "start": "1995",
-            "end": "2004",
-            "imdb": "tt0111945"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "annieoakleys01",
-            "title": "Annie Oakley",
-            "desc": "A fictionalized account of the life of legendary Wild West sharpshooter Annie Oakley.",
-            "start": "1954",
-            "end": "1957",
-            "imdb": "tt0046578"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "bonanzapd",
-            "title": "Bonanza",
-            "desc": "The Wild West adventures of Ben Cartwright and his sons as they run and defend their Nevada ranch.",
-            "start": "1959",
-            "end": "1973",
-            "imdb": "tt0052451"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "theloneranger_201705",
-            "title": "The Lone Ranger",
-            "desc": "The adventures of the masked hero and his Native American partner, Tonto.",
-            "start": "1949",
-            "end": "1957",
-            "imdb": "tt0041038"
-        },
-        {
-            "category": "mystery",
-            "status": "active",
-            "identifier": "Sherlock_Holmes_1954",
-            "title": "Sherlock Holmes",
-            "desc": "The adventures of master detective Sherlock Holmes as he and his assistant, Dr. Watson--and, somewhat reluctantly, the bumbling Inspector Lestrade--battle criminals in London.",
-            "start": "1954",
-            "end": "1955",
-            "imdb": "tt0046642"
+            "identifier": "WWTVSeries20072011",
+            "title": "WordWorld",
+            "desc": "In WordWorld, words come alive, words save the day, and words become a child's best friend. Welcome to WordWorld, the first preschool series where words are truly the stars of the show!",
+            "start": "2007",
+            "end": "2011",
+            "imdb": "tt2217594"
         },
         {
             "category": "mystery",
@@ -688,84 +928,44 @@
             "imdb": "tt9907044"
         },
         {
-            "category": "western",
+            "category": "mystery",
             "status": "active",
-            "identifier": "walt-disneys-texas-john-slaughter-episode-13-end-of-the-trail",
-            "title": "Texas John Slaughter",
-            "desc": "Texas John Slaughter is a western television series which aired seventeen episodes between October 31, 1958 and April 23, 1961, as part of The Wonderful World of Disney. The character was based upon an actual historical figure, Texas Ranger John Horton Slaughter.",
-            "start": "1958",
-            "end": "1961",
-            "imdb": "tt0046593"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "theroyrogersshow",
-            "title": "The Roy Rogers Show",
-            "desc": "The Double R Ranch featured Roy Rogers 'The King of the Cowboys', his 'Smartest Horse in the Movies' Trigger, 'Queen of the West' Dale Evans, her horse Buttermilk, their dog Bullet, sidekick Pat Brady, and even Pat's jeep, Nellybelle.",
-            "start": "1951",
-            "end": "1957",
-            "imdb": "tt0043225"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "swiss-miss-1938",
-            "title": "Laurel & Hardy",
-            "desc": "Laurel and Hardy were a British-American comedy team during the early Classical Hollywood era of American cinema, consisting of Englishman Stan Laurel and American Oliver Hardy.",
-            "start": "1927",
-            "end": "1955",
-            "imdb": "tt0196372"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "ALF-The-Complete-Series",
-            "title": "ALF",
-            "desc": "When an ugly creature, who loves eating cats, crash-lands into the Tanner family's garage, they treat him as a guest and allow him to live with them as he comments on the stupidity of mankind.",
-            "start": "1986",
-            "end": "1990",
-            "imdb": "tt0090390"
-        },
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "02.-the-maharajah-of-pookajee_202306",
-            "title": "Top Cat",
-            "desc": "Top Cat is the leader of a group of alley cats, always trying to cheat someone.",
-            "start": "1961",
-            "end": "1962",
-            "imdb": "tt0054572"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "mr-bean-the-complete-live-action-series",
-            "title": "Mr. Bean",
-            "desc": "Bumbling, childlike Mr. Bean has trouble completing the simplest of day-to-day tasks, but his perseverance and resourcefulness frequently allow him to find ingenious ways around problems.",
-            "start": "1990",
-            "end": "1995",
-            "imdb": "tt0096657"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "SeinfeldComplete",
-            "title": "Seinfeld",
-            "desc": "The continuing misadventures of neurotic New York City stand-up comedian Jerry Seinfeld and his equally neurotic New York City friends.",
+            "identifier": "poirot-series",
+            "title": "Poirot",
+            "desc": "Hercule Poirot, a Belgian detective, has an impeccable knack for getting embroiled in a mystery and solving crimes.",
             "start": "1989",
-            "end": "1998",
-            "imdb": "tt0098904"
+            "end": "2013",
+            "imdb": "tt0094525"
+        },
+        {
+            "category": "mystery",
+            "status": "active",
+            "identifier": "Sherlock_Holmes_1954",
+            "title": "Sherlock Holmes",
+            "desc": "The adventures of master detective Sherlock Holmes as he and his assistant, Dr. Watson--and, somewhat reluctantly, the bumbling Inspector Lestrade--battle criminals in London.",
+            "start": "1954",
+            "end": "1955",
+            "imdb": "tt0046642"
         },
         {
             "category": "sci-fi",
             "status": "active",
-            "identifier": "rod-serling-and-the-twilight-zone",
-            "title": "The Twilight Zone",
-            "desc": "Ordinary people find themselves in extraordinarily astounding situations, which they each try to solve in a remarkable manner. This is the first season (colorized).",
-            "start": "1959",
-            "end": "1960",
-            "imdb": "tt0052520"
+            "identifier": "AdventuresOfSupermanS01e02TheHauntedLighthouse_201901",
+            "title": "Adventures of Superman",
+            "desc": "The Man of Steel fights crime with help from his friends at the 'Daily Planet.'",
+            "start": "1952",
+            "end": "1958",
+            "imdb": "tt0044231"
+        },
+        {
+            "category": "sci-fi",
+            "status": "active",
+            "identifier": "doctor-who_202210",
+            "title": "Doctor Who",
+            "desc": "The adventures of 'The Doctor', a Time Lord who changes appearance and personality by regenerating when near death.",
+            "start": "1963",
+            "end": "1989",
+            "imdb": "tt0056751"
         },
         {
             "category": "sci-fi",
@@ -778,44 +978,54 @@
             "imdb": "tt0071003"
         },
         {
-            "category": "animation",
+            "category": "sci-fi",
             "status": "active",
-            "identifier": "tomandjerry-completemgmcollection_202312",
-            "title": "Tom and Jerry",
-            "desc": "Tom and Jerry is an American animated media franchise and series of comedy short films created in 1940 by William Hanna and Joseph Barbera. Best known for its 161 theatrical short films by Metro-Goldwyn-Mayer, the series centers on the enmity between the titular characters of a cat named Tom and a mouse named Jerry.",
-            "start": "1940",
-            "end": "1967",
-            "imdb": "tt28335303"
+            "identifier": "max-headroom-complete",
+            "title": "Max Headroom",
+            "desc": "An intrepid investigative TV reporter does his job with the help of his colleagues and a computerized version of himself.",
+            "start": "1987",
+            "end": "1988",
+            "imdb": "tt0092402"
         },
         {
-            "category": "kids",
+            "category": "sci-fi",
             "status": "active",
-            "identifier": "WWTVSeries20072011",
-            "title": "WordWorld",
-            "desc": "In WordWorld, words come alive, words save the day, and words become a child's best friend. Welcome to WordWorld, the first preschool series where words are truly the stars of the show!",
-            "start": "2007",
-            "end": "2011",
-            "imdb": "tt2217594"
+            "identifier": "JimmyAndTheFederationGang",
+            "title": "Star Trek Season 1",
+            "desc": "Season 1: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
+            "start": "1966",
+            "end": "1969",
+            "imdb": "tt0060028"
         },
         {
-            "category": "kids",
+            "category": "sci-fi",
             "status": "active",
-            "identifier": "little-einsteins-dvd-collection-episodes_202409",
-            "title": "Little Einsteins",
-            "desc": "Four friends go on missions with their ever changing rocket ship. Every mission includes a classic song and a painting.",
-            "start": "2005",
-            "end": "2010",
-            "imdb": "tt0756522"
+            "identifier": "JimmyAndTheFederationGang-2",
+            "title": "Star Trek Season 2",
+            "desc": "Season 2: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
+            "start": "1966",
+            "end": "1969",
+            "imdb": "tt0060028"
         },
         {
-            "category": "animation",
+            "category": "sci-fi",
             "status": "active",
-            "identifier": "the-grim-adventures-of-billy-and-mandy_202212",
-            "title": "Grim Adventures of Billy & Mandy",
-            "desc": "The ill-tempered Grim Reaper gets into a wager that forces him to become the life-long companions of two scheming youngsters after he loses.",
-            "start": "2003",
-            "end": "2007",
-            "imdb": "tt0292800"
+            "identifier": "JimmyAndTheFederationGang3",
+            "title": "Star Trek Season 3",
+            "desc": "Season 3: Captain James T. Kirk and the crew of the U.S.S. Enterprise explore the galaxy and defend the United Federation of Planets.",
+            "start": "1966",
+            "end": "1969",
+            "imdb": "tt0060028"
+        },
+        {
+            "category": "sci-fi",
+            "status": "disabled",
+            "identifier": "the-outer-limits-1995",
+            "title": "The Outer Limits",
+            "desc": "A revival of the original The Outer Limits series - an anthology of distinct story episodes, sometimes with plot twists at the end.",
+            "start": "1995",
+            "end": "2002",
+            "imdb": "tt0112111"
         },
         {
             "category": "sci-fi",
@@ -828,214 +1038,64 @@
             "imdb": "tt0060036"
         },
         {
-            "category": "comedy",
+            "category": "sci-fi",
             "status": "active",
-            "identifier": "TheBobNewhartShow",
-            "title": "The Bob Newhart Show",
-            "desc": "The professional and personal misadventures of a psychologist and his family, patients, friends and colleagues.",
-            "start": "1972",
-            "end": "1978",
-            "imdb": "tt0068049"
+            "identifier": "rod-serling-and-the-twilight-zone",
+            "title": "The Twilight Zone",
+            "desc": "Ordinary people find themselves in extraordinarily astounding situations, which they each try to solve in a remarkable manner. This is the first season (colorized).",
+            "start": "1959",
+            "end": "1960",
+            "imdb": "tt0052520"
         },
         {
-            "category": "animation",
+            "category": "western",
             "status": "active",
-            "identifier": "hamtaro_complete_series",
-            "title": "Hamtaro",
-            "desc": "The story of hamsters who get together at meetings to talk about their adventures.",
-            "start": "2000",
-            "end": "2006",
-            "imdb": "tt0318895"
+            "identifier": "annieoakleys01",
+            "title": "Annie Oakley",
+            "desc": "A fictionalized account of the life of legendary Wild West sharpshooter Annie Oakley.",
+            "start": "1954",
+            "end": "1957",
+            "imdb": "tt0046578"
         },
         {
-            "category": "drama",
+            "category": "western",
             "status": "active",
-            "identifier": "six-feet-under_202209",
-            "title": "Six Feet Under",
-            "desc": "When death is your business, what is your life? Laced with irony and dark situational humor, the show approaches the subject of death through the eyes of the Fisher family, who owns and operates a funeral home in Los Angeles.",
-            "start": "2001",
-            "end": "2005",
-            "imdb": "tt0248654"
+            "identifier": "bonanzapd",
+            "title": "Bonanza",
+            "desc": "The Wild West adventures of Ben Cartwright and his sons as they run and defend their Nevada ranch.",
+            "start": "1959",
+            "end": "1973",
+            "imdb": "tt0052451"
         },
         {
-            "category": "comedy",
+            "category": "western",
             "status": "active",
-            "identifier": "WhitestKidsUKnowSeries",
-            "title": "The Whitest Kids U Know",
-            "desc": "A sketch comedy show involving five friends.",
-            "start": "2007",
-            "end": "2011",
-            "imdb": "tt0840979"
+            "identifier": "walt-disneys-texas-john-slaughter-episode-13-end-of-the-trail",
+            "title": "Texas John Slaughter",
+            "desc": "Texas John Slaughter is a western television series which aired seventeen episodes between October 31, 1958 and April 23, 1961, as part of The Wonderful World of Disney. The character was based upon an actual historical figure, Texas Ranger John Horton Slaughter.",
+            "start": "1958",
+            "end": "1961",
+            "imdb": "tt0046593"
         },
         {
-            "category": "animation",
+            "category": "western",
             "status": "active",
-            "identifier": "ThunderbirdsSeries",
-            "title": "Thunderbirds",
-            "desc": "In the year 2065, the Tracy family run International Rescue - a top-secret organization whose ongoing mission is to rescue people trapped in extraordinarily dangerous situations using their advanced Thunderbirds machines.",
-            "start": "1965",
-            "end": "1966",
-            "imdb": "tt0057790"
+            "identifier": "theloneranger_201705",
+            "title": "The Lone Ranger",
+            "desc": "The adventures of the masked hero and his Native American partner, Tonto.",
+            "start": "1949",
+            "end": "1957",
+            "imdb": "tt0041038"
         },
         {
-            "category": "kids",
+            "category": "western",
             "status": "active",
-            "identifier": "arthur-1996-complete_202203",
-            "title": "Arthur",
-            "desc": "Based on the books by Marc Brown, these are the adventures of Arthur, an 8-year-old aardvark, and his family and friends as they grow up and learn how to be good neighbors to one another.",
-            "start": "1996",
-            "end": "2006",
-            "imdb": "tt0169414"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "clifford-the-big-red-dog-s-01e-20-clifford-on-parade-follow-the-leader",
-            "title": "Clifford the Big Red Dog",
-            "desc": "The adventures of a larger-than-life red dog on Bridwell Island.",
-            "start": "2000",
-            "end": "2003",
-            "imdb": "tt0233041"
-        },
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "The.adventures.of.Tintin.animated.series",
-            "title": "The Adventures of Tintin",
-            "desc": "The adventures of the young reporter, his faithful dog and friends as they travel around the world on adventures.",
-            "start": "1991",
-            "end": "1992",
-            "imdb": "tt0179552"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "welcome-to-pooh-corner-episode-collection",
-            "title": "Welcome To Pooh Corner",
-            "desc": "Winnie the Pooh's first live-action television series. The popular \"Pooh Corner\" consisted of a mix of full-body costumes and radio controlled 'puppetronics' that kept the mouths and eyes moving.",
-            "start": "1983",
-            "end": "1986",
-            "imdb": "tt0277535"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "the-great-war-1964",
-            "title": "The Great War",
-            "desc": "One of the greatest achievements of television - aired in 26 episodes from 1964. Use of extensive archival material and sound effects combined with contemporary classical music from this era.",
-            "start": "1964",
-            "end": "1964",
-            "imdb": "tt0057753"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "forensic-files-collection",
-            "title": "Forensic Files",
-            "desc": "Forensic Files is an American documentary television series that details how various crimes are solved with the use of forensic science.",
-            "start": "1996",
-            "end": "2011",
-            "imdb": "tt0247882"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "DinosaurPlanetDiscoveryChannel",
-            "title": "Dinosaur Planet",
-            "desc": "Four dinosaurs - a female Velociraptor in Asia, Daspletosaurus male in North America, South American female Saltasaurus, and European Pyroraptor - roam their habitats. Narrated by Christian Slater, hosted by paleontologist Scott Sampson.",
-            "start": "2003",
-            "end": "2003",
-            "imdb": "tt0389605"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "walkingwithdinosaurs1999miniseries",
-            "title": "Walking With Dinosaurs",
-            "desc": "Documentary-style series about the era of the dinosaurs, mixing real locations and CGI.",
-            "start": "1999",
-            "end": "1999",
-            "imdb": "tt0214382"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "TheVelvetClawEp3Of7StrengthInNumbers_201901",
-            "title": "The Velvet Claw",
-            "desc": "From big cats to tiny weasels, this series follows the sometimes surprising evolution of the Carnivora - the mammals that eat meat.",
-            "start": "1992",
-            "end": "1992",
-            "imdb": "tt1245441"
-        },
-        {
-            "category": "documentary",
-            "status": "disabled",
-            "identifier": "russia-land-of-the-tsars",
-            "title": "Russia, Land of the Tsars",
-            "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",
-            "start": "2003",
-            "end": "2003",
-            "imdb": "tt0368537"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "BobRossTheHappyPainter",
-            "title": "Bob Ross: the Happy Painter",
-            "desc": "The start of career, rise to fame, and death of the legendary TV painter Bob Ross.",
-            "start": "2011",
-            "end": "2011",
-            "imdb": "tt2155259"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "benjamin-franklin-documentary",
-            "title": "Ben Franklin (History Channel)",
-            "desc": "Ben Franklin rose from poverty to become a true Renaissance Man and Founding Father of America. This is the story of the man behind the myth.",
-            "start": "2004",
-            "end": "2004",
-            "imdb": "tt0437862"
-        },
-        {
-            "category": "drama",
-            "status": "active",
-            "identifier": "st.-elsewhere",
-            "title": "St. Elsewhere",
-            "desc": "The lives and work of the staff of St. Eligius Hospital, an old and disrespected Boston teaching hospital.",
-            "start": "1982",
-            "end": "1988",
-            "imdb": "tt0083483"
-        },
-        {
-            "category": "drama",
-            "status": "active",
-            "identifier": "adam-12.-s-01",
-            "title": "Adam 12 Season 1",
-            "desc": "Two regular police officers patrol Los Angeles.",
-            "start": "1968",
-            "end": "1975",
-            "imdb": "tt0062539"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "molly-of-denali-s-01-e-03-berry-itchy-day-herring-eggs-or-bust",
-            "title": "Molly of Denali",
-            "desc": "An action-adventure comedy that follows the adventures of feisty and resourceful 10-year-old Molly Mabray, an Alaska Native girl, her dog Suki, and friends Tooey and Trini on their adventures in epically beautiful Alaska.",
-            "start": "2019",
-            "end": "2024",
-            "imdb": "tt8651594"
-        },
-        {
-            "category": "drama",
-            "status": "active",
-            "identifier": "clueless-1996-99",
-            "title": "Clueless",
-            "desc": "A follow-up to the blockbuster movie of the same name, following the rich teenager Cher and her friends as they attend high school in Beverly Hills.",
-            "start": "1996",
-            "end": "1999",
-            "imdb": "tt0115137"
+            "identifier": "theroyrogersshow",
+            "title": "The Roy Rogers Show",
+            "desc": "The Double R Ranch featured Roy Rogers 'The King of the Cowboys', his 'Smartest Horse in the Movies' Trigger, 'Queen of the West' Dale Evans, her horse Buttermilk, their dog Bullet, sidekick Pat Brady, and even Pat's jeep, Nellybelle.",
+            "start": "1951",
+            "end": "1957",
+            "imdb": "tt0043225"
         },
         {
             "category": "western",
@@ -1046,36 +1106,6 @@
             "start": "1958",
             "end": "1961",
             "imdb": "tt0051327"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "ripping-yarns-1976-79",
-            "title": "Ripping Yarns",
-            "desc": "This show is a collection of tales that make for \"ripping good\" television. Sir Michael Palin played a different lead character in each yarn.",
-            "start": "1976",
-            "end": "1979",
-            "imdb": "tt0075568"
-        },
-        {
-            "category": "drama",
-            "status": "active",
-            "identifier": "due-south-1994-99",
-            "title": "Due South",
-            "desc": "The adventures of an impossibly upright Royal Canadian Mounted Police constable and his American colleagues in the city of Chicago.",
-            "start": "1994",
-            "end": "1999",
-            "imdb": "tt0108756"
-        },
-        {
-            "category": "drama",
-            "status": "active",
-            "identifier": "the-net-complete-tv-series",
-            "title": "The Net",
-            "desc": "Computer programmer Angela Bennett discovers a shadowy group of cyber terrorists who completely erase her true identity. Falsely labeled a criminal, she finds herself on the run, and she'll never stop until she's got her life back.",
-            "start": "1998",
-            "end": "1999",
-            "imdb": "tt0163953"
         },
         {
             "category": "western",
@@ -1096,36 +1126,6 @@
             "start": "1958",
             "end": "1961",
             "imdb": "tt0051327"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "BBCHiroshima",
-            "title": "Hiroshima (BBC)",
-            "desc": "Documentary with dramatic reenactments with actors to describe what dropping the bomb on Hiroshima was like.",
-            "start": "2005",
-            "end": "2005",
-            "imdb": "tt0475296"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "charlie-chalk-1988-the-complete-collection",
-            "title": "Charlie Chalk",
-            "desc": "A clown named Charlie Chalk arrives on the island of Merrytwit after falling asleep on his boat. He befriends the inhabitants of the island and gets into many adventures.",
-            "start": "1988",
-            "end": "1989",
-            "imdb": "tt0436999"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "the-hoobs-hiding",
-            "title": "The Hoobs",
-            "desc": "Hubba Hubba sends some of his Hoobs to Earth so he can learn all about humans and their behaviour.",
-            "start": "2001",
-            "end": "2003",
-            "imdb": "tt0462108"
         }
     ]
 }

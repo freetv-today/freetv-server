@@ -2,7 +2,12 @@
 
 // update-errors-log.php: Updates errors.json with new data (admin only)
 // POST body: full errors.json object
-
+session_start();
+if (!isset($_SESSION['admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
 $logFile = $_SERVER['DOCUMENT_ROOT'] . '/logs/errors.json';
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input || !isset($input['reports'])) {

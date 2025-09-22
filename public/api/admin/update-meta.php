@@ -6,7 +6,6 @@ if (!isset($_SESSION['admin'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
-// public/api/admin/update-meta.php
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
