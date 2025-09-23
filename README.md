@@ -1,20 +1,27 @@
-# Free TV
+# Free TV Server
 
-<img src="/assets/freetv.png" width="120" style="margin-bottom: 20px;">
+<img src="public/assets/freetv.png" width="120" style="margin-bottom: 20px;">
+
+See it online at: https://freetv.today
 
 **Version 2.1.1 - Beta**
 
-An application for viewing free TV and movie content from the Internet Archive. All data is stored in JSON format and streams directly from https://archive.org so no files are downloaded to your local machine.
+Free TV Server contains both a front-end site for end users and a back-end administration tool (the Admin Dashboard) for managing content. 
 
-See it online at: https://freetv.today
+The front-end site allows users to watch free TV and movie content from the Internet Archive.
+
+The administrator can log into the Admin Dashboard and add/remove shows, create playlists, fetch thumbnails, modify playlist data, and change configuration settings. 
+
+This is the main server for the Free TV project which provides centralized content management. This server is the main source for playlist data (categories and shows) which are consumed by stand-alone Free TV viewer apps. The Free TV server also provides an API which is used by both the front-end application and also the back-end Admin Dashboard tool. 
 
 ---
 
 ## Table of Contents
 
+- [Requirements](#requirements)
 - [Getting Started](#getting-started)
+- [Code Style](#code-style)
 - [Features](#features)
-- [Modules & Extensibility](#modules--extensibility)
 - [Project Structure](#project-structure)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -22,36 +29,75 @@ See it online at: https://freetv.today
 
 ---
 
+## Requirements
+
+- Node.js v18 or higher
+- PHP 7.4 or higher
+- Git (for cloning the repository)
+
+---
+
 ## Getting Started
 
-- Click on a Category button.
-- A list of shows for that category will appear.
-- Click a show title button to load the video.
-- Use the Drop-Down list to select a different playlist.
+1. **Clone the repository:**
+   ```
+   git clone https://github.com/freetv-today/freetv-server
+   cd freetv-server
+   ```
+
+2. **Install dependencies:**
+   ```
+   npm install
+   ```
+
+3. **Start the PHP development server (serves the backend API):**
+   ```
+   php -S localhost:8000
+   ```
+
+4. **Run the Preact/Vite development server (in a new console window or tab):**
+   ```
+   npm run dev
+   ```
+
+5. **Open your browser and visit:**  
+   [http://localhost:5173](http://localhost:5173) 
+
+---
+
+## Code Style
+
+PHP code in `public/api/` follows the [PSR-12](https://www.php-fig.org/psr/psr-12/) standard, as configured in [`phpcs.xml.dist`](phpcs.xml.dist).
+
+If you want to lint PHP code locally, install [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer):
+
+```bash
+composer global require "squizlabs/php_codesniffer=*"
+```
+
+Then run:
+```bash
+phpcs
+```
+
+> **Note:** PHPCS is optional for contributors and not required to run or build the app.
 
 ---
 
 ## Features
 
+**Front-End:** Free TV Viewer
+
 - Browse and watch curated TV and movie content from the Internet Archive.
 - All data and playlists are managed via JSON files.
-- Modular design: easily add or remove features (e.g., reporting, favorites).
-- Admin Dashboard (PHP) for managing content and modules (coming soon).
+
+**Back-End:** Admin Dashboard
+
+- Admin Dashboard for managing content.
 
 ---
 
-## Modules & Extensibility
-
-Modules are self-contained features (e.g., reporting, favorites) that can be enabled or disabled via configuration.
-
----
-
-## Development
-
-1. Clone the repo.
-2. Install dependencies: `npm install`
-3. Start the dev server: `npm run dev`
-4. For admin features, set up a PHP server in /public/
+## Project Structure
 
 ---
 
@@ -63,4 +109,4 @@ Contributions are welcome! Please open issues or submit pull requests for bug fi
 
 ## License
 
-[MIT](LICENSE)
+This code is released under the [MIT](LICENSE) license.
