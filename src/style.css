@@ -204,11 +204,9 @@ body {
     display: none;
 }
 
-
 /* Video Player */
 .vidViewWrapper{
     background-color: #000;
-    padding-top: 20px;
 }
 
 #vidviewer {
@@ -251,6 +249,11 @@ body {
   width: 100%;
   height: auto;
   margin: 0 auto;
+}
+
+.largeAd, .smallAd {
+  border: 2px solid #e0e0e0;
+  background: #fafafa;
 }
 
 /* used on Help */

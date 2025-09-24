@@ -3,7 +3,7 @@ import freetvLogo from '/assets/freetv.png';
 
 export function ImageLargeLogo() {
   return (
-    <div className="text-center mt-5">
+    <div className="text-center mt-4">
 		<h1 className="display-4 bruno-ace noselect">Free TV</h1>
 		<p className="pb-4">
 			<Link href="/" className="m-0 p-0">

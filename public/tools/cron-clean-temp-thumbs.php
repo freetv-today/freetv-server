@@ -1,6 +1,6 @@
 <?php
 
-// clean-temp-thumbs.php
+// cron-clean-temp-thumbs.php
 // Deletes .jpg files in /public/temp/ older than 7 days
 // Run via cron (recommended: weekly)
 

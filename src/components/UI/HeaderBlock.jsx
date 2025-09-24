@@ -14,7 +14,7 @@ import { capitalizeFirstLetter } from '@/utils';
 export function HeaderBlock({ img, heading, desc, alt }) {
   return (
     <>
-      <div id="headerBlock" className="d-flex justify-content-center align-items-center mx-auto">
+      <div id="headerBlock" className="d-flex justify-content-center align-items-center mx-auto mt-4">
           <div className="me-3 d-lg-none"><img id="smallLogo" src={img} width="45" alt={alt} /></div>
           <div><h1 className="pt-1 mb-0">{capitalizeFirstLetter(heading)}</h1></div>
       </div>

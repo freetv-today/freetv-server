@@ -1,6 +1,6 @@
 <?php
 
-// prune-report-ip-log.php
+// cron-prune-report-ip-log.php
 // Prunes old timestamps from report-ip-log.json for rate limiting
 // Run this via cron every 5 minutes
 

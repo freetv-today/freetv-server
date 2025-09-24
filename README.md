@@ -115,7 +115,6 @@ A brief overview of the main directories and files:
   - `tools/` – Utility scripts and tools for admins/devs.
 
 - **src/**
-  - `adsense.js` – Handles ad integration for the frontend.
   - `components/` – Reusable UI components for the Preact frontend.
   - `context/` – Context providers for app-wide state management.
   - `hooks/` – Custom hooks for reusable logic.

@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-09-22T15:15:16.000Z",
+    "lastupdated": "2025-09-24T14:43:23.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -549,16 +549,6 @@
         },
         {
             "category": "documentary",
-            "status": "disabled",
-            "identifier": "russia-land-of-the-tsars",
-            "title": "Russia, Land of the Tsars",
-            "desc": "Its forests stretch from Europe to the Pacific. Its winters have vanquished the mightiest armies ever mustered. Its people have borne the excesses of some of history's most notorious rulers. RUSSIA: LAND OF THE TSARS illuminates the imperial past of the world's largest nation.",
-            "start": "2003",
-            "end": "2003",
-            "imdb": "tt0368537"
-        },
-        {
-            "category": "documentary",
             "status": "active",
             "identifier": "the-great-war-1964",
             "title": "The Great War",
@@ -1016,16 +1006,6 @@
             "start": "1966",
             "end": "1969",
             "imdb": "tt0060028"
-        },
-        {
-            "category": "sci-fi",
-            "status": "disabled",
-            "identifier": "the-outer-limits-1995",
-            "title": "The Outer Limits",
-            "desc": "A revival of the original The Outer Limits series - an anthology of distinct story episodes, sometimes with plot twists at the end.",
-            "start": "1995",
-            "end": "2002",
-            "imdb": "tt0112111"
         },
         {
             "category": "sci-fi",

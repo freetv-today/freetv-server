@@ -1,12 +1,9 @@
 {
-    "lastupdated": "2025-09-21T02:00:14.420Z",
+    "lastupdated": "2025-09-24T18:11:10.979Z",
     "offline": false,
-    "appdata": false,
+    "appdata": true,
     "collector": "/api/beacon.php",
     "showads": true,
-    "gid": "ca-pub-3363180839557246",
-    "sm-ad-slot": "6790259653",
-    "lg-ad-slot": "9971505509",
     "modules": true,
     "debugmode": true
 }

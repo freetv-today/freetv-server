@@ -1,12 +1,6 @@
 <?php
 
 // playlist_utils.php - Shared playlist utility functions
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
 
 function rebuild_index($playlists_dir = null)
 {

@@ -1,73 +1,66 @@
-
-/**
- * AdBar component displays a Google AdSense ad if enabled in config.
- * - Loads ad slot for medium+ screens, sample banner for small screens.
- * - Uses localStorage to show a one-time log message when ads are enabled.
- * - Relies on useAdsense hook to trigger AdSense rendering after slot is mounted.
- *
- * @component
- * @returns {JSX.Element}
- */
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { useConfig } from '@/context/ConfigContext';
-import { useEffect, useRef } from 'preact/hooks';
-import { useAdsense } from '@/hooks/useAdSense';
+import { useEffect, useState } from 'preact/hooks';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { adReloadSignal, triggerAdReload } from '@/signals/adSignal';
 
 export function AdBar() {
-    /**
-     * showAdMsg: 0 if ad message not shown, 1 if shown
-     * setShowAdMsg: setter for showAdMsg
-     */
+
     const [showAdMsg, setShowAdMsg] = useLocalStorage('showAdMsg', 0);
-    /**
-     * log: debug logger
-     */
     const log = useDebugLog();
-    /**
-     * showads: boolean, whether ads are enabled
-     * gid: Google AdSense publisher ID
-     */
-	const { showads, gid, 'sm-ad-slot': smAdSlot, 'lg-ad-slot': lgAdSlot } = useConfig();
-    /**
-     * adRef: ref to the ad slot element
-     */
-    const adRef = useRef(null);
+    const { showads } = useConfig();
+    const [isMobile, setIsMobile] = useState(window.matchMedia('(max-width: 767.98px)').matches);
 
-    // Only call useAdsense when the adRef is present
-    useAdsense(showads && adRef.current);
+    // Listen for screen size changes (modern API only)
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 767.98px)');
+        const handleResize = () => {
+            setIsMobile(mediaQuery.matches);
+            setTimeout(() => triggerAdReload(), 100);
+        };
+        mediaQuery.addEventListener('change', handleResize);
+        return () => {
+            mediaQuery.removeEventListener('change', handleResize);
+        };
+    }, []);
 
+    // Show ad message once
     useEffect(() => {
         if (showads && !showAdMsg) {
-            log(`Ads are enabled. (Google ID: ${gid})`);
+            log(`Ads are enabled.`);
             setShowAdMsg(1);
         }
     }, [showads, showAdMsg]);
 
+    // Use adReloadSignal to force re-render
+    if (!showads) {
+        return null;
+    }
+
+    // Select ad file and dimensions
+    const adFile = isMobile ? '/assets/ads/small-ad.html' : '/assets/ads/large-ad.html';
+    const adWidth = isMobile ? 468 : 728;
+    const adHeight = isMobile ? 60 : 90;
+    const adClass = isMobile ? 'smallAd' : 'largeAd';
+
     return (
-        <>
-            {showads && (
-                <div className="container-fluid text-center mt-2">
-                    <div className="row d-md-none">
-						<ins
-                            class="adsbygoogle"
-							style="display:inline-block;width:728px;height:90px"
-							data-ad-client={gid}
-							data-ad-slot={smAdSlot}
-							ref={adRef}
-                        ></ins>
-                    </div>
-                    <div className="row d-none d-md-block">
-                        <ins
-                            class="adsbygoogle"
-							style="display:inline-block;width:728px;height:90px"
-							data-ad-client={gid}
-							data-ad-slot={lgAdSlot}
-							ref={adRef}
-                        ></ins>
-                    </div>
+        <div className="container-fluid text-center mt-2">
+            <div className="row">
+                <div className="col d-flex justify-content-center">
+                    <iframe
+                        key={adReloadSignal.value}
+                        data-timestamp={adReloadSignal.value}
+                        className={adClass}
+                        src={adFile}
+                        title="Adsterra Banner"
+                        width={adWidth}
+                        height={adHeight}
+                        style={{ border: 'none', background: '#fafafa', display: 'block' }}
+                        scrolling="no"
+                        frameBorder="0"
+                    />
                 </div>
-            )}
-        </>
+            </div>
+        </div>
     );
 }

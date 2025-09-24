@@ -1,9 +1,10 @@
 import { render } from 'preact';
 import { LocationProvider } from 'preact-iso';
-import { loadAdsense } from '@/adsense.js';
 import { AppLoader } from '@components/Loaders/AppLoader';
+import { triggerAdReload } from '@/signals/adSignal';
 
-loadAdsense();
+// Trigger initial ad load after a short delay
+setTimeout(() => triggerAdReload(), 500);
 
 render(
   <LocationProvider>
