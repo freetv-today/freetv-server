@@ -3,7 +3,7 @@
     "offline": false,
     "appdata": true,
     "collector": "/api/beacon.php",
-    "showads": true,
+    "showads": false,
     "modules": true,
     "debugmode": true
 }

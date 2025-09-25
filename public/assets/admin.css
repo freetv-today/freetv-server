@@ -33,9 +33,9 @@
 }
 
 .tinybtn {
-    --bs-btn-padding-y: .2rem; 
-    --bs-btn-padding-x: .3rem; 
-    --bs-btn-font-size: .70rem;
+    --bs-btn-padding-y: .18rem; 
+    --bs-btn-padding-x: .27rem; 
+    --bs-btn-font-size: .65rem;
 }
 
 /* Admin Dashboard top navbar: Castle (home) */
@@ -143,4 +143,37 @@
 
 .external-link-btn:hover img {
   content: url('/assets/external-link-white.svg');
+}
+
+.settingsAppWrapper {
+    border: 1px dashed var(--bs-secondary);
+    border-radius: 36px;
+    padding: 20px;
+}
+
+/* Medium Screen */
+@media (max-width: 767.98px) {
+    .admin-nav-row1,
+    .admin-nav-row2 {
+        width: 100%;
+        justify-content: center;
+        gap: 0.50rem;
+    }
+    .admin-nav-row1 {
+        margin-bottom: 0.5rem;
+    }
+    .admin-nav-row2 {
+        margin-bottom: 0;
+    }  
+}
+
+/* Medium + Screens  */
+@media (min-width: 768px) {
+  .admin-nav-flex {
+    gap: 0.75rem;
+  }
+  .admin-nav-row1,
+  .admin-nav-row2 {
+    gap: 0.75rem;
+  }
 }

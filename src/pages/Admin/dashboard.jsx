@@ -49,7 +49,6 @@ export function Dashboard() {
     const [metaSaving, setMetaSaving] = useState(false);
     const [metaError, setMetaError] = useState(null);
 
-
     // State for info modal
     const [showInfoModal, setShowInfoModal] = useState(false);
 
@@ -89,7 +88,6 @@ export function Dashboard() {
             setSortOrder('asc');
         }
     }
-
 
     function handleOpenMetaModal() {
         log('Editing Playlist Meta Data');
@@ -146,13 +144,14 @@ export function Dashboard() {
 
     return (
         <div className="container mt-3">
-            <h1 className="text-center mb-2">Admin Dashboard</h1>
+            <h1 className="text-center fw-bold mb-2">Admin Dashboard</h1>
             <AdminMessage />
             <NavbarSubNavAdmin 
                 onMetaClick={handleOpenMetaModal} 
                 onInfoClick={handleOpenInfoModal}
                 onSortClick={handleOpenSortModal}
             />
+            <hr/>
             <AdminDashboardFilters
                 shows={showData || []}
                 filterCategory={filterCategory}
@@ -161,6 +160,7 @@ export function Dashboard() {
                 setHideDisabled={setHideDisabled}
                 playlistName={playlistName}
             />
+            <hr/>
             <AdminDashboardTable
                 shows={showData || []}
                 onEdit={handleEdit}

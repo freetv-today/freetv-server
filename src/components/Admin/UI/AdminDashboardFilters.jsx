@@ -29,10 +29,10 @@ export function AdminDashboardFilters({
 
   return (
     <>
-      <div className="row align-items-center mb-4 g-2 p-2">
+      <div className="row align-items-center mb-2 g-2 p-2">
 
         {/* Center: Current Playlist (on top for small screens) */}
-        <div className="col-12 col-md-4 order-1 order-md-2 text-center mb-2">
+        <div className="col-12 col-md-4 order-1 order-md-2 text-center mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
           {playlistName && (
             <div className="small">
               <span className="text-nowrap fw-bold">Current Playlist: </span>

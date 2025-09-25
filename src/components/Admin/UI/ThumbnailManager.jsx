@@ -133,8 +133,41 @@ export function ThumbnailManager() {
       <h2 className="my-4 text-center">Thumbnail Manager</h2>
 
       <div className="row m-2 mx-auto p-3 align-items-center rounded-3 border border-1 border-tertiary" style={{ width: '95%' }}>
-        <div className="col-4">
-          {/* Infoblock */}
+        {/* Responsive stacking for md and below */}
+        <div className="d-block d-lg-none w-100">
+          {/* Row 1: Infoblock */}
+          <ul className="list-group list-group-flush mb-3">
+            <li className="list-group-item">Number of shows: {totalShows}</li>
+            <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('existing')}>Number of thumbnails: {totalThumbnails}</li>
+            <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('missing')}>Missing thumbnails: {missingThumbnails}</li>
+            <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('shared')}>Shows sharing a thumbnail: {showsSharingThumbnail}</li>
+          </ul>
+          {/* Row 2: Search */}
+          <form className="input-group mb-3" onSubmit={handleSearch}>
+            <input
+              id="query"
+              type="text"
+              className="form-control"
+              placeholder="Search for Thumbnail Image by Show Title or IMDB ID"
+              value={searchQuery}
+              onInput={e => setSearchQuery(e.currentTarget.value)}
+              ref={searchInputRef}
+              autoComplete="off"
+              disabled={searching}
+            />
+            <button className="btn btn-outline-secondary" type="submit" disabled={searching || !searchQuery.trim()}>
+              Search
+            </button>
+            {searchActive && (
+              <button className="btn btn-outline-danger ms-2" type="button" onClick={() => { setSearchActive(false); setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.value = ''; }}>Clear</button>
+            )}
+          </form>
+          {/* Row 3: Alerts */}
+          {success && showSuccess && <div className="alert alert-success alert-dismissible fade show mx-auto" role="alert">{success}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowSuccess(false)}></button></div>}
+          {error && showError && <div className="alert alert-danger alert-dismissible fade show mx-auto" role="alert">{error}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowError(false)}></button></div>}
+        </div>
+        {/* Large screen: 2 columns as before */}
+        <div className="col-4 d-none d-lg-block">
           <ul className="list-group list-group-flush ms-3 mb-3">
             <li className="list-group-item">Number of shows: {totalShows}</li>
             <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('existing')}>Number of thumbnails: {totalThumbnails}</li>
@@ -142,7 +175,7 @@ export function ThumbnailManager() {
             <li className="list-group-item list-group-item-action" style={{cursor:'pointer'}} onClick={() => handleListModeChange('shared')}>Shows sharing a thumbnail: {showsSharingThumbnail}</li>
           </ul>
         </div>
-        <div className="col-8">
+        <div className="col-8 d-none d-lg-block">
           {/* Alerts */}
           {success && showSuccess && <div className="alert alert-success alert-dismissible fade show mx-auto" role="alert">{success}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowSuccess(false)}></button></div>}
           {error && showError && <div className="alert alert-danger alert-dismissible fade show mx-auto" role="alert">{error}<button type="button" className="btn-close" data-bs-dismiss="alert" onClick={() => setShowError(false)}></button></div>}
@@ -169,10 +202,10 @@ export function ThumbnailManager() {
         </div>
       </div>
 
-      <div className="row m-2 mb-5 mx-auto p-3 rounded-3 border border-1 border-dark" style={{ width: '95%' }}>
-        {/* Left Column: Thumbnail List */}
-        <div className="col-2" style={{ height: '450px', overflowY: 'auto' }}>
-          <ul className="list-group list-group-flush">
+  <div className="row m-0 m-lg-2 mb-3 mb-lg-5 mx-0 mx-auto p-0 p-lg-3 rounded-3 border border-1 border-dark" style={{ width: '95%' }}>
+        {/* Left Column: Thumbnail List - wider on md and below */}
+        <div className="col-3 col-lg-2" style={{ height: '450px', overflowY: 'auto' }}>
+          <ul className="list-group list-group-flush ms-0 ms-lg-3">
             {/* Search results take priority if active */}
             {searchActive ? (
               searchError ? (
@@ -251,8 +284,8 @@ export function ThumbnailManager() {
             )}
           </ul>
         </div>
-        {/* Center Spacer */}
-        <div className="col-1"></div>
+  {/* Center Spacer */}
+  <div className="col-1 d-none d-lg-block"></div>
         {/* Right Column: Details & Actions */}
         <div className="col-9 p-2">
           <div className="row p-2">
@@ -266,7 +299,8 @@ export function ThumbnailManager() {
                 <input type="text" className="form-control" id="imdb" value={selectedShow ? selectedShow.imdb : ''} style={{ width: '200px' }} readOnly disabled />
                 <button className="btn btn-sm btn-secondary" title="Check IMDB Page" onClick={() => selectedShow && window.open(`https://www.imdb.com/title/${selectedShow.imdb}`,'checkWindow','width=640,height=480')}>Check IMDB Page</button>
               </div>
-              <br/>
+              {/* Add margin below IMDB field on md and below */}
+              <div className="d-block d-lg-none mb-2"></div>
               <div className="my-4 fw-bold">Fetch Thumbnail from IMDB</div>
               <div>
                 <button className="btn btn-warning me-2" disabled={loading || !selectedShow || fetching} onClick={handleFetchThumbnail}>Fetch Thumbnail</button>
@@ -295,8 +329,8 @@ export function ThumbnailManager() {
                   <img
                     id="thumbPreview"
                     src={previewImg}
-                    height="350"
-                    style={{ border: '2px dashed black', borderRadius: '12px' }}
+                    height={window.innerWidth < 992 ? 220 : 350}
+                    style={{ border: '2px dashed black', borderRadius: '12px', marginTop: window.innerWidth < 992 ? 12 : 0, marginBottom: window.innerWidth < 992 ? 12 : 0 }}
                   />
                 )}
                 <figcaption className="mt-2 figure-caption">Thumbnail Image Preview</figcaption>

@@ -20,7 +20,6 @@ export function AdminSettings() {
     // Form state
     const [form, setForm] = useState({
         collector: configData.collector || '',
-        gid: configData.gid || '',
         offline: !!configData.offline,
         appdata: !!configData.appdata,
         showads: !!configData.showads,
@@ -32,7 +31,6 @@ export function AdminSettings() {
     useEffect(() => {
         initialFormRef.current = {
             collector: configData.collector || '',
-            gid: configData.gid || '',
             offline: !!configData.offline,
             appdata: !!configData.appdata,
             showads: !!configData.showads,
@@ -127,15 +125,16 @@ export function AdminSettings() {
     return (
         <div className="container py-4" style={{ maxWidth: 650 }}>
 
-            <h2 className="text-center mt-4 mb-4">Application Settings</h2>
+            <h2 className="text-center mb-4">Configuration Settings</h2>
 
             <AdminMessage />
 
             <form className="p-3 border border-primary rounded bg-white" onSubmit={handleSave}>
+                
                 {/* Last Updated Row */}
                 <div className="row mb-3 align-items-center">
-                    <div className="col-12 col-md-4 mb-1 mb-md-0">
-                        <label className="form-label mb-0">Last Updated</label>
+                    <div className="col-12 col-md-3 mb-1 mb-md-0">
+                        <label className="form-label mb-0 float-md-end">Last Updated</label>
                     </div>
                     <div className="col-12 col-md-6 mb-1 mb-md-0">
                         <input type="text" className="form-control form-control-sm" value={lastUpdated} readOnly disabled />
@@ -143,36 +142,14 @@ export function AdminSettings() {
                     <div className="col-12 col-md-2">
                         <button type="button" className="btn btn-outline-secondary w-100 tinybtn" onClick={handleRefreshDate} disabled={saving}>Refresh</button>
                     </div>
+                    <div className="col-md-1 d-none d-md-block">
+                        &nbsp;
+                    </div>
                 </div>
 
-                {/* Main Fields */}
-                {[ 
-                    {label: 'Collector', name: 'collector', type: 'text'},
-                    {label: 'Google ID', name: 'gid', type: 'text'}
-                ].map(field => (
-                    <div className="row mb-3 align-items-center" key={field.name}>
-                        <div className="col-12 col-md-4 mb-1 mb-md-0">
-                            <label className="form-label mb-0" htmlFor={field.name}>{field.label}</label>
-                        </div>
-                        <div className="col-12 col-md-8">
-                            <input
-                                type={field.type}
-                                className="form-control form-control-sm"
-                                id={field.name}
-                                name={field.name}
-                                value={form[field.name]}
-                                onInput={handleInput}
-                                disabled={saving}
-                            />
-                        </div>
-                    </div>
-                ))}
-
                 {/* Options Switches */}
-                <div className="my-4 text-center">
-                    <hr/>
-                    <h4 className="my-4">Configuration Options:</h4>
-                    <hr/>
+                <div className="mb-4 text-center settingsAppWrapper">
+                    <h4 className="mb-4">Application Options:</h4>
                     <div className="mx-auto w-100 w-md-auto" style={{maxWidth: 250}}>
                         {[{
                             id: 'offline', label: 'Offline Mode', checked: form.offline
@@ -208,9 +185,29 @@ export function AdminSettings() {
                     </div>
                 </div>
 
-                <hr/>
+                {/* Main Fields */}
+                {[ 
+                    {label: 'App Data Collector', name: 'collector', type: 'text'}
+                ].map(field => (
+                    <div className="row my-4 align-items-center" key={field.name}>
+                        <div className="col-12 col-md-4 mb-1 mb-md-0">
+                            <label className="form-label mb-0 float-md-end" htmlFor={field.name}>{field.label}</label>
+                        </div>
+                        <div className="col-12 col-md-8">
+                            <input
+                                type={field.type}
+                                className="form-control form-control-sm"
+                                id={field.name}
+                                name={field.name}
+                                value={form[field.name]}
+                                onInput={handleInput}
+                                disabled={saving}
+                            />
+                        </div>
+                    </div>
+                ))}
 
-                <div className="row my-5">
+                <div className="row mt-5 mb-3">
                     <div className="col-12 d-flex justify-content-center gap-2">
                         <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>Cancel</button>
                         <button type="submit" className="btn btn-primary" disabled={saving || !isFormChanged()}>Save</button>

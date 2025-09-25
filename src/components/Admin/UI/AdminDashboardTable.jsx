@@ -16,6 +16,7 @@ import { AdminShowActions } from '@components/Admin/Navigation/AdminShowActions'
  *   hideDisabled: boolean
  *   onSort: function(column: string) => void
  */
+
 export function AdminDashboardTable({
   shows = [],
   onEdit,
@@ -60,7 +61,7 @@ export function AdminDashboardTable({
   }
 
   return (
-    <table className="table table-striped table-hover align-middle mb-5">
+    <table className="table table-striped table-hover align-middle mt-5 mb-5">
       <thead>
         <tr>
           <th

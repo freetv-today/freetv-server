@@ -47,7 +47,7 @@ switch ($action) {
             exit;
         }
         // Only allow known fields to be updated
-        $fields = ['collector', 'gid', 'offline', 'appdata', 'showads', 'modules', 'debugmode'];
+        $fields = ['collector', 'offline', 'appdata', 'showads', 'modules', 'debugmode'];
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
                 $config[$field] = $data[$field];

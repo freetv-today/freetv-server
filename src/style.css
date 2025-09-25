@@ -276,16 +276,16 @@ body {
 
 /* Medium Screen */
 @media (max-width: 767.98px) {
-  /* Toast alert sizing */
-  #app-toast {
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-    width: 100% !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-  }
-} 
+    /* Toast alert sizing */
+    #app-toast {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 
 /* Medium + Screens  */
 @media (min-width: 768px) {

@@ -146,7 +146,7 @@ export function AdminUsers() {
 
             <div className="mb-3 text-end d-flex justify-content-end gap-2">
                 <button className="btn btn-secondary" onClick={() => route('/dashboard')}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleAddUser}>Add User</button>
+                {/* <button className="btn btn-primary" onClick={handleAddUser}>Add User</button> */}
             </div>
             {loading ? (
                 <div className="text-center my-5"><div className="spinner-border" /></div>
