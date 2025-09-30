@@ -1,5 +1,5 @@
 {
-    "lastupdated": "2025-09-30T02:33:12.000Z",
+    "lastupdated": "2025-09-30T13:25:02.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
@@ -7,16 +7,6 @@
     "email": "admin@freetv.today",
     "link": "https://freetv.today",
     "shows": [
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "asdfasdfa",
-            "title": "asdfsdfasdfa SJddfasdfasdf",
-            "desc": "adfkaj;kl asdkfj qw era sdfjasldkfjad sjfkljas ldfa",
-            "start": "1998",
-            "end": "1999",
-            "imdb": "tt00023434234"
-        },
         {
             "category": "animation",
             "status": "active",
@@ -466,46 +456,6 @@
             "start": "1995",
             "end": "2009",
             "imdb": "tt0123360"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "DinosaurPlanetDiscoveryChannel",
-            "title": "Dinosaur Planet",
-            "desc": "Four dinosaurs - a female Velociraptor in Asia, Daspletosaurus male in North America, South American female Saltasaurus, and European Pyroraptor - roam their habitats. Narrated by Christian Slater, hosted by paleontologist Scott Sampson.",
-            "start": "2003",
-            "end": "2003",
-            "imdb": "tt0389605"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "forensic-files-collection",
-            "title": "Forensic Files",
-            "desc": "Forensic Files is an American documentary television series that details how various crimes are solved with the use of forensic science.",
-            "start": "1996",
-            "end": "2011",
-            "imdb": "tt0247882"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "BBCHiroshima",
-            "title": "Hiroshima (BBC)",
-            "desc": "Documentary with dramatic reenactments with actors to describe what dropping the bomb on Hiroshima was like.",
-            "start": "2005",
-            "end": "2005",
-            "imdb": "tt0475296"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "ken.-burns.-the.-civil.-war.",
-            "title": "Ken Burns: Civil War",
-            "desc": "American television documentary miniseries created by Ken Burns about the American Civil War.",
-            "start": "1990",
-            "end": "1990",
-            "imdb": "tt0098769"
         },
         {
             "category": "documentary",
@@ -1006,16 +956,6 @@
             "start": "1958",
             "end": "1961",
             "imdb": "tt0051327"
-        },
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "asdfasdfa",
-            "title": "Thestse a fasd fAErafdaf",
-            "desc": "Sfdafda LKjfdalssf asfdasdlfkajdfasdfasfd",
-            "start": "2003",
-            "end": "2006",
-            "imdb": "tt002342342"
         }
     ]
 }

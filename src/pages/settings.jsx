@@ -1,67 +1,88 @@
 import { useLocation } from 'preact-iso';
 import { useEffect, useState, useRef } from 'preact/hooks';
-// import { useConfig } from '@/context/ConfigContext';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 export function AdminSettings() {
 
     /** @type {import('preact').RefObject<Object>} */
     const initialFormRef = useRef();
     const log = useDebugLog();
-    // const configData = useConfig();
-    // const [storedConfig, setStoredConfig] = useLocalStorage('configData', configData);
     const { route } = useLocation();
+    const { loading: playlistLoading, error: playlistError } = playlistSignal.value;
 
-    // Form state
-    // const [form, setForm] = useState({
-    //     collector: configData.collector || '',
-    //     offline: !!configData.offline,
-    //     appdata: !!configData.appdata,
-    //     showads: !!configData.showads,
-    //     modules: !!configData.modules,
-    //     debugmode: !!configData.debugmode
-    // });
+    // Show loading spinner when playlist is loading
+    if (playlistLoading) return <SpinnerLoadingAppData />;
+    if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
 
-    // Set the initial form state on mount
-    // useEffect(() => {
-    //     initialFormRef.current = {
-    //         collector: configData.collector || '',
-    //         offline: !!configData.offline,
-    //         appdata: !!configData.appdata,
-    //         showads: !!configData.showads,
-    //         modules: !!configData.modules,
-    //         debugmode: !!configData.debugmode
-    //     };
-    // }, []);
+    // Loading and form state
+    const [loading, setLoading] = useState(true);
+    const [form, setForm] = useState({
+        collector: '',
+        offline: false,
+        appdata: false,
+        showads: false,
+        modules: false,
+        debugmode: false
+    });
+    const [lastUpdated, setLastUpdated] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    // Load config data on mount
+    useEffect(() => {
+        async function loadConfig() {
+            try {
+                const res = await fetch('/config.json');
+                if (!res.ok) throw new Error('Failed to load config');
+                const configData = await res.json();
+                
+                const newForm = {
+                    collector: configData.collector || '',
+                    offline: !!configData.offline,
+                    appdata: !!configData.appdata,
+                    showads: !!configData.showads,
+                    modules: !!configData.modules,
+                    debugmode: !!configData.debugmode
+                };
+                
+                setForm(newForm);
+                setLastUpdated(configData.lastupdated || '');
+                
+                // Set initial form state for change detection
+                initialFormRef.current = { ...newForm };
+            } catch (err) {
+                log('Error loading config:', err);
+                setAdminMsg({ type: 'danger', text: 'Failed to load configuration data' });
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        document.title = "Free TV: Admin Dashboard - Settings";
+        log('Rendered Admin Settings page (pages/settings.jsx)');
+        loadConfig();
+    }, []);
 
     // Helper: shallow compare form to initialFormRef
     function isFormChanged() {
         const initial = initialFormRef.current;
         if (!initial) return false;
-        // for (const key in form) {
-        //     if (form[key] !== initial[key]) return true;
-        // }
+        for (const key in form) {
+            if (form[key] !== initial[key]) return true;
+        }
         return false;
     }
-
-    // const [lastUpdated, setLastUpdated] = useState(configData.lastupdated || '');
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-        document.title = "Free TV: Admin Dashboard - Settings";
-        log('Rendered Admin Settings page (pages/settings.jsx)');
-    }, []);
 
     // Handlers
     function handleInput(e) {
         const { name, value, type, checked } = e.currentTarget;
-        // setForm(f => ({
-        //     ...f,
-        //     [name]: type === 'checkbox' ? checked : value
-        // }));
+        setForm(f => ({
+            ...f,
+            [name]: type === 'checkbox' ? checked : value
+        }));
     }
 
     function handleCancel() {
@@ -75,19 +96,14 @@ export function AdminSettings() {
             const res = await fetch('/api/admin/edit-config.php?action=save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // body: JSON.stringify(form)
+                body: JSON.stringify(form)
             });
             const data = await res.json();
             if (data.success) {
                 setAdminMsg({ type: 'success', text: 'Settings saved!' });
-                // setLastUpdated(data.lastupdated);
-                // Update config context and localStorage
-                // const newConfig = { ...form, lastupdated: data.lastupdated };
-                try {
-                    // setStoredConfig(newConfig);
-                } catch {}
+                setLastUpdated(data.lastupdated);
                 // Reset initial form state after save
-                // initialFormRef.current = { ...form, lastupdated: data.lastupdated };
+                initialFormRef.current = { ...form };
                 // Scroll to top so user sees the alert
                 window.scrollTo({ top: 0, behavior: 'auto' });
             } else {
@@ -106,16 +122,29 @@ export function AdminSettings() {
             const res = await fetch('/api/admin/edit-config.php?action=refresh');
             const data = await res.json();
             if (data.success) {
-                // setLastUpdated(data.lastupdated);
+                setLastUpdated(data.lastupdated);
                 setAdminMsg({ type: 'success', text: 'Timestamp refreshed!' });
-                // setStoredConfig({ ...storedConfig, lastupdated: data.lastupdated });
             } else {
                 setAdminMsg({ type: 'danger', text: 'Failed to refresh timestamp.' });
             }
         } catch (err) {
             setAdminMsg({ type: 'danger', text: 'Network error.' });
-            
         }
+    }
+
+    // Show loading spinner while fetching config
+    if (loading) {
+        return (
+            <div className="container py-4" style={{ maxWidth: 650 }}>
+                <h2 className="text-center mb-4">Configuration Settings</h2>
+                <div className="text-center mt-5">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <div className="mt-2">Loading configuration...</div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -133,7 +162,7 @@ export function AdminSettings() {
                         <label className="form-label mb-0 float-md-end">Last Updated</label>
                     </div>
                     <div className="col-12 col-md-6 mb-1 mb-md-0">
-                        {/* <input type="text" className="form-control form-control-sm" value={lastUpdated} readOnly disabled /> */}
+                        <input type="text" className="form-control form-control-sm" value={lastUpdated} readOnly disabled />
                     </div>
                     <div className="col-12 col-md-2">
                         <button type="button" className="btn btn-outline-secondary w-100 tinybtn" onClick={handleRefreshDate} disabled={saving}>Refresh</button>
@@ -147,7 +176,7 @@ export function AdminSettings() {
                 <div className="mb-4 text-center settingsAppWrapper">
                     <h4 className="mb-4">Application Options:</h4>
                     <div className="mx-auto w-100 w-md-auto" style={{maxWidth: 250}}>
-                        {/* {[{
+                        {[{
                             id: 'offline', label: 'Offline Mode', checked: form.offline
                         }, {
                             id: 'appdata', label: 'App Data', checked: form.appdata
@@ -177,7 +206,7 @@ export function AdminSettings() {
                                     </div>
                                 </div>
                             </div>
-                        ))} */}
+                        ))}
                     </div>
                 </div>
 
@@ -195,7 +224,7 @@ export function AdminSettings() {
                                 className="form-control form-control-sm"
                                 id={field.name}
                                 name={field.name}
-                                // value={form[field.name]}
+                                value={form[field.name]}
                                 onInput={handleInput}
                                 disabled={saving}
                             />
@@ -206,7 +235,9 @@ export function AdminSettings() {
                 <div className="row mt-5 mb-3">
                     <div className="col-12 d-flex justify-content-center gap-2">
                         <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>Cancel</button>
-                        <button type="submit" className="btn btn-primary" disabled={saving || !isFormChanged()}>Save</button>
+                        <button type="submit" className="btn btn-primary" disabled={saving || !isFormChanged()}>
+                            {saving ? 'Saving...' : 'Save'}
+                        </button>
                     </div>
                 </div>
             </form>

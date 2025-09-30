@@ -4,6 +4,7 @@ import { enforceMinLoadingTime } from '@/utils';
 /**
  * playlistSignal - Global signal for admin playlist state.
  * Holds playlists list, current playlist, show data, loading, and error.
+ * @type {import('@preact/signals').Signal<{playlists: Array, currentPlaylist: string|null, showData: Array, loading: boolean, error: string|null}>}
  */
 
 export const playlistSignal = signal({
@@ -17,6 +18,8 @@ export const playlistSignal = signal({
 /**
  * switchPlaylist - Helper to switch playlists and update the signal.
  * @param {string} filename - Playlist filename to load.
+ * @param {number} [minTime=1200] - Minimum loading time in milliseconds.
+ * @returns {Promise<void>}
  */
 
 export async function switchPlaylist(filename, minTime = 1200) {
@@ -44,6 +47,8 @@ export async function switchPlaylist(filename, minTime = 1200) {
 
 /**
  * loadPlaylists - Helper to load playlists index and default playlist on app start.
+ * @param {number} [minTime=1200] - Minimum loading time in milliseconds.
+ * @returns {Promise<void>}
  */
 
 export async function loadPlaylists(minTime = 1200) {

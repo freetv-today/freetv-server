@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import { playlistSignal } from '@signals/playlistSignal';
 
 /**
  * useThumbnail - Custom hook for managing show thumbnails, including fetching, saving, and searching.
@@ -7,7 +8,6 @@ import { useState, useEffect } from 'preact/hooks';
 
 export function useThumbnail() {
 
-  const [shows, setShows] = useState([]);
   const [thumbnails, setThumbnails] = useState([]);
   const [withThumbnails, setWithThumbnails] = useState([]);
   const [missingThumbnailsList, setMissingThumbnailsList] = useState([]);
@@ -20,33 +20,22 @@ export function useThumbnail() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchError, setSearchError] = useState(null);
 
-    // Load show data from localStorage (current playlist)
-    useEffect(() => {
-      try {
-        const showData = window.localStorage.getItem('showData');
-        if (showData) {
-          const parsed = JSON.parse(showData);
-          setShows(parsed.shows || []);
-        }
-      } catch {
-        setError('Failed to load show data');
-      }
-    }, []);
-
-    // Fetch thumbnail list from backend (POST showData)
+    // Fetch thumbnail list from backend when show data changes
     useEffect(() => {
       async function fetchThumbnails() {
         try {
-          const showData = window.localStorage.getItem('showData');
-          let showsArr = [];
-          if (showData) {
-            const parsed = JSON.parse(showData);
-            showsArr = parsed.shows || [];
+          const shows = playlistSignal.value.showData;
+          if (!shows || shows.length === 0) {
+            setThumbnails([]);
+            setWithThumbnails([]);
+            setMissingThumbnailsList([]);
+            return;
           }
+          
           const res = await fetch('/api/admin/list_thumbnails.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ shows: showsArr })
+            body: JSON.stringify({ shows })
           });
           const data = await res.json();
           setThumbnails(data.thumbnails || []);
@@ -57,7 +46,7 @@ export function useThumbnail() {
         }
       }
       fetchThumbnails();
-    }, [shows]);
+    }, [playlistSignal.value.showData]);
 
     // Fetch thumbnail from backend
     async function fetchThumbnail(imdb, isUserAction = false) {
@@ -106,17 +95,12 @@ export function useThumbnail() {
         const data = await res.json();
         if (res.ok && data.status === 'success') {
           setSuccess('New thumbnail image has been saved!');
-          // Refresh thumbnail list after save
-          const showData = window.localStorage.getItem('showData');
-          let showsArr = [];
-          if (showData) {
-            const parsed = JSON.parse(showData);
-            showsArr = parsed.shows || [];
-          }
+          // Refresh thumbnail list after save using current show data from signal
+          const shows = playlistSignal.value.showData;
           const res2 = await fetch('/api/admin/list_thumbnails.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ shows: showsArr })
+            body: JSON.stringify({ shows })
           });
           const data2 = await res2.json();
           setThumbnails(data2.thumbnails || []);
@@ -139,16 +123,11 @@ export function useThumbnail() {
     setSearchError(null);
     setSearchResults([]);
     try {
-      const showData = window.localStorage.getItem('showData');
-      let showsArr = [];
-      if (showData) {
-        const parsed = JSON.parse(showData);
-        showsArr = parsed.shows || [];
-      }
+      const shows = playlistSignal.value.showData;
       const res = await fetch('/api/admin/search_thumbnails.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, shows: showsArr })
+        body: JSON.stringify({ query, shows })
       });
       const data = await res.json();
       if (res.ok && data.status === 'success') {
@@ -164,6 +143,7 @@ export function useThumbnail() {
   }
 
   // Calculate totals
+  const shows = playlistSignal.value.showData || [];
   const totalShows = shows.length;
   const imdbCounts = {};
   shows.forEach(s => {

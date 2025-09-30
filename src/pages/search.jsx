@@ -8,11 +8,16 @@ import { AdminDeleteShowModal } from '@/components/Modals/AdminDeleteShowModal';
 import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 
 export function AdminSearch() {
     const log = useDebugLog();
-    const { showData, currentPlaylist } = playlistSignal.value;
+    const { showData, currentPlaylist, loading: playlistLoading, error: playlistError } = playlistSignal.value;
+
+    // Show loading spinner when playlist is loading
+    if (playlistLoading) return <SpinnerLoadingAppData />;
+    if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
 
     // Restore query from localStorage
     const getInitialQuery = () => {

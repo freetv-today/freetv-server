@@ -9,9 +9,6 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-// delete-reported-problem.php
-// Clone of delete-show.php, will be customized to also remove from errors.json
-
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -50,7 +47,7 @@ $shows = array_values(array_filter($shows, function ($show) use ($identifier) {
 $playlistData['shows'] = $shows;
 $playlistData['lastupdated'] = gmdate('Y-m-d\TH:i:s.000\Z');
 file_put_contents($playlistPath, json_encode($playlistData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-// Re-index playlists index.json
+
 require_once __DIR__ . '/playlist_utils.php';
 rebuild_index();
 // --- End: delete from playlist ---

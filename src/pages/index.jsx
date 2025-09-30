@@ -1,15 +1,29 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { useDataValidation } from '@/hooks/useDataValidation';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { DataSetupPage } from '@/pages/DataSetupPage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 export function AdminLogin() {
 
     const log = useDebugLog();
     const { route } = useLocation();
+    const dataValidation = useDataValidation();
     const [loading, setLoading] = useState(false);
     const [checkingSession, setCheckingSession] = useState(true);
+
+    // If data validation is still loading, show spinner
+    if (dataValidation.loading) {
+        return <SpinnerLoadingAppData />;
+    }
+
+    // If data is missing, show setup page
+    if (!dataValidation.canProceed) {
+        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
+    }
 
     // Check for valid admin session on mount
     useEffect(() => {

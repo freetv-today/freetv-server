@@ -6,16 +6,23 @@ import { UserModal } from '@/components/Modals/UserModal';
 import { PasswordModal } from '@/components/Modals/PasswordModal';
 import { ConfirmDeleteModal } from '@/components/Modals/ConfirmDeleteModal';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 
 export function AdminUsers() {
 
     const log = useDebugLog();
+    const { loading: playlistLoading, error: playlistError } = playlistSignal.value;
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'changepass' | 'delete' | null
     const { route } = useLocation();
+
+    // Show loading spinner when playlist is loading
+    if (playlistLoading) return <SpinnerLoadingAppData />;
+    if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
 
     useEffect(() => {
         document.title = "Free TV: Admin Dashboard - User Manager";

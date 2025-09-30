@@ -11,13 +11,26 @@ import { AdminDeleteShowModal } from '@/components/Modals/AdminDeleteShowModal';
 import { AdminPlaylistMetaModal } from '@/components/Modals/AdminPlaylistMetaModal';
 import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { useDataValidation } from '@/hooks/useDataValidation';
 import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { DataSetupPage } from '@/pages/DataSetupPage';
 
 export function Dashboard() {
 
     const log = useDebugLog();
+    const dataValidation = useDataValidation();
     const [initialized, setInitialized] = useState(false);
+
+    // Check if we need to show data setup page
+    if (dataValidation.loading) {
+        return <SpinnerLoadingAppData />;
+    }
+
+    if (!dataValidation.canProceed) {
+        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
+    }
+
     useEffect(() => {
         document.title = "Admin Dashboard";
         log('Rendered Dashboard page (pages/dashboard.jsx)');
