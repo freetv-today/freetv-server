@@ -1,10 +1,14 @@
+
 <?php
+
+// Determine line break style
+$linebreak = (php_sapi_name() === 'cli') ? "\r\n" : "<br>";
 
 // The password you want to hash
 $newpass = 'password';
 
 // Output the hashed password
-echo "\r\n";
-echo "Hashed value for password: $newpass\r\n<br>";
-echo password_hash($newpass, PASSWORD_DEFAULT) . PHP_EOL;
-echo "\r\n<br>";
+echo $linebreak;
+echo "Hashed value for password: '$newpass' (with random salt from PHP):" . $linebreak;
+echo password_hash($newpass, PASSWORD_DEFAULT) . $linebreak;
+echo $linebreak;

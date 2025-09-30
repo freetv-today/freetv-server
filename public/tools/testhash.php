@@ -1,18 +1,22 @@
+
 <?php
+
+// Determine line break style
+$linebreak = (php_sapi_name() === 'cli') ? "\r\n" : "<br>";
 
 // The plaintext password to test
 $passwd = 'password';
 
 // The hash of the password to test
-$hash = '$2y$10$ZJQhez0yp2VMqJrQjXJAgOoBQKnFrE9uudIYKtuns/ZW187XnLiTK';
+$previous_hash = '$2y$10$ZJQhez0yp2VMqJrQjXJAgOoBQKnFrE9uudIYKtuns/ZW187XnLiTK';
 
 // Display the results of the test
-echo "\r\n";
-if (password_verify($passwd, $hash)) {
-    echo "The password and hash values match\r\n\r\n<br>";
+echo $linebreak;
+if (password_verify($passwd, $previous_hash)) {
+    echo "The password and previously hashed value match!" . $linebreak . $linebreak;
 } else {
-    echo "The password and hash values do NOT match\r\n\r\n<br>";
+    echo "The password and previously hashed value do NOT match." . $linebreak . $linebreak;
 }
-echo "Password tested: $passwd\r\n<br>";
-echo "Hash tested: $hash\r\n<br>";
-echo "\r\n";
+echo "Password tested: '$passwd'" . $linebreak;
+echo "Previous hash tested: $previous_hash" . $linebreak;
+echo $linebreak;
