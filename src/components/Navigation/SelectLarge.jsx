@@ -1,13 +1,11 @@
-import { useContext } from 'preact/hooks';
-import { PlaylistContext } from '@/context/PlaylistContext';
+import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 
 export function SelectLarge() {
-  const { playlists, currentPlaylist, changePlaylist } = useContext(PlaylistContext);
-
+  
+  const { playlists, currentPlaylist } = playlistSignal.value;
   function handleChange(e) {
-    changePlaylist(e.target.value);
+    switchPlaylist(e.target.value);
   }
-
   return (
     <select
       id="selectPlaylistLarge"

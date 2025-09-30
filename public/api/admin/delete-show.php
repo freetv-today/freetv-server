@@ -6,8 +6,10 @@ if (!isset($_SESSION['admin'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
-// public/api/admin/delete-show.php
+
+require_once __DIR__ . '/playlist_utils.php';
 header('Content-Type: application/json');
+
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -59,5 +61,8 @@ if (file_put_contents($playlistPath, json_encode($data, JSON_PRETTY_PRINT | JSON
     echo json_encode(['success' => false, 'message' => 'Failed to save playlist']);
     exit;
 }
+
+$playlistsDir = __DIR__ . '/../../playlists';
+rebuild_index($playlistsDir);
 
 echo json_encode(['success' => true, 'message' => 'Show deleted']);

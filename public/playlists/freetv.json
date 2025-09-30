@@ -1,12 +1,22 @@
 {
-    "lastupdated": "2025-09-24T14:43:23.000Z",
+    "lastupdated": "2025-09-30T02:33:12.000Z",
     "dbtitle": "Default TV Shows",
     "filename": "freetv.json",
     "dbversion": "1.0",
     "author": "Ken Dawson",
     "email": "admin@freetv.today",
-    "link": "https://freetv.today/",
+    "link": "https://freetv.today",
     "shows": [
+        {
+            "category": "animation",
+            "status": "active",
+            "identifier": "asdfasdfa",
+            "title": "asdfsdfasdfa SJddfasdfasdf",
+            "desc": "adfkaj;kl asdkfj qw era sdfjasldkfjad sjfkljas ldfa",
+            "start": "1998",
+            "end": "1999",
+            "imdb": "tt00023434234"
+        },
         {
             "category": "animation",
             "status": "active",
@@ -36,16 +46,6 @@
             "start": "1994",
             "end": "1997",
             "imdb": "tt0108783"
-        },
-        {
-            "category": "animation",
-            "status": "active",
-            "identifier": "the-grim-adventures-of-billy-and-mandy_202212",
-            "title": "Grim Adventures of Billy & Mandy",
-            "desc": "The ill-tempered Grim Reaper gets into a wager that forces him to become the life-long companions of two scheming youngsters after he loses.",
-            "start": "2003",
-            "end": "2007",
-            "imdb": "tt0292800"
         },
         {
             "category": "animation",
@@ -230,16 +230,6 @@
         {
             "category": "comedy",
             "status": "active",
-            "identifier": "abbott_costello_the_vacation",
-            "title": "Abbott & Costello",
-            "desc": "The Abbott and Costello Show features Bud Abbott and Lou Costello as out-of-work actors and roommates staying at Mr. Field's Hollywood boarding house.",
-            "start": "1952",
-            "end": "1957",
-            "imdb": "tt0044229"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
             "identifier": "ALF-The-Complete-Series",
             "title": "ALF",
             "desc": "When an ugly creature, who loves eating cats, crash-lands into the Tanner family's garage, they treat him as a guest and allow him to live with them as he comments on the stupidity of mankind.",
@@ -350,16 +340,6 @@
         {
             "category": "comedy",
             "status": "active",
-            "identifier": "bbc-red-dwarf",
-            "title": "Red Dwarf",
-            "desc": "The adventures of the last human alive and his friends, stranded 3 million years into deep space on the mining ship Red Dwarf.",
-            "start": "1988",
-            "end": "2020",
-            "imdb": "tt0094535"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
             "identifier": "ripping-yarns-1976-79",
             "title": "Ripping Yarns",
             "desc": "This show is a collection of tales that make for \"ripping good\" television. Sir Michael Palin played a different lead character in each yarn.",
@@ -436,16 +416,6 @@
             "start": "1962",
             "end": "1968",
             "imdb": "tt0055686"
-        },
-        {
-            "category": "comedy",
-            "status": "active",
-            "identifier": "the-red-green-show",
-            "title": "The Red Green Show",
-            "desc": "Red Green airs his handyman show from Possum Lodge, Canada, and experiences some zany adventures in real life.",
-            "start": "1991",
-            "end": "2006",
-            "imdb": "tt0101177"
         },
         {
             "category": "comedy",
@@ -546,16 +516,6 @@
             "start": "1974",
             "end": "2024",
             "imdb": "tt0206501"
-        },
-        {
-            "category": "documentary",
-            "status": "active",
-            "identifier": "the-great-war-1964",
-            "title": "The Great War",
-            "desc": "One of the greatest achievements of television - aired in 26 episodes from 1964. Use of extensive archival material and sound effects combined with contemporary classical music from this era.",
-            "start": "1964",
-            "end": "1964",
-            "imdb": "tt0057753"
         },
         {
             "category": "documentary",
@@ -670,16 +630,6 @@
         {
             "category": "drama",
             "status": "active",
-            "identifier": "GreenHornetTV",
-            "title": "The Green Hornet",
-            "desc": "A newspaper publisher and his Asian valet/martial arts expert battle crime as the feared Green Hornet and Kato.",
-            "start": "1966",
-            "end": "1967",
-            "imdb": "tt0059991"
-        },
-        {
-            "category": "drama",
-            "status": "active",
             "identifier": "the-net-complete-tv-series",
             "title": "The Net",
             "desc": "Computer programmer Angela Bennett discovers a shadowy group of cyber terrorists who completely erase her true identity. Falsely labeled a criminal, she finds herself on the run, and she'll never stop until she's got her life back.",
@@ -750,16 +700,6 @@
         {
             "category": "kids",
             "status": "active",
-            "identifier": "clifford-the-big-red-dog-s-01e-20-clifford-on-parade-follow-the-leader",
-            "title": "Clifford the Big Red Dog",
-            "desc": "The adventures of a larger-than-life red dog on Bridwell Island.",
-            "start": "2000",
-            "end": "2003",
-            "imdb": "tt0233041"
-        },
-        {
-            "category": "kids",
-            "status": "active",
             "identifier": "dinosaur-train-season-1-s-01-e-01-elmer-elasmosaurus",
             "title": "Dinosaur Train",
             "desc": "Friendly dinosaurs climb aboard a train to visit different times throughout the prehistoric age.",
@@ -786,16 +726,6 @@
             "start": "1969",
             "end": "1970",
             "imdb": "tt0063907"
-        },
-        {
-            "category": "kids",
-            "status": "active",
-            "identifier": "lazy-town-s-01-e-03-featuring-sports-day",
-            "title": "LazyTown",
-            "desc": "A pink-haired girl named Stephanie moves to LazyTown and tries to teach its lazy residents about physical activity.",
-            "start": "2002",
-            "end": "2014",
-            "imdb": "tt0396991"
         },
         {
             "category": "kids",
@@ -1070,26 +1000,6 @@
         {
             "category": "western",
             "status": "active",
-            "identifier": "theroyrogersshow",
-            "title": "The Roy Rogers Show",
-            "desc": "The Double R Ranch featured Roy Rogers 'The King of the Cowboys', his 'Smartest Horse in the Movies' Trigger, 'Queen of the West' Dale Evans, her horse Buttermilk, their dog Bullet, sidekick Pat Brady, and even Pat's jeep, Nellybelle.",
-            "start": "1951",
-            "end": "1957",
-            "imdb": "tt0043225"
-        },
-        {
-            "category": "western",
-            "status": "active",
-            "identifier": "s-01-e-32-crossroads",
-            "title": "Wanted: Dead Or Alive Season 1",
-            "desc": "A Civil War veteran with a sawed-off rifle as a holstered weapon makes a living as a bounty hunter in the Wild West of the 1870s.",
-            "start": "1958",
-            "end": "1961",
-            "imdb": "tt0051327"
-        },
-        {
-            "category": "western",
-            "status": "active",
             "identifier": "s-02-e-01-montana-kid",
             "title": "Wanted: Dead Or Alive Season 2",
             "desc": "A Civil War veteran with a sawed-off rifle as a holstered weapon makes a living as a bounty hunter in the Wild West of the 1870s.",
@@ -1098,14 +1008,14 @@
             "imdb": "tt0051327"
         },
         {
-            "category": "western",
+            "category": "animation",
             "status": "active",
-            "identifier": "s-03-e-03-journey-for-josh",
-            "title": "Wanted: Dead Or Alive Season 3",
-            "desc": "A Civil War veteran with a sawed-off rifle as a holstered weapon makes a living as a bounty hunter in the Wild West of the 1870s.",
-            "start": "1958",
-            "end": "1961",
-            "imdb": "tt0051327"
+            "identifier": "asdfasdfa",
+            "title": "Thestse a fasd fAErafdaf",
+            "desc": "Sfdafda LKjfdalssf asfdasdlfkajdfasdfasfd",
+            "start": "2003",
+            "end": "2006",
+            "imdb": "tt002342342"
         }
     ]
 }

@@ -4,7 +4,7 @@
         {
             "filename": "freetv.json",
             "dbtitle": "Default TV Shows",
-            "lastupdated": "2025-09-24T14:43:23.000Z",
+            "lastupdated": "2025-09-30T02:33:12.000Z",
             "author": "Ken Dawson"
         },
         {
@@ -17,6 +17,24 @@
             "filename": "ftv-movies.json",
             "dbtitle": "Movies",
             "lastupdated": "2025-09-19T02:41:45.986Z",
+            "author": "Ken Dawson"
+        },
+        {
+            "filename": "testlist2.json",
+            "dbtitle": "Test List 2",
+            "lastupdated": "2025-09-29T23:25:22.000Z",
+            "author": "Ken Dawson"
+        },
+        {
+            "filename": "testlist3.json",
+            "dbtitle": "Test List 3",
+            "lastupdated": "2025-09-29T23:26:04.000Z",
+            "author": "Ken Dawson"
+        },
+        {
+            "filename": "testplaylist1.json",
+            "dbtitle": "New Test Playlist",
+            "lastupdated": "2025-09-29T21:02:04.000Z",
             "author": "Ken Dawson"
         }
     ]

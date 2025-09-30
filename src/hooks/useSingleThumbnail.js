@@ -6,9 +6,9 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
  * @returns {Object} Thumbnail state and actions
  */
 export function useSingleThumbnail(imdb) {
+
   // Track if a thumbnail has been fetched or saved in this session (for Add mode UX)
   const [hasFetched, setHasFetched] = useState(false);
-
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [tempThumbnailUrl, setTempThumbnailUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,6 @@ export function useSingleThumbnail(imdb) {
         }
       })
       .catch(() => setTempThumbnailUrl(null));
-    console.log('[useSingleThumbnail] IMDB changed to', imdb, 'hasFetched reset to false');
   }, [imdb]);
 
   // Fetch thumbnail from backend (saves to /temp/)

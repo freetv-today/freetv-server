@@ -92,18 +92,6 @@ export function useThumbnail() {
       }
     }
 
-    // Upload thumbnail (dummy, to be implemented)
-    // async function uploadThumbnail(file, imdb) {
-    //   setLoading(true);
-    //   setError(null);
-    //   setSuccess(null);
-    //   // TODO: Implement upload logic
-    //   setTimeout(() => {
-    //     setSuccess('Thumbnail uploaded!');
-    //     setLoading(false);
-    //   }, 1000);
-    // }
-
     // Save thumbnail: move from /temp to /thumbs and refresh lists
     async function saveThumbnail(imdb) {
       setLoading(true);

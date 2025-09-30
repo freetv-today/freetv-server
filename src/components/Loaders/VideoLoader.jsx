@@ -63,17 +63,43 @@ export function VideoLoader({
   }
 
   return (
-    <>
-      {loading && <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />}
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: '#fff',
+          visibility: loading ? 'visible' : 'hidden',
+          pointerEvents: loading ? 'auto' : 'none',
+          zIndex: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <SpinnerLoadingVideo title={title.replace(/_/g, ' ')} />
+      </div>
       <iframe
         src={src}
         frameBorder="0"
         allowFullScreen
-        style={{ display: loading ? 'none' : 'block'}}
         onLoad={handleIframeLoad}
         title={title}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          visibility: loading ? 'hidden' : 'visible',
+          pointerEvents: loading ? 'none' : 'auto',
+          zIndex: 1,
+        }}
         {...iframeProps}
       />
-    </>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useConfig } from '@/context/ConfigContext';
+// import { useConfig } from '@/context/ConfigContext';
 
 /**
  * useDebugLog - Custom hook for conditional debug logging based on config.debugmode
@@ -13,7 +13,7 @@ import { useConfig } from '@/context/ConfigContext';
  *   log('', 'end');
  */
 export function useDebugLog() {
-  const { debugmode } = useConfig();
+  // const { debugmode } = useConfig();
   /**
    * @param {any} message - The main message to log
    * @param {string} [type] - Optional log type: 'log', 'warn', 'error', 'group', 'end', 'groupCollapsed', 'groupEnd'.
@@ -21,7 +21,7 @@ export function useDebugLog() {
    * @param {...any} args - Additional arguments to pass to the console method
    */
   return (message, type = 'log', ...args) => {
-    if (!debugmode) return;
+    // if (!debugmode) return;
     let logType = 'log';
     if (typeof type === 'string') {
       if (type === 'group') logType = 'groupCollapsed';
