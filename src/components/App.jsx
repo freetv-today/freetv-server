@@ -14,7 +14,6 @@ import { EditShow } from '@pages/EditShow';
 import { AddShow } from '@pages/AddShow';
 import { AddPlaylist } from '@pages/AddPlaylist';
 import { NotFound } from '@pages/_404';
-import { TestPage } from '@/pages/TestPage';
 import '@/style.css'
 import '@/admin.css';
 import '@/utils';
@@ -30,7 +29,6 @@ const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
 const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
 const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
 const AdminThumbsRoute = () => <LayoutAdmin><AdminThumbnails /></LayoutAdmin>;
-const TestPageRoute = () => <LayoutFullpageBlank><TestPage /></LayoutFullpageBlank>;
 const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBlank>;
 
 export function App() {
@@ -50,7 +48,6 @@ export function App() {
         <Route path="/dashboard/settings" component={AdminSettingsRoute} />
         <Route path="/dashboard/users" component={AdminUsersRoute} />
         <Route path="/dashboard/thumbnails" component={AdminThumbsRoute} />
-        <Route path="/test" component={TestPageRoute} />
         <Route default component={NotFoundRoute} />
       </Router>
     </main>

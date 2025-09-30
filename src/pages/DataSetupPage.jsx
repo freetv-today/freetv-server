@@ -8,6 +8,7 @@ import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData
  */
 
 export function DataSetupPage({ dataState, onRetry }) {
+
   const log = useDebugLog();
   const { route } = useLocation();
   const [setupLoading, setSetupLoading] = useState(false);
@@ -113,7 +114,7 @@ export function DataSetupPage({ dataState, onRetry }) {
         <img src="/assets/sadface.svg" alt="😢" width="80" className="mb-3" />
         <h2 className="text-danger mb-3">Application Data Not Found</h2>
         <p className="lead text-muted">
-          Your Admin Dashboard needs data to function. Choose one of the options below to get started.
+          The Free TV Admin Dashboard needs data to function. Choose one of the options below to get started:
         </p>
       </div>
 
@@ -135,7 +136,7 @@ export function DataSetupPage({ dataState, onRetry }) {
             </div>
             <div className="card-body">
               <p className="card-text">
-                Load the complete FreeTv dataset from GitHub including all playlists, 
+                Load the complete Free TV dataset from GitHub including all playlists, 
                 thumbnails, and configuration.
               </p>
               <ul className="small text-muted">
@@ -169,12 +170,12 @@ export function DataSetupPage({ dataState, onRetry }) {
             <div className="card-body">
               <p className="card-text">
                 Load a smaller dataset perfect for development and testing 
-                the Admin Dashboard features.
+                the Free TV Admin Dashboard features.
               </p>
               <ul className="small text-muted">
-                <li>2-3 sample playlists</li>
-                <li>4-5 categories each</li>
-                <li>20-30 shows total</li>
+                <li>2 sample playlists</li>
+                <li>2-4 categories each</li>
+                <li>10-15 shows total</li>
                 <li>Sample thumbnails included</li>
               </ul>
             </div>
@@ -202,7 +203,7 @@ export function DataSetupPage({ dataState, onRetry }) {
             <div className="card-body">
               <p className="card-text">
                 Create minimal configuration files only. You'll start with 
-                an empty admin dashboard and add your own content.
+                an empty Admin Dashboard and add your own content manually.
               </p>
               <ul className="small text-muted">
                 <li>Basic configuration only</li>
@@ -249,18 +250,11 @@ export function DataSetupPage({ dataState, onRetry }) {
 
       <div className="text-center mt-5">
         <button 
-          className="btn btn-outline-secondary me-2" 
+          className="btn btn-outline-primary" 
           onClick={onRetry}
           disabled={setupLoading}
         >
           Check Again
-        </button>
-        <button 
-          className="btn btn-outline-primary" 
-          onClick={() => route('/')}
-          disabled={setupLoading}
-        >
-          Back to Login
         </button>
       </div>
     </div>
