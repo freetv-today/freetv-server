@@ -92,26 +92,30 @@ function createFallbackSampleData()
         fixWindowsPermissions($logsDir);
     }
 
+    // Generate current timestamp in the required format (2025-09-30T16:18:29.670Z)
+    $currentTimestamp = gmdate('Y-m-d\TH:i:s') . '.' . sprintf('%03d', round(microtime(true) * 1000) % 1000) . 'Z';
+
     // Create minimal sample config.json
     $sampleConfig = [
-        'lastupdated' => date('c'),
+        'lastupdated' => $currentTimestamp,
         'offline' => false,
         'appdata' => false,
-        'collector' => 'https://freetv.today/api/beacon.php',
+        'collector' => '/api/beacon.php',
         'showads' => false,
         'modules' => true,
         'debugmode' => true
     ];
     file_put_contents($configFile, json_encode($sampleConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-    // Create minimal playlist index (fallback only)
+    // Create playlist index that points to default.json (fallback only)
     $indexData = [
-        'default' => 'sample-movies.json',
+        'default' => 'default.json',
         'playlists' => [
             [
-                'filename' => 'sample-movies.json',
-                'dbtitle' => 'Sample Movies',
-                'category' => 'movies'
+                'filename' => 'default.json',
+                'dbtitle' => 'Default Playlist',
+                'lastupdated' => $currentTimestamp,
+                'author' => 'Free TV'
             ]
         ]
     ];
@@ -120,44 +124,24 @@ function createFallbackSampleData()
         json_encode($indexData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
     );
 
-    // Create minimal sample playlist (fallback only)
-    $sampleMovies = [
-        'title' => 'Sample Movies',
-        'category' => 'movies',
-        'shows' => [
-            [
-                'title' => 'Sample Movie',
-                'category' => 'Action',
-                'desc' => 'Basic sample for testing. Please check freetv-sampledata repo for full dataset.',
-                'start' => '1990',
-                'end' => '1990',
-                'imdb' => 'tt0000001',
-                'identifier' => 'sample1',
-                'status' => 'enabled'
-            ]
-        ]
+    // Create the actual default.json playlist file (fallback only)
+    $defaultPlaylist = [
+        'lastupdated' => $currentTimestamp,
+        'dbtitle' => 'Default Playlist',
+        'filename' => 'default.json',
+        'dbversion' => '1.0',
+        'author' => 'Free TV',
+        'email' => 'support@freetv.today',
+        'link' => 'https://freetv.today',
+        'shows' => []
     ];
     file_put_contents(
-        $playlistsDir . 'sample-movies.json',
-        json_encode($sampleMovies, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        $playlistsDir . 'default.json',
+        json_encode($defaultPlaylist, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
     );
 
-    // Create minimal logs structure (fallback only)
-    $basicErrors = [
-        'reports' => [
-            [
-                'playlist' => 'sample-movies.json',
-                'title' => 'Sample Problem Report',
-                'category' => 'action',
-                'identifier' => 'sample-problem',
-                'imdb' => 'tt0000001',
-                'date' => date('c'),
-                'reportingIps' => ['127.0.0.1'],
-                'reportCount' => 1,
-                'status' => 'reported'
-            ]
-        ]
-    ];
+    // Create empty logs structure (fallback only)
+    $basicErrors = ['reports' => []];
     file_put_contents($logsDir . 'errors.json', json_encode($basicErrors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     // Create index.html files
@@ -183,9 +167,12 @@ function setupFreshData()
         fixWindowsPermissions($logsDir);
     }
 
+    // Generate current timestamp in the required format (2025-09-30T16:18:29.670Z)
+    $currentTimestamp = gmdate('Y-m-d\TH:i:s') . '.' . sprintf('%03d', round(microtime(true) * 1000) % 1000) . 'Z';
+
     // Create basic config.json
     $freshConfig = [
-        'lastupdated' => date('c'),
+        'lastupdated' => $currentTimestamp,
         'offline' => false,
         'appdata' => false,
         'collector' => '/api/beacon.php',
@@ -195,14 +182,37 @@ function setupFreshData()
     ];
     file_put_contents($configFile, json_encode($freshConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-    // Create empty playlist index
-    $emptyIndex = [
-        'default' => '',
-        'playlists' => []
+    // Create playlist index that points to default.json
+    $playlistIndex = [
+        'default' => 'default.json',
+        'playlists' => [
+            [
+                'filename' => 'default.json',
+                'dbtitle' => 'Default Playlist',
+                'lastupdated' => $currentTimestamp,
+                'author' => 'Free TV'
+            ]
+        ]
     ];
     file_put_contents(
         $playlistsDir . 'index.json',
-        json_encode($emptyIndex, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        json_encode($playlistIndex, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+    );
+
+    // Create the actual default.json playlist file
+    $defaultPlaylist = [
+        'lastupdated' => $currentTimestamp,
+        'dbtitle' => 'Default Playlist',
+        'filename' => 'default.json',
+        'dbversion' => '1.0',
+        'author' => 'Free TV',
+        'email' => 'support@freetv.today',
+        'link' => 'https://freetv.today',
+        'shows' => []
+    ];
+    file_put_contents(
+        $playlistsDir . 'default.json',
+        json_encode($defaultPlaylist, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
     );
 
     // Create empty logs structure

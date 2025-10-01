@@ -111,10 +111,10 @@ export function DataSetupPage({ dataState, onRetry }) {
   return (
     <div className="container py-5" style={{ maxWidth: 800 }}>
       <div className="text-center mb-5">
-        <img src="/assets/sadface.svg" alt="😢" width="80" className="mb-3" />
-        <h2 className="text-danger mb-3">Application Data Not Found</h2>
+        <h2 className="text-danger mb-3">Application Data Not Found!</h2>
         <p className="lead text-muted">
-          The Free TV Admin Dashboard needs data to function. Choose one of the options below to get started:
+          The Free TV Admin Dashboard needs data to function.<br/>
+          Choose one of the options below to get started:
         </p>
       </div>
 
@@ -127,7 +127,7 @@ export function DataSetupPage({ dataState, onRetry }) {
       <div className="row g-4">
         {/* Option 1: Official Data */}
         <div className="col-md-4">
-          <div className="card h-100 border-primary">
+          <div className="card h-100 border-primary shadow">
             <div className="card-header bg-primary text-white">
               <h5 className="card-title mb-0">
                 <i className="bi bi-download me-2"></i>
@@ -160,7 +160,7 @@ export function DataSetupPage({ dataState, onRetry }) {
 
         {/* Option 2: Sample Data */}
         <div className="col-md-4">
-          <div className="card h-100 border-success">
+          <div className="card h-100 border-success shadow">
             <div className="card-header bg-success text-white">
               <h5 className="card-title mb-0">
                 <i className="bi bi-play-circle me-2"></i>
@@ -193,7 +193,7 @@ export function DataSetupPage({ dataState, onRetry }) {
 
         {/* Option 3: Start Fresh */}
         <div className="col-md-4">
-          <div className="card h-100 border-warning">
+          <div className="card h-100 border-warning shadow">
             <div className="card-header bg-warning text-dark">
               <h5 className="card-title mb-0">
                 <i className="bi bi-plus-circle me-2"></i>
@@ -241,7 +241,7 @@ export function DataSetupPage({ dataState, onRetry }) {
                     {issue.severity}
                   </small>
                 </div>
-                <p className="mb-1">{issue.message}</p>
+                <p>{issue.message}</p>
               </div>
             ))}
           </div>
