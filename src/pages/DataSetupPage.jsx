@@ -31,10 +31,10 @@ export function DataSetupPage({ dataState, onRetry }) {
         body: JSON.stringify({ type: 'official' })
       });
       
-      setSetupProgress('Downloading files...');
+      setSetupProgress('Downloading official dataset...');
       const result = await response.json();
       if (result.success) {
-        setSetupProgress('Setup complete!');
+        setSetupProgress('Official data installed!');
         log('Official data loaded successfully');
         setTimeout(() => onRetry(), 1000);
       } else {

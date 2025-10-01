@@ -47,22 +47,6 @@ export function AdminLogin() {
     }, [route]);
 
     useEffect(() => {
-        // add admin.css link if it doesn't already exist
-        if (!document.getElementById('admin-css')) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = '/assets/admin.css';
-            link.id = 'admin-css';
-            document.head.appendChild(link);
-        }
-        // Remove admin.css on unmount
-        return () => {
-            const el = document.getElementById('admin-css');
-            if (el) el.parentNode.removeChild(el);
-        };
-    }, []);
-
-    useEffect(() => {
 		document.title = "Free TV: Admin Dashboard";
 	}, []);
         

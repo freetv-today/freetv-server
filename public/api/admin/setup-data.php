@@ -54,11 +54,18 @@ try {
 
 function setupOfficialData()
 {
-    global $publicDir;
+    global $publicDir, $logsDir;
     $zipUrl = 'https://github.com/freetv-today/freetv-data/archive/refs/heads/main.zip';
     $result = downloadAndExtractGitHubZip($zipUrl, $publicDir, 'freetv-data-main');
     if (!$result['success']) {
         throw new Exception($result['message']);
+    }
+
+    // Ensure logs/activity directory exists (even if empty in the repo)
+    $activityDir = $logsDir . 'activity/';
+    if (!is_dir($activityDir)) {
+        mkdir($activityDir, 0755, true);
+        fixWindowsPermissions($activityDir);
     }
 }
 
@@ -90,6 +97,13 @@ function createFallbackSampleData()
     if (!is_dir($logsDir)) {
         mkdir($logsDir, 0755, true);
         fixWindowsPermissions($logsDir);
+    }
+
+    // Ensure logs/activity directory exists (for analytics)
+    $activityDir = $logsDir . 'activity/';
+    if (!is_dir($activityDir)) {
+        mkdir($activityDir, 0755, true);
+        fixWindowsPermissions($activityDir);
     }
 
     // Generate current timestamp in the required format (2025-09-30T16:18:29.670Z)
@@ -147,6 +161,7 @@ function createFallbackSampleData()
     // Create index.html files
     file_put_contents($thumbsDir . 'index.html', '<!-- Thumbnails directory -->');
     file_put_contents($logsDir . 'index.html', '<!-- Logs directory -->');
+    file_put_contents($activityDir . 'index.html', '<!-- Activity logs directory -->');
 }
 
 function setupFreshData()
@@ -165,6 +180,13 @@ function setupFreshData()
     if (!is_dir($logsDir)) {
         mkdir($logsDir, 0755, true);
         fixWindowsPermissions($logsDir);
+    }
+
+    // Ensure logs/activity directory exists (for analytics)
+    $activityDir = $logsDir . 'activity/';
+    if (!is_dir($activityDir)) {
+        mkdir($activityDir, 0755, true);
+        fixWindowsPermissions($activityDir);
     }
 
     // Generate current timestamp in the required format (2025-09-30T16:18:29.670Z)
@@ -222,6 +244,7 @@ function setupFreshData()
     // Create index.html files
     file_put_contents($thumbsDir . 'index.html', '<!-- Thumbnails directory -->');
     file_put_contents($logsDir . 'index.html', '<!-- Logs directory -->');
+    file_put_contents($activityDir . 'index.html', '<!-- Activity logs directory -->');
 }
 
 /**
@@ -364,6 +387,13 @@ function copyDirectory($source, $destination)
         $sourcePath = $item->getPathname();
         $relativePath = substr($sourcePath, strlen($source) + 1);
         $target = $destination . DIRECTORY_SEPARATOR . $relativePath;
+
+        // Skip Git metadata files during copying
+        $filename = basename($sourcePath);
+        if (in_array($filename, ['.gitkeep', '.gitignore', '.gitattributes', '.git'])) {
+            continue;
+        }
+
         if ($item->isDir()) {
             if (!is_dir($target)) {
                 mkdir($target, 0755, true);
