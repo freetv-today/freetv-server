@@ -14,6 +14,7 @@ $MSG_WRITE_ERROR = 'Could not write to log file.';
 $MSG_API_ERROR = 'Could not connect to Internet Archive API server';
 
 header('Content-Type: application/json; charset=utf-8');
+
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -91,7 +92,7 @@ if ($isDark && $playlistFile && file_exists($playlistFile)) {
             $playlistData['lastupdated'] = gmdate('Y-m-d\TH:i:s.v\Z');
             file_put_contents($playlistFile, json_encode($playlistData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             // Call rebuild_index
-            require_once __DIR__ . '/admin/playlist_utils.php';
+            require_once __DIR__ . '/playlist_utils.php';
             rebuild_index();
         }
     }

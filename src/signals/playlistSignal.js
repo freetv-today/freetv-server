@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals';
-import { enforceMinLoadingTime } from '@/utils';
+import { enforceMinLoadingTime } from '@/utils/utils';
 
 /**
  * playlistSignal - Global signal for admin playlist state.

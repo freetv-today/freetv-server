@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-require_once __DIR__ . '/playlist_utils.php';
+require_once __DIR__ . '/../playlist_utils.php';
 $playlist = isset($input['filename'])
     ? basename(trim($input['filename'], '"'))
     : (isset($input['playlist'])

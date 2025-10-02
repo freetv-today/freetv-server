@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
-import { capitalizeFirstLetter } from '@/utils';
+import { capitalizeFirstLetter } from '@/utils/utils';
 
 /**
  * AdminShowForm - Reusable form for editing/adding a show

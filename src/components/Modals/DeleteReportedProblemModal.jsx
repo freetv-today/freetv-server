@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext } from 'preact/hooks';
-// import { PlaylistContext } from '@/context/PlaylistContext';
-import { capitalizeFirstLetter } from '@/utils';
+import { useState, useEffect } from 'preact/hooks';
+import { capitalizeFirstLetter } from '@/utils/utils';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { playlistSignal } from '@signals/playlistSignal';
 
 /**
  * DeleteReportedProblemModal - Modal for confirming deletion of a reported problem (removes from playlist and errors.json)
@@ -11,19 +11,18 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
  * @param {Object} props.showData - The show/problem object to delete
  * @param {boolean} props.deleting - Whether the delete is in progress
  * @param {string|null} props.error - Error message, if any
- * @param {() => void} props.onDeleteConfirm - Called when user confirms delete (optional, not used here)
  */
+
 export function DeleteReportedProblemModal({
   show,
   onClose,
   showData,
   deleting = false,
-  error = null,
-  onDeleteConfirm // not used, but accepted for compatibility
+  error = null
 }) {
 
   const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
-  // const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
+  const { currentPlaylist } = playlistSignal.value;
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
@@ -44,12 +43,11 @@ export function DeleteReportedProblemModal({
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      // Call the new backend endpoint
       const res = await fetch('/api/admin/delete-reported-problem.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // playlist: currentPlaylist,
+          playlist: currentPlaylist,
           identifier: showData.identifier,
         })
       });
@@ -57,12 +55,6 @@ export function DeleteReportedProblemModal({
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to delete problem');
       }
-      // Rebuild index.json (wait for it to finish)
-      await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
-      // Refresh playlist data in context
-      // if (typeof changePlaylist === 'function' && currentPlaylist) {
-      //   await changePlaylist(currentPlaylist, true, false);
-      // }
       setAdminMsg({ type: 'success', text: 'Problem deleted successfully.' });
       setIsDeleting(false);
       onClose('save');
@@ -71,7 +63,7 @@ export function DeleteReportedProblemModal({
       setIsDeleting(false);
     }
   }
-
+  
   return (
     <div className={`modal fade${show ? ' show d-block' : ''}`} tabIndex={-1} style={show ? { backgroundColor: 'rgba(0,0,0,0.5)' } : {}}>
       <div className="modal-dialog">

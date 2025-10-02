@@ -12,6 +12,7 @@ import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData
 
 
 export function AdminSearch() {
+  
     const log = useDebugLog();
     const { showData, currentPlaylist, loading: playlistLoading, error: playlistError } = playlistSignal.value;
 

@@ -4,7 +4,7 @@ import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { AdminTestVideoModal } from '@components/Modals/AdminTestVideoModal';
 import { AdminDeleteShowModal } from '@components/Modals/AdminDeleteShowModal';
 import { DeleteReportedProblemModal } from '@components/Modals/DeleteReportedProblemModal';
-import { capitalizeFirstLetter, formatDateTime } from '@/utils';
+import { capitalizeFirstLetter, formatDateTime } from '@/utils/utils';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
@@ -140,7 +140,6 @@ export function AdminProblems() {
             setAdminMsg({ type: 'danger', text: 'Network error' });
             return false;
         }
-        setDeleteModal(null);
     };
 
     const handleDeleteAllDisabled = async () => {
@@ -168,8 +167,6 @@ export function AdminProblems() {
                 break;
             }
         }
-        // Rebuild index.json (already done by manage-problem-item.php, but just in case)
-        await fetch('/api/admin/playlist_utils.php', { method: 'POST' });
         // Reload playlist data to get updated state
         await loadPlaylists(600);
         // Refresh data
@@ -282,7 +279,6 @@ export function AdminProblems() {
                     showData={deleteModal.item}
                     deleting={false}
                     error={null}
-                    onDeleteConfirm={() => {}}
                 />
             )}
             {deleteModal && deleteModal.type === 'disabled' && (

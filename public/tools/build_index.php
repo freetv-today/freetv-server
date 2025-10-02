@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../api/admin/playlist_utils.php';
+require_once __DIR__ . '/../api/playlist_utils.php';
 
 // Wrapper for rebuilding index.json after playlist files change.
 // Most PHP and Javascript functions call playlist_utils.php directly

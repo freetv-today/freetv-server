@@ -1,8 +1,6 @@
-import { useState, useEffect, useContext } from 'preact/hooks';
-// import { PlaylistContext } from '@/context/PlaylistContext';
-import { capitalizeFirstLetter } from '@/utils';
+import { useState, useEffect } from 'preact/hooks';
+import { capitalizeFirstLetter } from '@/utils/utils';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
-import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 
 /**
  * AdminDeleteShowModal - Modal for confirming deletion of a show
@@ -18,8 +16,6 @@ import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 export function AdminDeleteShowModal({ show, onClose, showData, deleting, error, onDeleteConfirm }) {
 
   const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
-  // const { currentPlaylist, changePlaylist } = useContext(PlaylistContext);
-  const { currentPlaylist } = playlistSignal.value;
 
   useEffect(() => {
     if (showData && showData.imdb) {

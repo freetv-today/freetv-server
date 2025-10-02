@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-require_once __DIR__ . '/playlist_utils.php';
+require_once __DIR__ . '/../playlist_utils.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

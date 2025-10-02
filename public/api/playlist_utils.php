@@ -2,11 +2,18 @@
 
 // playlist_utils.php - Shared playlist utility functions
 
+// Prevent direct access via HTTP
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+    http_response_code(403);
+    header('Content-Type: text/plain');
+    exit('Forbidden: Direct access is not allowed.');
+}
+
 function rebuild_index($playlists_dir = null)
 {
 
     if (!$playlists_dir) {
-        $playlists_dir = __DIR__ . '/../../playlists';
+        $playlists_dir = __DIR__ . '/../playlists';
     }
     $files = glob($playlists_dir . '/*.json');
     $playlists = [];

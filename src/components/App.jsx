@@ -17,7 +17,7 @@ import { NotFound } from '@pages/_404';
 import { createPath } from '@/utils/env';
 import '@/style.css'
 import '@/admin.css';
-import '@/utils';
+import '@/utils/utils';
 
 // Predefined route components:
 const AdminLoginRoute = () => <LayoutFullpageBlank><AdminLogin /></LayoutFullpageBlank>;

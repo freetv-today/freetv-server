@@ -6,6 +6,7 @@
  *   onDelete: function(show) => void
  *   onTest: function(show) => void
  */
+
 export function AdminShowActions({ show, onEdit, onDelete, onTest }) {
   return (
     <div className="d-flex flex-lg-row flex-column gap-1 w-100">

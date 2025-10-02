@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { logShowView } from '@/utils';
+import { logShowView } from '@/utils/utils';
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@hooks/useDebugLog';
 

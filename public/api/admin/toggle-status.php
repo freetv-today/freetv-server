@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin'])) {
 ini_set('display_errors', 0);
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/playlist_utils.php';
+require_once __DIR__ . '/../playlist_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

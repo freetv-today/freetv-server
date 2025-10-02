@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/playlist_utils.php';
+require_once __DIR__ . '/../playlist_utils.php';
 
 session_start();
 if (!isset($_SESSION['admin'])) {

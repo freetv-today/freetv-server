@@ -1,4 +1,5 @@
 import { useLocation } from 'preact-iso';
+import { createPath } from '@/utils/env';
 
 export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
 
@@ -14,7 +15,7 @@ export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
             className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2" 
             title="New Playlist" 
             aria-label="New Playlist"
-            onClick={() => route('/dashboard/playlist')}
+            onClick={() => route(createPath('/dashboard/playlist'))}
           >
             <span className="me-1">{"\u271A"}</span> New Playlist
           </button>
@@ -23,7 +24,7 @@ export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
             className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2"
             title="Add Video"
             aria-label="Add Video"
-            onClick={() => route('/dashboard/add')}
+            onClick={() => route(createPath('/dashboard/add'))}
           >
             <span className="me-1">{"\u271A"}</span> Add Video
           </button>

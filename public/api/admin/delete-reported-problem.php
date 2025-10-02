@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/playlist_utils.php';
-
 session_start();
 if (!isset($_SESSION['admin'])) {
     http_response_code(401);
@@ -9,7 +7,9 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
+require_once __DIR__ . '/../playlist_utils.php';
 header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
@@ -25,7 +25,7 @@ if (!$playlist || !$identifier) {
     exit;
 }
 
-// --- Begin: delete from playlist (same as delete-show.php) ---
+// --- Begin: delete from playlist ---
 $playlistPath = __DIR__ . '/../../playlists/' . basename($playlist);
 if (!file_exists($playlistPath)) {
     http_response_code(404);
@@ -48,7 +48,6 @@ $playlistData['shows'] = $shows;
 $playlistData['lastupdated'] = gmdate('Y-m-d\TH:i:s.000\Z');
 file_put_contents($playlistPath, json_encode($playlistData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-require_once __DIR__ . '/playlist_utils.php';
 rebuild_index();
 // --- End: delete from playlist ---
 
@@ -59,7 +58,6 @@ if (file_exists($errorsPath)) {
     if (isset($errorsData['reports']) && is_array($errorsData['reports'])) {
         $before = count($errorsData['reports']);
         $errorsData['reports'] = array_values(array_filter($errorsData['reports'], function ($report) use ($playlist, $identifier) {
-
             // Remove if playlist and identifier match
             return !(
                 isset($report['playlist'], $report['identifier']) &&

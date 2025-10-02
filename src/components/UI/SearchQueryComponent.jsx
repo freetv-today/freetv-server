@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { showAlert } from '@/utils';
+import { showAlert } from '@/utils/utils';
 import { useDebugLog } from '@/hooks/useDebugLog';
 
 const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];

@@ -1,5 +1,5 @@
 import { useMemo } from 'preact/hooks';
-import { capitalizeFirstLetter } from '@/utils';
+import { capitalizeFirstLetter } from '@/utils/utils';
 
 /**
  * AdminDashboardFilters - filter controls for dashboard table

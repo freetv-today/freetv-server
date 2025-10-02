@@ -2,6 +2,7 @@ import { useState, useCallback } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { switchPlaylist } from '@signals/playlistSignal';
+import { createPath } from '@/utils/env'; 
 
 /**
  * useAdminShowActions - shared admin show actions for dashboard/search
@@ -22,7 +23,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
 
   // Edit handler (navigate to edit page)
   const handleEdit = useCallback((show) => {
-    location.route(`/dashboard/edit/${show.imdb}`);
+    location.route(createPath(`/dashboard/edit/${show.imdb}`));
   }, [location]);
 
   // Delete handler (open modal)

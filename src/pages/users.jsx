@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { formatDateTime } from '@/utils';
+import { formatDateTime } from '@/utils/utils';
 import { UserModal } from '@/components/Modals/UserModal';
 import { PasswordModal } from '@/components/Modals/PasswordModal';
 import { ConfirmDeleteModal } from '@/components/Modals/ConfirmDeleteModal';
