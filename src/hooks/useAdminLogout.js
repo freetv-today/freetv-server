@@ -1,6 +1,7 @@
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { createPath } from '@/utils/env';
 
 /**
  * useAdminLogout - Custom hook that returns a logout handler for the admin dashboard.
@@ -31,7 +32,7 @@ export function useAdminLogout() {
 			}
 			log('Logging out of Admin Dashboard');
 			setAdminMsg({ type: 'success', text: 'You have been logged out of your account.' });
-			route('/');
+			route(createPath('/'));
 		}
 	};
 }

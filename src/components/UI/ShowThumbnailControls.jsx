@@ -53,8 +53,8 @@ export function ShowThumbnailControls({ imdb, title, mode, onThumbnailChange }) 
     <div className="mb-4 p-3 border rounded bg-light">
       <div className="fw-bold mb-2">Thumbnail Controls</div>
       <div className="d-flex align-items-center gap-2 mb-2">
-        <button type="button" className="btn btn-outline-primary btn-sm external-link-btn" onClick={handleSearchIMDB} disabled={!title}>Search IMDB by Title<img src="/assets/external-link.svg" className="ms-2" width="14" /></button>
-        <button type="button" className="btn btn-outline-primary btn-sm external-link-btn" onClick={handleCheckIMDB} disabled={!imdb}>View IMDB Page<img src="/assets/external-link.svg" className="ms-2" width="14" /></button>
+        <button type="button" className="btn btn-outline-primary btn-sm external-link-btn" onClick={handleSearchIMDB} disabled={!title}>Search IMDB by Title<img src="assets/external-link.svg" className="ms-2" width="14" /></button>
+        <button type="button" className="btn btn-outline-primary btn-sm external-link-btn" onClick={handleCheckIMDB} disabled={!imdb}>View IMDB Page<img src="assets/external-link.svg" className="ms-2" width="14" /></button>
       </div>
       <div className="d-flex align-items-center gap-2 mb-2">
         <button type="button" className="btn btn-warning btn-sm" onClick={fetchThumbnail} disabled={!imdb || loading}>Fetch Thumbnail</button>

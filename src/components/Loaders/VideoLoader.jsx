@@ -57,7 +57,7 @@ export function VideoLoader({
             If you keep having trouble, check out the <Link href="/help" className="primary-link">Help</Link> page for troubleshooting tips.
           </p>
         )}
-        <p><img src="/assets/sadface.svg" width="80" /></p>
+        <p><img src="assets/sadface.svg" width="80" /></p>
       </div>
     );
   }

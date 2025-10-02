@@ -24,7 +24,7 @@ export function ErrorPage({
     <div className="text-center text-danger fw-bold p-4" style={{ marginTop: '100px' }}>
       <h3 className="display-5">{type}</h3>
       <p className="mb-4">{message}</p>
-      <img src="/assets/sadface.svg" alt="😢" width="100" className="mb-4" /> 
+      <img src="assets/sadface.svg" alt="😢" width="100" className="mb-4" /> 
       
       <div className="d-flex justify-content-center gap-2">
         {showReload && onReload && (

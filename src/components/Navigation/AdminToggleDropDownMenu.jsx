@@ -15,33 +15,33 @@ export function AdminToggleDropDownMenu() {
         <hr/>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard">
+        <Link className="dropdown-item-custom" href="/admin/dashboard">
           <span className="icon-sm castle-icon"></span>Dashboard
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard/search">
+        <Link className="dropdown-item-custom" href="/admin/dashboard/search">
           <span className="icon-sm search-icon"></span>Search
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard/thumbnails">
+        <Link className="dropdown-item-custom" href="/admin/dashboard/thumbnails">
           <span className="icon-sm thumbs-icon"></span>Thumbnails
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard/problems">
+        <Link className="dropdown-item-custom" href="/admin/dashboard/problems">
           <span className="icon-sm problems-icon"></span>Problems
           <span className="position-absolute start-100 translate-middle badge rounded-pill bg-danger" style={{ top: '17%' }}></span>
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard/users">
+        <Link className="dropdown-item-custom" href="/admin/dashboard/users">
           <span className="icon-sm users-icon"></span>User Manager
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/dashboard/settings">
+        <Link className="dropdown-item-custom" href="/admin/dashboard/settings">
           <span className="icon-sm settings-icon"></span>Settings
         </Link>
       </li>

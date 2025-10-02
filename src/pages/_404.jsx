@@ -24,9 +24,9 @@ export function NotFound() {
                         The page you are looking for (<span className="text-monospace">{url}</span>) was not found.<br />
                         Please check the URL and try again.
                     </>)
-                  : (<>The page you are looking for was not found.<br />Please return to the <Link href="/" className="">home page</Link>.</>)}
+                  : (<>The page you are looking for was not found.<br />Please return to the <Link href="/admin/" className="">home page</Link>.</>)}
             </p>
-            <img src="/assets/sadface.svg" width="140" title="Not Found" />
+            <img src="assets/sadface.svg" width="140" title="Not Found" />
         </div>
     );
 }

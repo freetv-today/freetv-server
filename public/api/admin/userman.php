@@ -8,8 +8,12 @@ if (!isset($_SESSION['admin'])) {
 }
 header('Content-Type: application/json');
 
+require_once 'config.php';
+use FreeTV\Admin\AdminConfig;
+$config = AdminConfig::getInstance();
+
 // Path to apdata.key
-$apdata_path = __DIR__ . '/../../assets/apdata.key';
+$apdata_path = $config->getApDataPath();
 
 // Helper: Load users
 function load_users($path)

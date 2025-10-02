@@ -3,7 +3,7 @@ import { Link } from '@components/Navigation/Link';
 export function ButtonAdminProblemsNav({ count }) {
   return (
     <Link
-      href="/dashboard/problems"
+      href="/admin/dashboard/problems"
       className="btn btn-sm icon-btn problems-icon me-1 me-lg-2 position-relative"
       title="Problems"
     >

@@ -1,12 +1,15 @@
 <?php
 
+require_once 'config.php';
+
 session_start();
 header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 $user = $data['user'] ?? '';
 $pass = $data['pass'] ?? '';
-
-$apdata_path = __DIR__ . '/../../assets/apdata.key';
+use FreeTV\Admin\AdminConfig;
+$config = AdminConfig::getInstance();
+$apdata_path = $config->getApDataPath();
 $apdata = json_decode(file_get_contents($apdata_path), true);
 $users = $apdata['users'];
 $found = null;

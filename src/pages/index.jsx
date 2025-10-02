@@ -6,6 +6,7 @@ import { AdminMessage } from '@/components/UI/AdminMessage';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { DataSetupPage } from '@/pages/DataSetupPage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { createPath, createApiPath } from '@/utils/env';
 
 export function AdminLogin() {
 
@@ -33,7 +34,7 @@ export function AdminLogin() {
             .then(data => {
                 if (isMounted && data.loggedIn) {
                     log('You are already logged in. Redirected to Admin Dashboard');
-                    route('/dashboard');
+                    route(createPath('/dashboard'));
                 } else {
                     log('Rendered Admin Dashboard login (pages/index.jsx)');
                     log('Please log in to your Admin Dashboard account');
@@ -66,7 +67,7 @@ export function AdminLogin() {
             const data = await res.json();
             setLoading(false);
             if (data.success) {
-                route('/dashboard');
+                route(createPath('/dashboard'));
             } else {
                 setAdminMsg({ type: 'danger', text: data.message || 'Login failed.' });
             }
@@ -90,7 +91,7 @@ export function AdminLogin() {
                         <div className="d-flex flex-column nowrap justify-content-center align-items-center mb-3">
                             <div className="d-flex align-items-center">
                                 <img
-                                    src="/assets/freetv.png"
+                                    src="assets/freetv.png"
                                     alt="Free TV Logo"
                                     title="Free TV"
                                     width="125"

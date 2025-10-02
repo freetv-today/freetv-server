@@ -14,6 +14,7 @@ import { EditShow } from '@pages/EditShow';
 import { AddShow } from '@pages/AddShow';
 import { AddPlaylist } from '@pages/AddPlaylist';
 import { NotFound } from '@pages/_404';
+import { createPath } from '@/utils/env';
 import '@/style.css'
 import '@/admin.css';
 import '@/utils';
@@ -38,16 +39,16 @@ export function App() {
   return (
     <main>
       <Router>
-        <Route path="/" component={AdminLoginRoute} />
-        <Route path="/dashboard" component={DashboardRoute} />
-        <Route path="/dashboard/edit/:imdb" component={EditShowRoute} />
-        <Route path="/dashboard/add" component={AddShowRoute} />
-        <Route path="/dashboard/playlist" component={AddPlaylistRoute} />
-        <Route path="/dashboard/search" component={AdminSearchRoute} />
-        <Route path="/dashboard/problems" component={AdminProblemsRoute} />
-        <Route path="/dashboard/settings" component={AdminSettingsRoute} />
-        <Route path="/dashboard/users" component={AdminUsersRoute} />
-        <Route path="/dashboard/thumbnails" component={AdminThumbsRoute} />
+        <Route path={createPath("/")} component={AdminLoginRoute} />
+        <Route path={createPath("/dashboard")} component={DashboardRoute} />
+        <Route path={createPath("/dashboard/edit/:imdb")} component={EditShowRoute} />
+        <Route path={createPath("/dashboard/add")} component={AddShowRoute} />
+        <Route path={createPath("/dashboard/playlist")} component={AddPlaylistRoute} />
+        <Route path={createPath("/dashboard/search")} component={AdminSearchRoute} />
+        <Route path={createPath("/dashboard/problems")} component={AdminProblemsRoute} />
+        <Route path={createPath("/dashboard/settings")} component={AdminSettingsRoute} />
+        <Route path={createPath("/dashboard/users")} component={AdminUsersRoute} />
+        <Route path={createPath("/dashboard/thumbnails")} component={AdminThumbsRoute} />
         <Route default component={NotFoundRoute} />
       </Router>
     </main>
