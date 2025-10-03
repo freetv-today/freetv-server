@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { SpinnerLoadingVideo } from '@components/Loaders/SpinnerLoadingVideo';
 import { Link } from '@components/Navigation/Link';
+import { createPath } from '@/utils/env';
 
 /**
  * VideoLoader - Generic video loader with spinner, timeout, and error message
@@ -54,10 +55,10 @@ export function VideoLoader({
         </p>
         {showHelpLink && (
           <p>
-            If you keep having trouble, check out the <Link href="/help" className="primary-link">Help</Link> page for troubleshooting tips.
+            If you keep having trouble, check out the <Link href="https://freetv.today/help" className="primary-link">Help</Link> page for troubleshooting tips.
           </p>
         )}
-        <p><img src="assets/sadface.svg" width="80" /></p>
+        <p><img src={createPath('/assets/sadface.svg')} width="80" /></p>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import { useThumbnail } from '@/hooks/useThumbnail';
 import { useEffect, useState, useRef } from 'preact/hooks';
+import { createPath } from '@/utils/env';
 
 export function ThumbnailManager() {
 
@@ -87,7 +88,7 @@ export function ThumbnailManager() {
   }
 
   // Determine preview image
-  let previewImg = '/assets/vintage-tv.png';
+  let previewImg = createPath('/assets/vintage-tv.png');
   if (fetching) {
     previewImg = null; // Show spinner
   } else if (fetchedImage) {
@@ -204,10 +205,11 @@ export function ThumbnailManager() {
         </div>
       </div>
 
-  <div className="row m-0 m-lg-2 mb-3 mb-lg-5 mx-0 mx-auto p-0 p-lg-3 rounded-3 border border-1 border-dark" style={{ width: '95%' }}>
+      <div className="row mb-3 mb-lg-5 mx-auto p-0 rounded-3 border border-1 border-dark" style={{width: '98%', minWidth: '548px'}}>
+
         {/* Left Column: Thumbnail List - wider on md and below */}
-        <div className="col-3 col-lg-2" style={{ height: '450px', overflowY: 'auto' }}>
-          <ul className="list-group list-group-flush ms-0 ms-lg-3">
+        <div className="col-3 col-lg-2 m-0 p-1 tm-leftcol">
+          <ul className="list-group list-group-flush m-0">
             {/* Search results take priority if active */}
             {searchActive ? (
               searchError ? (
@@ -284,12 +286,14 @@ export function ThumbnailManager() {
                   </li>
                 ))
             )}
+            {thumbnails.length === 0 && !searchActive && (
+              <li className="list-group-item text-danger nothumbs">No thumbnail images to display</li>
+            )}
           </ul>
         </div>
-  {/* Center Spacer */}
-  <div className="col-1 d-none d-lg-block"></div>
+
         {/* Right Column: Details & Actions */}
-        <div className="col-9 p-2">
+        <div className="col-9 col-lg-10 p-2">
           <div className="row p-2">
             <div className="col">
               <label htmlFor="title" className="form-label fw-bold">Show Title</label>
@@ -297,20 +301,20 @@ export function ThumbnailManager() {
                 <input type="text" className="form-control" id="title" value={selectedShow ? selectedShow.title : ''} readOnly disabled />
               </div>
               <label htmlFor="imdb" className="form-label fw-bold">IMDB ID</label>
-              <div className="input-group mb-3">
-                <input type="text" className="form-control" id="imdb" value={selectedShow ? selectedShow.imdb : ''} style={{ width: '200px' }} readOnly disabled />
-                <button className="btn btn-sm btn-secondary" title="Check IMDB Page" onClick={() => selectedShow && window.open(`https://www.imdb.com/title/${selectedShow.imdb}`,'checkWindow','width=640,height=480')}>Check IMDB Page</button>
+              <div className="mb-3">
+                <input type="text" className="form-control" id="imdb" value={selectedShow ? selectedShow.imdb : ''} readOnly disabled />
+                <button className="btn btn-sm btn-secondary mt-1" title="Check IMDB Page" onClick={() => selectedShow && window.open(`https://www.imdb.com/title/${selectedShow.imdb}`,'checkWindow','width=640,height=480')}>Check IMDB Page</button>
               </div>
               {/* Add margin below IMDB field on md and below */}
               <div className="d-block d-lg-none mb-2"></div>
               <div className="my-4 fw-bold">Fetch Thumbnail from IMDB</div>
               <div>
                 <button className="btn btn-warning me-2" disabled={loading || !selectedShow || fetching} onClick={handleFetchThumbnail}>Fetch Thumbnail</button>
-                <button className={`btn btn-primary${canSave ? '' : ' disabled'}`} disabled={!canSave} onClick={handleSaveThumbnail}>Save File</button>
+                <button className={`mt-sm-2 mt-md-0 btn btn-primary${canSave ? '' : ' disabled'}`} disabled={!canSave} onClick={handleSaveThumbnail}>Save File</button>
               </div>
             </div>
             {/* Thumbnail Preview */}
-            <div className="col text-center">
+            <div className="col text-center mt-sm-5">
               <figure className="figure">
                 {fetching ? (
                   <div className="d-flex flex-column align-items-center justify-content-center" style={{height:'350px'}}>
@@ -332,6 +336,7 @@ export function ThumbnailManager() {
             </div>
           </div>
         </div>
+
       </div>
     </>
   );

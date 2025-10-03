@@ -2,6 +2,7 @@ import { useLocation } from 'preact-iso';
 import { useEffect } from 'preact/hooks';
 import { Link } from '@components/Navigation/Link';
 import { useDebugLog } from '@/hooks/useDebugLog';
+import { createPath } from '@/utils/env';
 
 export function NotFound() {
 
@@ -14,19 +15,26 @@ export function NotFound() {
         log('Rendered 404 page (pages/_404.jsx)');
     }, [url]);
 
+    // prevents layout from breaking with long URLs
     const showUrl = url && url.length <= 50;
+
     return (
         <div className="text-center">
             <h1 className="mt-5 text-danger">404: Not Found</h1>
             <p className="mt-3 text-danger">
-                {showUrl
-                  ? (<>
+                {showUrl ? 
+                    (<> 
                         The page you are looking for (<span className="text-monospace">{url}</span>) was not found.<br />
                         Please check the URL and try again.
                     </>)
-                  : (<>The page you are looking for was not found.<br />Please return to the <Link href="/admin/" className="">home page</Link>.</>)}
+                    :
+                    (<>
+                        The page you are looking for was not found.<br />
+                        Please return to the <Link href={createPath('/')} className="">home page</Link>.
+                    </>)
+                }
             </p>
-            <img src="assets/sadface.svg" width="140" title="Not Found" />
+            <img src={createPath('/assets/sadface.svg')} width="140" title="Not Found" />
         </div>
     );
 }

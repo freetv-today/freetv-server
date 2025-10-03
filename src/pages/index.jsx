@@ -91,7 +91,7 @@ export function AdminLogin() {
                         <div className="d-flex flex-column nowrap justify-content-center align-items-center mb-3">
                             <div className="d-flex align-items-center">
                                 <img
-                                    src="assets/freetv.png"
+                                    src={createPath('/assets/freetv.png')}
                                     alt="Free TV Logo"
                                     title="Free TV"
                                     width="125"

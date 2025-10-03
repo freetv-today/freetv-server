@@ -137,12 +137,31 @@
 }
 
 /* used by ShowThumbnailControls.jsx */
+.xsmall {
+    font-size: x-small;
+}
+
 .external-link-btn img {
   transition: filter 0.2s;
 }
 
 .external-link-btn:hover img {
   content: url('/assets/external-link-white.svg');
+}
+
+.nothumbs {
+    border: 1px dashed black !important;
+    border-radius: 10px !important;
+    padding: 10px;
+    margin-top: 15px;
+    min-width: 120px;
+}
+
+.tm-leftcol {
+    height: 450px;
+    overflow-y: auto;
+    min-width: 130px;
+    overflow-x: hidden;
 }
 
 .settingsAppWrapper {
