@@ -1,6 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../api/playlist_utils.php';
+// Dev path for localhost
+// require_once __DIR__ . '/../api/playlist_utils.php';
+
+// Live path for production
+require_once '/home/turnenml/freetv.today/api/playlist_utils.php';
 
 // Wrapper for rebuilding index.json after playlist files change.
 // Most PHP and Javascript functions call playlist_utils.php directly
@@ -14,7 +18,7 @@ if (php_sapi_name() !== 'cli') {
     }
 }
 
-$ok = rebuild_index(__DIR__);
+$ok = rebuild_index();
 if ($ok) {
     echo "Playlist index has been rebuilt successfully.\n";
 } else {
