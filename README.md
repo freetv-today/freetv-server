@@ -4,7 +4,7 @@
 
 See it online at: https://freetv.today
 
-**Version 2.1.1 - Beta**
+**Version 1.0.0 - Beta**
 
 Free TV Server contains both a front-end site for end users and a back-end administration tool (the Admin Dashboard) for managing content.
 

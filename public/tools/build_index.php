@@ -1,10 +1,10 @@
 <?php
 
 // Dev path for localhost
-// require_once __DIR__ . '/../api/playlist_utils.php';
+require_once __DIR__ . '/../api/playlist_utils.php';
 
 // Live path for production
-require_once '/home/turnenml/freetv.today/api/playlist_utils.php';
+// require_once '/home/path/to/api/playlist_utils.php';
 
 // Wrapper for rebuilding index.json after playlist files change.
 // Most PHP and Javascript functions call playlist_utils.php directly
