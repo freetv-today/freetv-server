@@ -4,6 +4,7 @@ import { useDebugLog } from '@/hooks/useDebugLog';
 import { loadPlaylists, switchPlaylist } from '@signals/playlistSignal';
 import { AdminFilenameInfoModal } from '@/components/Modals/AdminFilenameInfoModal';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { createPath } from '@/utils/env';
 
 export function AddPlaylist() {
 
@@ -101,14 +102,14 @@ export function AddPlaylist() {
             await loadPlaylists();
             if (action === 'draft') {
                 setAdminMsg({ type: 'success', text: 'Playlist created successfully.' });
-                route('/dashboard');
+                route(createPath('/dashboard'));
             } else if (action === 'addshows') {
                 // Switch to new playlist, then go to AddShow page
                 if (data.filename) {
                     await switchPlaylist(data.filename);
                 }
                 setAdminMsg({ type: 'success', text: 'Playlist created and switched. You can now add shows.' });
-                route('/dashboard/add');
+                route(createPath('/dashboard/add'));
             }
         } catch (err) {
             setError('Failed to create playlist.');

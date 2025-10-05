@@ -5,6 +5,7 @@ import { AdminShowForm } from '@/components/UI/AdminShowForm';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { createPath } from '@/utils/env';
 
 export function AddShow() {
 
@@ -23,7 +24,7 @@ export function AddShow() {
   const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));
 
   function handleCancel() {
-    route('/dashboard');
+    route(createPath('/dashboard'));
   }
 
   // Save handler: if stayOnPage is true, show signal-based alert and reset form; 
@@ -54,7 +55,7 @@ export function AddShow() {
         } else {
           await switchPlaylist(currentPlaylist);
           setAdminMsg({ type: 'success', text: 'The new show has been added successfully.' });
-          route('/dashboard');
+          route(createPath('/dashboard'));
         }
       }
     } catch (err) {
