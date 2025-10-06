@@ -4,6 +4,7 @@ import { useLocation } from 'preact-iso';
 import { AdminShowForm } from '@/components/UI/AdminShowForm';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { createPath } from '@/utils/env';
 
 export function EditShow() {
 
@@ -25,7 +26,7 @@ export function EditShow() {
   const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));
 
   function handleCancel() {
-    route('/dashboard');
+    route(createPath('/dashboard'));
   }
 
   async function handleSave(updatedShow) {
@@ -46,7 +47,7 @@ export function EditShow() {
       } else {
         await switchPlaylist(currentPlaylist);
         setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
-        route('/dashboard');
+        route(createPath('/dashboard'));
       }
     } catch (err) {
       setError('Save failed.');
