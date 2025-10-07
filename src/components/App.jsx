@@ -41,7 +41,7 @@ export function App() {
       <Router>
         <Route path={createPath("/")} component={AdminLoginRoute} />
         <Route path={createPath("/dashboard")} component={DashboardRoute} />
-        <Route path={createPath("/dashboard/edit/:imdb")} component={EditShowRoute} />
+        <Route path={createPath("/dashboard/edit/:identifier")} component={EditShowRoute} />
         <Route path={createPath("/dashboard/add")} component={AddShowRoute} />
         <Route path={createPath("/dashboard/playlist")} component={AddPlaylistRoute} />
         <Route path={createPath("/dashboard/search")} component={AdminSearchRoute} />

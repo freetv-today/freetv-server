@@ -22,7 +22,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
 $show = isset($input['show']) ? $input['show'] : null;
 
-if (!$playlist || !$show || !isset($show['imdb'])) {
+if (!$playlist || !$show || !isset($show['identifier'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing playlist or show data']);
     exit;
@@ -47,7 +47,7 @@ if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
 $add = isset($input['add']) ? (bool)$input['add'] : false;
 $found = false;
 foreach ($data['shows'] as &$item) {
-    if (isset($item['imdb']) && $item['imdb'] === $show['imdb']) {
+    if (isset($item['identifier']) && $item['identifier'] === $show['identifier']) {
         $item = $show;
         $found = true;
         break;

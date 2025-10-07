@@ -23,7 +23,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
 
   // Edit handler (navigate to edit page)
   const handleEdit = useCallback((show) => {
-    location.route(createPath(`/dashboard/edit/${show.imdb}`));
+    location.route(createPath(`/dashboard/edit/${show.identifier}`));
   }, [location]);
 
   // Delete handler (open modal)
@@ -48,7 +48,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           playlist: currentPlaylist,
-          imdb: show.imdb
+          identifier: show.identifier
         })
       });
       const data = await res.json();

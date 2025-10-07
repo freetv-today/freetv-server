@@ -4,6 +4,7 @@ import { useLocation } from 'preact-iso';
 import { AdminShowForm } from '@/components/UI/AdminShowForm';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
 
 export function EditShow() {
@@ -12,15 +13,17 @@ export function EditShow() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // Extract imdb param from url
-  const imdb = (() => {
+  // Extract identifier param from url
+  const identifier = (() => {
     const match = url.match(/\/dashboard\/edit\/([^/?#]+)/);
     return match ? decodeURIComponent(match[1]) : '';
   })();
 
-  // Find show by imdb from current playlist's showData
-  const { showData, currentPlaylist } = playlistSignal.value;
-  const show = (showData || []).find(s => s.imdb === imdb);
+  // Find show by identifier from current playlist's showData
+  const { showData, currentPlaylist, loading: playlistLoading, error: playlistError } = playlistSignal.value;
+  if (playlistLoading) return <SpinnerLoadingAppData />;
+  if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
+  const show = (showData || []).find(s => s.identifier === identifier);
 
   // Get unique categories for select from current playlist's showData
   const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));

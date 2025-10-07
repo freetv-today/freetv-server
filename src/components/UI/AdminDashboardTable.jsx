@@ -41,8 +41,13 @@ export function AdminDashboardTable({
     data.sort((a, b) => {
       let valA = a[sortBy] || '';
       let valB = b[sortBy] || '';
-      if (typeof valA === 'string') valA = valA.toLowerCase();
-      if (typeof valB === 'string') valB = valB.toLowerCase();
+      if (sortBy === 'title') {
+        valA = valA.replace(/^the\s+/i, '').toLowerCase();
+        valB = valB.replace(/^the\s+/i, '').toLowerCase();
+      } else {
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+      }
       if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
       if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
       return 0;

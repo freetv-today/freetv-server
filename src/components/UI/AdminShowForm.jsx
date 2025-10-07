@@ -67,7 +67,9 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    // Convert newCategory input to lowercase for consistency
+    const processedValue = name === 'newCategory' ? value.toLowerCase() : value;
+    setForm(f => ({ ...f, [name]: processedValue }));
     setTouched(true);
   }
 

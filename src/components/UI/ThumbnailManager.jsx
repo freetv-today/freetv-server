@@ -72,7 +72,7 @@ export function ThumbnailManager() {
       let nextShow = null;
       if (listMode === 'missing') {
         // Find index of removed item
-        const idx = missingThumbnailShows.findIndex(s => s.imdb === selectedShow.imdb);
+        const idx = missingThumbnailShows.findIndex(s => s.identifier === selectedShow.identifier);
         if (idx !== -1 && missingThumbnailShows.length > 1) {
           // Try next item, else previous
           nextShow = missingThumbnailShows[idx + 1] || missingThumbnailShows[idx - 1] || null;
@@ -222,7 +222,7 @@ export function ThumbnailManager() {
                 searchResults.map(result => (
                   <li
                     key={result.imdb}
-                    className={`list-group-item list-group-item-action${result.has_thumbnail ? '' : ' list-group-item-danger'}${selectedShow && selectedShow.imdb === result.imdb ? ' active' : ''}`}
+                    className={`list-group-item list-group-item-action${result.has_thumbnail ? '' : ' list-group-item-danger'}${selectedShow && selectedShow.identifier === result.identifier ? ' active' : ''}`}
                     onClick={() => setSelectedShow(result)}
                     style={{ cursor: 'pointer' }}
                     title={result.has_thumbnail ? 'Thumbnail exists' : 'This file does not exist'}
@@ -240,7 +240,7 @@ export function ThumbnailManager() {
                 return show ? (
                   <li
                     key={imdb}
-                    className={`list-group-item list-group-item-action${selectedShow && selectedShow.imdb === imdb ? ' active' : ''}`}
+                    className={`list-group-item list-group-item-action${selectedShow && selectedShow.identifier === show.identifier ? ' active' : ''}`}
                     onClick={() => setSelectedShow(show)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -261,7 +261,7 @@ export function ThumbnailManager() {
                   return (
                     <li
                       key={imdb}
-                      className={`list-group-item list-group-item-action${isMissing ? ' list-group-item-danger' : ''}${selectedShow && selectedShow.imdb === imdb ? ' active' : ''}`}
+                      className={`list-group-item list-group-item-action${isMissing ? ' list-group-item-danger' : ''}${selectedShow && selectedShow.identifier === showObj.identifier ? ' active' : ''}`}
                       onClick={() => setSelectedShow(showObj || { imdb })}
                       style={{ cursor: 'pointer' }}
                       title={isMissing ? 'This file does not exist' : 'Thumbnail exists'}

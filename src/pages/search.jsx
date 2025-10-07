@@ -32,7 +32,7 @@ export function AdminSearch() {
     const [query, setQuery] = useState(getInitialQuery());
 
     // Track which show is being updated for status
-    const [statusUpdatingImdb, setStatusUpdatingImdb] = useState(null);
+    const [statusUpdatingIdentifier, setStatusUpdatingIdentifier] = useState(null);
 
     // Callback to re-run search after data changes
     const rerunSearch = () => {
@@ -41,11 +41,11 @@ export function AdminSearch() {
 
     // Custom status toggle handler to show spinner
     const handleStatusToggleWithSpinner = async (show) => {
-      setStatusUpdatingImdb(show.imdb);
+      setStatusUpdatingIdentifier(show.identifier);
       try {
         await handleStatusToggle(show);
       } finally {
-        setStatusUpdatingImdb(null);
+        setStatusUpdatingIdentifier(null);
       }
     };
 
@@ -106,7 +106,7 @@ export function AdminSearch() {
               onDelete={handleDelete}
               onTest={handleTest}
               onStatusToggle={handleStatusToggleWithSpinner}
-              statusUpdatingImdb={statusUpdatingImdb}
+              statusUpdatingIdentifier={statusUpdatingIdentifier}
             />
             <AdminTestVideoModal
               show={showTestModal}

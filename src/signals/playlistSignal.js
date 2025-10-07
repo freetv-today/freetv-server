@@ -29,7 +29,7 @@ export async function switchPlaylist(filename, minTime = 1200) {
   let showData = [];
   let error = null;
   try {
-    const playlistRes = await fetch(`/playlists/${filename}`);
+    const playlistRes = await fetch(`/api/admin/playlist_proxy.php?file=${filename}&t=${Date.now()}`);
     if (!playlistRes.ok) throw new Error('Failed to load playlist data');
     const playlistData = await playlistRes.json();
     showData = playlistData.shows || [];
@@ -58,7 +58,7 @@ export async function loadPlaylists(minTime = 1200) {
   let playlistName = null;
   let error = null;
   try {
-    const indexRes = await fetch('/playlists/index.json');
+    const indexRes = await fetch(`/api/admin/playlist_proxy.php?file=index.json&t=${Date.now()}`);
     if (!indexRes.ok) throw new Error('Failed to load playlist index');
     const indexData = await indexRes.json();
     playlists = indexData.playlists || [];

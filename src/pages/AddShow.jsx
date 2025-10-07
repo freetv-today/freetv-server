@@ -5,6 +5,7 @@ import { AdminShowForm } from '@/components/UI/AdminShowForm';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
+import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
 
 export function AddShow() {
@@ -20,7 +21,11 @@ export function AddShow() {
   }, []);
 
   // Get unique categories for select from current playlist's showData
-  const { showData, currentPlaylist } = playlistSignal.value;
+  const { showData, currentPlaylist, loading: playlistLoading, error: playlistError } = playlistSignal.value;
+
+  // Show loading spinner when playlist is loading
+  if (playlistLoading) return <SpinnerLoadingAppData />;
+  if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
   const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));
 
   function handleCancel() {

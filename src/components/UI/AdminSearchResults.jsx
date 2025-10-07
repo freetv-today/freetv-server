@@ -11,7 +11,7 @@ import { AdminShowActions } from '@components/Navigation/AdminShowActions';
  *   onStatusToggle: function(show) => void
  */
 
-export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onStatusToggle, statusUpdatingImdb }) {
+export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onStatusToggle, statusUpdatingIdentifier }) {
 
   if (!results) return null;
   if (results.length === 0) {
@@ -35,7 +35,7 @@ export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onS
               <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
               <td>{show.title}</td>
               <td>
-                {statusUpdatingImdb === show.imdb ? (
+                {statusUpdatingIdentifier === show.identifier ? (
                   <button className={`btn tinybtn btn-outline-secondary pt-1`} type="button" disabled>
                     <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
                   </button>

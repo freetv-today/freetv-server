@@ -20,11 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
-$imdb = isset($input['imdb']) ? $input['imdb'] : null;
+$identifier = isset($input['identifier']) ? $input['identifier'] : null;
 
-if (!$playlist || !$imdb) {
+if (!$playlist || !$identifier) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing playlist or imdb']);
+    echo json_encode(['success' => false, 'message' => 'Missing playlist or identifier']);
     exit;
 }
 
@@ -46,7 +46,7 @@ if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
 $found = false;
 $newStatus = null;
 foreach ($data['shows'] as &$item) {
-    if (isset($item['imdb']) && $item['imdb'] === $imdb) {
+    if (isset($item['identifier']) && $item['identifier'] === $identifier) {
         if (!isset($item['status']) || $item['status'] === 'active') {
             $item['status'] = 'disabled';
         } else {
