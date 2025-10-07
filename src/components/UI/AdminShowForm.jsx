@@ -26,8 +26,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
   desc: initialData.desc || '',
   start: initialData.start || '',
   end: initialData.end || '',
-  imdb: initialData.imdb || ''
+  imdb: initialData.imdb || '',
+  group: initialData.group || ''
   });
+  const [isGroupEnabled, setIsGroupEnabled] = useState(!!initialData.group);
   const [touched, setTouched] = useState(false);
   const [validation, setValidation] = useState({
     category: '',
@@ -37,7 +39,8 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
     desc: '',
     start: '',
     end: '',
-    imdb: ''
+    imdb: '',
+    group: ''
   });
 
   useEffect(() => {
@@ -50,8 +53,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       desc: initialData.desc || '',
       start: initialData.start || '',
       end: initialData.end || '',
-      imdb: initialData.imdb || ''
+      imdb: initialData.imdb || '',
+      group: initialData.group || ''
     });
+    setIsGroupEnabled(!!initialData.group);
     setTouched(false);
     setValidation({
       category: '',
@@ -61,7 +66,8 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       desc: '',
       start: '',
       end: '',
-      imdb: ''
+      imdb: '',
+      group: ''
     });
   }, [initialData]);
 
@@ -75,6 +81,15 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
 
   function handleStatusToggle(val) {
     setForm(f => ({ ...f, status: val }));
+    setTouched(true);
+  }
+
+  function handleGroupToggle(e) {
+    const enabled = e.target.checked;
+    setIsGroupEnabled(enabled);
+    if (!enabled) {
+      setForm(f => ({ ...f, group: '' }));
+    }
     setTouched(true);
   }
 
@@ -99,6 +114,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
         v.start = 'Start year cannot be later than end year';
       }
     }
+    // Validate group field if enabled
+    if (isGroupEnabled && (!form.group || String(form.group).trim() === '')) {
+      v.group = 'Group name is required when enabled';
+    }
     setValidation({
       category: v.category || '',
       status: v.status || '',
@@ -107,7 +126,8 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       desc: v.desc || '',
       start: v.start || '',
       end: v.end || '',
-      imdb: v.imdb || ''
+      imdb: v.imdb || '',
+      group: v.group || ''
     });
     return Object.keys(v).length === 0;
   }
@@ -117,6 +137,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
     if (validate()) {
       const showData = { ...form, category: form.newCategory ? form.newCategory : form.category };
       delete showData.newCategory;
+      // Only include group if enabled and not empty
+      if (!isGroupEnabled || !showData.group?.trim()) {
+        delete showData.group;
+      }
       onSave(showData);
     }
   }
@@ -127,6 +151,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
     if (validate() && typeof onSaveAndAddMore === 'function') {
       const showData = { ...form, category: form.newCategory ? form.newCategory : form.category };
       delete showData.newCategory;
+      // Only include group if enabled and not empty
+      if (!isGroupEnabled || !showData.group?.trim()) {
+        delete showData.group;
+      }
       onSaveAndAddMore(showData, () => {
         // Reset form after successful add
         setForm({
@@ -138,8 +166,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           desc: initialData.desc || '',
           start: initialData.start || '',
           end: initialData.end || '',
-          imdb: initialData.imdb || ''
+          imdb: initialData.imdb || '',
+          group: initialData.group || ''
         });
+        setIsGroupEnabled(!!initialData.group);
         setTouched(false);
         setValidation({
           category: '',
@@ -149,7 +179,8 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           desc: '',
           start: '',
           end: '',
-          imdb: ''
+          imdb: '',
+          group: ''
         });
       });
     }
@@ -226,6 +257,38 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
         <label className="form-label fw-bold">IMDB ID</label>
         <input type="text" className="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required placeholder="tt0000000 (type a value to enable Thumbnail Control button)" />
         {validation.imdb && <div className="text-danger small">{validation.imdb}</div>}
+      </div>
+
+      {/* Group Field */}
+      <div className="mb-3 w-75">
+        <div className="form-check mb-2">
+          <input 
+            className="form-check-input" 
+            type="checkbox" 
+            id="groupEnabled" 
+            checked={isGroupEnabled}
+            onChange={handleGroupToggle}
+          />
+          <label className="form-check-label fw-bold" htmlFor="groupEnabled">
+            Add to Group
+          </label>
+        </div>
+        {isGroupEnabled && (
+          <div>
+            <input 
+              type="text" 
+              className="form-control form-control-sm" 
+              name="group" 
+              value={form.group} 
+              onInput={handleChange} 
+              placeholder="Enter group name (e.g., 'Star Trek')" 
+            />
+            <div className="form-text text-muted small mt-1">
+              Group multiple seasons/parts of the same show together in the frontend display.
+            </div>
+            {validation.group && <div className="text-danger small">{validation.group}</div>}
+          </div>
+        )}
       </div>
 
       {/* Thumbnail Controls Section */}

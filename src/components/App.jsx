@@ -3,8 +3,6 @@ import { LayoutAdmin } from '@components/Layouts/LayoutAdmin';
 import { LayoutFullpageBlank } from '@components/Layouts/LayoutFullpageBlank';
 import { AdminLogin } from '@pages/index';
 import { Dashboard } from '@pages/dashboard';
-import { useEffect } from 'preact/hooks';
-import { loadPlaylists } from '@signals/playlistSignal';
 import { AdminSearch } from '@pages/search';
 import { AdminProblems } from '@pages/problems';
 import { AdminSettings } from '@pages/settings';
@@ -34,7 +32,7 @@ const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBla
 
 export function App() {
 
-  useEffect(() => { loadPlaylists(); }, []);
+  // Removed loadPlaylists() call from here - it will be called by authenticated components that need it
 
   return (
     <main>

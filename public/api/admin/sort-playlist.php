@@ -45,12 +45,37 @@ if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
 // Make a copy of the original shows array for comparison
 $originalShows = $data['shows'];
 
-// Sort shows by category, then by title within each category
+// Sort shows by category, then by group (if any), then by title within each category
 usort($data['shows'], function ($a, $b) {
+    // First compare by category
     $catCmp = strcmp(strtolower($a['category'] ?? ''), strtolower($b['category'] ?? ''));
     if ($catCmp !== 0) {
         return $catCmp;
     }
+
+    // Within same category, sort by group status and group name
+    $aGroup = $a['group'] ?? '';
+    $bGroup = $b['group'] ?? '';
+
+    // If both have groups, sort by group name
+    if ($aGroup && $bGroup) {
+        $groupCmp = strcmp(strtolower($aGroup), strtolower($bGroup));
+        if ($groupCmp !== 0) {
+            return $groupCmp;
+        }
+        // Within same group, sort by title
+        return strcmp(strtolower($a['title'] ?? ''), strtolower($b['title'] ?? ''));
+    }
+
+    // If only one has a group, grouped items come first
+    if ($aGroup && !$bGroup) {
+        return -1;
+    }
+    if (!$aGroup && $bGroup) {
+        return 1;
+    }
+
+    // If neither has a group, sort by title
     return strcmp(strtolower($a['title'] ?? ''), strtolower($b['title'] ?? ''));
 });
 
@@ -72,4 +97,4 @@ if (file_put_contents($playlistPath, json_encode($data, JSON_PRETTY_PRINT | JSON
 // Rebuild index.json after sorting
 rebuild_index(__DIR__ . '/../../playlists');
 
-echo json_encode(['success' => true, 'message' => 'Playlist sorted by category']);
+echo json_encode(['success' => true, 'message' => 'Playlist sorted by category and group']);

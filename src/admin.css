@@ -27,6 +27,29 @@
     pointer-events: none;
 }
 
+/* Grouped items styling */
+.grouped-item {
+    border: 2px solid #0066cc;
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+.group-first {
+    border-bottom: 1px solid #0066cc;
+}
+
+.group-middle {
+    border-top: 1px solid #0066cc;
+    border-bottom: 1px solid #0066cc;
+}
+
+.group-last {
+    border-top: 1px solid #0066cc;
+}
+
+.group-individual {
+    border: 2px dashed #0066cc;
+}
+
 .position-relative {
     position: relative;
     min-height: 50px;

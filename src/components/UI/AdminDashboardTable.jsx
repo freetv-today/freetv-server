@@ -55,6 +55,46 @@ export function AdminDashboardTable({
     return data;
   }, [shows, sortBy, sortOrder, filterCategory, hideDisabled]);
 
+  // Determine grouping information for visual indication
+  const groupInfo = useMemo(() => {
+    const groupPositions = {};
+    const groups = {};
+    
+    // First, identify all groups and their positions
+    filteredShows.forEach((show, index) => {
+      if (show.group) {
+        if (!groups[show.group]) {
+          groups[show.group] = [];
+        }
+        groups[show.group].push(index);
+      }
+    });
+
+    // Determine which rows should have group styling
+    Object.keys(groups).forEach(groupName => {
+      const positions = groups[groupName];
+      if (positions.length >= 2) { // Only groups with 2+ items
+        positions.forEach((pos, idx) => {
+          const isContiguous = positions.length > 1 && 
+            (idx === 0 ? positions[idx + 1] === pos + 1 : 
+             idx === positions.length - 1 ? positions[idx - 1] === pos - 1 :
+             positions[idx - 1] === pos - 1 || positions[idx + 1] === pos + 1);
+          
+          groupPositions[pos] = {
+            groupName,
+            isGrouped: true,
+            isFirst: idx === 0,
+            isLast: idx === positions.length - 1,
+            isContiguous,
+            totalInGroup: positions.length
+          };
+        });
+      }
+    });
+
+    return groupPositions;
+  }, [filteredShows]);
+
   // Helper to render carat for a column
   function renderSortCarat(column) {
     if (sortBy !== column) return null;
@@ -96,29 +136,52 @@ export function AdminDashboardTable({
             <td colSpan={4} className="text-center text-muted py-4">No shows to display.</td>
           </tr>
         ) : (
-          filteredShows.map((show, idx) => (
-            <tr key={show.id || show.title + idx} className={show.status === 'disabled' ? 'disabled-item' : ''}>
-              <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
-              <td>{show.title}</td>
-              <td>
-                <button
-                  className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                  onClick={() => onStatusToggle(show)}
-                  title={show.status === 'disabled' ? 'Enable' : 'Disable'}
-                >
-                  {show.status === 'disabled' ? 'Disabled' : 'Active'}
-                </button>
-              </td>
-              <td>
-                <AdminShowActions
-                  show={show}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onTest={onTest}
-                />
-              </td>
-            </tr>
-          ))
+          filteredShows.map((show, idx) => {
+            const groupData = groupInfo[idx];
+            let rowClass = show.status === 'disabled' ? 'disabled-item' : '';
+            
+            if (groupData && groupData.isGrouped) {
+              rowClass += ' grouped-item';
+              if (groupData.isContiguous) {
+                if (groupData.isFirst) rowClass += ' group-first';
+                if (groupData.isLast) rowClass += ' group-last';
+                if (!groupData.isFirst && !groupData.isLast) rowClass += ' group-middle';
+              } else {
+                rowClass += ' group-individual';
+              }
+            }
+
+            return (
+              <tr key={show.id || show.title + idx} className={rowClass.trim()}>
+                <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
+                <td>
+                  {show.title}
+                  {groupData && groupData.isGrouped && (
+                    <small className="text-muted ms-2" title={`Part of group: ${groupData.groupName}`}>
+                      📁
+                    </small>
+                  )}
+                </td>
+                <td>
+                  <button
+                    className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                    onClick={() => onStatusToggle(show)}
+                    title={show.status === 'disabled' ? 'Enable' : 'Disable'}
+                  >
+                    {show.status === 'disabled' ? 'Disabled' : 'Active'}
+                  </button>
+                </td>
+                <td>
+                  <AdminShowActions
+                    show={show}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onTest={onTest}
+                  />
+                </td>
+              </tr>
+            );
+          })
         )}
       </tbody>
     </table>
