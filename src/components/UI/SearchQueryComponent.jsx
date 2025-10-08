@@ -11,7 +11,7 @@ const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
  * @param {function(string): void} props.onSearch - Called when search is submitted with valid query
  */
 export function SearchQueryComponent({ onSearch }) {
-  const [searchQuery, setsearchQuery] = useLocalStorage('dashSearchQuery', '');
+  const [searchQuery, setsearchQuery] = useLocalStorage('adminSearchQuery', '');
   const [query, setQuery] = useState(searchQuery || '');
   const inputRef = useRef(null);
   const log = useDebugLog();
@@ -56,7 +56,7 @@ export function SearchQueryComponent({ onSearch }) {
   const handleClear = () => {
     setQuery('');
     setsearchQuery('');
-    localStorage.removeItem('dashSearchQuery');
+    localStorage.removeItem('adminSearchQuery');
     onSearch('');
     log('Clearing admin search query from local storage');
   };

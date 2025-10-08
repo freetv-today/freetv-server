@@ -23,7 +23,7 @@ export function AdminSearch() {
     // Restore query from localStorage
     const getInitialQuery = () => {
       try {
-        const val = window.localStorage.getItem('searchQuery');
+        const val = window.localStorage.getItem('adminSearchQuery');
         return val ? JSON.parse(val) : '';
       } catch {
         return '';
@@ -73,7 +73,7 @@ export function AdminSearch() {
 
     // Save query to localStorage
     useEffect(() => {
-      window.localStorage.setItem('searchQuery', JSON.stringify(query));
+      window.localStorage.setItem('adminSearchQuery', JSON.stringify(query));
     }, [query]);
 
     // Filter results based on query

@@ -7,7 +7,7 @@ export function ImageLargeLogo() {
     <div className="text-center mt-4">
 		<h1 className="display-4 bruno-ace noselect">Free TV</h1>
 		<p className="pb-4">
-			<Link href={createPath('/')} className="m-0 p-0">
+			<Link href={createPath('/dashboard')} className="m-0 p-0">
 				<img src={freetvLogo} width="175" title="Watch Free TV!" alt="Free TV logo" />
 			</Link>
 		</p>
