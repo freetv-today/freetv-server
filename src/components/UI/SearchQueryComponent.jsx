@@ -6,7 +6,7 @@ import { useDebugLog } from '@/hooks/useDebugLog';
 const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
 
 export function SearchQueryComponent({ onSearch }) {
-  const [searchQuery, setsearchQuery] = useLocalStorage('searchQuery', '');
+  const [searchQuery, setsearchQuery] = useLocalStorage('dashSearchQuery', '');
   const [query, setQuery] = useState(searchQuery || '');
   const inputRef = useRef(null);
   const log = useDebugLog();
@@ -51,9 +51,9 @@ export function SearchQueryComponent({ onSearch }) {
   const handleClear = () => {
     setQuery('');
     setsearchQuery('');
-    localStorage.removeItem('searchQuery');
+    localStorage.removeItem('dashSearchQuery');
     onSearch('');
-    log('Clearing search query from local storage');
+    log('Clearing admin search query from local storage');
   };
 
   return (

@@ -1,5 +1,5 @@
 import { Link } from '@components/Navigation/Link';
-import freetvLogo from '/assets/freetv.png';
+import freetvLogo from '/assets/freetv-small.png';
 import { createPath } from '@/utils/env';
 
 export function ImageSmallLogo() {

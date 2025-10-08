@@ -5,6 +5,7 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { createPath } from '@/utils/env';
 
 export function AdminSettings() {
 
@@ -86,7 +87,7 @@ export function AdminSettings() {
     }
 
     function handleCancel() {
-        route('/dashboard');
+        route(createPath('/dashboard'));
     }
 
     async function handleSave(e) {
