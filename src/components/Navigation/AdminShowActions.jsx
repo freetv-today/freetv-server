@@ -1,10 +1,10 @@
 /**
  * AdminShowActions - renders Edit, Delete, and Test buttons for a show row
- * Props:
- *   show: the show object
- *   onEdit: function(show) => void
- *   onDelete: function(show) => void
- *   onTest: function(show) => void
+ * @param {Object} props
+ * @param {Object} props.show - The show object
+ * @param {function(Object): void} [props.onEdit] - Called when edit button is clicked
+ * @param {function(Object): void} [props.onDelete] - Called when delete button is clicked
+ * @param {function(Object): void} [props.onTest] - Called when test button is clicked
  */
 
 export function AdminShowActions({ show, onEdit, onDelete, onTest }) {

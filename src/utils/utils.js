@@ -2,9 +2,12 @@
 // Javascript Utilities
 // ------------------------------
 
-// Generate random tokens
-// accepts 1 argument: length of token to create
-// Usage: generateToken(32) - creates 32 char alphanumerical token
+/**
+ * Generate random tokens
+ * @param {number} length - Length of token to create
+ * @returns {string} Alphanumeric token string
+ * @example generateToken(32) // creates 32 char alphanumerical token
+ */
 export function generateToken(length) {
   const a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split('');
   const b = [];
@@ -15,9 +18,11 @@ export function generateToken(length) {
   return b.join('');
 }
 
-// Generate unique code (used for session tracking)
-// Tokens are pseudo-random uppercase & alphanumeric w/ dashes
-// Example: 3M4L-X5FX-BB9P-DQXV-O4NM-TLPD
+/**
+ * Generate unique code (used for session tracking)
+ * Tokens are pseudo-random uppercase & alphanumeric w/ dashes
+ * @returns {string} Formatted code like "3M4L-X5FX-BB9P-DQXV-O4NM-TLPD"
+ */
 export function generateNewCode() {
   const pt1 = generateToken(4).toUpperCase();
   const pt2 = generateToken(4).toUpperCase();
@@ -28,24 +33,37 @@ export function generateNewCode() {
   return `${pt1}-${pt2}-${pt3}-${pt4}-${pt5}-${pt6}`;
 }
 
-// Uppercase first letter
-// accepts 1 argument: string to modify
-// Usage: capitalizeFirstLetter('foobar') -- returns 'Foobar'
+/**
+ * Uppercase first letter of a string
+ * @param {string} string - String to modify
+ * @returns {string} String with first letter capitalized
+ * @example capitalizeFirstLetter('foobar') // returns 'Foobar'
+ */
 export function capitalizeFirstLetter(string) {
   if (!string || typeof string !== 'string') return '';
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Determines whether date in local storage matches config date
-// used by AppLoader.jsx
+/**
+ * Determines whether date in local storage matches config date
+ * Used by AppLoader.jsx to check if data needs updating
+ * @param {Object} storedData - Data from localStorage with lastupdated field
+ * @param {Object} newData - New data with lastupdated field
+ * @returns {boolean} True if data should be updated
+ */
 export function shouldUpdateData(storedData, newData) {
   const storedDate = storedData?.lastupdated ? new Date(storedData.lastupdated) : null;
   const newDate = newData?.lastupdated ? new Date(newData.lastupdated) : null;
   return !storedData || !storedDate || (newDate && newDate > storedDate);
 }
 
-// Shows SpinnerLoadingAppData for min of 1.2 seconds
-// used by AppLoader.jsx (gives user time to see spinner)
+/**
+ * Shows SpinnerLoadingAppData for minimum duration
+ * Used by AppLoader.jsx to ensure user sees spinner for adequate time
+ * @param {number} startTime - Timestamp when loading started
+ * @param {number} [minTime=1200] - Minimum time in milliseconds
+ * @returns {Promise<void>} Promise that resolves after minimum time
+ */
 export async function enforceMinLoadingTime(startTime, minTime = 1200) {
   const elapsedTime = Date.now() - startTime;
   const remainingTime = minTime - elapsedTime;
@@ -54,16 +72,22 @@ export async function enforceMinLoadingTime(startTime, minTime = 1200) {
   }
 }
 
-// Used by ButtonVideoNav.jsx to confirm page reload
+/**
+ * Used by ButtonVideoNav.jsx to confirm page reload
+ * @returns {boolean} True if user confirms the reload
+ */
 export function confirmPlaylistReload() {
   return window.confirm(
     'To show or hide the Episode Playlist you\'ll have to reload the page. Do you wish to proceed?'
   );
 }
 
-// Show alert and focus text input field
-// accepts 2 arguments: message, and id of form text input to focus
-// used by SearchQueryComponent.jsx
+/**
+ * Show alert and focus text input field
+ * Used by SearchQueryComponent.jsx for user feedback
+ * @param {string} message - Alert message to display
+ * @param {string} [inputId] - ID of form text input to focus after alert
+ */
 export function showAlert(message, inputId) {
   alert(message);
   if (inputId) {
@@ -74,35 +98,47 @@ export function showAlert(message, inputId) {
   }
 }
 
-// Remove extra parameters from the URL
-// Example: changes URL from /help#version to /help
-// used on Help page
+/**
+ * Remove extra parameters from the URL
+ * Changes URL from /help#version to /help - used on Help page
+ * @example resetUrl() // removes hash and search params from current URL
+ */
 export function resetUrl() {
   const baseUrl = window.location.origin + window.location.pathname;
   history.replaceState({}, document.title, baseUrl);
 }
 
-// Format JSON timestamp to user-friendly date/time
-// Usage: formatDateTime('2025-08-31T13:03:05.608Z')
-// Returns formatted date like: '8/31/25, 09:03 AM'
+/**
+ * Format JSON timestamp to user-friendly date/time
+ * @param {string|number|Date} date - Date to format
+ * @param {Object} [options={}] - Intl.DateTimeFormat options to override defaults
+ * @returns {string} Formatted date like '8/31/25, 09:03 AM' or '-' if invalid
+ * @example formatDateTime('2025-08-31T13:03:05.608Z') // returns '8/31/25, 09:03 AM'
+ */
 export function formatDateTime(date, options = {}) {
   if (!date) return '-';
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
-  if (isNaN(d)) return '00/00/00, 00:00';
+  if (isNaN(d.getTime())) return '00/00/00, 00:00';
   // Default options can be overridden
   const defaultOptions = { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
   return d.toLocaleString(undefined, { ...defaultOptions, ...options });
 }
 
-// Returns a random category 
-// Accepts 1 argument: an array of categories
+/**
+ * Returns a random category from an array
+ * @param {Array<string>} categories - Array of category strings
+ * @returns {string|null} Random category or null if array is empty/invalid
+ */
 export function getRandomCategory(categories) {
   if (!Array.isArray(categories) || categories.length === 0) return null;
   const idx = Math.floor(Math.random() * categories.length);
   return categories[idx];
 }
 
-// Handle keypress events
+/**
+ * Handle keypress events
+ * @param {KeyboardEvent} event - The keyboard event
+ */
 export function handleKeyPress(event) {
   // Ignore if focus is in an input, textarea, or contenteditable element
   const tag = document.activeElement && document.activeElement.tagName;
@@ -117,7 +153,10 @@ export function handleKeyPress(event) {
   }
 }
 
-// Get app info from local storage
+/**
+ * Get app info from local storage
+ * @returns {Object|undefined} Parsed app info object or undefined if not found
+ */
 export function getAppInfo() {
   let d = localStorage.getItem('appInfo');
   if (d) {

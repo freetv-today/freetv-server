@@ -5,6 +5,11 @@ import { useDebugLog } from '@/hooks/useDebugLog';
 
 const IGNORED_WORDS = ['a', 'and', 'the', 'or', 'but'];
 
+/**
+ * SearchQueryComponent - Search input field with validation and submit handling
+ * @param {Object} props
+ * @param {function(string): void} props.onSearch - Called when search is submitted with valid query
+ */
 export function SearchQueryComponent({ onSearch }) {
   const [searchQuery, setsearchQuery] = useLocalStorage('dashSearchQuery', '');
   const [query, setQuery] = useState(searchQuery || '');

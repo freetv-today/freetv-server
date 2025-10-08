@@ -4,12 +4,13 @@ import { useAdminPlaylistData } from '@hooks/useAdminPlaylistData';
 
 /**
  * AdminSearchResults - displays admin search results in a table with admin actions
- * Props:
- *   results: array of show objects
- *   onEdit: function(show) => void
- *   onDelete: function(show) => void
- *   onTest: function(show) => void
- *   onStatusToggle: function(show) => void
+ * @param {Object} props
+ * @param {Array<Object>} [props.results=[]] - Array of show objects to display
+ * @param {function(Object): void} props.onEdit - Called when edit button is clicked
+ * @param {function(Object): void} props.onDelete - Called when delete button is clicked
+ * @param {function(Object): void} props.onTest - Called when test button is clicked
+ * @param {function(Object): void} props.onStatusToggle - Called when status toggle is clicked
+ * @param {string} [props.statusUpdatingIdentifier] - Identifier of show currently being updated
  */
 
 export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onStatusToggle, statusUpdatingIdentifier }) {
@@ -23,7 +24,7 @@ export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onS
 
   return (
     <>
-      <h3 className="text-center my-5">Search results from playlist: {getCurrentPlaylistTitle}</h3>
+      <h3 className="text-center fs-5 my-5">Search results from playlist: "{getCurrentPlaylistTitle()}"</h3>
       <div className="table-responsive my-4">
         <table className="table table-striped table-hover align-middle mb-5">
           <thead>

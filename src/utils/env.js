@@ -1,17 +1,25 @@
 // Environment configuration utilities
+
+/** @type {boolean} Production environment flag */
 export const isProduction = import.meta.env.PROD;
+
+/** @type {boolean} Development environment flag */
 export const isDevelopment = import.meta.env.DEV;
 
-// Get base path from environment or fallback
+/** @type {string} Base path from environment or fallback */
 export const basePath = import.meta.env.VITE_BASE_PATH || (isProduction ? '/admin/' : '/');
 
-// Remove trailing slash for consistent usage
+/** @type {string} Base path with trailing slash removed for consistent usage */
 export const basePathClean = basePath.replace(/\/$/, '');
 
-// API base URL
+/** @type {string} API base URL */
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isProduction ? 'https://freetv.today' : 'http://localhost:8000');
 
-// Helper to create environment-aware paths
+/**
+ * Helper to create environment-aware paths
+ * @param {string} path - The path to process
+ * @returns {string} Environment-aware path
+ */
 export function createPath(path) {
   if (path.startsWith('/')) {
     // Absolute path - prefix with base path if in production
@@ -21,7 +29,11 @@ export function createPath(path) {
   return path;
 }
 
-// Helper to create API paths
+/**
+ * Helper to create API paths
+ * @param {string} path - The path to process
+ * @returns {string} Properly formatted API path
+ */
 export function createApiPath(path) {
   return path.startsWith('/') ? path : '/' + path;
 }
