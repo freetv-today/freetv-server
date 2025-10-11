@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 import { capitalizeFirstLetter } from '@/utils/utils';
 
@@ -17,6 +17,11 @@ import { capitalizeFirstLetter } from '@/utils/utils';
 
 export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCancel, saving = false, error = null, categories = [], mode = 'add' }) {
   
+  // Sort categories properly to match AdminDashboardFilters behavior
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort();
+  }, [categories]);
+
   const [form, setForm] = useState({
   category: initialData.category || '',
   newCategory: '',
@@ -196,11 +201,11 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
             name="category"
             value={form.category}
             onInput={handleChange}
-            disabled={categories.length === 0}
+            disabled={sortedCategories.length === 0}
             style={{ minWidth: 175 }}
           >
             <option value="">Select or type new</option>
-            {categories.map(cat => (
+            {sortedCategories.map(cat => (
               <option value={cat} key={cat}>{capitalizeFirstLetter(cat)}</option>
             ))}
           </select>

@@ -26,7 +26,7 @@ export function EditShow() {
   const show = (showData || []).find(s => s.identifier === identifier);
 
   // Get unique categories for select from current playlist's showData
-  const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));
+  const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean))).sort();
 
   function handleCancel() {
     route(createPath('/dashboard'));

@@ -26,7 +26,7 @@ export function AddShow() {
   // Show loading spinner when playlist is loading
   if (playlistLoading) return <SpinnerLoadingAppData />;
   if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
-  const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean)));
+  const categories = Array.from(new Set((showData || []).map(s => s.category).filter(Boolean))).sort();
 
   function handleCancel() {
     route(createPath('/dashboard'));
