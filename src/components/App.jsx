@@ -32,8 +32,6 @@ const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBla
 
 export function App() {
 
-  // Removed loadPlaylists() call from here - it will be called by authenticated components that need it
-
   return (
     <main>
       <Router>

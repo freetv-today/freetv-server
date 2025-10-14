@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -21,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $input = json_decode(file_get_contents('php://input'), true);
 $playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
 $show = isset($input['show']) ? $input['show'] : null;
+$originalIdentifier = isset($input['originalIdentifier']) ? $input['originalIdentifier'] : null; // <-- Add this
 
 if (!$playlist || !$show || !isset($show['identifier'])) {
     http_response_code(400);
@@ -46,8 +46,12 @@ if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
 
 $add = isset($input['add']) ? (bool)$input['add'] : false;
 $found = false;
+
+// If originalIdentifier is provided (editing), use it to find the record; otherwise use show['identifier'] (adding)
+$searchIdentifier = $originalIdentifier ? $originalIdentifier : $show['identifier']; // <-- Add this
+
 foreach ($data['shows'] as &$item) {
-    if (isset($item['identifier']) && $item['identifier'] === $show['identifier']) {
+    if (isset($item['identifier']) && $item['identifier'] === $searchIdentifier) { // <-- Change this line
         $item = $show;
         $found = true;
         break;

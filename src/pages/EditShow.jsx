@@ -41,6 +41,7 @@ export function EditShow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           playlist: currentPlaylist,
+          originalIdentifier: identifier, // <-- Add this: the identifier from the URL
           show: updatedShow
         })
       });
@@ -49,8 +50,13 @@ export function EditShow() {
         setError(data && data.message ? data.message : 'Save failed.');
       } else {
         await switchPlaylist(currentPlaylist);
-        setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
-        route(createPath('/dashboard'));
+        // Check if identifier changed
+        if (updatedShow.identifier !== identifier) {
+          setAdminMsg({ type: 'success', text: 'The show has been updated successfully. The identifier was changed.' });
+        } else {
+          setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
+        }
+        route(createPath('/dashboard')); // <-- Always route back to dashboard
       }
     } catch (err) {
       setError('Save failed.');
