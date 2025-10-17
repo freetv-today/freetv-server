@@ -6,12 +6,11 @@ import { createPath } from '@/utils/env';
  * ShowThumbnailControls - UI and logic for managing a single show's thumbnail
  * @param {Object} props
  * @param {string} props.imdb - IMDB ID
- * @param {string} props.title - Show title (for IMDB search)
  * @param {string} props.mode - 'add' or 'edit'
  * @param {function} [props.onThumbnailChange] - Optional callback when thumbnail changes
  */
 
-export function ShowThumbnailControls({ imdb, title, mode, onThumbnailChange }) {
+export function ShowThumbnailControls({ imdb, mode, onThumbnailChange }) {
 
   const {
     loading,
@@ -33,20 +32,6 @@ export function ShowThumbnailControls({ imdb, title, mode, onThumbnailChange }) 
     }
   }, [previewUrl, onThumbnailChange]);
 
-  // Handlers
-  function handleSearchIMDB() {
-    if (title) {
-      const query = encodeURIComponent(title);
-      window.open(`https://www.imdb.com/find?q=${query}&s=tt`, 'imdbSearch', 'width=640,height=480');
-    }
-  }
-
-  function handleCheckIMDB() {
-    if (imdb) {
-      window.open(`https://www.imdb.com/title/${imdb}`, 'imdbShow', 'width=640,height=480');
-    }
-  }
-
   // UI
   return (
   <div class="accordion" id="thumbnailControls">
@@ -60,16 +45,6 @@ export function ShowThumbnailControls({ imdb, title, mode, onThumbnailChange }) 
         <div class="accordion-body">
 
           <div className="mb-4 p-3 border rounded bg-light">
-            <div className="d-flex flex-row flex-column flex-md-row align-items-center gap-2 mb-2">
-              <button type="button" className="btn btn-outline-primary btn-sm text-nowrap external-link-btn" onClick={handleSearchIMDB} disabled={!title}>
-                Search IMDB by Title
-                <img src={createPath('/assets/external-link.svg')} className="ms-2" width="14" />
-              </button>
-              <button type="button" className="btn btn-outline-primary btn-sm text-nowrap external-link-btn" onClick={handleCheckIMDB} disabled={!imdb}>
-                View IMDB Page
-                <img src={createPath('/assets/external-link.svg')} className="ms-2" width="14" />
-              </button>
-            </div>
             <div className="d-flex justify-content-center justify-content-md-start align-items-center gap-2 mb-2">        
               <button type="button" className="btn btn-warning btn-sm" onClick={fetchThumbnail} disabled={!imdb || loading}>Fetch Thumbnail</button>
               <button type="button" className="btn btn-primary btn-sm" onClick={saveThumbnail} disabled={!imdb || loading || !previewUrl || previewUrl.startsWith('/thumbs/')}>Save Thumbnail</button>
@@ -78,9 +53,9 @@ export function ShowThumbnailControls({ imdb, title, mode, onThumbnailChange }) 
               )}
             </div>
             <div className="d-flex justify-content-center justify-content-md-start align-items-center">
-              {(!title || !imdb) && (
+              {!imdb && (
                 <span className="small text-secondary xsmall">
-                  (Type Title and IMDB values to enable buttons)
+                  (Type IMDB ID to enable buttons)
                 </span>
               )}
             </div>

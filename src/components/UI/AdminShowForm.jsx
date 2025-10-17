@@ -35,7 +35,6 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
   group: initialData.group || ''
   });
   const [isGroupEnabled, setIsGroupEnabled] = useState(!!initialData.group);
-  const [touched, setTouched] = useState(false);
   const [validation, setValidation] = useState({
     category: '',
     status: '',
@@ -62,7 +61,6 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       group: initialData.group || ''
     });
     setIsGroupEnabled(!!initialData.group);
-    setTouched(false);
     setValidation({
       category: '',
       status: '',
@@ -81,12 +79,10 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
     // Convert newCategory input to lowercase for consistency
     const processedValue = name === 'newCategory' ? value.toLowerCase() : value;
     setForm(f => ({ ...f, [name]: processedValue }));
-    setTouched(true);
   }
 
   function handleStatusToggle(val) {
     setForm(f => ({ ...f, status: val }));
-    setTouched(true);
   }
 
   function handleGroupToggle(e) {
@@ -95,7 +91,6 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
     if (!enabled) {
       setForm(f => ({ ...f, group: '' }));
     }
-    setTouched(true);
   }
 
   function validate() {
@@ -175,7 +170,6 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           group: initialData.group || ''
         });
         setIsGroupEnabled(!!initialData.group);
-        setTouched(false);
         setValidation({
           category: '',
           status: '',
@@ -238,8 +232,22 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       </div>
       <div className="mb-3">
         <label className="form-label fw-bold">Title</label>
-        <input type="text" className="form-control form-control-sm" name="title" value={form.title} onInput={handleChange} required placeholder="Show Title (type a value to enable Thumbnail Control button)" />
+        <input type="text" className="form-control form-control-sm" name="title" value={form.title} onInput={handleChange} required placeholder="Show Title" />
         {validation.title && <div className="text-danger small">{validation.title}</div>}
+        <button 
+          type="button" 
+          className="btn btn-outline-primary btn-sm text-nowrap external-link-btn mt-2" 
+          onClick={() => {
+            if (form.title) {
+              const query = encodeURIComponent(form.title);
+              window.open(`https://www.imdb.com/find?q=${query}&s=tt`, 'imdbSearch', 'width=640,height=480');
+            }
+          }} 
+          disabled={!form.title}
+        >
+          Search IMDB by Title
+          <img src="/assets/external-link.svg" className="ms-2" width="14" alt="External link" />
+        </button>
       </div>
       <div className="mb-2">
         <label className="form-label fw-bold">Description</label>
@@ -260,8 +268,21 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       </div>
       <div className="mb-3 mt-3 w-75">
         <label className="form-label fw-bold">IMDB ID</label>
-        <input type="text" className="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required placeholder="tt0000000 (type a value to enable Thumbnail Control button)" />
+        <input type="text" className="form-control form-control-sm" name="imdb" value={form.imdb} onInput={handleChange} required placeholder="tt0000000" />
         {validation.imdb && <div className="text-danger small">{validation.imdb}</div>}
+        <button 
+          type="button" 
+          className="btn btn-outline-primary btn-sm text-nowrap external-link-btn mt-2" 
+          onClick={() => {
+            if (form.imdb) {
+              window.open(`https://www.imdb.com/title/${form.imdb}`, 'imdbShow', 'width=640,height=480');
+            }
+          }} 
+          disabled={!form.imdb}
+        >
+          View IMDB Page
+          <img src="/assets/external-link.svg" className="ms-2" width="14" alt="External link" />
+        </button>
       </div>
 
       {/* Group Field */}
@@ -299,7 +320,6 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       {/* Thumbnail Controls Section */}
       <ShowThumbnailControls
         imdb={form.imdb}
-        title={form.title}
         mode={mode}
       />
       {error && <div className="alert alert-danger">{error}</div>}
