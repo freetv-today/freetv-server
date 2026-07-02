@@ -1,0 +1,151 @@
+-- FreeTV MariaDB schema
+-- Import into MariaDB / phpMyAdmin as a SQL file.
+-- Recommended database: freetv
+
+CREATE DATABASE IF NOT EXISTS freetv
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE freetv;
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  collector VARCHAR(255) NULL,
+  offline TINYINT(1) NOT NULL DEFAULT 0,
+  appdata TINYINT(1) NOT NULL DEFAULT 0,
+  showads TINYINT(1) NOT NULL DEFAULT 0,
+  modules TINYINT(1) NOT NULL DEFAULT 0,
+  debugmode TINYINT(1) NOT NULL DEFAULT 0,
+  lastupdated DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  username VARCHAR(100) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'admin',
+  status VARCHAR(50) NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_login_at DATETIME NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_users_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS playlists (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL,
+  dbtitle VARCHAR(255) NOT NULL,
+  dbversion VARCHAR(50) NULL,
+  author VARCHAR(255) NULL,
+  email VARCHAR(255) NULL,
+  link VARCHAR(255) NULL,
+  lastupdated DATETIME NULL,
+  is_default TINYINT(1) NOT NULL DEFAULT 0,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_playlists_filename (filename),
+  KEY idx_playlists_is_default (is_default),
+  KEY idx_playlists_sort_order (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS playlist_shows (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  playlist_id INT UNSIGNED NOT NULL,
+  category VARCHAR(100) NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'active',
+  identifier VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  start_year VARCHAR(20) NULL,
+  end_year VARCHAR(20) NULL,
+  imdb VARCHAR(50) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  thumbnail_path VARCHAR(500) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_playlist_shows_playlist_identifier (playlist_id, identifier),
+  KEY idx_playlist_shows_status (status),
+  KEY idx_playlist_shows_category (category),
+  KEY idx_playlist_shows_sort_order (sort_order),
+  CONSTRAINT fk_playlist_shows_playlist
+    FOREIGN KEY (playlist_id)
+    REFERENCES playlists (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS thumbnail_files (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  playlist_show_id INT UNSIGNED NOT NULL,
+  filename VARCHAR(255) NOT NULL,
+  relative_path VARCHAR(500) NOT NULL,
+  mime_type VARCHAR(100) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_thumbnail_files_show_filename (playlist_show_id, filename),
+  KEY idx_thumbnail_files_filename (filename),
+  CONSTRAINT fk_thumbnail_files_show
+    FOREIGN KEY (playlist_show_id)
+    REFERENCES playlist_shows (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS problem_reports (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  playlist_id INT UNSIGNED NULL,
+  playlist_show_id INT UNSIGNED NULL,
+  identifier VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NULL,
+  category VARCHAR(100) NULL,
+  imdb VARCHAR(50) NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'reported',
+  report_count INT UNSIGNED NOT NULL DEFAULT 1,
+  archive_api_error TINYINT(1) NOT NULL DEFAULT 0,
+  first_reported_at DATETIME NOT NULL,
+  last_reported_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_problem_reports_status (status),
+  KEY idx_problem_reports_playlist_id (playlist_id),
+  KEY idx_problem_reports_identifier (identifier),
+  CONSTRAINT fk_problem_reports_playlist
+    FOREIGN KEY (playlist_id)
+    REFERENCES playlists (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_problem_reports_show
+    FOREIGN KEY (playlist_show_id)
+    REFERENCES playlist_shows (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS problem_report_ips (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  problem_report_id INT UNSIGNED NOT NULL,
+  ip_address VARCHAR(45) NOT NULL,
+  reported_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_problem_report_ips_ip (ip_address),
+  KEY idx_problem_report_ips_report (problem_report_id),
+  CONSTRAINT fk_problem_report_ips_report
+    FOREIGN KEY (problem_report_id)
+    REFERENCES problem_reports (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Optional seed row for app settings if you want a single config record immediately.
+-- INSERT INTO app_settings (collector, offline, appdata, showads, modules, debugmode, lastupdated)
+-- VALUES ('https://freetv.today/api/beacon.php', 0, 0, 0, 1, 0, NOW());
