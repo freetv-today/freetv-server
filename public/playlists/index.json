@@ -1,0 +1,11 @@
+{
+    "default": "default.json",
+    "playlists": [
+        {
+            "filename": "default.json",
+            "dbtitle": "Default Playlist",
+            "lastupdated": "2026-07-03T21:14:44.004Z",
+            "author": "Free TV"
+        }
+    ]
+}

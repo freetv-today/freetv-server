@@ -63,4 +63,25 @@ class AdminConfig
     {
         return $this->config['apdata_path'];
     }
+
+    public function getDatabaseConfig()
+    {
+        return [
+            'host' => getenv('DB_HOST') ?: '127.0.0.1',
+            'port' => getenv('DB_PORT') ?: '3306',
+            'name' => getenv('DB_NAME') ?: 'freetv',
+            'user' => getenv('DB_USER') ?: 'freetv',
+            'pass' => getenv('DB_PASS') ?: '',
+        ];
+    }
+
+    public function getPdo()
+    {
+        $db = $this->getDatabaseConfig();
+        $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $db['host'], (int) $db['port'], $db['name']);
+        return new \PDO($dsn, $db['user'], $db['pass'], [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+        ]);
+    }
 }

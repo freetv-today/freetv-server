@@ -162,4 +162,4 @@ Contributions are welcome! Please open issues or submit pull requests for bug fi
 
 ## License
 
-This code is released under the [MIT](LICENSE) license.
+This code is released under the [GPL v3](LICENSE) license.

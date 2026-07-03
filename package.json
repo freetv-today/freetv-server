@@ -1,5 +1,13 @@
 {
-	"private": true,
+	"name": "freetv-server",
+	"version": "1.0.0-beta",
+	"description": "Server-side administration tools to manage a collection of free TV shows and movies from the Internet Archive.",
+	"author": "Ken Dawson",
+	"license": "GPL-3.0-only",
+	"homepage": "https://freetv.today",
+	"reponsitory": "https://github.com/freetv-today/freetv-server",
+	"bugs": "https://github.com/freetv-today/freetv-server/issues",
+	"private": false,
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
