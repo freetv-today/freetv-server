@@ -1,53 +1,39 @@
 // src/db/connection.js
 import mysql from 'mysql2/promise';
-import { env } from '@/utils/env';
+import { env } from '../utils/env.js';
 
-// Configuration object
 const dbConfig = {
-  host: env.DB_HOST || 'localhost',
-  port: env.DB_PORT || 3306,
-  user: env.DB_USER,
-  password: env.DB_PASS,
-  database: env.DB_NAME || 'freetv',
+  host: env.db.host,
+  port: env.db.port,
+  user: env.db.user,
+  password: env.db.password,
+  database: env.db.database,
   
-  // Pool options - tune these as needed
   waitForConnections: true,
-  connectionLimit: 10,        // Max concurrent connections
-  queueLimit: 0,              // Unlimited queue (or set a limit)
+  connectionLimit: 10,
+  queueLimit: 0,
   enableKeepAlive: true,
-  
-  // Optional: timezone handling
-  timezone: 'Z',              // UTC
-  
-  // Security / charset
+  timezone: 'Z',
   charset: 'utf8mb4',
 };
 
-// Create the pool (singleton)
 let pool;
 
 export function getPool() {
   if (!pool) {
     pool = mysql.createPool(dbConfig);
-    
-    // Optional: Test connection on startup
     pool.getConnection()
       .then(conn => {
-        console.log('✅ Database connection established');
+        console.log('✅ Database connection established with user:', dbConfig.user);
         conn.release();
       })
       .catch(err => {
         console.error('❌ Database connection failed:', err.message);
-        // process.exit(1); // Comment out for dev to avoid crashing Vite
       });
   }
   return pool;
 }
 
-// Optional: Graceful shutdown helper
 export async function closePool() {
-  if (pool) {
-    await pool.end();
-    console.log('Database pool closed');
-  }
+  if (pool) await pool.end();
 }

@@ -1,83 +1,60 @@
-// Environment configuration utilities
+// src/utils/env.js
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-/** @type {boolean} Production environment flag */
-export const isProduction = import.meta.env.PROD;
+// Load .env early for Node.js scripts
+if (typeof process !== 'undefined' && !process.env.VITE_DB_USER) {
+  dotenv.config({ override: true });
+  console.log('✅ dotenv auto-loaded in env.js');
+}
 
-/** @type {boolean} Development environment flag */
-export const isDevelopment = import.meta.env.DEV;
+// Simple detection for Vite vs Node
+const isVite = typeof import.meta !== 'undefined' && import.meta.env;
 
-/** @type {string} Base path from environment or fallback */
-export const basePath = import.meta.env.VITE_BASE_PATH || (isProduction ? '/admin/' : '/');
+export const isProduction = isVite ? import.meta.env.PROD : (process.env.NODE_ENV === 'production');
+export const isDevelopment = isVite ? import.meta.env.DEV : !isProduction;
 
-/** @type {string} Base path with trailing slash removed for consistent usage */
-export const basePathClean = basePath.replace(/\/$/, '');
+export const basePath = isVite 
+  ? (import.meta.env.VITE_BASE_PATH || (isProduction ? '/admin/' : '/'))
+  : '/';
 
-/** @type {string} API base URL */
-export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isProduction ? 'https://freetv.today' : 'http://localhost:8000');
+export const apiBaseUrl = isVite 
+  ? (import.meta.env.VITE_API_BASE_URL || (isProduction ? 'https://freetv.today' : 'http://localhost:8000'))
+  : 'http://localhost:8000';
 
 // ==================== Database Configuration ====================
-
-/** Database settings */
 export const db = {
-  host: import.meta.env.VITE_DB_HOST || 'localhost',
-  port: parseInt(import.meta.env.VITE_DB_PORT || '3306', 10),
-  user: import.meta.env.VITE_DB_USER,
-  password: import.meta.env.VITE_DB_PASS,
-  database: import.meta.env.VITE_DB_NAME || 'freetv',
-  
-  // Connection pool settings
-  connectionLimit: parseInt(import.meta.env.VITE_DB_POOL_LIMIT || '10', 10),
+  host: process.env.VITE_DB_HOST || process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.VITE_DB_PORT || process.env.DB_PORT || '3306', 10),
+  user: process.env.VITE_DB_USER || process.env.DB_USER || 'root',
+  password: process.env.VITE_DB_PASS || process.env.DB_PASS || '',
+  database: process.env.VITE_DB_NAME || process.env.DB_NAME || 'freetv',
 };
 
-// Optional: Quick validation helper
 export function validateEnv() {
   const missing = [];
-  
-  if (!db.user) missing.push('VITE_DB_USER');
-  if (!db.password) missing.push('VITE_DB_PASS');
-  
+  if (!db.user) missing.push('VITE_DB_USER / DB_USER');
+  if (!db.password) missing.push('VITE_DB_PASS / DB_PASS');
   if (missing.length > 0) {
-    console.warn('⚠️ Missing required DB environment variables:', missing);
+    console.warn('⚠️ Missing DB env vars:', missing);
+  } else {
+    console.log('✅ DB env vars loaded successfully');
   }
-  
   return missing.length === 0;
 }
 
-// Run validation in development
 if (isDevelopment) {
   validateEnv();
 }
 
-/**
- * Helper to create environment-aware paths
- * @param {string} path - The path to process
- * @returns {string} Environment-aware path
- */
-export function createPath(path) {
-  if (path.startsWith('/')) {
-    return isProduction ? basePathClean + path : path;
-  }
-  return path;
-}
-
-/**
- * Helper to create API paths
- * @param {string} path - The path to process
- * @returns {string} Properly formatted API path
- */
-export function createApiPath(path) {
-  return path.startsWith('/') ? path : '/' + path;
-}
-
-// Environment info for debugging
 export const env = {
-  mode: import.meta.env.MODE,
+  mode: isVite ? import.meta.env.MODE : process.env.NODE_ENV || 'development',
   isDev: isDevelopment,
   isProd: isProduction,
   basePath,
-  basePathClean,
   apiBaseUrl,
-  db   // ← Add this
+  db
 };
 
 export default env;
