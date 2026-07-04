@@ -15,6 +15,39 @@ export const basePathClean = basePath.replace(/\/$/, '');
 /** @type {string} API base URL */
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isProduction ? 'https://freetv.today' : 'http://localhost:8000');
 
+// ==================== Database Configuration ====================
+
+/** Database settings */
+export const db = {
+  host: import.meta.env.VITE_DB_HOST || 'localhost',
+  port: parseInt(import.meta.env.VITE_DB_PORT || '3306', 10),
+  user: import.meta.env.VITE_DB_USER,
+  password: import.meta.env.VITE_DB_PASS,
+  database: import.meta.env.VITE_DB_NAME || 'freetv',
+  
+  // Connection pool settings
+  connectionLimit: parseInt(import.meta.env.VITE_DB_POOL_LIMIT || '10', 10),
+};
+
+// Optional: Quick validation helper
+export function validateEnv() {
+  const missing = [];
+  
+  if (!db.user) missing.push('VITE_DB_USER');
+  if (!db.password) missing.push('VITE_DB_PASS');
+  
+  if (missing.length > 0) {
+    console.warn('⚠️ Missing required DB environment variables:', missing);
+  }
+  
+  return missing.length === 0;
+}
+
+// Run validation in development
+if (isDevelopment) {
+  validateEnv();
+}
+
 /**
  * Helper to create environment-aware paths
  * @param {string} path - The path to process
@@ -22,10 +55,8 @@ export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isProduction ? '
  */
 export function createPath(path) {
   if (path.startsWith('/')) {
-    // Absolute path - prefix with base path if in production
     return isProduction ? basePathClean + path : path;
   }
-  // Relative path - return as-is
   return path;
 }
 
@@ -45,7 +76,8 @@ export const env = {
   isProd: isProduction,
   basePath,
   basePathClean,
-  apiBaseUrl
+  apiBaseUrl,
+  db   // ← Add this
 };
 
 export default env;
