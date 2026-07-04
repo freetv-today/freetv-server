@@ -1,12 +1,10 @@
+// src/signals/playlistSignal.js
 import { signal } from '@preact/signals';
 import { enforceMinLoadingTime } from '@/utils/utils';
 
 /**
  * playlistSignal - Global signal for admin playlist state.
- * Holds playlists list, current playlist, show data, loading, and error.
- * @type {import('@preact/signals').Signal<{playlists: Array, currentPlaylist: string|null, showData: Array, loading: boolean, error: string|null}>}
  */
-
 export const playlistSignal = signal({
   playlists: [],
   currentPlaylist: null,
@@ -16,75 +14,67 @@ export const playlistSignal = signal({
 });
 
 /**
- * switchPlaylist - Helper to switch playlists and update the signal.
- * @param {string} filename - Playlist filename to load.
- * @param {number} [minTime=1200] - Minimum loading time in milliseconds.
- * @returns {Promise<void>}
+ * loadPlaylists - Load playlists and default show data from DB
  */
-
-export async function switchPlaylist(filename, minTime = 1200) {
-  const startTime = Date.now();
-  playlistSignal.value = { ...playlistSignal.value, loading: true, error: null, currentPlaylist: filename };
-  localStorage.setItem('adminCurrentPlaylist', filename);
-  let showData = [];
-  let error = null;
-  try {
-    const playlistRes = await fetch(`/api/admin/playlist_proxy.php?file=${filename}&t=${Date.now()}`);
-    if (!playlistRes.ok) throw new Error('Failed to load playlist data');
-    const playlistData = await playlistRes.json();
-    showData = playlistData.shows || [];
-  } catch (err) {
-    error = err.message || 'Error loading playlist';
-  }
-  await enforceMinLoadingTime(startTime, minTime);
-  playlistSignal.value = {
-    ...playlistSignal.value,
-    showData,
-    loading: false,
-    error,
-  };
-}
-
-/**
- * loadPlaylists - Helper to load playlists index and default playlist on app start.
- * @param {number} [minTime=1200] - Minimum loading time in milliseconds.
- * @returns {Promise<void>}
- */
-
 export async function loadPlaylists(minTime = 1200) {
   const startTime = Date.now();
   playlistSignal.value = { ...playlistSignal.value, loading: true, error: null };
-  let playlists = [];
-  let playlistName = null;
-  let error = null;
+
   try {
-    const indexRes = await fetch(`/api/admin/playlist_proxy.php?file=index.json&t=${Date.now()}`);
-    if (!indexRes.ok) throw new Error('Failed to load playlist index');
-    const indexData = await indexRes.json();
-    playlists = indexData.playlists || [];
-    playlistName = localStorage.getItem('adminCurrentPlaylist') || indexData.default;
+    // For now, get all shows from default playlist (we can expand later)
+    const res = await fetch(`/api/admin/shows.php?playlist_id=1&t=${Date.now()}`);
+    if (!res.ok) throw new Error('Failed to load shows');
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Failed to load data');
+
     playlistSignal.value = {
       ...playlistSignal.value,
-      playlists,
-      currentPlaylist: playlistName,
-      loading: true,
-      error: null,
+      showData: data.shows || [],
+      loading: false,
     };
-    await switchPlaylist(playlistName, minTime);
+
+    console.log(`Loaded ${data.shows.length} shows from DB`);
   } catch (err) {
-    error = err.message || 'Error loading playlists';
+    console.error(err);
     playlistSignal.value = {
       ...playlistSignal.value,
-      playlists: [],
       showData: [],
       loading: false,
-      error,
+      error: err.message,
     };
-    return;
   }
+
   await enforceMinLoadingTime(startTime, minTime);
-  // Only set loading: false if not already set by switchPlaylist
-  if (playlistSignal.value.loading) {
-    playlistSignal.value = { ...playlistSignal.value, loading: false };
+}
+
+/**
+ * switchPlaylist - Switch to different playlist
+ */
+export async function switchPlaylist(playlistId, minTime = 1200) {
+  const startTime = Date.now();
+  playlistSignal.value = { ...playlistSignal.value, loading: true, error: null, currentPlaylist: playlistId };
+
+  try {
+    const res = await fetch(`/api/admin/shows.php?playlist_id=${playlistId}&t=${Date.now()}`);
+    if (!res.ok) throw new Error('Failed to load playlist');
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Failed to load data');
+
+    playlistSignal.value = {
+      ...playlistSignal.value,
+      showData: data.shows || [],
+      loading: false,
+    };
+  } catch (err) {
+    playlistSignal.value = {
+      ...playlistSignal.value,
+      showData: [],
+      loading: false,
+      error: err.message,
+    };
   }
+
+  await enforceMinLoadingTime(startTime, minTime);
 }
