@@ -5,7 +5,7 @@
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",
 	"homepage": "https://freetv.today",
-	"reponsitory": "https://github.com/freetv-today/freetv-server",
+	"repository": "https://github.com/freetv-today/freetv-server",
 	"bugs": "https://github.com/freetv-today/freetv-server/issues",
 	"private": false,
 	"type": "module",
