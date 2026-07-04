@@ -1,5 +1,5 @@
 // src/db/repositories/showRepo.js
-import pool from '../connection.js';
+import { getPool } from '../connection.js';
 
 export const showRepo = {
   async getAll(filters = {}) {
@@ -14,13 +14,20 @@ export const showRepo = {
       query += ' AND category = ?';
       params.push(filters.category);
     }
-    // ... status, search, etc.
+    if (filters.status) {
+      query += ' AND status = ?';
+      params.push(filters.status);
+    }
+    // Add search, etc. later
+    query += ' ORDER BY sort_order, title';
 
-    const [rows] = await pool.execute(query + ' ORDER BY sort_order', params);
+    const pool = getPool();
+    const [rows] = await pool.execute(query, params);
     return rows;
   },
 
   async getById(id) {
+    const pool = getPool();
     const [rows] = await pool.execute(
       'SELECT * FROM playlist_shows WHERE id = ?',
       [id]
@@ -29,26 +36,25 @@ export const showRepo = {
   },
 
   async create(showData) {
-    const { playlist_id, title, ...rest } = showData;
-    const [result] = await pool.execute(
-      `INSERT INTO playlist_shows 
-       (playlist_id, title, description, identifier, ...) 
-       VALUES (?, ?, ?, ?, ...)`,
-      [playlist_id, title, ...]
-    );
+    const pool = getPool();
+    const keys = Object.keys(showData);
+    const placeholders = keys.map(() => '?').join(', ');
+    const sql = `INSERT INTO playlist_shows (${keys.join(', ')}) VALUES (${placeholders})`;
+    const [result] = await pool.execute(sql, Object.values(showData));
     return result.insertId;
   },
 
   async update(id, updates) {
-    // Dynamic update or specific
-    const [result] = await pool.execute(
-      'UPDATE playlist_shows SET ? WHERE id = ?',
-      [updates, id] // mysql2 handles object
-    );
+    const pool = getPool();
+    const sets = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+    const sql = `UPDATE playlist_shows SET ${sets} WHERE id = ?`;
+    const values = [...Object.values(updates), id];
+    const [result] = await pool.execute(sql, values);
     return result.affectedRows > 0;
   },
 
   async delete(id) {
+    const pool = getPool();
     const [result] = await pool.execute(
       'DELETE FROM playlist_shows WHERE id = ?',
       [id]
@@ -56,6 +62,13 @@ export const showRepo = {
     return result.affectedRows > 0;
   },
 
-  // Bonus: export to JSON for publishing
-  async exportToJson(playlistId) { ... }
+  // For publishing JSON files
+  async exportToJson(playlistId) {
+    const shows = await this.getAll({ playlist_id: playlistId });
+    return {
+      dbtitle: 'FreeTV Playlist',
+      lastupdated: new Date().toISOString(),
+      shows: shows // map fields if column names differ from JSON expectation
+    };
+  }
 };

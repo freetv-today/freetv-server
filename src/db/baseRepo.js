@@ -1,9 +1,10 @@
 // src/db/baseRepo.js
-import pool from './connection.js';
+import { getPool } from './connection.js';
 
 export function createRepo(tableName) {
   return {
     async query(sql, params = []) {
+      const pool = getPool();
       const [rows] = await pool.execute(sql, params);
       return rows;
     },
@@ -14,11 +15,13 @@ export function createRepo(tableName) {
     },
 
     async getById(id) {
+      const pool = getPool();
       const [rows] = await pool.execute(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
       return rows[0];
     },
 
     async create(data) {
+      const pool = getPool();
       const keys = Object.keys(data);
       const placeholders = keys.map(() => '?').join(', ');
       const sql = `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
@@ -27,6 +30,7 @@ export function createRepo(tableName) {
     },
 
     async update(id, data) {
+      const pool = getPool();
       const sets = Object.keys(data).map(key => `${key} = ?`).join(', ');
       const sql = `UPDATE ${tableName} SET ${sets} WHERE id = ?`;
       const [result] = await pool.execute(sql, [...Object.values(data), id]);
@@ -34,6 +38,7 @@ export function createRepo(tableName) {
     },
 
     async delete(id) {
+      const pool = getPool();
       const [result] = await pool.execute(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
       return result.affectedRows > 0;
     }

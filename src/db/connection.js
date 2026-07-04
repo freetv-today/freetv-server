@@ -38,7 +38,7 @@ export function getPool() {
       })
       .catch(err => {
         console.error('❌ Database connection failed:', err.message);
-        process.exit(1); // Fail fast in production
+        // process.exit(1); // Comment out for dev to avoid crashing Vite
       });
   }
   return pool;
