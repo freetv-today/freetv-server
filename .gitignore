@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 *.bak
 .env
-test-db.js
+.env.local
 
 /vendor/
 package-lock.json
