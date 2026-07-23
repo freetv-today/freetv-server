@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: application/json');
+
 session_start();
 if (!isset($_SESSION['admin'])) {
     http_response_code(401);
@@ -7,76 +9,129 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-// Endpoint for both "Add" and "Edit" show admin pages
-require_once __DIR__ . '/../playlist_utils.php';
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+
+use FreeTV\Admin\Database;
+
 $input = json_decode(file_get_contents('php://input'), true);
-$playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
-$show = isset($input['show']) ? $input['show'] : null;
-$originalIdentifier = isset($input['originalIdentifier']) ? $input['originalIdentifier'] : null; // <-- Add this
-
-if (!$playlist || !$show || !isset($show['identifier'])) {
+if (!is_array($input)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing playlist or show data']);
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON request body']);
     exit;
 }
 
-$playlistPath = __DIR__ . '/../../playlists/' . $playlist;
-if (!file_exists($playlistPath)) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+$playlist = $input['playlist'] ?? null;
+$originalIdentifier = $input['originalIdentifier'] ?? null;
+$show = $input['show'] ?? null;
+
+if (
+    (!is_string($playlist) && !is_int($playlist))
+    || trim((string) $playlist) === ''
+    || !is_string($originalIdentifier)
+    || trim($originalIdentifier) === ''
+    || !is_array($show)
+) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing or invalid playlist, originalIdentifier, or show data'
+    ]);
     exit;
 }
 
-// Load playlist JSON
-$data = json_decode(file_get_contents($playlistPath), true);
-if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Invalid playlist data']);
-    exit;
-}
+$requiredShowFields = [
+    'category',
+    'status',
+    'identifier',
+    'title',
+    'desc',
+    'start',
+    'end',
+    'imdb',
+];
 
-
-$add = isset($input['add']) ? (bool)$input['add'] : false;
-$found = false;
-
-// If originalIdentifier is provided (editing), use it to find the record; otherwise use show['identifier'] (adding)
-$searchIdentifier = $originalIdentifier ? $originalIdentifier : $show['identifier']; // <-- Add this
-
-foreach ($data['shows'] as &$item) {
-    if (isset($item['identifier']) && $item['identifier'] === $searchIdentifier) { // <-- Change this line
-        $item = $show;
-        $found = true;
-        break;
-    }
-}
-if (!$found) {
-    if ($add) {
-        $data['shows'][] = $show;
-    } else {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Show not found']);
+foreach ($requiredShowFields as $field) {
+    if (
+        !array_key_exists($field, $show)
+        || !is_string($show[$field])
+        || trim($show[$field]) === ''
+    ) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => "Missing or invalid show field: {$field}"
+        ]);
         exit;
     }
 }
 
-// Update lastupdated timestamp
-$data['lastupdated'] = gmdate('Y-m-d\TH:i:s.\0\0\0\Z');
-
-// Save JSON
-if (file_put_contents($playlistPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save playlist']);
+if (!in_array($show['status'], ['active', 'disabled'], true)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid show status']);
     exit;
 }
 
-rebuild_index(__DIR__ . '/../../playlists');
+if (
+    array_key_exists('group', $show)
+    && (!is_string($show['group']) || trim($show['group']) !== '')
+) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Show groups are not supported by the database schema'
+    ]);
+    exit;
+}
 
-echo json_encode(['success' => true, 'message' => 'Show updated']);
+try {
+    Database::init();
+
+    $playlistQuery = Database::table('playlists');
+    $playlistValue = trim((string) $playlist);
+
+    if (ctype_digit($playlistValue) && (int) $playlistValue > 0) {
+        $playlistRow = $playlistQuery->where('id', (int) $playlistValue)->first();
+    } else {
+        $playlistRow = $playlistQuery->where('filename', $playlistValue)->first();
+    }
+
+    if (!$playlistRow) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+        exit;
+    }
+
+    $showQuery = Database::table('playlist_shows')
+        ->where('playlist_id', $playlistRow->id)
+        ->where('identifier', $originalIdentifier);
+
+    if (!$showQuery->first()) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
+
+    $showQuery->update([
+        'category' => (string) $show['category'],
+        'status' => (string) $show['status'],
+        'identifier' => (string) $show['identifier'],
+        'title' => (string) $show['title'],
+        'description' => (string) $show['desc'],
+        'start_year' => (string) $show['start'],
+        'end_year' => (string) $show['end'],
+        'imdb' => (string) $show['imdb'],
+    ]);
+
+    echo json_encode(['success' => true, 'message' => 'Show updated']);
+} catch (\Throwable $e) {
+    error_log('Update Show API Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database error']);
+}

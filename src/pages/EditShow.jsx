@@ -35,12 +35,13 @@ export function EditShow() {
   async function handleSave(updatedShow) {
     setSaving(true);
     setError(null);
+    const playlist = currentPlaylist || show.playlist_id;
     try {
       const res = await fetch('/api/admin/update-show.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          playlist: currentPlaylist,
+          playlist,
           originalIdentifier: identifier, // <-- Add this: the identifier from the URL
           show: updatedShow
         })
@@ -49,7 +50,7 @@ export function EditShow() {
       if (!res.ok || !data.success) {
         setError(data && data.message ? data.message : 'Save failed.');
       } else {
-        await switchPlaylist(currentPlaylist);
+        await switchPlaylist(playlist);
         // Check if identifier changed
         if (updatedShow.identifier !== identifier) {
           setAdminMsg({ type: 'success', text: 'The show has been updated successfully. The identifier was changed.' });
