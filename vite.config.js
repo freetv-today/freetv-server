@@ -6,6 +6,9 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, '.', '');
+
+  const apiProxyTarget =
+  env.VITE_API_PROXY_TARGET || 'http://localhost:8000';
   
   // Use environment-based base path
   const base = env.VITE_BASE_PATH || (mode === 'production' ? '/admin/' : '/');
@@ -35,7 +38,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0', 
       port: 5173, 
       proxy: {
-        '/api': 'http://localhost:8081'
+         '/api': apiProxyTarget
       }
     },
     // Tell Vite to not process these asset references
