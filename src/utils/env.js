@@ -30,8 +30,8 @@ export const basePath = isVite
 export const basePathClean = basePath.replace(/\/$/, '');
 
 export const apiBaseUrl = isVite 
-  ? (getEnv('VITE_API_BASE_URL', isProduction ? 'https://freetv.today' : 'http://localhost:8000'))
-  : 'http://localhost:8000';
+  ? (getEnv('VITE_API_BASE_URL', isProduction ? 'https://freetv.today' : 'http://localhost:8081'))
+  : 'http://localhost:8081';
 
 // ==================== Database Configuration (Node only) ====================
 export const db = {

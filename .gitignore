@@ -26,4 +26,6 @@ dist-ssr
 .env
 test-db.js
 
+package-lock.json
+
 /vendor/
