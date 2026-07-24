@@ -30,18 +30,35 @@ if (!is_array($input)) {
 $playlist = $input['playlist'] ?? null;
 $originalIdentifier = $input['originalIdentifier'] ?? null;
 $show = $input['show'] ?? null;
+$add = $input['add'] ?? false;
+
+if (array_key_exists('add', $input) && !is_bool($input['add'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid add flag']);
+    exit;
+}
 
 if (
     (!is_string($playlist) && !is_int($playlist))
     || trim((string) $playlist) === ''
-    || !is_string($originalIdentifier)
-    || trim($originalIdentifier) === ''
     || !is_array($show)
 ) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'Missing or invalid playlist, originalIdentifier, or show data'
+        'message' => 'Missing or invalid playlist or show data'
+    ]);
+    exit;
+}
+
+if (
+    !$add
+    && (!is_string($originalIdentifier) || trim($originalIdentifier) === '')
+) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing or invalid originalIdentifier'
     ]);
     exit;
 }
@@ -90,8 +107,21 @@ if (
     exit;
 }
 
+function isDuplicateIdentifierException(\Throwable $e): bool
+{
+    if (!$e instanceof \Illuminate\Database\QueryException) {
+        return false;
+    }
+
+    $driverErrorCode = isset($e->errorInfo[1]) ? (int) $e->errorInfo[1] : null;
+
+    return $driverErrorCode === 1062
+        && strpos($e->getMessage(), 'uq_playlist_shows_playlist_identifier') !== false;
+}
+
 try {
-    Database::init();
+    $capsule = Database::init();
+    $connection = $capsule->getConnection();
 
     $playlistQuery = Database::table('playlists');
     $playlistValue = trim((string) $playlist);
@@ -108,17 +138,7 @@ try {
         exit;
     }
 
-    $showQuery = Database::table('playlist_shows')
-        ->where('playlist_id', $playlistRow->id)
-        ->where('identifier', $originalIdentifier);
-
-    if (!$showQuery->first()) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Show not found']);
-        exit;
-    }
-
-    $showQuery->update([
+    $showValues = [
         'category' => (string) $show['category'],
         'status' => (string) $show['status'],
         'identifier' => (string) $show['identifier'],
@@ -127,10 +147,109 @@ try {
         'start_year' => (string) $show['start'],
         'end_year' => (string) $show['end'],
         'imdb' => (string) $show['imdb'],
-    ]);
+    ];
+
+    if ($add) {
+        $addResult = $connection->transaction(function () use ($playlistRow, $showValues) {
+            $lockedPlaylist = Database::table('playlists')
+                ->where('id', $playlistRow->id)
+                ->lockForUpdate()
+                ->first(['id']);
+
+            if (!$lockedPlaylist) {
+                return 'playlist_not_found';
+            }
+
+            $duplicateExists = Database::table('playlist_shows')
+                ->where('playlist_id', $playlistRow->id)
+                ->where('identifier', $showValues['identifier'])
+                ->exists();
+
+            if ($duplicateExists) {
+                return 'duplicate';
+            }
+
+            $maxSortOrder = Database::table('playlist_shows')
+                ->where('playlist_id', $playlistRow->id)
+                ->max('sort_order');
+            $sortOrder = $maxSortOrder === null ? 0 : (int) $maxSortOrder + 1;
+
+            Database::table('playlist_shows')->insert(array_merge($showValues, [
+                'playlist_id' => $playlistRow->id,
+                'sort_order' => $sortOrder,
+                'thumbnail_path' => null,
+            ]));
+
+            Database::table('playlists')
+                ->where('id', $playlistRow->id)
+                ->update(['lastupdated' => gmdate('Y-m-d H:i:s')]);
+
+            return 'added';
+        });
+
+        if ($addResult === 'playlist_not_found') {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+            exit;
+        }
+
+        if ($addResult === 'duplicate') {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'message' => 'A show with this identifier already exists in the selected playlist'
+            ]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Show added']);
+        exit;
+    }
+
+    $showUpdated = $connection->transaction(function () use (
+        $playlistRow,
+        $originalIdentifier,
+        $showValues
+    ) {
+        $existingShow = Database::table('playlist_shows')
+            ->where('playlist_id', $playlistRow->id)
+            ->where('identifier', $originalIdentifier)
+            ->lockForUpdate()
+            ->first(['id']);
+
+        if (!$existingShow) {
+            return false;
+        }
+
+        Database::table('playlist_shows')
+            ->where('id', $existingShow->id)
+            ->where('playlist_id', $playlistRow->id)
+            ->update($showValues);
+
+        Database::table('playlists')
+            ->where('id', $playlistRow->id)
+            ->update(['lastupdated' => gmdate('Y-m-d H:i:s')]);
+
+        return true;
+    });
+
+    if (!$showUpdated) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
 
     echo json_encode(['success' => true, 'message' => 'Show updated']);
 } catch (\Throwable $e) {
+    if ($add && isDuplicateIdentifierException($e)) {
+        http_response_code(409);
+        echo json_encode([
+            'success' => false,
+            'message' => 'A show with this identifier already exists in the selected playlist'
+        ]);
+        exit;
+    }
+
     error_log('Update Show API Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error']);
