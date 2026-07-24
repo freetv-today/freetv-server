@@ -29,6 +29,7 @@ dist-ssr
 .env.local
 .env.*.local
 
-/vendor/
-/public/thumbs
+vendor/
+public/thumbs
 public/thumbs/index.html
+public/playlists/
