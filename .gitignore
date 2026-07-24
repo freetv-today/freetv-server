@@ -32,3 +32,4 @@ dist-ssr
 /vendor/
 /public/thumbs/*
 /public/thumbs
+public/thumbs/index.html
