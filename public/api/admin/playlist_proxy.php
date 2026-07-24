@@ -12,8 +12,10 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-require_once 'config.php';
-use FreeTV\Admin\AdminConfig;
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+
+use FreeTV\Admin\Database;
 
 $filename = isset($_GET['file']) ? basename($_GET['file']) : null;
 if (!$filename) {
@@ -24,32 +26,39 @@ if (!$filename) {
 
 if ($filename === 'index.json') {
     try {
-        $config = AdminConfig::getInstance();
-        $pdo = $config->getPdo();
-        $stmt = $pdo->query('SELECT filename, dbtitle, lastupdated, author, email, link, is_default FROM playlists ORDER BY sort_order, id');
-        $playlists = $stmt->fetchAll();
+        Database::init();
+
+        $playlistRows = Database::table('playlists')
+            ->select(['filename', 'dbtitle', 'lastupdated', 'author', 'email', 'link', 'is_default'])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
         $default = null;
-        foreach ($playlists as $playlist) {
-            if (!empty($playlist['is_default'])) {
-                $default = $playlist['filename'];
-                break;
+        $playlists = [];
+        foreach ($playlistRows as $playlist) {
+            if ($default === null && !empty($playlist->is_default)) {
+                $default = $playlist->filename;
             }
+            $playlists[] = [
+                'filename' => $playlist->filename,
+                'dbtitle' => $playlist->dbtitle,
+                'lastupdated' => $playlist->lastupdated,
+                'author' => $playlist->author,
+                'email' => $playlist->email,
+                'link' => $playlist->link,
+            ];
         }
         if ($default === null && isset($playlists[0]['filename'])) {
             $default = $playlists[0]['filename'];
         }
-        echo json_encode(['default' => $default, 'playlists' => array_map(function ($playlist) {
-            return [
-                'filename' => $playlist['filename'],
-                'dbtitle' => $playlist['dbtitle'],
-                'lastupdated' => $playlist['lastupdated'],
-                'author' => $playlist['author'],
-                'email' => $playlist['email'],
-                'link' => $playlist['link'],
-            ];
-        }, $playlists)]);
+        echo json_encode([
+            'default' => $default,
+            'playlists' => $playlists,
+        ]);
         exit;
     } catch (Throwable $e) {
+        error_log('Playlist Proxy Index Error: ' . $e->getMessage());
         http_response_code(500);
         echo json_encode(['error' => 'Failed to load playlists from database']);
         exit;
@@ -63,11 +72,11 @@ if (pathinfo($filename, PATHINFO_EXTENSION) !== 'json') {
 }
 
 try {
-    $config = AdminConfig::getInstance();
-    $pdo = $config->getPdo();
-    $stmt = $pdo->prepare('SELECT id, filename, dbtitle, dbversion, author, email, link, lastupdated FROM playlists WHERE filename = :filename LIMIT 1');
-    $stmt->execute([':filename' => $filename]);
-    $playlist = $stmt->fetch();
+    Database::init();
+
+    $playlist = Database::table('playlists')
+        ->where('filename', $filename)
+        ->first(['id', 'filename', 'dbtitle', 'dbversion', 'author', 'email', 'link', 'lastupdated']);
 
     if (!$playlist) {
         http_response_code(404);
@@ -75,33 +84,48 @@ try {
         exit;
     }
 
-    $showStmt = $pdo->prepare('SELECT category, status, identifier, title, description, start_year, end_year, imdb, sort_order FROM playlist_shows WHERE playlist_id = :playlist_id ORDER BY sort_order, id');
-    $showStmt->execute([':playlist_id' => $playlist['id']]);
-    $shows = $showStmt->fetchAll();
+    $showRows = Database::table('playlist_shows')
+        ->where('playlist_id', $playlist->id)
+        ->select([
+            'category',
+            'status',
+            'identifier',
+            'title',
+            'description',
+            'start_year',
+            'end_year',
+            'imdb',
+        ])
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
+    $shows = [];
+    foreach ($showRows as $show) {
+        $shows[] = [
+            'category' => $show->category,
+            'status' => $show->status,
+            'identifier' => $show->identifier,
+            'title' => $show->title,
+            'desc' => $show->description,
+            'start' => $show->start_year,
+            'end' => $show->end_year,
+            'imdb' => $show->imdb,
+        ];
+    }
 
     echo json_encode([
-        'filename' => $playlist['filename'],
-        'dbtitle' => $playlist['dbtitle'],
-        'dbversion' => $playlist['dbversion'],
-        'author' => $playlist['author'],
-        'email' => $playlist['email'],
-        'link' => $playlist['link'],
-        'lastupdated' => $playlist['lastupdated'],
-        'shows' => array_map(function ($show) {
-            return [
-                'category' => $show['category'],
-                'status' => $show['status'],
-                'identifier' => $show['identifier'],
-                'title' => $show['title'],
-                'desc' => $show['description'],
-                'start' => $show['start_year'],
-                'end' => $show['end_year'],
-                'imdb' => $show['imdb'],
-            ];
-        }, $shows),
+        'filename' => $playlist->filename,
+        'dbtitle' => $playlist->dbtitle,
+        'dbversion' => $playlist->dbversion,
+        'author' => $playlist->author,
+        'email' => $playlist->email,
+        'link' => $playlist->link,
+        'lastupdated' => $playlist->lastupdated,
+        'shows' => $shows,
     ]);
 } catch (Throwable $e) {
+    error_log('Playlist Proxy Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Failed to load playlist from database']);
 }
-
