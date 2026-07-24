@@ -26,7 +26,18 @@ try {
         $query->where('status', $status);
     }
 
-    $shows = $query->orderBy('sort_order')
+    $shows = $query->select([
+                       'playlist_id',
+                       'category',
+                       'status',
+                       'identifier',
+                       'title',
+                       'description as desc',
+                       'start_year as start',
+                       'end_year as end',
+                       'imdb',
+                   ])
+                   ->orderBy('sort_order')
                    ->orderBy('title')
                    ->get();
 

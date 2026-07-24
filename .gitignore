@@ -23,8 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 *.bak
+
+# Local environment overrides and secrets
 .env
 .env.local
+.env.*.local
 
 /vendor/
-package-lock.json
+/public/thumbs/*
+/public/thumbs
