@@ -1,14 +1,14 @@
 import { useLocation } from 'preact-iso';
 import { createPath } from '@/utils/env';
 
-export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
+export function NavbarSubNavAdmin() {
 
   const { route } = useLocation();
   
   return (
     <nav id="subnavbar" className="navbar mb-2">
       <div className="container-fluid p-0 m-0 d-flex flex-wrap flex-md-nowrap justify-content-center align-items-center admin-nav-flex">
-        {/* Row 1: New Playlist, Add Video */}
+        {/* Admin actions: New Playlist, New Video, Export JSON Data */}
         <div className="admin-nav-row1 d-flex flex-wrap mb-2 mb-md-0">
           <button 
             type="button" 
@@ -22,41 +22,20 @@ export function NavbarSubNavAdmin({ onMetaClick, onInfoClick, onSortClick }) {
           <button
             type="button"
             className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2"
-            title="Add Video"
-            aria-label="Add Video"
+            title="New Video"
+            aria-label="New Video"
             onClick={() => route(createPath('/dashboard/add'))}
           >
-            <span className="me-1">{"\u271A"}</span> Add Video
+            <span className="me-1">{"\u271A"}</span> New Video
           </button>
-        </div>  
-        {/* Row 2: Meta, Sort, Info */}
-        <div className="admin-nav-row2 d-flex flex-wrap">
-          <button 
-            type="button" 
-            className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2" 
-            onClick={onMetaClick} 
-            title="Edit Playlist Meta Data" 
-            aria-label="Edit Playlist Meta Data"
-          > 
-            Meta Data
-          </button>
-          <button 
-            type="button" 
-            className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2" 
-            title="Database Sort" 
-            aria-label="Database Sort"
-            onClick={onSortClick}
-          > 
-            Database Sort
-          </button>
-          <button 
-            type="button" 
-            className="infoBtnAdmin ms-2 mt-2" 
-            title="Current Playlist Information"
-            aria-label="Current Playlist Information"  
-            onClick={onInfoClick}
+          <button
+            type="button"
+            className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2"
+            title="Export JSON Data — not yet available"
+            aria-label="Export JSON Data — not yet available"
+            disabled
           >
-            {/* Info icon loaded via admin.css */}
+            Export JSON Data
           </button>
         </div>
       </div>
