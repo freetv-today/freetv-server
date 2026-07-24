@@ -148,9 +148,14 @@ try {
         'end_year' => (string) $show['end'],
         'imdb' => (string) $show['imdb'],
     ];
+    $databaseCurrentTimestamp = $connection->raw('CURRENT_TIMESTAMP');
 
     if ($add) {
-        $addResult = $connection->transaction(function () use ($playlistRow, $showValues) {
+        $addResult = $connection->transaction(function () use (
+            $playlistRow,
+            $showValues,
+            $databaseCurrentTimestamp
+        ) {
             $lockedPlaylist = Database::table('playlists')
                 ->where('id', $playlistRow->id)
                 ->lockForUpdate()
@@ -182,7 +187,7 @@ try {
 
             Database::table('playlists')
                 ->where('id', $playlistRow->id)
-                ->update(['lastupdated' => gmdate('Y-m-d H:i:s')]);
+                ->update(['lastupdated' => $databaseCurrentTimestamp]);
 
             return 'added';
         });
@@ -209,7 +214,8 @@ try {
     $showUpdated = $connection->transaction(function () use (
         $playlistRow,
         $originalIdentifier,
-        $showValues
+        $showValues,
+        $databaseCurrentTimestamp
     ) {
         $existingShow = Database::table('playlist_shows')
             ->where('playlist_id', $playlistRow->id)
@@ -228,7 +234,7 @@ try {
 
         Database::table('playlists')
             ->where('id', $playlistRow->id)
-            ->update(['lastupdated' => gmdate('Y-m-d H:i:s')]);
+            ->update(['lastupdated' => $databaseCurrentTimestamp]);
 
         return true;
     });

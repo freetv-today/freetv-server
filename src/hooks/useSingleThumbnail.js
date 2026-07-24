@@ -149,10 +149,8 @@ export function useSingleThumbnail(imdb) {
       // In add mode, only show preview if a thumbnail was fetched or saved
       if (hasFetched) {
         const url = tempThumbnailUrl || thumbnailUrl || null;
-        console.log('[useSingleThumbnail] getPreviewUrl (add mode): hasFetched=true, returning', url);
         return url;
       } else {
-        console.log('[useSingleThumbnail] getPreviewUrl (add mode): hasFetched=false, returning null');
         return null;
       }
     }
