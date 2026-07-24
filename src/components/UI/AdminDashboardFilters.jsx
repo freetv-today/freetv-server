@@ -66,12 +66,18 @@ export function AdminDashboardFilters({
               </button>
               <button
                 type="button"
-                className="infoBtnAdmin"
+                className="btn border-0 bg-transparent p-1 lh-1"
                 title="Current Playlist Information"
                 aria-label="Current Playlist Information"
                 onClick={onInfoClick}
               >
-                {/* Info icon loaded via admin.css */}
+                <img
+                  src={createPath('/assets/info-circle-black.svg')}
+                  width="22"
+                  height="22"
+                  alt=""
+                  aria-hidden="true"
+                />
               </button>
             </div>
           </div>

@@ -34,9 +34,6 @@ export function AdminInfoModal({ show, onClose, stats }) {
               <li className="list-group-item">
                 <strong>Disabled Shows:</strong> {stats.disabledShows}
               </li>
-              <li className="list-group-item">
-                <strong>Total Playlists:</strong> {stats.totalPlaylists}
-              </li>
             </ul>
           </div>
           <div className="modal-footer">
