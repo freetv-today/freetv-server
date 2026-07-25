@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { AdminDashboardTable } from '@/components/UI/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/UI/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
@@ -46,7 +46,14 @@ export function Dashboard() {
     const [hideDisabled, setHideDisabled] = useState(false);
 
     // Use playlist state from signal
-    const { playlists, currentPlaylist, showData, loading, error } = playlistSignal.value;
+    const {
+        playlists,
+        currentPlaylist,
+        currentPlaylistData,
+        showData,
+        loading,
+        error
+    } = playlistSignal.value;
     // Admin show actions and modal state (now pass currentPlaylist)
     const {
         handleEdit,
@@ -131,13 +138,44 @@ export function Dashboard() {
                     meta: updatedMeta
                 })
             });
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                setMetaError(data && data.message ? data.message : 'Save failed.');
+
+            const responseText = await res.text();
+            let data = null;
+            try {
+                data = JSON.parse(responseText);
+            } catch {
+                data = null;
             }
+
+            if (!res.ok || data?.success !== true) {
+                const errorMessage = data?.message
+                    || (res.ok ? 'Unexpected response from server.' : `Save failed (HTTP ${res.status}).`);
+                setMetaError(errorMessage);
+                return;
+            }
+
+            const refreshed = await loadPlaylists(0);
+            const refreshedPlaylistState = playlistSignal.value;
+            const selectedPlaylistWasRefreshed = refreshed
+                && refreshedPlaylistState.currentPlaylist === currentPlaylist
+                && refreshedPlaylistState.currentPlaylistData?.filename === currentPlaylist;
+
+            if (!selectedPlaylistWasRefreshed) {
+                const refreshDetail = refreshedPlaylistState.error
+                    || 'The selected playlist was not returned by the refresh.';
+                const refreshMessage = `Meta data was updated, but the refreshed playlist data could not be loaded: ${refreshDetail}`;
+                playlistSignal.value = {
+                    ...refreshedPlaylistState,
+                    error: refreshMessage
+                };
+                setMetaError(refreshMessage);
+                setAdminMsg({ type: 'warning', text: refreshMessage });
+                return;
+            }
+
             setAdminMsg({ type: 'success', text: data.message || 'Meta data updated' });
             setShowMetaModal(false);
-        } catch (err) {
+        } catch {
             setMetaError('Save failed.');
         } finally {
             setMetaSaving(false);
@@ -150,32 +188,21 @@ export function Dashboard() {
         return found ? found.dbtitle : currentPlaylist;
     }
 
+    const currentPlaylistMeta = useMemo(() => {
+        if (!currentPlaylistData) return null;
+
+        return {
+            dbtitle: currentPlaylistData.dbtitle ?? '',
+            dbversion: currentPlaylistData.dbversion ?? '',
+            author: currentPlaylistData.author ?? '',
+            email: currentPlaylistData.email ?? '',
+            link: currentPlaylistData.link ?? '',
+            lastupdated: currentPlaylistData.lastupdated ?? ''
+        };
+    }, [currentPlaylistData]);
+
     if (!initialized || loading) return <SpinnerLoadingAppData />;
     if (error) return <div className="alert alert-danger mt-4">{error}</div>;
-
-    // Extract meta data for current playlist from loaded playlist JSON
-    const [currentPlaylistMeta, setCurrentPlaylistMeta] = useState(null);
-    useEffect(() => {
-        async function fetchMeta() {
-            if (!currentPlaylist) return;
-            try {
-                const res = await fetch(`/playlists/${currentPlaylist}`);
-                if (!res.ok) return;
-                const data = await res.json();
-                setCurrentPlaylistMeta({
-                    dbtitle: data.dbtitle || '',
-                    dbversion: data.dbversion || '',
-                    author: data.author || '',
-                    email: data.email || '',
-                    link: data.link || '',
-                    lastupdated: data.lastupdated || ''
-                });
-            } catch {
-                setCurrentPlaylistMeta(null);
-            }
-        }
-        fetchMeta();
-    }, [currentPlaylist, showMetaModal]);
 
     return (
         <div className="container mt-3">

@@ -8,6 +8,7 @@ import { enforceMinLoadingTime } from '@/utils/utils';
 export const playlistSignal = signal({
   playlists: [],
   currentPlaylist: null,
+  currentPlaylistData: null,
   showData: [],
   loading: true,
   error: null,
@@ -21,11 +22,13 @@ export async function switchPlaylist(filename, minTime = 1200) {
   playlistSignal.value = {
     ...playlistSignal.value,
     currentPlaylist: filename,
+    currentPlaylistData: null,
     loading: true,
     error: null,
   };
 
   let showData = [];
+  let currentPlaylistData = null;
   let error = null;
   try {
     if (typeof filename !== 'string' || filename === '') {
@@ -37,7 +40,23 @@ export async function switchPlaylist(filename, minTime = 1200) {
     if (!res.ok) throw new Error('Failed to load playlist data');
 
     const playlistData = await res.json();
-    showData = Array.isArray(playlistData.shows) ? playlistData.shows : [];
+    const nullableMetadataFields = ['dbversion', 'author', 'email', 'link', 'lastupdated'];
+    if (
+      !playlistData
+      || typeof playlistData !== 'object'
+      || Array.isArray(playlistData)
+      || playlistData.filename !== filename
+      || typeof playlistData.dbtitle !== 'string'
+      || nullableMetadataFields.some(field => (
+        playlistData[field] !== null && typeof playlistData[field] !== 'string'
+      ))
+      || !Array.isArray(playlistData.shows)
+    ) {
+      throw new Error('Invalid playlist data');
+    }
+
+    currentPlaylistData = playlistData;
+    showData = playlistData.shows;
     localStorage.setItem('adminCurrentPlaylist', filename);
   } catch (err) {
     error = err instanceof Error ? err.message : 'Error loading playlist';
@@ -46,10 +65,13 @@ export async function switchPlaylist(filename, minTime = 1200) {
   await enforceMinLoadingTime(startTime, minTime);
   playlistSignal.value = {
     ...playlistSignal.value,
+    currentPlaylistData,
     showData,
     loading: false,
     error,
   };
+
+  return error === null;
 }
 
 /**
@@ -87,6 +109,7 @@ export async function loadPlaylists(minTime = 1200) {
       ...playlistSignal.value,
       playlists,
       currentPlaylist: selectedFilename,
+      currentPlaylistData: null,
       showData: [],
       loading: true,
       error: null,
@@ -96,21 +119,24 @@ export async function loadPlaylists(minTime = 1200) {
       await enforceMinLoadingTime(startTime, minTime);
       playlistSignal.value = {
         ...playlistSignal.value,
+        currentPlaylistData: null,
         loading: false,
       };
-      return;
+      return true;
     }
 
-    await switchPlaylist(selectedFilename, minTime);
+    return await switchPlaylist(selectedFilename, minTime);
   } catch (err) {
     await enforceMinLoadingTime(startTime, minTime);
     playlistSignal.value = {
       ...playlistSignal.value,
       playlists: [],
       currentPlaylist: null,
+      currentPlaylistData: null,
       showData: [],
       loading: false,
       error: err instanceof Error ? err.message : 'Error loading playlists',
     };
+    return false;
   }
 }
