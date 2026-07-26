@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS problem_reports (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_problem_reports_playlist_identifier (playlist_id, identifier),
   KEY idx_problem_reports_status (status),
   KEY idx_problem_reports_playlist_id (playlist_id),
   KEY idx_problem_reports_identifier (identifier),
@@ -132,18 +133,11 @@ CREATE TABLE IF NOT EXISTS problem_reports (
 
 CREATE TABLE IF NOT EXISTS problem_report_ips (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  problem_report_id INT UNSIGNED NOT NULL,
   ip_address VARCHAR(45) NOT NULL,
-  reported_at DATETIME NOT NULL,
+  attempted_at DATETIME NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  KEY idx_problem_report_ips_ip (ip_address),
-  KEY idx_problem_report_ips_report (problem_report_id),
-  CONSTRAINT fk_problem_report_ips_report
-    FOREIGN KEY (problem_report_id)
-    REFERENCES problem_reports (id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
+  KEY idx_problem_report_ips_ip_attempted (ip_address, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Optional seed row for app settings if you want a single config record immediately.
