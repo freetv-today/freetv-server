@@ -6,13 +6,13 @@
 
 $loopbackAddresses = ['127.0.0.1', '::1'];
 $remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
-$serverAddress = $_SERVER['SERVER_ADDR'] ?? '';
 $testerEnabled = getenv('FREETV_ENABLE_LOCAL_REPORT_TESTER') === '1';
+$isDevelopmentServer = PHP_SAPI === 'cli-server';
 
 if (
     !$testerEnabled
+    || !$isDevelopmentServer
     || !in_array($remoteAddress, $loopbackAddresses, true)
-    || !in_array($serverAddress, $loopbackAddresses, true)
 ) {
     http_response_code(404);
     exit;
