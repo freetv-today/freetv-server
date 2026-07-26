@@ -56,7 +56,19 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
         setMessage({ type: 'danger', text: data && data.message ? data.message : 'Status update failed.' });
         return;
       }
-      await switchPlaylist(currentPlaylist);
+      let playlistRefreshed = false;
+      try {
+        playlistRefreshed = await switchPlaylist(currentPlaylist);
+      } catch {
+        // Treat an unexpected refresh exception the same as a failed refresh.
+      }
+      if (!playlistRefreshed) {
+        setMessage({
+          type: 'warning',
+          text: 'Show status updated, but the playlist could not be refreshed.'
+        });
+        return;
+      }
       setMessage({ type: 'success', text: 'Show status updated.' });
       if (onDataChanged) onDataChanged();
     } catch {
