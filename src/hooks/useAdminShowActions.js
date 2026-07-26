@@ -90,22 +90,51 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
           identifier: showToDelete.identifier
         })
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setDeleteError(data && data.message ? data.message : 'Delete failed.');
-        setDeleting(false);
+
+      const responseText = await res.text();
+      let data = null;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = null;
+      }
+
+      if (!res.ok || data?.success !== true) {
+        const errorMessage = data?.message
+          || (res.ok ? 'Unexpected response from server.' : `Delete failed (HTTP ${res.status}).`);
+        setDeleteError(errorMessage);
         return false;
       }
-      await switchPlaylist(currentPlaylist);
-      setDeleting(false);
+
+      let playlistRefreshed = false;
+      try {
+        playlistRefreshed = await switchPlaylist(currentPlaylist);
+      } catch {
+        // Treat an unexpected refresh exception the same as a failed refresh.
+      }
+
       setShowDeleteModal(false);
       setShowToDelete(null);
-      if (onDataChanged) onDataChanged();
+      setDeleteError(null);
+
+      if (!playlistRefreshed) {
+        setMessage({
+          type: 'warning',
+          text: 'Show was deleted, but the playlist could not be refreshed.'
+        });
+        return false;
+      }
+
+      setMessage({ type: 'success', text: 'Show deleted successfully.' });
+      if (onDataChanged) {
+        onDataChanged();
+      }
       return true;
     } catch {
       setDeleteError('Delete failed.');
-      setDeleting(false);
       return false;
+    } finally {
+      setDeleting(false);
     }
   }, [showToDelete, currentPlaylist, setMessage, onDataChanged]);
 

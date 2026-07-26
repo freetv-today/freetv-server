@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 /**
  * AdminDeleteShowModal - Modal for confirming deletion of a show
@@ -30,18 +29,8 @@ export function AdminDeleteShowModal({ show, onClose, showData, deleting, error,
 
   if (!show || !showData) return null;
 
-  // Wrap onDeleteConfirm to set adminMsg on success, refresh playlist, and ensure index is rebuilt
   async function handleDelete() {
-    // Delete the show (calls update-show.php)
-    const deleteResult = await onDeleteConfirm();
-    if (deleteResult) {
-      // Close modal first, then show success message
-      onClose('save');
-      setTimeout(() => {
-        setAdminMsg({ type: 'success', text: 'Show deleted successfully.' });
-      }, 0);
-    }
-    // If deleteResult is false, error will be shown in the modal and modal stays open
+    await onDeleteConfirm();
   }
 
   return (

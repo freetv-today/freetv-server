@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: application/json');
+
 session_start();
 if (!isset($_SESSION['admin'])) {
     http_response_code(401);
@@ -7,62 +9,105 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-require_once __DIR__ . '/../playlist_utils.php';
-header('Content-Type: application/json');
+ini_set('display_errors', 0);
 
-// Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-$playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
-$identifier = isset($input['identifier']) ? $input['identifier'] : null;
-if (!$playlist || !$identifier) {
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+
+use FreeTV\Admin\Database;
+
+$requestBody = file_get_contents('php://input');
+$requestObject = json_decode($requestBody);
+if (json_last_error() !== JSON_ERROR_NONE || !is_object($requestObject)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing playlist or identifier']);
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON request body']);
     exit;
 }
 
-$playlistPath = __DIR__ . '/../../playlists/' . $playlist;
-if (!file_exists($playlistPath)) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+$input = get_object_vars($requestObject);
+$playlist = $input['playlist'] ?? null;
+$identifier = $input['identifier'] ?? null;
+
+if (
+    !is_string($playlist)
+    || trim($playlist) === ''
+    || !is_string($identifier)
+    || trim($identifier) === ''
+) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing or invalid playlist or identifier']);
     exit;
 }
 
-// Load playlist JSON
-$data = json_decode(file_get_contents($playlistPath), true);
-if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
+if (
+    !preg_match('/^[a-zA-Z0-9_-]+\.json$/', $playlist)
+    || strcasecmp($playlist, 'index.json') === 0
+) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid playlist filename']);
+    exit;
+}
+
+try {
+    $capsule = Database::init();
+    $connection = $capsule->getConnection();
+
+    $playlistRow = Database::table('playlists')
+        ->where('filename', $playlist)
+        ->first(['id', 'filename']);
+
+    if (!$playlistRow || $playlistRow->filename !== $playlist) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+        exit;
+    }
+
+    $showDeleted = $connection->transaction(function () use (
+        $connection,
+        $playlistRow,
+        $identifier
+    ) {
+        $showRow = Database::table('playlist_shows')
+            ->where('playlist_id', $playlistRow->id)
+            ->where('identifier', $identifier)
+            ->lockForUpdate()
+            ->first(['id', 'identifier']);
+
+        if (!$showRow || $showRow->identifier !== $identifier) {
+            return false;
+        }
+
+        $deletedRows = Database::table('playlist_shows')
+            ->where('id', $showRow->id)
+            ->where('playlist_id', $playlistRow->id)
+            ->delete();
+
+        if ($deletedRows !== 1) {
+            throw new \RuntimeException('Delete did not affect exactly one playlist show');
+        }
+
+        Database::table('playlists')
+            ->where('id', $playlistRow->id)
+            ->update(['lastupdated' => $connection->raw('CURRENT_TIMESTAMP')]);
+
+        return true;
+    });
+
+    if (!$showDeleted) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Show deleted']);
+} catch (\Throwable $e) {
+    error_log('Delete Show API Error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Invalid playlist data']);
-    exit;
+    echo json_encode(['success' => false, 'message' => 'Database error']);
 }
-
-$originalCount = count($data['shows']);
-// Remove show by identifier
-$data['shows'] = array_values(array_filter($data['shows'], function ($show) use ($identifier) {
-
-    return isset($show['identifier']) && $show['identifier'] !== $identifier;
-}));
-if (count($data['shows']) === $originalCount) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Show not found']);
-    exit;
-}
-
-// Update lastupdated timestamp
-$data['lastupdated'] = gmdate('Y-m-d\TH:i:s.\0\0\0\Z');
-// Save JSON
-if (file_put_contents($playlistPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save playlist']);
-    exit;
-}
-
-$playlistsDir = __DIR__ . '/../../playlists';
-rebuild_index($playlistsDir);
-
-echo json_encode(['success' => true, 'message' => 'Show deleted']);
