@@ -280,3 +280,25 @@ This should remain development-only and must not be usable against production wi
 
 Currently the system only shows problems or issues with the currently-selected playlist. It functions. But, this may allow bugs to go hidden unless the admin purposely switches playlists and checks all of the issues. Ideally, the /dashboard/problems page would show a total count of all problems from all playlists as one number (combined total). Then, on the page itself we can have the display broken down by specific playlist. No matter which playlist is selected, the Admin could view ALL problems from ALL playlists on one screen. Maybe to facilitate this, there is a "Switch Playlist" button next to the items which are not on the current playlist? The admin could click the button, switch to that playlist, and fix the problem(s).
 
+## Add more Automation Tools to Run on Chron 
+
+The ability to check each item in the database against Internet Archive status (e.g to find "is_dark" items) and remove dead items would be useful.
+
+## Create an Intake Hopper to Add New Titles to the DB
+
+This would work in correlation with a Chrome browser extension that activates and functions on the Internet Archive site.
+
+1. User goes to archive.org and starts browsing videos
+2. Extension activates based on URL 
+3. User can click "Add This to Free TV" button
+4. API sends info about the current page to the "incoming hopper"
+5. Script runs on cron and checks to see if we already have it. If so, video title is removed from hopper.
+6. If we don't have it, it goes to a "Pending" table
+7. Admin can see the Pending items and add extra info (category, IMDB, thumbnail, description, etc.) and approve
+8. Once item is approved it is added to playlist_shows table and appears aways next JSON export
+9. After next JSON export happens, timestamp is updated and viewer client updates its data
+10. New title appears and viewers can watch the video
+
+
+
+
