@@ -1,8 +1,3 @@
-Yes. A `WISHLIST.md` would keep future improvements from being mixed into the active MariaDB refactor. I would use it for desirable but unscheduled work; confirmed migration tasks should remain in the roadmap.
-
-Here is a first draft based on the ideas from this thread:
-
-````markdown
 # FreeTV Wishlist
 
 This document records future improvements and ideas that are worth preserving but are not part of the current implementation scope.
@@ -243,9 +238,8 @@ After completing the current PHP/MariaDB refactor:
 8. Add safer playlist deletion.
 9. Consider cross-playlist identifier replacement.
 
-```
 
-The main additional ideas from this thread were:
+### The main additional ideas from this thread were:
 
 - Database-to-JSON export, already represented by the disabled button.
 - Updating a replaced Internet Archive identifier across every affected playlist.
@@ -254,5 +248,4 @@ The main additional ideas from this thread were:
 - The deferred Information-icon CSS cleanup.
 - Showing cross-playlist usage when editing shared shows.
 
-```
 
