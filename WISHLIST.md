@@ -46,7 +46,7 @@ Example:
 
 ```text
 Default TV Shows · 412 records · 398 active
-````
+```
 
 Keep this display compact. Detailed information should remain on the dedicated playlist management page.
 
@@ -238,14 +238,5 @@ After completing the current PHP/MariaDB refactor:
 8. Add safer playlist deletion.
 9. Consider cross-playlist identifier replacement.
 
-
-### The main additional ideas from this thread were:
-
-- Database-to-JSON export, already represented by the disabled button.
-- Updating a replaced Internet Archive identifier across every affected playlist.
-- Compact record counts and statistics on the dashboard.
-- Playlist deletion rules, especially for the default playlist.
-- The deferred Information-icon CSS cleanup.
-- Showing cross-playlist usage when editing shared shows.
 
 
