@@ -118,6 +118,18 @@ Use a dedicated test database to verify:
 * Changing the default preserves exactly one default
 * JSON files are not modified by migrated endpoints
 
+### Legacy JSON Dependency Check
+
+Add a development or test mode that verifies the migrated Admin application does not depend on legacy playlist JSON files.
+
+Possible approaches:
+
+- Run integration tests with `/public/playlists/` absent or temporarily renamed.
+- Fail tests when migrated endpoints attempt to read playlist JSON.
+- Verify that only the database-to-JSON exporter writes to the playlist artifact directory.
+
+During the migration, missing JSON files should expose remaining legacy dependencies rather than silently falling back to old behavior.
+
 ### Frontend tests
 
 Add a JavaScript test runner such as Vitest for:
@@ -238,5 +250,21 @@ After completing the current PHP/MariaDB refactor:
 8. Add safer playlist deletion.
 9. Consider cross-playlist identifier replacement.
 
+
+## Repeatable Development Database Reset
+
+Create a documented or scripted workflow for rebuilding the development database from a known baseline.
+
+The workflow could:
+
+1. Drop the development database.
+2. Recreate the database.
+3. Import the checked or archived SQL dump.
+4. Apply any later schema migrations.
+5. Run basic verification queries.
+
+The development database is disposable. A reliable reset process would make destructive testing safer and help expose code that depends on stale or accidental database state.
+
+This should remain development-only and must not be usable against production without explicit safeguards.
 
 
