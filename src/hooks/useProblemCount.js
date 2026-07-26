@@ -7,38 +7,66 @@ import { playlistSignal } from '@signals/playlistSignal';
  */
 
 export function useProblemCount() {
-  
+
   const [count, setCount] = useState(0);
+  const { currentPlaylist, showData } = playlistSignal.value;
 
   useEffect(() => {
-    let isMounted = true;
-    async function fetchCounts() {
-      const { currentPlaylist, showData } = playlistSignal.value;
-      let reported = 0;
-      let disabled = 0;
-      
-      try {
-        // Fetch errors.json
-        const res = await fetch('/logs/errors.json');
-        const data = await res.json();
-        if (Array.isArray(data.reports) && currentPlaylist) {
-          reported = data.reports.filter(r => r.status === 'reported' && r.playlist === currentPlaylist).length;
-        }
-      } catch {
-        // Ignore errors fetching errors.json
-      }
-      
-      // Count disabled in current showData
-      if (showData && Array.isArray(showData)) {
-        disabled = showData.filter(s => s.status === 'disabled').length;
-      }
-      
-      if (isMounted) setCount(reported + disabled);
+    const controller = new AbortController();
+    let cancelled = false;
+
+    if (typeof currentPlaylist !== 'string' || currentPlaylist === '') {
+      setCount(0);
+      return () => {
+        cancelled = true;
+        controller.abort();
+      };
     }
-    
+
+    setCount(0);
+
+    async function fetchCounts() {
+      try {
+        const encodedPlaylist = encodeURIComponent(currentPlaylist);
+        const res = await fetch(
+          `/api/admin/problem-count.php?playlist=${encodedPlaylist}&t=${Date.now()}`,
+          { signal: controller.signal }
+        );
+        const responseText = await res.text();
+        let data = null;
+
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = null;
+        }
+
+        if (
+          !res.ok
+          || data?.success !== true
+          || !Number.isInteger(data.total)
+          || data.total < 0
+        ) {
+          throw new Error('Failed to load problem count');
+        }
+
+        if (!cancelled) {
+          setCount(data.total);
+        }
+      } catch (error) {
+        if (!cancelled && error?.name !== 'AbortError') {
+          setCount(0);
+        }
+      }
+    }
+
     fetchCounts();
-    return () => { isMounted = false; };
-  }, [playlistSignal.value.currentPlaylist, playlistSignal.value.showData]);
-  
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [currentPlaylist, showData]);
+
   return count;
 }
