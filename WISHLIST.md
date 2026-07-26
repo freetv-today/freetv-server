@@ -226,6 +226,8 @@ Potential improvements:
 
 This is cosmetic and does not currently block functionality.
 
+Another area for improvement is the ordering of the items in the navbar. On small screen it's functional and contained under the toggle menu. On large screens it feels randomly placed with lots of space between the elements. 
+
 ## Cross-Playlist Show Awareness
 
 When editing a show that appears in more than one playlist, optionally display:
@@ -266,5 +268,17 @@ The workflow could:
 The development database is disposable. A reliable reset process would make destructive testing safer and help expose code that depends on stale or accidental database state.
 
 This should remain development-only and must not be usable against production without explicit safeguards.
+
+## Add An "Activity Log" feature
+
+* Could be have config options under Admin Settings
+* Shows the last 10 actions completed in the UI
+* Maintains a full log on the disk so the Admin could review previous operations
+* Useful for investigating questions like "when did this show get deleted?"
+
+## Improve Problem Reporting / Issue Count Badge
+
+Currently the system only shows problems or issues with the currently-selected playlist. It functions. But, this may allow bugs to go hidden unless the admin purposely switches playlists and checks all of the issues. Ideally, the /dashboard/problems page would show a total count of all problems from all playlists as one number (combined total). Then, on the page itself we can have the display broken down by specific playlist. No matter which playlist is selected, the Admin could view ALL problems from ALL playlists on one screen. Maybe to facilitate this, there is a "Switch Playlist" button next to the items which are not on the current playlist? The admin could click the button, switch to that playlist, and fix the problem(s).
+
 
 
