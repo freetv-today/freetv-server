@@ -19,24 +19,10 @@ export function Dashboard() {
 
     const log = useDebugLog();
     const dataValidation = useDataValidation();
-    const [initialized, setInitialized] = useState(false);
-
-    // Check if we need to show data setup page
-    if (dataValidation.loading) {
-        return <SpinnerLoadingAppData />;
-    }
-
-    if (!dataValidation.canProceed) {
-        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
-    }
 
     useEffect(() => {
         document.title = "Admin Dashboard";
         log('Rendered Dashboard page (pages/dashboard.jsx)');
-        // Set loading to true
-        playlistSignal.value = { ...playlistSignal.value, loading: true };
-        // Reload playlists when dashboard mounts (with shorter spinner time)
-        loadPlaylists(600).then(() => setInitialized(true));
     }, []);
 
     // useState for sorting/filtering
@@ -201,7 +187,16 @@ export function Dashboard() {
         };
     }, [currentPlaylistData]);
 
-    if (!initialized || loading) return <SpinnerLoadingAppData />;
+    // Keep all hooks above these conditional render paths.
+    if (dataValidation.loading) {
+        return <SpinnerLoadingAppData />;
+    }
+
+    if (!dataValidation.canProceed) {
+        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
+    }
+
+    if (loading) return <SpinnerLoadingAppData />;
     if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
     return (

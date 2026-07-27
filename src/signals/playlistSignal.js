@@ -10,9 +10,60 @@ export const playlistSignal = signal({
   currentPlaylist: null,
   currentPlaylistData: null,
   showData: [],
-  loading: true,
+  loading: false,
   error: null,
+  initialized: false,
+  initializing: false,
 });
+
+let playlistInitializationPromise = null;
+
+/**
+ * initializePlaylists - Initialize shared playlist state once per application load.
+ */
+export function initializePlaylists(minTime = 1200) {
+  if (playlistSignal.value.initialized) {
+    return Promise.resolve(playlistSignal.value.error === null);
+  }
+
+  if (playlistInitializationPromise !== null) {
+    return playlistInitializationPromise;
+  }
+
+  playlistSignal.value = {
+    ...playlistSignal.value,
+    initializing: true,
+    loading: true,
+    error: null,
+  };
+
+  playlistInitializationPromise = (async () => {
+    try {
+      return await loadPlaylists(minTime);
+    } catch (err) {
+      playlistSignal.value = {
+        ...playlistSignal.value,
+        playlists: [],
+        currentPlaylist: null,
+        currentPlaylistData: null,
+        showData: [],
+        loading: false,
+        error: err instanceof Error ? err.message : 'Error loading playlists',
+      };
+      return false;
+    } finally {
+      playlistSignal.value = {
+        ...playlistSignal.value,
+        initialized: true,
+        initializing: false,
+        loading: false,
+      };
+      playlistInitializationPromise = null;
+    }
+  })();
+
+  return playlistInitializationPromise;
+}
 
 /**
  * switchPlaylist - Switch to different playlist
