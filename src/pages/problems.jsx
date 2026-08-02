@@ -3,7 +3,6 @@ import { useDebugLog } from '@/hooks/useDebugLog';
 import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { AdminTestVideoModal } from '@components/Modals/AdminTestVideoModal';
 import { AdminDeleteShowModal } from '@components/Modals/AdminDeleteShowModal';
-import { DeleteReportedProblemModal } from '@components/Modals/DeleteReportedProblemModal';
 import { capitalizeFirstLetter, formatDateTime } from '@/utils/utils';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
@@ -19,8 +18,6 @@ export function AdminProblems() {
     const [testModal, setTestModal] = useState(null);
     const [deleteModal, setDeleteModal] = useState(null);
     const [markingOk, setMarkingOk] = useState(false);
-    const [deletingReport, setDeletingReport] = useState(false);
-    const [deleteReportError, setDeleteReportError] = useState(null);
     const [deleteAllModal, setDeleteAllModal] = useState(false);
     const [reportsLoading, setReportsLoading] = useState(true);
     const [reportsError, setReportsError] = useState(null);
@@ -145,34 +142,6 @@ export function AdminProblems() {
         setMarkingOk(false);
     };
 
-    const handleDeleteReportedProblem = async (item, selectedPlaylist) => {
-        setDeletingReport(true);
-        setDeleteReportError(null);
-        try {
-            const response = await fetch('/api/admin/delete-reported-problem.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    playlist: selectedPlaylist,
-                    reportId: item.id
-                })
-            });
-            const result = await response.json().catch(() => null);
-            if (!response.ok || result?.success !== true) {
-                throw new Error(result?.message || 'Failed to delete problem');
-            }
-
-            setAdminMsg({ type: 'success', text: 'Problem deleted successfully.' });
-            refreshReportedProblemsAndBadge();
-            return true;
-        } catch (error) {
-            setDeleteReportError(error?.message || 'Error deleting problem');
-            return false;
-        } finally {
-            setDeletingReport(false);
-        }
-    };
-
     const handleDeleteShow = async (item) => {
         try {
             const response = await fetch('/api/admin/delete-show.php', {
@@ -242,10 +211,6 @@ export function AdminProblems() {
         <>
             <button type="button" className="btn tinybtn btn-warning p-1 me-2" onClick={() => setTestModal({ item, type: 'reported' })}>Test</button>
             <button type="button" className="btn tinybtn btn-success p-1 me-2" onClick={() => handleMarkAsOk(item)} disabled={markingOk}>Mark as OK</button>
-            <button type="button" className="btn tinybtn btn-danger p-1 me-2" onClick={() => {
-                setDeleteReportError(null);
-                setDeleteModal({ item, type: 'reported', playlist: currentPlaylist });
-            }}>Delete</button>
         </>
     );
     const renderActionsDisabled = (item) => (
@@ -332,16 +297,6 @@ export function AdminProblems() {
                     show={!!testModal}
                     onClose={() => setTestModal(null)}
                     showData={testModal.item}
-                />
-            )}
-            {deleteModal && deleteModal.type === 'reported' && (
-                <DeleteReportedProblemModal
-                    show={!!deleteModal}
-                    onClose={() => setDeleteModal(null)}
-                    showData={deleteModal.item}
-                    deleting={deletingReport}
-                    error={deleteReportError}
-                    onDeleteConfirm={() => handleDeleteReportedProblem(deleteModal.item, deleteModal.playlist)}
                 />
             )}
             {deleteModal && deleteModal.type === 'disabled' && (
