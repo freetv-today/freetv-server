@@ -1,12 +1,9 @@
 import { SelectSmall } from '@components/Navigation/SelectSmall';
-import { useSignal } from '@preact/signals';
-import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 import { useAdminLogout } from '@hooks/useAdminLogout';
 import { Link } from '@components/Navigation/Link';
 
 export function AdminToggleDropDownMenu() {
   const handleLogout = useAdminLogout();
-  const playlist = useSignal(playlistSignal).value;
   const basePath = import.meta.env.BASE_URL;
   return (
     <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-custom p-2 pb-3">
