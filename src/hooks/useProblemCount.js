@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import { playlistSignal } from '@signals/playlistSignal';
 
+const PROBLEM_COUNT_REFRESH_EVENT = 'freetv:problem-count-refresh';
+
+export function requestProblemCountRefresh() {
+  window.dispatchEvent(new window.Event(PROBLEM_COUNT_REFRESH_EVENT));
+}
+
 /**
  * useProblemCount - Custom hook to get the count of reported problems and disabled items for the current playlist.
  * @returns {number} Total count of reported and disabled items.
@@ -9,10 +15,17 @@ import { playlistSignal } from '@signals/playlistSignal';
 export function useProblemCount() {
 
   const [count, setCount] = useState(0);
+  const [refreshVersion, setRefreshVersion] = useState(0);
   const { currentPlaylist, showData } = playlistSignal.value;
 
   useEffect(() => {
-    const controller = new AbortController();
+    const refresh = () => setRefreshVersion(version => version + 1);
+    window.addEventListener(PROBLEM_COUNT_REFRESH_EVENT, refresh);
+    return () => window.removeEventListener(PROBLEM_COUNT_REFRESH_EVENT, refresh);
+  }, []);
+
+  useEffect(() => {
+    const controller = new window.AbortController();
     let cancelled = false;
 
     if (typeof currentPlaylist !== 'string' || currentPlaylist === '') {
@@ -66,7 +79,7 @@ export function useProblemCount() {
       cancelled = true;
       controller.abort();
     };
-  }, [currentPlaylist, showData]);
+  }, [currentPlaylist, showData, refreshVersion]);
 
   return count;
 }

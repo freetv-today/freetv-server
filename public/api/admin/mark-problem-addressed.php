@@ -73,30 +73,39 @@ try {
         exit;
     }
 
-    $deleted = $connection->transaction(function () use ($playlistRow, $reportId) {
+    $result = $connection->transaction(function () use ($playlistRow, $reportId) {
         $report = Database::table('problem_reports')
             ->where('id', $reportId)
             ->where('playlist_id', $playlistRow->id)
             ->lockForUpdate()
-            ->first(['id']);
+            ->first(['id', 'status', 'report_count']);
 
         if (!$report) {
-            return false;
+            return null;
         }
 
-        $deletedRows = Database::table('problem_reports')
+        if ($report->status === 'addressed') {
+            return ['alreadyAddressed' => true, 'reportCount' => (int) $report->report_count];
+        }
+
+        if ($report->status !== 'reported') {
+            throw new \RuntimeException('Unexpected problem report status');
+        }
+
+        $updatedRows = Database::table('problem_reports')
             ->where('id', $report->id)
             ->where('playlist_id', $playlistRow->id)
-            ->delete();
+            ->where('status', 'reported')
+            ->update(['status' => 'addressed']);
 
-        if ($deletedRows !== 1) {
-            throw new \RuntimeException('Delete did not affect exactly one problem report');
+        if ($updatedRows !== 1) {
+            throw new \RuntimeException('Address update did not affect exactly one report');
         }
 
-        return true;
+        return ['alreadyAddressed' => false, 'reportCount' => (int) $report->report_count];
     });
 
-    if (!$deleted) {
+    if ($result === null) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Report not found']);
         exit;
@@ -104,11 +113,14 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Problem deleted',
+        'message' => $result['alreadyAddressed'] ? 'Problem was already addressed' : 'Problem marked as OK',
         'reportId' => (int) $reportId,
+        'status' => 'addressed',
+        'reportCount' => $result['reportCount'],
+        'alreadyAddressed' => $result['alreadyAddressed'],
     ]);
 } catch (\Throwable $e) {
-    error_log('Delete Reported Problem API Error: ' . $e->getMessage());
+    error_log('Mark Problem Addressed API Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error']);
 }

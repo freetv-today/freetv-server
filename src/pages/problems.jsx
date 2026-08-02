@@ -8,6 +8,7 @@ import { capitalizeFirstLetter, formatDateTime } from '@/utils/utils';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { requestProblemCountRefresh } from '@hooks/useProblemCount';
 
 export function AdminProblems() {
     
@@ -18,63 +19,92 @@ export function AdminProblems() {
     const [testModal, setTestModal] = useState(null);
     const [deleteModal, setDeleteModal] = useState(null);
     const [markingOk, setMarkingOk] = useState(false);
+    const [deletingReport, setDeletingReport] = useState(false);
+    const [deleteReportError, setDeleteReportError] = useState(null);
     const [deleteAllModal, setDeleteAllModal] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [reportsLoading, setReportsLoading] = useState(true);
+    const [reportsError, setReportsError] = useState(null);
+    const [reportsRefreshVersion, setReportsRefreshVersion] = useState(0);
 
     useEffect(() => {
-        document.title = "Free TV: Admin Dashboard - Problems";
+        document.title = 'Free TV: Admin Dashboard - Problems';
         log('Rendered Admin Problems page (pages/problems.jsx)');
-        async function fetchData() {
-            if (!currentPlaylist || !showData) {
-                setLoading(false);
-                return;
-            }
-            setLoading(true);
-            // Fetch errors.json
-            let errors = [];
-            try {
-                const res = await fetch('/logs/errors.json');
-                const data = await res.json();
-                if (Array.isArray(data.reports)) {
-                    errors = data.reports.filter(r => r.status === 'reported' && r.playlist === currentPlaylist);
-                }
-            } catch {}
-            // Sort reported problems alphabetically by title
-            errors.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-            setReportedProblems(errors);
-            // Disabled items from playlist
-            let disabled = [];
-            if (showData && Array.isArray(showData)) {
-                disabled = showData.filter(s => s.status === 'disabled');
-            }
-            // Sort disabled items alphabetically by title
-            disabled.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-            setDisabledItems(disabled);
-            setLoading(false);
-        }
-        fetchData();
         // On unmount, remove adminMsg from localStorage
         return () => {
             localStorage.removeItem('adminMsg');
         };
-    }, [currentPlaylist, showData, markingOk]);
+    }, []);
 
-    if (playlistLoading || loading) return <SpinnerLoadingAppData />;
+    useEffect(() => {
+        const disabled = Array.isArray(showData)
+            ? showData.filter(show => show.status === 'disabled')
+            : [];
+        disabled.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        setDisabledItems(disabled);
+    }, [showData]);
+
+    useEffect(() => {
+        const controller = new window.AbortController();
+        let cancelled = false;
+
+        if (typeof currentPlaylist !== 'string' || currentPlaylist === '') {
+            setReportedProblems([]);
+            setReportsError(null);
+            setReportsLoading(false);
+            return () => controller.abort();
+        }
+
+        setReportedProblems([]);
+        setReportsError(null);
+        setReportsLoading(true);
+
+        async function fetchReportedProblems() {
+            try {
+                const encodedPlaylist = encodeURIComponent(currentPlaylist);
+                const response = await fetch(
+                    `/api/admin/reported-problems.php?playlist=${encodedPlaylist}&t=${Date.now()}`,
+                    { signal: controller.signal }
+                );
+                const responseText = await response.text();
+                let result = null;
+
+                try {
+                    result = JSON.parse(responseText);
+                } catch {
+                    result = null;
+                }
+
+                if (!response.ok || result?.success !== true || !Array.isArray(result.reports)) {
+                    throw new Error(result?.message || 'Failed to load reported problems');
+                }
+
+                if (!cancelled) {
+                    setReportedProblems(result.reports);
+                }
+            } catch (error) {
+                if (!cancelled && error?.name !== 'AbortError') {
+                    setReportedProblems([]);
+                    setReportsError(error?.message || 'Failed to load reported problems');
+                }
+            } finally {
+                if (!cancelled) {
+                    setReportsLoading(false);
+                }
+            }
+        }
+
+        fetchReportedProblems();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [currentPlaylist, reportsRefreshVersion]);
+
+    if (playlistLoading || reportsLoading) return <SpinnerLoadingAppData />;
     if (playlistError) return <div className="alert alert-danger mt-4">{playlistError}</div>;
 
-    // Helper function to refresh data after operations
-    const refreshData = async () => {
-        // Re-fetch errors.json for reported problems
-        try {
-            const res = await fetch('/logs/errors.json');
-            const data = await res.json();
-            if (Array.isArray(data.reports) && currentPlaylist) {
-                const errors = data.reports.filter(r => r.status === 'reported' && r.playlist === currentPlaylist);
-                errors.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-                setReportedProblems(errors);
-            }
-        } catch {}
-        
+    const refreshDisabledItems = () => {
         // Update disabled items from current show data (which should be fresh from loadPlaylists)
         const { showData: currentShowData } = playlistSignal.value;
         if (currentShowData && Array.isArray(currentShowData)) {
@@ -84,28 +114,30 @@ export function AdminProblems() {
         }
     };
 
+    const refreshReportedProblemsAndBadge = () => {
+        setReportsRefreshVersion(version => version + 1);
+        requestProblemCountRefresh();
+    };
+
     // Action handlers
     const handleMarkAsOk = async (item) => {
+        const selectedPlaylist = currentPlaylist;
         setMarkingOk(true);
         try {
-            const response = await fetch('/api/admin/manage-problem-item.php', {
+            const response = await fetch('/api/admin/mark-problem-addressed.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'mark-ok',
-                    playlist: currentPlaylist,
-                    identifier: item.identifier
+                    playlist: selectedPlaylist,
+                    reportId: item.id
                 })
             });
-            
-            const result = await response.json();
-            if (result.success) {
+            const result = await response.json().catch(() => null);
+            if (response.ok && result?.success === true) {
                 setAdminMsg({ type: 'success', text: 'Problem marked as OK' });
-                // Reload playlist data to get updated state
-                await loadPlaylists(600);
-                await refreshData();
+                refreshReportedProblemsAndBadge();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Error marking problem as OK' });
+                setAdminMsg({ type: 'danger', text: result?.message || 'Error marking problem as OK' });
             }
         } catch {
             setAdminMsg({ type: 'danger', text: 'Network error' });
@@ -113,13 +145,40 @@ export function AdminProblems() {
         setMarkingOk(false);
     };
 
-    const handleDeleteShow = async (item) => {
+    const handleDeleteReportedProblem = async (item, selectedPlaylist) => {
+        setDeletingReport(true);
+        setDeleteReportError(null);
         try {
-            const response = await fetch('/api/admin/manage-problem-item.php', {
+            const response = await fetch('/api/admin/delete-reported-problem.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'delete',
+                    playlist: selectedPlaylist,
+                    reportId: item.id
+                })
+            });
+            const result = await response.json().catch(() => null);
+            if (!response.ok || result?.success !== true) {
+                throw new Error(result?.message || 'Failed to delete problem');
+            }
+
+            setAdminMsg({ type: 'success', text: 'Problem deleted successfully.' });
+            refreshReportedProblemsAndBadge();
+            return true;
+        } catch (error) {
+            setDeleteReportError(error?.message || 'Error deleting problem');
+            return false;
+        } finally {
+            setDeletingReport(false);
+        }
+    };
+
+    const handleDeleteShow = async (item) => {
+        try {
+            const response = await fetch('/api/admin/delete-show.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     playlist: currentPlaylist,
                     identifier: item.identifier
                 })
@@ -130,7 +189,7 @@ export function AdminProblems() {
                 setAdminMsg({ type: 'success', text: 'Show deleted' });
                 // Reload playlist data to get updated state
                 await loadPlaylists(600);
-                await refreshData();
+                refreshDisabledItems();
                 return true;
             } else {
                 setAdminMsg({ type: 'danger', text: result.message || 'Error deleting show' });
@@ -148,11 +207,10 @@ export function AdminProblems() {
         let errorMsg = null;
         for (const item of toDelete) {
             try {
-                const response = await fetch('/api/admin/manage-problem-item.php', {
+                const response = await fetch('/api/admin/delete-show.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'delete',
                         playlist: currentPlaylist,
                         identifier: item.identifier
                     })
@@ -170,7 +228,7 @@ export function AdminProblems() {
         // Reload playlist data to get updated state
         await loadPlaylists(600);
         // Refresh data
-        await refreshData();
+        refreshDisabledItems();
         setDeleteAllModal(false);
         if (errorMsg) {
             setAdminMsg({ type: 'danger', text: errorMsg });
@@ -184,7 +242,10 @@ export function AdminProblems() {
         <>
             <button type="button" className="btn tinybtn btn-warning p-1 me-2" onClick={() => setTestModal({ item, type: 'reported' })}>Test</button>
             <button type="button" className="btn tinybtn btn-success p-1 me-2" onClick={() => handleMarkAsOk(item)} disabled={markingOk}>Mark as OK</button>
-            <button type="button" className="btn tinybtn btn-danger p-1 me-2" onClick={() => setDeleteModal({ item, type: 'reported' })}>Delete</button>
+            <button type="button" className="btn tinybtn btn-danger p-1 me-2" onClick={() => {
+                setDeleteReportError(null);
+                setDeleteModal({ item, type: 'reported', playlist: currentPlaylist });
+            }}>Delete</button>
         </>
     );
     const renderActionsDisabled = (item) => (
@@ -203,6 +264,7 @@ export function AdminProblems() {
 
             {/* Reported Problems Table */}
             <h4>Reported Problems</h4>
+            {reportsError && <div className="alert alert-danger">{reportsError}</div>}
             <div className="table-responsive mb-5">
                 <table className="table table-bordered table-striped">
                     <thead>
@@ -214,14 +276,14 @@ export function AdminProblems() {
                         </tr>
                     </thead>
                     <tbody>
-                        {reportedProblems.length === 0 ? (
+                        {reportsError ? null : reportedProblems.length === 0 ? (
                             <tr><td colSpan={4} className="text-center">No reported problems.</td></tr>
                         ) : (
                             reportedProblems.map(item => (
-                                <tr key={item.identifier}>
+                                <tr key={item.id}>
                                     <td>{capitalizeFirstLetter(item.category)}</td>
                                     <td>{item.title}</td>
-                                    <td>{formatDateTime(item.date)}</td>
+                                    <td>{formatDateTime(item.lastReportedAt)}</td>
                                     <td>{renderActionsReported(item)}</td>
                                 </tr>
                             ))
@@ -277,8 +339,9 @@ export function AdminProblems() {
                     show={!!deleteModal}
                     onClose={() => setDeleteModal(null)}
                     showData={deleteModal.item}
-                    deleting={false}
-                    error={null}
+                    deleting={deletingReport}
+                    error={deleteReportError}
+                    onDeleteConfirm={() => handleDeleteReportedProblem(deleteModal.item, deleteModal.playlist)}
                 />
             )}
             {deleteModal && deleteModal.type === 'disabled' && (
