@@ -7,6 +7,7 @@ import { Link } from '@components/Navigation/Link';
 export function AdminToggleDropDownMenu() {
   const handleLogout = useAdminLogout();
   const playlist = useSignal(playlistSignal).value;
+  const basePath = import.meta.env.BASE_URL;
   return (
     <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-custom p-2 pb-3">
       <li className="pt-1 px-1">
@@ -15,33 +16,33 @@ export function AdminToggleDropDownMenu() {
         <hr/>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard`}>
           <span className="icon-sm castle-icon"></span>Dashboard
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard/search">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard/search`}>
           <span className="icon-sm search-icon"></span>Search
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard/thumbnails">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard/thumbnails`}>
           <span className="icon-sm thumbs-icon"></span>Thumbnails
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard/problems">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard/problems`}>
           <span className="icon-sm problems-icon"></span>Problems
           <span className="position-absolute start-100 translate-middle badge rounded-pill bg-danger" style={{ top: '17%' }}></span>
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard/users">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard/users`}>
           <span className="icon-sm users-icon"></span>User Manager
         </Link>
       </li>
       <li>
-        <Link className="dropdown-item-custom" href="/admin/dashboard/settings">
+        <Link className="dropdown-item-custom" href={`${basePath}dashboard/settings`}>
           <span className="icon-sm settings-icon"></span>Settings
         </Link>
       </li>
