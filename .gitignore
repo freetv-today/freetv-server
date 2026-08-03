@@ -33,3 +33,6 @@ vendor/
 public/thumbs
 public/thumbs/index.html
 public/playlists/
+
+deleted_show_table-(future work).md
+json-export-mini-spec.md

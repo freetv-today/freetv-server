@@ -17,13 +17,15 @@ export function AdminShowActions({ show, onEdit, onDelete, onTest }) {
       >
         Edit
       </button>
-      <button
-        className="btn tinybtn btn-danger w-100"
-        title={`Delete \"${show.title}\"`}
-        onClick={() => onDelete && onDelete(show)}
-      >
-        Delete
-      </button>
+      {typeof onDelete === 'function' && (
+        <button
+          className="btn tinybtn btn-danger w-100"
+          title={`Delete \"${show.title}\"`}
+          onClick={() => onDelete(show)}
+        >
+          Delete
+        </button>
+      )}
       <button
         className="btn tinybtn btn-warning w-100"
         title={`Test \"${show.title}\"`}

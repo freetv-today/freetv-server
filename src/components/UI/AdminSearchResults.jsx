@@ -7,13 +7,12 @@ import { useAdminPlaylistData } from '@hooks/useAdminPlaylistData';
  * @param {Object} props
  * @param {Array<Object>} [props.results=[]] - Array of show objects to display
  * @param {function(Object): void} props.onEdit - Called when edit button is clicked
- * @param {function(Object): void} props.onDelete - Called when delete button is clicked
  * @param {function(Object): void} props.onTest - Called when test button is clicked
  * @param {function(Object): void} props.onStatusToggle - Called when status toggle is clicked
  * @param {string} [props.statusUpdatingIdentifier] - Identifier of show currently being updated
  */
 
-export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onStatusToggle, statusUpdatingIdentifier }) {
+export function AdminSearchResults({ results = [], onEdit, onTest, onStatusToggle, statusUpdatingIdentifier }) {
 
   if (!results) return null;
   if (results.length === 0) {
@@ -59,7 +58,6 @@ export function AdminSearchResults({ results = [], onEdit, onDelete, onTest, onS
                   <AdminShowActions
                     show={show}
                     onEdit={onEdit}
-                    onDelete={onDelete}
                     onTest={onTest}
                   />
                 </td>
