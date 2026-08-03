@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'preact/hooks';
-import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { formatDateTime } from '@/utils/utils';
 import { UserModal } from '@/components/Modals/UserModal';
@@ -9,7 +8,6 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { createPath } from '@/utils/env';
 
 export function AdminUsers() {
 
@@ -20,7 +18,8 @@ export function AdminUsers() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'changepass' | 'delete' | null
     const [currentUser, setCurrentUser] = useState(null);
-    const { route } = useLocation();
+    const [userModalError, setUserModalError] = useState(null);
+    const [passwordModalError, setPasswordModalError] = useState(null);
 
     // Show loading spinner when playlist is loading
     if (playlistLoading) return <SpinnerLoadingAppData />;
@@ -66,14 +65,17 @@ export function AdminUsers() {
 
     // Modal handlers
     function handleAddUser() {
+        setUserModalError(null);
         setSelectedUser(null);
         setModalType('add');
     }
     function handleEditUser(user) {
+        setUserModalError(null);
         setSelectedUser(user);
         setModalType('edit');
     }
     function handleChangePass(user) {
+        setPasswordModalError(null);
         setSelectedUser(user);
         setModalType('changepass');
     }
@@ -82,12 +84,15 @@ export function AdminUsers() {
         setModalType('delete');
     }
     function closeModal() {
+        setUserModalError(null);
+        setPasswordModalError(null);
         setSelectedUser(null);
         setModalType(null);
     }
 
     // Backend actions
     async function handleUserModalSubmit(data) {
+        setUserModalError(null);
         setLoading(true);
         try {
             const action = modalType === 'add' ? 'add' : 'edit';
@@ -103,15 +108,16 @@ export function AdminUsers() {
                 closeModal();
                 await fetchUsers();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' });
+                setUserModalError(result.message || 'Operation failed.');
             }
         } catch {
-            setAdminMsg({ type: 'danger', text: 'Network error.' });
+            setUserModalError('Network error.');
         }
         setLoading(false);
     }
 
     async function handlePasswordModalSubmit(data) {
+        setPasswordModalError(null);
         setLoading(true);
         try {
             const res = await fetch('/api/admin/userman.php?action=changepass', {
@@ -125,10 +131,10 @@ export function AdminUsers() {
                 closeModal();
                 await fetchUsers();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' });
+                setPasswordModalError(result.message || 'Operation failed.');
             }
         } catch {
-            setAdminMsg({ type: 'danger', text: 'Network error.' });
+            setPasswordModalError('Network error.');
         }
         setLoading(false);
     }
@@ -170,7 +176,6 @@ export function AdminUsers() {
             <AdminMessage />
 
             <div className="mb-3 text-end d-flex justify-content-end gap-2">
-                <button className="btn btn-secondary" onClick={() => route(createPath('/dashboard'))}>Cancel</button>
                 <button className="btn btn-primary" onClick={handleAddUser}>Add User</button>
             </div>
             {loading ? (
@@ -225,12 +230,14 @@ export function AdminUsers() {
                 mode={modalType}
                 roleLocked={Boolean(selectedUser && (!currentUser || selectedUserIsSelf || selectedUserIsSoleActiveAdmin))}
                 statusLocked={Boolean(selectedUser && (!currentUser || selectedUserIsSelf || selectedUserIsSoleActiveAdmin))}
+                serverError={userModalError}
             />
             <PasswordModal
                 show={modalType === 'changepass'}
                 onClose={closeModal}
                 onSubmit={handlePasswordModalSubmit}
                 user={selectedUser}
+                serverError={passwordModalError}
             />
             <ConfirmDeleteModal
                 show={modalType === 'delete'}

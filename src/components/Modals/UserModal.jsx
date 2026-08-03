@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = false, statusLocked = false }) {
+export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = false, statusLocked = false, serverError = null }) {
   // mode: 'add' or 'edit'
   const [username, setUsername] = useState(user?.username || '');
   const [role, setRole] = useState(user?.role || 'editor');
@@ -32,6 +32,7 @@ export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = fa
       setError('Password must be at least 6 characters.');
       return;
     }
+    setError('');
     onSubmit({
       id: user?.id,
       username: username.trim(),
@@ -52,10 +53,18 @@ export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = fa
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
-            {error && <div className="alert alert-danger">{error}</div>}
+            {(error || serverError) && <div className="alert alert-danger">{error || serverError}</div>}
             <div className="mb-3">
               <label className="form-label">Username</label>
-              <input className="form-control" value={username} onInput={e => setUsername(e.currentTarget.value)} required maxLength={100} />
+              <input
+                className="form-control"
+                name="accountUsername"
+                autoComplete="off"
+                value={username}
+                onInput={e => setUsername(e.currentTarget.value)}
+                required
+                maxLength={100}
+              />
             </div>
             <div className="mb-3">
               <label className="form-label">Role</label>
@@ -77,6 +86,8 @@ export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = fa
                 <label className="form-label">Password</label>
                 <input
                   className="form-control"
+                  name="newPassword"
+                  autoComplete="new-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onInput={e => setPassword(e.currentTarget.value)}
