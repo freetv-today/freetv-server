@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export function UserModal({ show, onClose, onSubmit, user, mode }) {
+export function UserModal({ show, onClose, onSubmit, user, mode, roleLocked = false, statusLocked = false }) {
   // mode: 'add' or 'edit'
   const [username, setUsername] = useState(user?.username || '');
   const [role, setRole] = useState(user?.role || 'editor');
@@ -55,20 +55,19 @@ export function UserModal({ show, onClose, onSubmit, user, mode }) {
             {error && <div className="alert alert-danger">{error}</div>}
             <div className="mb-3">
               <label className="form-label">Username</label>
-              <input className="form-control" value={username} onInput={e => setUsername(e.currentTarget.value)} disabled={user?.role === 'admin'} />
+              <input className="form-control" value={username} onInput={e => setUsername(e.currentTarget.value)} required maxLength={100} />
             </div>
             <div className="mb-3">
               <label className="form-label">Role</label>
-              <select className="form-select" value={role} onInput={e => setRole(e.currentTarget.value)} disabled={user?.role === 'admin'}>
-                <option value="editor">Editor</option>
+              <select className="form-select" value={role} onInput={e => setRole(e.currentTarget.value)} disabled={roleLocked}>
                 <option value="viewer">Viewer</option>
-                <option value="guest">Guest</option>
-                {user?.role === 'admin' && <option value="admin">Admin</option>}
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
             <div className="mb-3">
               <label className="form-label">Status</label>
-              <select className="form-select" value={status} onInput={e => setStatus(e.currentTarget.value)}>
+              <select className="form-select" value={status} onInput={e => setStatus(e.currentTarget.value)} disabled={statusLocked}>
                 <option value="active">Active</option>
                 <option value="disabled">Disabled</option>
               </select>
@@ -78,9 +77,11 @@ export function UserModal({ show, onClose, onSubmit, user, mode }) {
                 <label className="form-label">Password</label>
                 <input
                   className="form-control"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onInput={e => setPassword(e.currentTarget.value)}
+                  required
+                  minLength={6}
                 />
                 <div className="form-check mt-2">
                   <input

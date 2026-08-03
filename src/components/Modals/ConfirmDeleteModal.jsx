@@ -17,7 +17,7 @@ export function ConfirmDeleteModal({ show, onClose, onConfirm, user }) {
             <button type="button" className="btn-close" onClick={() => onClose('cancel')}></button>
           </div>
           <div className="modal-body">
-            <p>Are you sure you want to delete user <strong>{user?.username}</strong>?</p>
+            <p>The user account <strong>{user?.username}</strong> will be permanently deleted. Continue?</p>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={() => onClose('cancel')}>Cancel</button>

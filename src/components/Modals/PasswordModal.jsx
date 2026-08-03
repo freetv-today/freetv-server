@@ -40,9 +40,11 @@ export function PasswordModal({ show, onClose, onSubmit, user }) {
               <label className="form-label">New Password</label>
               <input
                 className="form-control"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onInput={e => setPassword(e.currentTarget.value)}
+                required
+                minLength={6}
               />
               <div className="form-check mt-2">
                 <input

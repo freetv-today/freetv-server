@@ -1,168 +1,334 @@
-
 <?php
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
+
 header('Content-Type: application/json');
 
-require_once 'config.php';
-use FreeTV\Admin\AdminConfig;
-$config = AdminConfig::getInstance();
+session_start();
 
-// Path to apdata.key
-$apdata_path = $config->getApDataPath();
-
-// Helper: Load users
-function load_users($path)
+function respond(int $status, array $payload): void
 {
-    $data = json_decode(file_get_contents($path), true);
-    return $data['users'] ?? [];
-}
-
-// Helper: Save users
-function save_users($path, $users)
-{
-    $data = ["users" => $users];
-    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
-}
-
-// Helper: Find user by id
-function find_user_index($users, $id)
-{
-    foreach ($users as $i => $u) {
-        if ($u['id'] == $id) {
-            return $i;
-        }
-    }
-    return -1;
-}
-
-$action = $_GET['action'] ?? $_POST['action'] ?? null;
-if (!$action) {
-    echo json_encode(["success" => false, "message" => "No action specified."]);
+    http_response_code($status);
+    echo json_encode($payload);
     exit;
 }
 
-$users = load_users($apdata_path);
+function readJsonObject(): array
+{
+    $requestObject = json_decode(file_get_contents('php://input'));
+    if (json_last_error() !== JSON_ERROR_NONE || !is_object($requestObject)) {
+        respond(400, ['success' => false, 'message' => 'Invalid JSON request body']);
+    }
 
-switch ($action) {
-    case 'list':
-        // List all users
-        $safeUsers = array_map(function ($u) {
-            $copy = $u;
-            unset($copy['password']);
-            return $copy;
-        }, $users);
-        echo json_encode(["success" => true, "users" => $safeUsers]);
-        break;
+    return get_object_vars($requestObject);
+}
 
-    case 'add':
-        // Add a new user
-        $data = json_decode(file_get_contents('php://input'), true);
-        $username = trim($data['username'] ?? '');
-        $password = $data['password'] ?? '';
-        $role = $data['role'] ?? '';
-        $status = $data['status'] ?? 'active';
-        if (!$username || !$password || !$role) {
-            echo json_encode(["success" => false, "message" => "Missing required fields."]);
-            exit;
-        }
-        // Only one admin allowed
-        if ($role === 'admin' && array_filter($users, fn($u) => $u['role'] === 'admin')) {
-            echo json_encode(["success" => false, "message" => "Only one admin user allowed."]);
-            exit;
-        }
-        // Unique username
-        if (array_filter($users, fn($u) => $u['username'] === $username)) {
-            echo json_encode(["success" => false, "message" => "Username already exists."]);
-            exit;
-        }
-        $id = max(array_column($users, 'id')) + 1;
-        // ISO8601 with milliseconds and Z
-        $dt = new DateTime('now', new DateTimeZone('UTC'));
-        $millis = (int)($dt->format('u') / 1000);
-        $iso8601 = $dt->format('Y-m-d\TH:i:s') . '.' . str_pad($millis, 3, '0', STR_PAD_LEFT) . 'Z';
-        $users[] = [
-            'id' => $id,
-            'username' => $username,
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role' => $role,
-            'status' => $status,
-            'created' => $iso8601,
-            'lastLogin' => ''
-        ];
-        save_users($apdata_path, $users);
-        echo json_encode(["success" => true, "message" => "User added."]);
-        break;
+function parsePositiveId($value)
+{
+    $validFormat = is_int($value)
+        || (is_string($value) && preg_match('/^[1-9][0-9]*$/', $value));
 
-    case 'edit':
-        // Edit user info (not password)
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? null;
-        $username = trim($data['username'] ?? '');
-        $role = $data['role'] ?? '';
-        $status = $data['status'] ?? '';
-        $i = find_user_index($users, $id);
-        if ($i === -1) {
-            echo json_encode(["success" => false, "message" => "User not found."]);
-            exit;
-        }
-        // Prevent editing admin role/username
-        if ($users[$i]['role'] === 'admin') {
-            if ($role !== 'admin' || $username !== $users[$i]['username']) {
-                echo json_encode(["success" => false, "message" => "Cannot change admin username or role."]);
-                exit;
+    if (!$validFormat) {
+        return false;
+    }
+
+    return filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+}
+
+function validateUsername($value): string
+{
+    if (!is_string($value)) {
+        respond(400, ['success' => false, 'message' => 'Invalid username']);
+    }
+
+    $username = trim($value);
+    $length = function_exists('mb_strlen') ? mb_strlen($username, 'UTF-8') : strlen($username);
+    if ($username === '' || $length > 100 || !preg_match('/^[A-Za-z0-9._-]+$/', $username)) {
+        respond(400, [
+            'success' => false,
+            'message' => 'Username must be 1-100 characters using letters, numbers, dots, dashes, or underscores',
+        ]);
+    }
+
+    return $username;
+}
+
+function validatePassword($value): string
+{
+    if (!is_string($value) || trim($value) === '' || strlen($value) < 6) {
+        respond(400, ['success' => false, 'message' => 'Password must be at least 6 characters']);
+    }
+
+    return $value;
+}
+
+function validateRole($value): string
+{
+    $allowedRoles = ['viewer', 'editor', 'admin'];
+    if (!is_string($value) || !in_array($value, $allowedRoles, true)) {
+        respond(400, ['success' => false, 'message' => 'Invalid role']);
+    }
+
+    return $value;
+}
+
+function validateStatus($value): string
+{
+    $allowedStatuses = ['active', 'disabled'];
+    if (!is_string($value) || !in_array($value, $allowedStatuses, true)) {
+        respond(400, ['success' => false, 'message' => 'Invalid status']);
+    }
+
+    return $value;
+}
+
+function isDuplicateUsernameException(\Throwable $e): bool
+{
+    return $e instanceof \Illuminate\Database\QueryException
+        && ((string) $e->getCode() === '23000' || ($e->errorInfo[1] ?? null) === 1062);
+}
+
+$sessionUser = $_SESSION['admin'] ?? null;
+if (!is_array($sessionUser) || !isset($sessionUser['id'], $sessionUser['role'])) {
+    respond(401, ['success' => false, 'message' => 'Unauthorized']);
+}
+
+$currentUserId = parsePositiveId($sessionUser['id']);
+if ($currentUserId === false) {
+    respond(401, ['success' => false, 'message' => 'Unauthorized']);
+}
+
+if ($sessionUser['role'] !== 'admin') {
+    respond(403, ['success' => false, 'message' => 'Forbidden']);
+}
+
+$action = $_GET['action'] ?? null;
+$allowedMethods = [
+    'list' => 'GET',
+    'add' => 'POST',
+    'edit' => 'POST',
+    'changepass' => 'POST',
+    'delete' => 'POST',
+];
+
+if (!is_string($action) || !array_key_exists($action, $allowedMethods)) {
+    respond(400, ['success' => false, 'message' => 'Unknown or missing action']);
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== $allowedMethods[$action]) {
+    respond(405, ['success' => false, 'message' => 'Method not allowed']);
+}
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+
+use FreeTV\Admin\Database;
+
+try {
+    $capsule = Database::init();
+    $connection = $capsule->getConnection();
+
+    if ($action === 'list') {
+        $users = Database::table('users')
+            ->orderBy('username')
+            ->orderBy('id')
+            ->get([
+                'id',
+                'username',
+                'role',
+                'status',
+                'created_at',
+                'last_login_at',
+                'updated_at',
+            ]);
+
+        respond(200, ['success' => true, 'users' => $users]);
+    }
+
+    $input = readJsonObject();
+
+    if ($action === 'add') {
+        $username = validateUsername($input['username'] ?? null);
+        $password = validatePassword($input['password'] ?? null);
+        $role = validateRole($input['role'] ?? null);
+        $status = validateStatus($input['status'] ?? null);
+
+        $result = $connection->transaction(function () use ($username, $password, $role, $status) {
+            $duplicate = Database::table('users')
+                ->where('username', $username)
+                ->exists();
+
+            if ($duplicate) {
+                return 'duplicate';
             }
-        }
-        // Unique username
-        if ($username !== $users[$i]['username'] && array_filter($users, fn($u) => $u['username'] === $username)) {
-            echo json_encode(["success" => false, "message" => "Username already exists."]);
-            exit;
-        }
-        $users[$i]['username'] = $username;
-        $users[$i]['role'] = $role;
-        $users[$i]['status'] = $status;
-        save_users($apdata_path, $users);
-        echo json_encode(["success" => true, "message" => "User updated."]);
-        break;
 
-    case 'changepass':
-        // Change user password
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? null;
-        $password = $data['password'] ?? '';
-        $i = find_user_index($users, $id);
-        if ($i === -1) {
-            echo json_encode(["success" => false, "message" => "User not found."]);
-            exit;
-        }
-        $users[$i]['password'] = password_hash($password, PASSWORD_DEFAULT);
-        save_users($apdata_path, $users);
-        echo json_encode(["success" => true, "message" => "Password updated."]);
-        break;
+            Database::table('users')->insert([
+                'username' => $username,
+                'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+                'role' => $role,
+                'status' => $status,
+            ]);
 
-    case 'delete':
-        // Delete user (not admin)
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? null;
-        $i = find_user_index($users, $id);
-        if ($i === -1) {
-            echo json_encode(["success" => false, "message" => "User not found."]);
-            exit;
-        }
-        if ($users[$i]['role'] === 'admin') {
-            echo json_encode(["success" => false, "message" => "Cannot delete admin user."]);
-            exit;
-        }
-        array_splice($users, $i, 1);
-        save_users($apdata_path, $users);
-        echo json_encode(["success" => true, "message" => "User deleted."]);
-        break;
+            return 'created';
+        });
 
-    default:
-        echo json_encode(["success" => false, "message" => "Unknown action."]);
-        break;
+        if ($result === 'duplicate') {
+            respond(409, ['success' => false, 'message' => 'Username already exists']);
+        }
+
+        respond(201, ['success' => true, 'message' => 'User added']);
+    }
+
+    $targetId = parsePositiveId($input['id'] ?? null);
+    if ($targetId === false) {
+        respond(400, ['success' => false, 'message' => 'Invalid user ID']);
+    }
+
+    if ($action === 'changepass') {
+        $password = validatePassword($input['password'] ?? null);
+        $targetExists = Database::table('users')->where('id', $targetId)->exists();
+        if (!$targetExists) {
+            respond(404, ['success' => false, 'message' => 'User not found']);
+        }
+
+        Database::table('users')
+            ->where('id', $targetId)
+            ->update(['password_hash' => password_hash($password, PASSWORD_DEFAULT)]);
+
+        respond(200, ['success' => true, 'message' => 'Password updated']);
+    }
+
+    if ($action === 'edit') {
+        $username = validateUsername($input['username'] ?? null);
+        $role = validateRole($input['role'] ?? null);
+        $status = validateStatus($input['status'] ?? null);
+
+        $result = $connection->transaction(function () use (
+            $targetId,
+            $currentUserId,
+            $username,
+            $role,
+            $status
+        ) {
+            $activeAdmins = Database::table('users')
+                ->where('role', 'admin')
+                ->where('status', 'active')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get(['id']);
+
+            $target = Database::table('users')
+                ->where('id', $targetId)
+                ->lockForUpdate()
+                ->first(['id', 'username', 'role', 'status']);
+
+            if (!$target) {
+                return 'not_found';
+            }
+
+            if ((int) $target->id === $currentUserId && $role !== 'admin') {
+                return 'self_demote';
+            }
+
+            if ((int) $target->id === $currentUserId && $status !== 'active') {
+                return 'self_disable';
+            }
+
+            $duplicate = Database::table('users')
+                ->where('username', $username)
+                ->where('id', '!=', $targetId)
+                ->exists();
+            if ($duplicate) {
+                return 'duplicate';
+            }
+
+            $wasActiveAdmin = $target->role === 'admin' && $target->status === 'active';
+            $willBeActiveAdmin = $role === 'admin' && $status === 'active';
+            $activeAdminCount = count($activeAdmins) - ($wasActiveAdmin ? 1 : 0) + ($willBeActiveAdmin ? 1 : 0);
+            if ($activeAdminCount < 1) {
+                return 'final_active_admin';
+            }
+
+            Database::table('users')
+                ->where('id', $targetId)
+                ->update([
+                    'username' => $username,
+                    'role' => $role,
+                    'status' => $status,
+                ]);
+
+            return 'updated';
+        });
+
+        if ($result === 'not_found') {
+            respond(404, ['success' => false, 'message' => 'User not found']);
+        }
+        if ($result === 'duplicate') {
+            respond(409, ['success' => false, 'message' => 'Username already exists']);
+        }
+        if ($result === 'self_demote') {
+            respond(409, ['success' => false, 'message' => 'You cannot demote your own account']);
+        }
+        if ($result === 'self_disable') {
+            respond(409, ['success' => false, 'message' => 'You cannot disable your own account']);
+        }
+        if ($result === 'final_active_admin') {
+            respond(409, ['success' => false, 'message' => 'At least one active admin is required']);
+        }
+
+        if ($targetId === $currentUserId) {
+            $_SESSION['admin']['username'] = $username;
+        }
+
+        respond(200, ['success' => true, 'message' => 'User updated']);
+    }
+
+    $result = $connection->transaction(function () use ($targetId, $currentUserId) {
+        $activeAdmins = Database::table('users')
+            ->where('role', 'admin')
+            ->where('status', 'active')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get(['id']);
+
+        $target = Database::table('users')
+            ->where('id', $targetId)
+            ->lockForUpdate()
+            ->first(['id', 'role', 'status']);
+
+        if (!$target) {
+            return 'not_found';
+        }
+
+        if ((int) $target->id === $currentUserId) {
+            return 'self_delete';
+        }
+
+        $wasActiveAdmin = $target->role === 'admin' && $target->status === 'active';
+        $activeAdminCount = count($activeAdmins) - ($wasActiveAdmin ? 1 : 0);
+        if ($activeAdminCount < 1) {
+            return 'final_active_admin';
+        }
+
+        Database::table('users')->where('id', $targetId)->delete();
+        return 'deleted';
+    });
+
+    if ($result === 'not_found') {
+        respond(404, ['success' => false, 'message' => 'User not found']);
+    }
+    if ($result === 'self_delete') {
+        respond(409, ['success' => false, 'message' => 'You cannot delete your own account']);
+    }
+    if ($result === 'final_active_admin') {
+        respond(409, ['success' => false, 'message' => 'At least one active admin is required']);
+    }
+
+    respond(200, ['success' => true, 'message' => 'User deleted']);
+} catch (\Throwable $e) {
+    error_log('User Manager API Error: ' . $e->getMessage());
+
+    if (isDuplicateUsernameException($e)) {
+        respond(409, ['success' => false, 'message' => 'Username already exists']);
+    }
+
+    respond(500, ['success' => false, 'message' => 'Database error']);
 }
