@@ -2,7 +2,7 @@
 
 header('Content-Type: application/json');
 
-session_start();
+require_once __DIR__ . '/Authorization.php';
 
 function respond(int $status, array $payload): void
 {
@@ -86,18 +86,11 @@ function isDuplicateUsernameException(\Throwable $e): bool
         && ((string) $e->getCode() === '23000' || ($e->errorInfo[1] ?? null) === 1062);
 }
 
-$sessionUser = $_SESSION['admin'] ?? null;
-if (!is_array($sessionUser) || !isset($sessionUser['id'], $sessionUser['role'])) {
-    respond(401, ['success' => false, 'message' => 'Unauthorized']);
-}
+$sessionUser = \FreeTV\Admin\requireRole('admin');
 
 $currentUserId = parsePositiveId($sessionUser['id']);
 if ($currentUserId === false) {
     respond(401, ['success' => false, 'message' => 'Unauthorized']);
-}
-
-if ($sessionUser['role'] !== 'admin') {
-    respond(403, ['success' => false, 'message' => 'Forbidden']);
 }
 
 $action = $_GET['action'] ?? null;

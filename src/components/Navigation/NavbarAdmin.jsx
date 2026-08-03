@@ -8,12 +8,14 @@ import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { AdminToggleDropDownMenu } from '@components/Navigation/AdminToggleDropDownMenu';
 import { SelectLarge } from '@components/Navigation/SelectLarge';
 import { useAdminLogout } from '@hooks/useAdminLogout';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 // Accept problemCount as a prop
 
 export function NavbarAdmin({ problemCount }) {
 
   const handleLogout = useAdminLogout();
+  const { isAdmin, canManageReports, canManageThumbnails } = useAdminAuth();
 
   return (
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
@@ -22,10 +24,10 @@ export function NavbarAdmin({ problemCount }) {
         <div id="iconmenu" className="d-none d-md-flex flex-row align-items-center order-1">
           <ButtonAdminHomeNav />
           <ButtonAdminSearchNav />
-          <ButtonAdminThumbsNav />
-          <ButtonAdminProblemsNav count={problemCount} />
-          <ButtonAdminUsersNav />
-          <ButtonAdminSettingsNav />
+          {canManageThumbnails && <ButtonAdminThumbsNav />}
+          {canManageReports && <ButtonAdminProblemsNav count={problemCount} />}
+          {isAdmin && <ButtonAdminUsersNav />}
+          {isAdmin && <ButtonAdminSettingsNav />}
         </div>
 
         <nav id="smallToggle" className="d-md-none order-1 ms-2">

@@ -1,6 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
 import { AdminShowActions } from '@components/Navigation/AdminShowActions';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 /**
  * AdminDashboardTable - displays a table of shows with per-row controls (Edit, Delete, Status toggle)
@@ -29,6 +30,7 @@ export function AdminDashboardTable({
   hideDisabled = false,
   onSort,
 }) {
+  const { canEditContent } = useAdminAuth();
   // Filter and sort shows
   const filteredShows = useMemo(() => {
     let data = [...shows];
@@ -163,13 +165,19 @@ export function AdminDashboardTable({
                   )}
                 </td>
                 <td>
-                  <button
-                    className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                    onClick={() => onStatusToggle(show)}
-                    title={show.status === 'disabled' ? 'Enable' : 'Disable'}
-                  >
-                    {show.status === 'disabled' ? 'Disabled' : 'Active'}
-                  </button>
+                  {canEditContent ? (
+                    <button
+                      className={`btn tinybtn ${show.status === 'disabled' ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                      onClick={() => onStatusToggle(show)}
+                      title={show.status === 'disabled' ? 'Enable' : 'Disable'}
+                    >
+                      {show.status === 'disabled' ? 'Disabled' : 'Active'}
+                    </button>
+                  ) : (
+                    <span className={`badge ${show.status === 'disabled' ? 'text-bg-danger' : 'text-bg-success'}`}>
+                      {show.status === 'disabled' ? 'Disabled' : 'Active'}
+                    </span>
+                  )}
                 </td>
                 <td>
                   <AdminShowActions

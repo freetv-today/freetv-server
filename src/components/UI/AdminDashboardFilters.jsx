@@ -1,6 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
 import { createPath } from '@/utils/env';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 /**
  * AdminDashboardFilters - filter controls for dashboard table
@@ -24,6 +25,7 @@ export function AdminDashboardFilters({
   onMetaClick,
   onInfoClick,
 }) {
+  const { canEditContent } = useAdminAuth();
   // Compute unique categories
   const categories = useMemo(() => {
     const cats = new Set();
@@ -49,7 +51,7 @@ export function AdminDashboardFilters({
               )}
             </div>
             <div className="d-flex align-items-center flex-shrink-0 gap-1">
-              <button
+              {canEditContent && <button
                 type="button"
                 className="btn border-0 bg-transparent p-1 lh-1"
                 title="Edit Playlist Metadata"
@@ -63,7 +65,7 @@ export function AdminDashboardFilters({
                   alt=""
                   aria-hidden="true"
                 />
-              </button>
+              </button>}
               <button
                 type="button"
                 className="btn border-0 bg-transparent p-1 lh-1"

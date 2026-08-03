@@ -5,12 +5,8 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('editor');
 
 ini_set('display_errors', 0);
 

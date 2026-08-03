@@ -2,12 +2,8 @@
 
 require_once __DIR__ . '/../playlist_utils.php';
 
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('editor');
 
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('admin');
+
 $input = json_decode(file_get_contents('php://input'), true);
 $setupType = $input['type'] ?? '';
 

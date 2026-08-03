@@ -1,9 +1,13 @@
 import { useLocation } from 'preact-iso';
 import { createPath } from '@/utils/env';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 export function NavbarSubNavAdmin() {
 
   const { route } = useLocation();
+  const { isAdmin, canEditContent } = useAdminAuth();
+
+  if (!canEditContent) return null;
   
   return (
     <nav id="subnavbar" className="navbar mb-2">
@@ -28,7 +32,7 @@ export function NavbarSubNavAdmin() {
           >
             <span className="me-1">{"\u271A"}</span> New Video
           </button>
-          <button
+          {isAdmin && <button
             type="button"
             className="btn btn-outline-secondary rounded-pill btn-sm mt-2 fw-bold px-4 py-2"
             title="Export JSON Data — not yet available"
@@ -36,7 +40,7 @@ export function NavbarSubNavAdmin() {
             disabled
           >
             Export JSON Data
-          </button>
+          </button>}
         </div>
       </div>
     </nav>

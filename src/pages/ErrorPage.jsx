@@ -16,7 +16,9 @@ export function ErrorPage({
   message = 'Something went wrong. Please try again later.',
   showReload = false,
   onReload,
-  showHome = true
+  showHome = true,
+  homePath = '/',
+  homeLabel = 'Back to Login'
 }) {
   const { route } = useLocation();
 
@@ -33,8 +35,8 @@ export function ErrorPage({
           </button>
         )}
         {showHome && (
-          <button className="btn btn-outline-secondary" onClick={() => route(createPath('/'))}>
-            Back to Login
+          <button className="btn btn-outline-secondary" onClick={() => route(createPath(homePath))}>
+            {homeLabel}
           </button>
         )}
       </div>

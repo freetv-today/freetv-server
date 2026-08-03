@@ -19,15 +19,15 @@ import '@/utils/utils';
 
 // Predefined route components:
 const AdminLoginRoute = () => <LayoutFullpageBlank><AdminLogin /></LayoutFullpageBlank>;
-const DashboardRoute = () => <LayoutAdmin><Dashboard /></LayoutAdmin>;
-const EditShowRoute = () => <LayoutAdmin><EditShow /></LayoutAdmin>;
-const AddShowRoute = () => <LayoutAdmin><AddShow /></LayoutAdmin>;
-const AddPlaylistRoute = () => <LayoutAdmin><AddPlaylist /></LayoutAdmin>;
-const AdminSearchRoute = () => <LayoutAdmin><AdminSearch /></LayoutAdmin>;
-const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
-const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
-const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
-const AdminThumbsRoute = () => <LayoutAdmin><AdminThumbnails /></LayoutAdmin>;
+const DashboardRoute = () => <LayoutAdmin minimumRole={'viewer'}><Dashboard /></LayoutAdmin>;
+const EditShowRoute = () => <LayoutAdmin minimumRole={'editor'}><EditShow /></LayoutAdmin>;
+const AddShowRoute = () => <LayoutAdmin minimumRole={'editor'}><AddShow /></LayoutAdmin>;
+const AddPlaylistRoute = () => <LayoutAdmin minimumRole={'editor'}><AddPlaylist /></LayoutAdmin>;
+const AdminSearchRoute = () => <LayoutAdmin minimumRole={'viewer'}><AdminSearch /></LayoutAdmin>;
+const AdminProblemsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminProblems /></LayoutAdmin>;
+const AdminSettingsRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminSettings /></LayoutAdmin>;
+const AdminUsersRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminUsers /></LayoutAdmin>;
+const AdminThumbsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminThumbnails /></LayoutAdmin>;
 const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBlank>;
 
 export function App() {

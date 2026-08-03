@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('viewer');
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once 'config.php';
 require_once __DIR__ . '/Database.php';

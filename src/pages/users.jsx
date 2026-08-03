@@ -8,6 +8,7 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 export function AdminUsers() {
 
@@ -17,7 +18,7 @@ export function AdminUsers() {
     const [loading, setLoading] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'changepass' | 'delete' | null
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user: currentUser } = useAdminAuth();
     const [userModalError, setUserModalError] = useState(null);
     const [passwordModalError, setPasswordModalError] = useState(null);
 
@@ -32,20 +33,7 @@ export function AdminUsers() {
 
     useEffect(() => {
         fetchUsers();
-        fetchCurrentUser();
     }, []);
-
-    async function fetchCurrentUser() {
-        try {
-            const res = await fetch('/api/admin/session.php', { credentials: 'include' });
-            const data = await res.json();
-            if (res.ok && data.loggedIn && data.user) {
-                setCurrentUser(data.user);
-            }
-        } catch {
-            setAdminMsg({ type: 'danger', text: 'Could not load the current session.' });
-        }
-    }
 
     async function fetchUsers() {
         setLoading(true);

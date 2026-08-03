@@ -12,23 +12,24 @@ export function requestProblemCountRefresh() {
  * @returns {number} Total count of reported and disabled items.
  */
 
-export function useProblemCount() {
+export function useProblemCount(enabled = true) {
 
   const [count, setCount] = useState(0);
   const [refreshVersion, setRefreshVersion] = useState(0);
   const { currentPlaylist, showData } = playlistSignal.value;
 
   useEffect(() => {
+    if (!enabled) return undefined;
     const refresh = () => setRefreshVersion(version => version + 1);
     window.addEventListener(PROBLEM_COUNT_REFRESH_EVENT, refresh);
     return () => window.removeEventListener(PROBLEM_COUNT_REFRESH_EVENT, refresh);
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
     const controller = new window.AbortController();
     let cancelled = false;
 
-    if (typeof currentPlaylist !== 'string' || currentPlaylist === '') {
+    if (!enabled || typeof currentPlaylist !== 'string' || currentPlaylist === '') {
       setCount(0);
       return () => {
         cancelled = true;
@@ -79,7 +80,7 @@ export function useProblemCount() {
       cancelled = true;
       controller.abort();
     };
-  }, [currentPlaylist, showData, refreshVersion]);
+  }, [enabled, currentPlaylist, showData, refreshVersion]);
 
   return count;
 }

@@ -1,6 +1,7 @@
 import { capitalizeFirstLetter } from '@/utils/utils';
 import { AdminShowActions } from '@components/Navigation/AdminShowActions';
 import { useAdminPlaylistData } from '@hooks/useAdminPlaylistData';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 /**
  * AdminSearchResults - displays admin search results in a table with admin actions
@@ -13,6 +14,8 @@ import { useAdminPlaylistData } from '@hooks/useAdminPlaylistData';
  */
 
 export function AdminSearchResults({ results = [], onEdit, onTest, onStatusToggle, statusUpdatingIdentifier }) {
+
+  const { canEditContent } = useAdminAuth();
 
   if (!results) return null;
   if (results.length === 0) {
@@ -40,7 +43,11 @@ export function AdminSearchResults({ results = [], onEdit, onTest, onStatusToggl
                 <td>{show.category ? capitalizeFirstLetter(show.category) : ''}</td>
                 <td>{show.title}</td>
                 <td>
-                  {statusUpdatingIdentifier === show.identifier ? (
+                  {!canEditContent ? (
+                    <span className={`badge ${show.status === 'disabled' ? 'text-bg-danger' : 'text-bg-success'}`}>
+                      {show.status === 'disabled' ? 'Disabled' : 'Active'}
+                    </span>
+                  ) : statusUpdatingIdentifier === show.identifier ? (
                     <button className={`btn tinybtn btn-outline-secondary pt-1`} type="button" disabled>
                       <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
                     </button>

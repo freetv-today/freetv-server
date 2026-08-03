@@ -2,12 +2,8 @@
 
 header('Content-Type: application/json');
 
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('editor');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
