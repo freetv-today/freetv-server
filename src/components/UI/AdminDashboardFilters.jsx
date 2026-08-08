@@ -37,10 +37,10 @@ export function AdminDashboardFilters({
 
   return (
     <>
-      <div className="row align-items-center mb-2 g-2 p-2 border border-1 border-dark">
+      <div className="row align-items-center mb-2 g-2 p-2">
 
         {/* Center: Current Playlist (on top for small screens) */}
-        <div className="col-12 col-md-4 order-1 order-md-2 mb-2 bg-info-subtle rounded-pill">
+        <div className="col-12 col-md-4 order-1 order-md-2 mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
           <div className="d-flex align-items-center flex-md-column flex-xl-row gap-2 px-2 py-1">
 
             <div className="small flex-grow-1 text-center" style={{ minWidth: 0 }}>
