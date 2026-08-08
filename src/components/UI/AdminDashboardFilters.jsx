@@ -37,12 +37,12 @@ export function AdminDashboardFilters({
 
   return (
     <>
-      <div className="row align-items-center mb-2 g-2 p-2">
+      <div className="row align-items-center mb-2 g-2 p-2 border border-1 border-dark">
 
         {/* Center: Current Playlist (on top for small screens) */}
         <div className="col-12 col-md-4 order-1 order-md-2 mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
-          <div className="d-flex align-items-center gap-2 px-2 py-1">
-            <div className="small flex-grow-1 text-center text-break" style={{ minWidth: 0 }}>
+          <div className="d-flex align-items-center flex-md-column flex-lg-row gap-2 px-2 py-1">
+            <div className="small flex-grow-1 text-center" style={{ minWidth: 0 }}>
               {playlistName && (
                 <>
                   <span className="text-nowrap fw-bold">Current Playlist: </span>
@@ -50,22 +50,26 @@ export function AdminDashboardFilters({
                 </>
               )}
             </div>
-            <div className="d-flex align-items-center flex-shrink-0 gap-1">
-              {canEditContent && <button
-                type="button"
-                className="btn border-0 bg-transparent p-1 lh-1"
-                title="Edit Playlist Metadata"
-                aria-label="Edit Playlist Metadata"
-                onClick={onMetaClick}
-              >
-                <img
-                  src={createPath('/assets/gear-fill.svg')}
-                  width="20"
-                  height="20"
-                  alt=""
-                  aria-hidden="true"
-                />
-              </button>}
+
+            <div className="d-flex align-items-center justify-content-center flex-shrink-0 gap-1">
+              {canEditContent && (
+                <button
+                  type="button"
+                  className="btn border-0 bg-transparent p-1 lh-1"
+                  title="Edit Playlist Metadata"
+                  aria-label="Edit Playlist Metadata"
+                  onClick={onMetaClick}
+                >
+                  <img
+                    src={createPath('/assets/gear-fill.svg')}
+                    width="20"
+                    height="20"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
+
               <button
                 type="button"
                 className="btn border-0 bg-transparent p-1 lh-1"
@@ -86,7 +90,7 @@ export function AdminDashboardFilters({
         </div>
 
         {/* Left: Category Selector */}
-        <div className="col-6 col-md-4 order-2 order-md-1 d-flex align-items-center">
+        <div className="col-6 col-md-4 order-2 order-md-1 d-flex align-items-center border border-1 border-danger">
           <label className="form-label me-2 mb-0 small">Category:</label>
           <select
             className="form-select form-select-sm d-inline-block w-auto small"
@@ -106,7 +110,7 @@ export function AdminDashboardFilters({
         </div>
 
         {/* Right: Hide Disabled */}
-        <div className="col-6 col-md-4 order-3 order-md-3 d-flex justify-content-end align-items-center">
+        <div className="col-6 col-md-4 order-3 order-md-3 d-flex justify-content-end align-items-center border border-1 border-danger">
           <div className="form-check">
             <input
               className="form-check-input pt-2"
