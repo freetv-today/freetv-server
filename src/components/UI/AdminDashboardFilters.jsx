@@ -40,7 +40,7 @@ export function AdminDashboardFilters({
       <div className="row align-items-center mb-2 g-2 p-2 border border-1 border-dark">
 
         {/* Center: Current Playlist (on top for small screens) */}
-        <div className="col-12 col-md-4 order-1 order-md-2 mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
+        <div className="col-12 col-md-4 order-1 order-md-2 mb-2 bg-info-subtle rounded-pill">
           <div className="d-flex align-items-center flex-md-column flex-xl-row gap-2 px-2 py-1">
 
             <div className="small flex-grow-1 text-center" style={{ minWidth: 0 }}>
@@ -97,7 +97,7 @@ export function AdminDashboardFilters({
         </div>
 
         {/* Left: Category Selector */}
-        <div className="col-6 col-md-4 order-2 order-md-1 d-flex align-items-center border border-1 border-danger">
+        <div className="col-6 col-md-4 order-2 order-md-1 d-flex align-items-center">
           <label className="form-label me-2 mb-0 small">Category:</label>
           <select
             className="form-select form-select-sm d-inline-block w-auto small"
@@ -117,7 +117,7 @@ export function AdminDashboardFilters({
         </div>
 
         {/* Right: Hide Disabled */}
-        <div className="col-6 col-md-4 order-3 order-md-3 d-flex justify-content-end align-items-center border border-1 border-danger">
+        <div className="col-6 col-md-4 order-3 order-md-3 d-flex justify-content-end align-items-center">
           <div className="form-check">
             <input
               className="form-check-input pt-2"
