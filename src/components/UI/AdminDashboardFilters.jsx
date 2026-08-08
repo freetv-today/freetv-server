@@ -41,16 +41,16 @@ export function AdminDashboardFilters({
 
         {/* Center: Current Playlist (on top for small screens) */}
         <div className="col-12 col-md-4 order-1 order-md-2 mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
-          <div className="d-flex align-items-center flex-md-column flex-lg-row gap-2 px-2 py-1">
-            
+          <div className="d-flex align-items-center flex-md-column flex-xl-row gap-2 px-2 py-1">
+
             <div className="small flex-grow-1 text-center" style={{ minWidth: 0 }}>
               {playlistName && (
                 <>
-                  <span className="d-md-block d-lg-inline text-nowrap fw-bold">
+                  <span className="d-md-block d-xl-inline text-nowrap fw-bold">
                     Current Playlist:
                   </span>
-                  <span className="d-md-block d-lg-inline font-monospace">
-                    <span className="d-none d-lg-inline"> </span>
+                  <span className="d-md-block d-xl-inline font-monospace">
+                    <span className="d-none d-xl-inline"> </span>
                     "{playlistName}"
                   </span>
                 </>
@@ -92,6 +92,7 @@ export function AdminDashboardFilters({
                 />
               </button>
             </div>
+
           </div>
         </div>
 
