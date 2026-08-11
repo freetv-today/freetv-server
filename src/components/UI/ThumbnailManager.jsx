@@ -2,6 +2,10 @@ import { useThumbnail } from '@/hooks/useThumbnail';
 import { useEffect, useState } from 'preact/hooks';
 import { createPath } from '@/utils/env';
 
+function formatCount(count, singular) {
+  return `${count} ${singular}${count === 1 ? '' : 's'}`;
+}
+
 export function ThumbnailManager() {
   const {
     currentPlaylist,
@@ -66,6 +70,9 @@ export function ThumbnailManager() {
     ? `/thumbs/${selectedShow.imdb}.jpg`
     : createPath('/assets/vintage-tv.png');
   const globalUsage = selectedShow?.global_usage;
+  const selectedPlaylistShowCount = selectedShow?.selected_playlist_show_count || 0;
+  const showSelectedPlaylistUsage = selectedPlaylistShowCount > 1;
+  const showGlobalUsage = globalUsage?.playlist_count > 1;
 
   function renderSummaryList() {
     return <ul className="list-group list-group-flush mb-3">
@@ -211,13 +218,20 @@ export function ThumbnailManager() {
               </div>
 
               {selectedShow && (
+                showSelectedPlaylistUsage
+                || showGlobalUsage
+                || !selectedShow.has_thumbnail
+              ) && (
                 <div className="small text-muted mt-4">
-                  <div>
-                    Used by {selectedShow.selected_playlist_show_count} show(s) in this playlist
-                  </div>
-                  {globalUsage && (
+                  {showSelectedPlaylistUsage && (
                     <div>
-                      Used by {globalUsage.show_count} show(s) across {globalUsage.playlist_count} playlist(s)
+                      Used by {formatCount(selectedPlaylistShowCount, 'show')} in this playlist
+                    </div>
+                  )}
+                  {showGlobalUsage && (
+                    <div>
+                      Used by {formatCount(globalUsage.show_count, 'show')} across{' '}
+                      {formatCount(globalUsage.playlist_count, 'playlist')}
                     </div>
                   )}
                   {!selectedShow.has_thumbnail && (
