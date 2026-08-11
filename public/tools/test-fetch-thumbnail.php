@@ -55,10 +55,14 @@ function requestHeaders(string $profile, string $requestType): array
 
 function requestUserAgent(string $profile): string
 {
+    // if ($profile === 'browser') {
+    //     return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+    //         . 'AppleWebKit/537.36 (KHTML, like Gecko) '
+    //         . 'Chrome/127.0.0.0 Safari/537.36';
+    // }
+
     if ($profile === 'browser') {
-        return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-            . 'AppleWebKit/537.36 (KHTML, like Gecko) '
-            . 'Chrome/127.0.0.0 Safari/537.36';
+        return 'facebookexternalhit/1.1';
     }
 
     return 'FreeTV-Thumbnail-Diagnostic/1.0';
