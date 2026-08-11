@@ -380,3 +380,50 @@ That means any sufficiently fast navigation can potentially carry a message into
 
 See freetv-server/bugs.md for more detail.
 
+## Responsive layout for the Thumbnail Manager
+
+Most of the other areas of the Admin Dashboard were made responsive so they look good on large and small screens. The Thumbnail Manager was the most recent addition to the Dashboard and we haven't done anything regarding responsive layout. This page should look good on small screens too. We'll have to test first, make notes, and then come up with a plan to make this UI responsive. 
+
+```
+inspect current responsive behavior
+→ document breakpoints/problems
+→ design layout changes
+→ implement
+→ acceptance test
+```
+
+## Refine Thumbnail Manager Search
+
+Improve Thumbnail Manager search so Admins can perform more precise searches and better understand the results.
+
+Ideas:
+
+* Display the total number of matching results.
+* Support whole-word matching in addition to the current substring matching.
+* Allow more targeted searches by title and IMDb ID.
+* Consider simple search operators or an advanced search mode if useful.
+* Clearly distinguish between exact, whole-word, and partial matches.
+
+Example:
+
+A substring search for red currently matches:
+
+* Alfred Hitchcock Presents
+* Clifford the Big Red Dog
+* Freddy's Nightmares
+* The Incredible Hulk
+
+A whole-word search for red should match only:
+
+* Clifford the Big Red Dog
+
+Could add some UI options like:
+
+```
+Search: [ red                 ]
+
+Match:
+(•) Contains
+( ) Whole word
+( ) Exact
+```
