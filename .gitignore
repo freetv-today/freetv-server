@@ -30,6 +30,7 @@ dist-ssr
 .env.*.local
 
 vendor/
+public/temp
 public/thumbs
 public/thumbs/index.html
 public/playlists/
