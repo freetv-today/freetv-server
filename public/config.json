@@ -1,9 +1,9 @@
 {
-    "lastupdated": "2026-07-03T21:14:44.004Z",
+    "lastupdated": "2026-08-09T00:31:16.365Z",
     "offline": false,
     "appdata": false,
     "collector": "/api/beacon.php",
     "showads": false,
-    "modules": true,
+    "modules": false,
     "debugmode": true
 }
