@@ -1,63 +1,55 @@
 <?php
 
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . '/Authorization.php';
 \FreeTV\Admin\requireRole('admin');
 
-header('Content-Type: application/json');
-
-$config_path = __DIR__ . '/../../config.json';
-
-function load_config($path)
+function respond(int $status, array $payload): void
 {
-    return json_decode(file_get_contents($path), true);
-}
-
-function save_config($path, $data)
-{
-    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-}
-
-$action = $_GET['action'] ?? $_POST['action'] ?? null;
-if (!$action) {
-    echo json_encode(["success" => false, "message" => "No action specified."]);
+    http_response_code($status);
+    echo json_encode($payload);
     exit;
 }
 
-$config = load_config($config_path);
+$method = $_SERVER['REQUEST_METHOD'] ?? '';
+if (!in_array($method, ['GET', 'POST'], true)) {
+    header('Allow: GET, POST');
+    respond(405, ['success' => false, 'message' => 'Method not allowed']);
+}
 
-switch ($action) {
-    case 'refresh':
-        // Only update lastupdated
-        $dt = new DateTime('now', new DateTimeZone('UTC'));
-        $millis = (int)($dt->format('u') / 1000);
-        $iso8601 = $dt->format('Y-m-d\TH:i:s') . '.' . str_pad($millis, 3, '0', STR_PAD_LEFT) . 'Z';
-        $config['lastupdated'] = $iso8601;
-        save_config($config_path, $config);
-        echo json_encode(["success" => true, "lastupdated" => $iso8601]);
-        break;
-    case 'save':
-        // Save all config fields, update lastupdated
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data) {
-            echo json_encode(["success" => false, "message" => "No data provided."]);
-            exit;
+$settings = null;
+if ($method === 'POST') {
+    $requestObject = json_decode(file_get_contents('php://input'));
+    if (json_last_error() !== JSON_ERROR_NONE || !is_object($requestObject)) {
+        respond(400, ['success' => false, 'message' => 'Invalid JSON request body']);
+    }
+
+    $settings = get_object_vars($requestObject);
+    if ($settings === []) {
+        respond(400, ['success' => false, 'message' => 'No settings provided']);
+    }
+}
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/Settings.php';
+
+use FreeTV\Admin\Settings;
+
+try {
+    if ($method === 'POST') {
+        try {
+            $result = Settings::write($settings);
+        } catch (\InvalidArgumentException $e) {
+            respond(400, ['success' => false, 'message' => $e->getMessage()]);
         }
-        // Only allow known fields to be updated
-        $fields = ['collector', 'offline', 'appdata', 'showads', 'modules', 'debugmode'];
-        foreach ($fields as $field) {
-            if (array_key_exists($field, $data)) {
-                $config[$field] = $data[$field];
-            }
-        }
-        // Update lastupdated
-        $dt = new DateTime('now', new DateTimeZone('UTC'));
-        $millis = (int)($dt->format('u') / 1000);
-        $iso8601 = $dt->format('Y-m-d\TH:i:s') . '.' . str_pad($millis, 3, '0', STR_PAD_LEFT) . 'Z';
-        $config['lastupdated'] = $iso8601;
-        save_config($config_path, $config);
-        echo json_encode(["success" => true, "lastupdated" => $iso8601, "config" => $config]);
-        break;
-    default:
-        echo json_encode(["success" => false, "message" => "Unknown action."]);
-        break;
+    } else {
+        $result = Settings::read();
+    }
+
+    respond(200, ['success' => true, 'settings' => $result]);
+} catch (\Throwable $e) {
+    error_log('Settings API Error: ' . $e->getMessage());
+    respond(500, ['success' => false, 'message' => 'Database error']);
 }

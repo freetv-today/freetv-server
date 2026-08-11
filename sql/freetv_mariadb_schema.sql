@@ -9,18 +9,19 @@ CREATE DATABASE IF NOT EXISTS freetv
 USE freetv;
 
 CREATE TABLE IF NOT EXISTS app_settings (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  collector VARCHAR(255) NULL,
-  offline TINYINT(1) NOT NULL DEFAULT 0,
-  appdata TINYINT(1) NOT NULL DEFAULT 0,
-  showads TINYINT(1) NOT NULL DEFAULT 0,
-  modules TINYINT(1) NOT NULL DEFAULT 0,
-  debugmode TINYINT(1) NOT NULL DEFAULT 0,
-  lastupdated DATETIME NULL,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  setting_key VARCHAR(100) NOT NULL,
+  setting_value TEXT NULL,
+  scope VARCHAR(20) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+
+  UNIQUE KEY uq_app_settings_key (setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO app_settings (setting_key, setting_value, scope)
+VALUES ('show_ads', 'false', 'viewer');
 
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -139,7 +140,3 @@ CREATE TABLE IF NOT EXISTS problem_report_ips (
   PRIMARY KEY (id),
   KEY idx_problem_report_ips_ip_attempted (ip_address, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Optional seed row for app settings if you want a single config record immediately.
--- INSERT INTO app_settings (collector, offline, appdata, showads, modules, debugmode, lastupdated)
--- VALUES ('https://freetv.today/api/beacon.php', 0, 0, 0, 1, 0, NOW());
