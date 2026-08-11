@@ -115,7 +115,7 @@ export function useSingleThumbnail(imdb) {
         ? 'Thumbnail replaced successfully.'
         : 'Thumbnail uploaded successfully.');
       setRefreshToken(token => token + 1);
-      return true;
+      return data;
     } catch (uploadError) {
       if (requestId.current === currentRequest) {
         setError(uploadError.message || 'Could not save the thumbnail');

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { playlistSignal } from '@signals/playlistSignal';
 
 const EMPTY_SUMMARY = {
@@ -21,6 +21,7 @@ export function useThumbnail() {
   const currentPlaylist = playlistSignal.value.currentPlaylist;
   const currentPlaylistRef = useRef(currentPlaylist);
   currentPlaylistRef.current = currentPlaylist;
+  const inventoryRequestId = useRef(0);
   const [existing, setExisting] = useState([]);
   const [missing, setMissing] = useState([]);
   const [shared, setShared] = useState([]);
@@ -32,72 +33,103 @@ export function useThumbnail() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchError, setSearchError] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadThumbnails = useCallback(async ({ preserveSelection = false } = {}) => {
+    const requestedPlaylist = currentPlaylist;
+    const requestId = ++inventoryRequestId.current;
 
-    setSelectedShow(null);
-    setSearching(false);
-    setSearchResults([]);
-    setSearchError(null);
-
-    async function loadThumbnails() {
-      if (!currentPlaylist) {
+    if (!requestedPlaylist) {
+      if (currentPlaylistRef.current === requestedPlaylist) {
         setExisting([]);
         setMissing([]);
         setShared([]);
         setSummary(EMPTY_SUMMARY);
         setError('No playlist selected');
         setLoading(false);
-        return;
+        if (preserveSelection) setSelectedShow(null);
+      }
+      return null;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/list_thumbnails.php?playlist=${encodeURIComponent(requestedPlaylist)}`
+      );
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to load thumbnails');
+      }
+      if (
+        !Array.isArray(data.existing)
+        || !Array.isArray(data.missing)
+        || !Array.isArray(data.shared)
+        || !isValidSummary(data.summary)
+      ) {
+        throw new Error('Invalid thumbnail response');
       }
 
-      setLoading(true);
-      setError(null);
+      if (
+        inventoryRequestId.current === requestId
+        && currentPlaylistRef.current === requestedPlaylist
+      ) {
+        setExisting(data.existing);
+        setMissing(data.missing);
+        setShared(data.shared);
+        setSummary(data.summary);
 
-      try {
-        const response = await fetch(
-          `/api/admin/list_thumbnails.php?playlist=${encodeURIComponent(currentPlaylist)}`
-        );
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Failed to load thumbnails');
+        if (preserveSelection) {
+          const refreshedItems = [...data.shared, ...data.existing, ...data.missing];
+          setSelectedShow(previous => (
+            previous
+              ? refreshedItems.find(item => item.imdb === previous.imdb) || null
+              : null
+          ));
         }
-        if (
-          !Array.isArray(data.existing)
-          || !Array.isArray(data.missing)
-          || !Array.isArray(data.shared)
-          || !isValidSummary(data.summary)
-        ) {
-          throw new Error('Invalid thumbnail response');
-        }
-
-        if (!cancelled) {
-          setExisting(data.existing);
-          setMissing(data.missing);
-          setShared(data.shared);
-          setSummary(data.summary);
-        }
-      } catch (requestError) {
-        if (!cancelled) {
-          setExisting([]);
-          setMissing([]);
-          setShared([]);
-          setSummary(EMPTY_SUMMARY);
-          setError(requestError.message || 'Failed to load thumbnails');
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        return data;
+      }
+    } catch (requestError) {
+      if (
+        inventoryRequestId.current === requestId
+        && currentPlaylistRef.current === requestedPlaylist
+      ) {
+        setExisting([]);
+        setMissing([]);
+        setShared([]);
+        setSummary(EMPTY_SUMMARY);
+        setError(requestError.message || 'Failed to load thumbnails');
+        if (preserveSelection) setSelectedShow(null);
+      }
+    } finally {
+      if (
+        inventoryRequestId.current === requestId
+        && currentPlaylistRef.current === requestedPlaylist
+      ) {
+        setLoading(false);
       }
     }
 
+    return null;
+  }, [currentPlaylist]);
+
+  useEffect(() => {
+    setSelectedShow(null);
+    setSearching(false);
+    setSearchResults([]);
+    setSearchError(null);
+
     loadThumbnails();
     return () => {
-      cancelled = true;
+      inventoryRequestId.current += 1;
     };
-  }, [currentPlaylist]);
+  }, [currentPlaylist, loadThumbnails]);
+
+  const refreshThumbnails = useCallback(
+    () => loadThumbnails({ preserveSelection: true }),
+    [loadThumbnails]
+  );
 
   async function searchThumbnails(query) {
     const searchQuery = query.trim();
@@ -157,6 +189,7 @@ export function useThumbnail() {
     searchResults,
     searchError,
     searchThumbnails,
+    refreshThumbnails,
     totalShows: summary.number_of_shows,
     totalThumbnails: summary.number_of_thumbnails,
     missingThumbnails: summary.missing_thumbnails,

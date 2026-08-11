@@ -1,6 +1,7 @@
 import { useThumbnail } from '@/hooks/useThumbnail';
 import { useEffect, useState } from 'preact/hooks';
 import { createPath } from '@/utils/env';
+import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 
 function formatCount(count, singular) {
   return `${count} ${singular}${count === 1 ? '' : 's'}`;
@@ -24,11 +25,13 @@ export function ThumbnailManager() {
     searchResults,
     searchError,
     searchThumbnails,
+    refreshThumbnails,
   } = useThumbnail();
 
   const [listMode, setListMode] = useState('existing');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState(false);
+  const [changedPreview, setChangedPreview] = useState(null);
 
   useEffect(() => {
     setListMode('existing');
@@ -60,15 +63,30 @@ export function ThumbnailManager() {
     setSelectedShow(null);
   }
 
+  async function handleThumbnailChange(thumbnailUrl) {
+    const changedImdb = selectedShow?.imdb;
+    if (!changedImdb) return;
+
+    setChangedPreview({ imdb: changedImdb, url: thumbnailUrl });
+    await refreshThumbnails();
+
+    const query = searchQuery.trim();
+    if (searchActive && query) {
+      await searchThumbnails(query);
+    }
+  }
+
   const modeItems = {
     existing,
     missing,
     shared,
   };
   const displayedItems = searchActive ? searchResults : modeItems[listMode];
-  const previewImage = selectedShow?.has_thumbnail
-    ? `/thumbs/${selectedShow.imdb}.jpg`
-    : createPath('/assets/vintage-tv.png');
+  const previewImage = selectedShow && changedPreview?.imdb === selectedShow.imdb
+    ? changedPreview.url
+    : selectedShow?.has_thumbnail
+      ? `/thumbs/${selectedShow.imdb}.jpg`
+      : createPath('/assets/vintage-tv.png');
   const globalUsage = selectedShow?.global_usage;
   const selectedPlaylistShowCount = selectedShow?.selected_playlist_show_count || 0;
   const showSelectedPlaylistUsage = selectedPlaylistShowCount > 1;
@@ -240,6 +258,16 @@ export function ThumbnailManager() {
                   {!selectedShow.has_thumbnail && (
                     <div className="text-danger mt-2">No thumbnail file currently exists.</div>
                   )}
+                </div>
+              )}
+
+              {selectedShow?.imdb && (
+                <div className="mt-3">
+                  <ShowThumbnailControls
+                    imdb={selectedShow.imdb}
+                    showPreview={false}
+                    onThumbnailChange={handleThumbnailChange}
+                  />
                 </div>
               )}
             </div>

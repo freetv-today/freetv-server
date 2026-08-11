@@ -10,9 +10,10 @@ function pluralize(count, singular, plural) {
  * Manual JPEG upload controls for one show's IMDb thumbnail.
  * @param {Object} props
  * @param {string} props.imdb IMDb ID
+ * @param {boolean} [props.showPreview=true] Whether to render the inline preview
  * @param {function} [props.onThumbnailChange] Called when the canonical thumbnail changes
  */
-export function ShowThumbnailControls({ imdb, onThumbnailChange }) {
+export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailChange }) {
   const {
     isValidImdb,
     exists,
@@ -35,12 +36,6 @@ export function ShowThumbnailControls({ imdb, onThumbnailChange }) {
     if (fileInput.current) fileInput.current.value = '';
   }, [imdb]);
 
-  useEffect(() => {
-    if (typeof onThumbnailChange === 'function') {
-      onThumbnailChange(thumbnailUrl);
-    }
-  }, [thumbnailUrl, onThumbnailChange]);
-
   const handleUpload = async () => {
     if (!selectedFile || !isValidImdb || !statusLoaded) return;
 
@@ -52,9 +47,13 @@ export function ShowThumbnailControls({ imdb, onThumbnailChange }) {
       if (!window.confirm(`Replace this thumbnail?${sharedWarning}`)) return;
     }
 
-    if (await uploadThumbnail(selectedFile, operation)) {
+    const result = await uploadThumbnail(selectedFile, operation);
+    if (result) {
       setSelectedFile(null);
       if (fileInput.current) fileInput.current.value = '';
+      if (typeof onThumbnailChange === 'function') {
+        onThumbnailChange(result.thumbnail_url);
+      }
     }
   };
 
@@ -74,19 +73,23 @@ export function ShowThumbnailControls({ imdb, onThumbnailChange }) {
         <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
           <div className="accordion-body">
             <div className="mb-4 p-3 border rounded bg-light">
-              <div className="text-center mt-2">
-                <img
-                  src={previewUrl}
-                  alt={exists ? 'Current thumbnail' : 'Thumbnail placeholder'}
-                  style={{ maxHeight: 180, maxWidth: '100%', border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
-                />
-                <div className="small text-muted mt-1">
-                  {exists ? 'Current thumbnail' : 'No thumbnail uploaded'}
+              {showPreview && (
+                <div className="text-center mt-2">
+                  <img
+                    src={previewUrl}
+                    alt={exists ? 'Current thumbnail' : 'Thumbnail placeholder'}
+                    style={{ maxHeight: 180, maxWidth: '100%', border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
+                  />
+                  <div className="small text-muted mt-1">
+                    {exists ? 'Current thumbnail' : 'No thumbnail uploaded'}
+                  </div>
                 </div>
-                {exists && isShared && (
-                  <div className="small text-warning-emphasis mt-1">{usageText}</div>
-                )}
-              </div>
+              )}
+              {exists && isShared && (
+                <div className={`small text-warning-emphasis mt-1${showPreview ? ' text-center' : ''}`}>
+                  {usageText}
+                </div>
+              )}
 
               <div className="mt-3">
                 <label className="form-label small fw-bold" htmlFor="thumbnailImage">
