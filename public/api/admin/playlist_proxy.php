@@ -91,6 +91,7 @@ try {
             'start_year',
             'end_year',
             'imdb',
+            'group_name',
         ])
         ->orderBy('sort_order')
         ->orderBy('id')
@@ -98,7 +99,7 @@ try {
 
     $shows = [];
     foreach ($showRows as $show) {
-        $shows[] = [
+        $showData = [
             'category' => $show->category,
             'status' => $show->status,
             'identifier' => $show->identifier,
@@ -108,6 +109,13 @@ try {
             'end' => $show->end_year,
             'imdb' => $show->imdb,
         ];
+
+        $group = is_string($show->group_name) ? trim($show->group_name) : '';
+        if ($group !== '') {
+            $showData['group'] = $group;
+        }
+
+        $shows[] = $showData;
     }
 
     echo json_encode([

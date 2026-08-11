@@ -14,8 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/ThumbnailService.php';
+require_once __DIR__ . '/ShowGroup.php';
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\ShowGroup;
 use FreeTV\Admin\ThumbnailService;
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -102,14 +104,14 @@ if (!in_array($show['status'], ['active', 'disabled'], true)) {
     exit;
 }
 
-if (
-    array_key_exists('group', $show)
-    && (!is_string($show['group']) || trim($show['group']) !== '')
-) {
+$groupName = null;
+try {
+    $groupName = ShowGroup::fromShow($show);
+} catch (\InvalidArgumentException $e) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'Show groups are not supported by the database schema'
+        'message' => $e->getMessage()
     ]);
     exit;
 }
@@ -154,6 +156,7 @@ try {
         'start_year' => (string) $show['start'],
         'end_year' => (string) $show['end'],
         'imdb' => (string) $show['imdb'],
+        'group_name' => $groupName,
     ];
     $databaseCurrentTimestamp = $connection->raw('CURRENT_TIMESTAMP');
 
