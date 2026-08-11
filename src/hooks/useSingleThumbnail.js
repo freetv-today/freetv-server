@@ -1,177 +1,145 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+
+const IMDB_PATTERN = /^tt\d+$/;
+
+async function readJson(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Invalid server response');
+  }
+}
 
 /**
- * useSingleThumbnail - Manage thumbnail for a single show by IMDB ID
- * @param {string} imdb - IMDB ID of the show
+ * Load and mutate the canonical thumbnail for one strict IMDb ID.
+ * @param {string} imdb IMDb ID of the show
  * @returns {Object} Thumbnail state and actions
  */
 export function useSingleThumbnail(imdb) {
-
-  // Track if a thumbnail has been fetched or saved in this session (for Add mode UX)
-  const [hasFetched, setHasFetched] = useState(false);
+  const isValidImdb = typeof imdb === 'string' && IMDB_PATTERN.test(imdb);
+  const [exists, setExists] = useState(false);
+  const [statusImdb, setStatusImdb] = useState(null);
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
-  const [tempThumbnailUrl, setTempThumbnailUrl] = useState(null);
+  const [globalUsage, setGlobalUsage] = useState({ show_count: 0, playlist_count: 0 });
+  const [statusLoaded, setStatusLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const requestId = useRef(0);
 
-  // Load current thumbnail from /thumbs/ and /temp/ if exists, but do NOT set hasFetched here
   useEffect(() => {
-    if (!imdb) {
+    setError(null);
+    setSuccess(null);
+  }, [imdb]);
+
+  useEffect(() => {
+    const currentRequest = ++requestId.current;
+
+    if (!isValidImdb) {
+      setStatusImdb(null);
+      setExists(false);
       setThumbnailUrl(null);
-      setTempThumbnailUrl(null);
-      setHasFetched(false);
+      setGlobalUsage({ show_count: 0, playlist_count: 0 });
+      setStatusLoaded(false);
+      setLoading(false);
       return;
     }
-    // Always reset hasFetched to false on imdb change
-    setHasFetched(false);
-    // Check if thumbnail exists in /thumbs/
-    const url = `/thumbs/${imdb}.jpg`;
-    fetch(url, { method: 'HEAD' })
-      .then(res => {
-        if (res.ok) {
-          setThumbnailUrl(url);
-        } else {
-          setThumbnailUrl(null);
+
+    setStatusLoaded(false);
+    setLoading(true);
+    fetch(`/api/admin/thumbnail-status.php?imdb=${encodeURIComponent(imdb)}`)
+      .then(async response => {
+        const data = await readJson(response);
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Could not load thumbnail status');
         }
+        if (requestId.current !== currentRequest) return;
+
+        setExists(data.exists === true);
+        setStatusImdb(imdb);
+        setThumbnailUrl(data.exists ? data.thumbnail_url : null);
+        setGlobalUsage(data.global_usage || { show_count: 0, playlist_count: 0 });
+        setStatusLoaded(true);
       })
-      .catch(() => setThumbnailUrl(null));
-    // Check if temp thumbnail exists in /temp/
-    const tempUrl = `/temp/${imdb}.jpg`;
-    fetch(tempUrl, { method: 'HEAD' })
-      .then(res => {
-        if (res.ok) {
-          setTempThumbnailUrl(tempUrl);
-        } else {
-          setTempThumbnailUrl(null);
-        }
-      })
-      .catch(() => setTempThumbnailUrl(null));
-  }, [imdb]);
-
-  // Fetch thumbnail from backend (saves to /temp/)
-  const fetchThumbnail = useCallback(async () => {
-    if (!imdb) return;
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const res = await fetch(`/api/admin/fetch_thumbnail.php?imdb=${imdb}`);
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        setError('Invalid server response');
-        return;
-      }
-      if (res.ok && data.status === 'success') {
-        setTempThumbnailUrl(data.image_url || `/temp/${imdb}.jpg`);
-        setHasFetched(true);
-        setSuccess('Thumbnail fetched successfully.');
-        console.log('[useSingleThumbnail] fetchThumbnail: fetched and set hasFetched=true');
-      } else {
-        setError(data.message || 'Failed to fetch thumbnail');
-      }
-    } catch {
-      setError('Network error');
-    } finally {
-      setLoading(false);
-    }
-  }, [imdb]);
-
-  // Save thumbnail (move from /temp/ to /thumbs/)
-  const saveThumbnail = useCallback(async () => {
-    if (!imdb) return;
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const res = await fetch('/api/admin/save_thumbnail.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imdb })
-      });
-      const data = await res.json();
-      if (res.ok && data.status === 'success') {
-        setThumbnailUrl(data.thumb_url || `/thumbs/${imdb}.jpg`);
-        setTempThumbnailUrl(null);
-        setHasFetched(true);
-        setSuccess('Thumbnail saved successfully.');
-        console.log('[useSingleThumbnail] saveThumbnail: saved and set hasFetched=true');
-      } else {
-        setError(data.message || 'Failed to save thumbnail');
-      }
-    } catch {
-      setError('Network error');
-    } finally {
-      setLoading(false);
-    }
-  }, [imdb]);
-
-  // Delete thumbnail from /thumbs/
-  const deleteThumbnail = useCallback(async () => {
-    if (!imdb) return;
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const res = await fetch('/api/admin/delete_thumbnail.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imdb })
-      });
-      const data = await res.json();
-      if (res.ok && data.status === 'success') {
+      .catch(fetchError => {
+        if (requestId.current !== currentRequest) return;
+        setExists(false);
+        setStatusImdb(null);
         setThumbnailUrl(null);
-        setSuccess('Thumbnail deleted successfully.');
-      } else {
-        setError(data.message || 'Failed to delete thumbnail');
+        setGlobalUsage({ show_count: 0, playlist_count: 0 });
+        setStatusLoaded(false);
+        setError(fetchError.message || 'Could not load thumbnail status');
+      })
+      .finally(() => {
+        if (requestId.current === currentRequest) setLoading(false);
+      });
+  }, [imdb, isValidImdb, refreshToken]);
+
+  const refreshStatus = useCallback(() => {
+    if (isValidImdb) setRefreshToken(token => token + 1);
+  }, [isValidImdb]);
+
+  const uploadThumbnail = useCallback(async (image, operation) => {
+    if (!isValidImdb || !image) return false;
+
+    const currentRequest = ++requestId.current;
+    const requestImdb = imdb;
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    const body = new window.FormData();
+    body.append('imdb', requestImdb);
+    body.append('operation', operation);
+    body.append('image', image);
+
+    try {
+      const response = await fetch('/api/admin/upload-thumbnail.php', {
+        method: 'POST',
+        body,
+      });
+      const data = await readJson(response);
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Could not save the thumbnail');
       }
-    } catch {
-      setError('Network error');
+      if (requestId.current !== currentRequest) return false;
+
+      setExists(true);
+      setStatusImdb(requestImdb);
+      setThumbnailUrl(data.thumbnail_url);
+      setGlobalUsage(data.global_usage || { show_count: 0, playlist_count: 0 });
+      setStatusLoaded(true);
+      setSuccess(operation === 'replace'
+        ? 'Thumbnail replaced successfully.'
+        : 'Thumbnail uploaded successfully.');
+      setRefreshToken(token => token + 1);
+      return true;
+    } catch (uploadError) {
+      if (requestId.current === currentRequest) {
+        setError(uploadError.message || 'Could not save the thumbnail');
+      }
+      return false;
     } finally {
-      setLoading(false);
+      if (requestId.current === currentRequest) setLoading(false);
     }
-  }, [imdb]);
+  }, [imdb, isValidImdb]);
 
-  /**
-   * getPreviewUrl - Returns the correct preview URL based on mode
-   * @param {string} mode - 'add' or 'edit'
-   * @returns {string|null}
-   */
-  function getPreviewUrl(mode) {
-    if (!imdb) return null;
-    if (mode === 'edit') {
-      // In edit mode, prefer saved thumbnail, then temp, else null
-      return thumbnailUrl || tempThumbnailUrl || null;
-    } else {
-      // In add mode, only show preview if a thumbnail was fetched or saved
-      if (hasFetched) {
-        const url = tempThumbnailUrl || thumbnailUrl || null;
-        return url;
-      } else {
-        return null;
-      }
-    }
-  }
-
-  // For backward compatibility, default previewUrl to add-mode logic
-  const previewUrl = getPreviewUrl;
+  const isCurrentStatus = statusImdb === imdb;
 
   return {
-    imdb,
+    isValidImdb,
+    exists: isCurrentStatus && exists,
+    thumbnailUrl: isCurrentStatus ? thumbnailUrl : null,
+    globalUsage: isCurrentStatus
+      ? globalUsage
+      : { show_count: 0, playlist_count: 0 },
+    statusLoaded: isCurrentStatus && statusLoaded,
     loading,
     error,
     success,
-    thumbnailUrl,
-    tempThumbnailUrl,
-    previewUrl,
-    getPreviewUrl,
-    fetchThumbnail,
-    saveThumbnail,
-    deleteThumbnail,
-    setError,
-    setSuccess,
+    refreshStatus,
+    uploadThumbnail,
   };
 }

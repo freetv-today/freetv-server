@@ -1,82 +1,132 @@
 import { useSingleThumbnail } from '@/hooks/useSingleThumbnail';
-import { useEffect } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { createPath } from '@/utils/env';
 
+function pluralize(count, singular, plural) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 /**
- * ShowThumbnailControls - UI and logic for managing a single show's thumbnail
+ * Manual JPEG upload controls for one show's IMDb thumbnail.
  * @param {Object} props
- * @param {string} props.imdb - IMDB ID
- * @param {string} props.mode - 'add' or 'edit'
- * @param {function} [props.onThumbnailChange] - Optional callback when thumbnail changes
+ * @param {string} props.imdb IMDb ID
+ * @param {function} [props.onThumbnailChange] Called when the canonical thumbnail changes
  */
-
-export function ShowThumbnailControls({ imdb, mode, onThumbnailChange }) {
-
+export function ShowThumbnailControls({ imdb, onThumbnailChange }) {
   const {
+    isValidImdb,
+    exists,
+    thumbnailUrl,
+    globalUsage,
+    statusLoaded,
     loading,
     error,
     success,
-    getPreviewUrl,
-    fetchThumbnail,
-    saveThumbnail,
-    deleteThumbnail,
+    uploadThumbnail,
   } = useSingleThumbnail(imdb);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInput = useRef(null);
 
-  // Compute preview URL based on mode
-  const previewUrl = getPreviewUrl(mode);
+  const isShared = globalUsage.show_count > 1 || globalUsage.playlist_count > 1;
+  const usageText = `Used by ${pluralize(globalUsage.show_count, 'show', 'shows')} across ${pluralize(globalUsage.playlist_count, 'playlist', 'playlists')}`;
 
-  // Notify parent if thumbnail changes
+  useEffect(() => {
+    setSelectedFile(null);
+    if (fileInput.current) fileInput.current.value = '';
+  }, [imdb]);
+
   useEffect(() => {
     if (typeof onThumbnailChange === 'function') {
-      onThumbnailChange(previewUrl);
+      onThumbnailChange(thumbnailUrl);
     }
-  }, [previewUrl, onThumbnailChange]);
+  }, [thumbnailUrl, onThumbnailChange]);
 
-  // UI
+  const handleUpload = async () => {
+    if (!selectedFile || !isValidImdb || !statusLoaded) return;
+
+    const operation = exists ? 'replace' : 'upload';
+    if (operation === 'replace') {
+      const sharedWarning = isShared
+        ? `\n\nIt is used by ${pluralize(globalUsage.show_count, 'show', 'shows')} across ${pluralize(globalUsage.playlist_count, 'playlist', 'playlists')}.\nReplacing it will change the thumbnail for all of them.`
+        : '';
+      if (!window.confirm(`Replace this thumbnail?${sharedWarning}`)) return;
+    }
+
+    if (await uploadThumbnail(selectedFile, operation)) {
+      setSelectedFile(null);
+      if (fileInput.current) fileInput.current.value = '';
+    }
+  };
+
+  const controlsDisabled = !isValidImdb || !statusLoaded || loading;
+  const previewUrl = exists && thumbnailUrl
+    ? thumbnailUrl
+    : createPath('/assets/vintage-tv.png');
+
   return (
-  <div class="accordion" id="thumbnailControls">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-          <span className="fw-bold">Thumbnail Controls</span>
-        </button>
-      </h2>
-      <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
-        <div class="accordion-body">
+    <div className="accordion" id="thumbnailControls">
+      <div className="accordion-item">
+        <h2 className="accordion-header">
+          <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            <span className="fw-bold">Thumbnail Controls</span>
+          </button>
+        </h2>
+        <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
+          <div className="accordion-body">
+            <div className="mb-4 p-3 border rounded bg-light">
+              <div className="text-center mt-2">
+                <img
+                  src={previewUrl}
+                  alt={exists ? 'Current thumbnail' : 'Thumbnail placeholder'}
+                  style={{ maxHeight: 180, maxWidth: '100%', border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
+                />
+                <div className="small text-muted mt-1">
+                  {exists ? 'Current thumbnail' : 'No thumbnail uploaded'}
+                </div>
+                {exists && isShared && (
+                  <div className="small text-warning-emphasis mt-1">{usageText}</div>
+                )}
+              </div>
 
-          <div className="mb-4 p-3 border rounded bg-light">
-            <div className="d-flex justify-content-center justify-content-md-start align-items-center gap-2 mb-2">        
-              <button type="button" className="btn btn-warning btn-sm" onClick={fetchThumbnail} disabled={!imdb || loading}>Fetch Thumbnail</button>
-              <button type="button" className="btn btn-primary btn-sm" onClick={saveThumbnail} disabled={!imdb || loading || !previewUrl || previewUrl.startsWith('/thumbs/')}>Save Thumbnail</button>
-              {mode === 'edit' && (
-                <button type="button" className="btn btn-danger btn-sm" onClick={deleteThumbnail} disabled={!imdb || loading || !previewUrl || previewUrl.startsWith('/temp/')}>Delete Thumbnail</button>
-              )}
-            </div>
-            <div className="d-flex justify-content-center justify-content-md-start align-items-center">
-              {!imdb && (
-                <span className="small text-secondary xsmall">
-                  (Type IMDB ID to enable buttons)
-                </span>
-              )}
-            </div>
-            <div className="my-2">
-              {loading && <span className="text-info">Loading...</span>}
-              {error && <span className="text-danger ms-2">{error}</span>}
-              {success && <span className="text-success ms-2">{success}</span>}
-            </div>
-            <div className="text-center mt-4">
-              <img
-                src={previewUrl || '/assets/vintage-tv.png'}
-                alt="Thumbnail Preview"
-                style={{ maxHeight: 180, border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
-              />
-              <div className="small text-muted mt-1">Preview: {previewUrl ? (previewUrl.startsWith('/temp/') ? 'Temporary' : previewUrl.startsWith('/thumbs/') ? 'Saved' : 'Unknown') : 'None'}</div>
+              <div className="mt-3">
+                <label className="form-label small fw-bold" htmlFor="thumbnailImage">
+                  {exists ? 'Replacement JPEG' : 'Thumbnail JPEG'}
+                </label>
+                <input
+                  ref={fileInput}
+                  id="thumbnailImage"
+                  type="file"
+                  className="form-control form-control-sm"
+                  accept="image/jpeg,.jpg,.jpeg"
+                  onChange={event => setSelectedFile(event.currentTarget.files?.[0] || null)}
+                  disabled={controlsDisabled}
+                />
+                <div className="form-text">JPEG only, up to 10 MB. Images wider than 1000px are resized.</div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2 mt-3">
+                <button
+                  type="button"
+                  className={`btn btn-sm ${exists ? 'btn-warning' : 'btn-primary'}`}
+                  onClick={handleUpload}
+                  disabled={controlsDisabled || !selectedFile}
+                >
+                  {loading ? 'Working...' : exists ? 'Replace Thumbnail' : 'Upload JPG'}
+                </button>
+                {!isValidImdb && (
+                  <span className="small text-secondary">Enter a valid IMDb ID to enable thumbnail upload.</span>
+                )}
+                {isValidImdb && loading && <span className="small text-info">Loading...</span>}
+              </div>
+
+              <div className="mt-2">
+                {error && <span className="text-danger small">{error}</span>}
+                {success && <span className="text-success small">{success}</span>}
+              </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-  </div>
   );
 }

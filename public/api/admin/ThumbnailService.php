@@ -169,6 +169,32 @@ class ThumbnailService
         return $usage[$imdb] ?? ['show_count' => 0, 'playlist_count' => 0];
     }
 
+    public function getStatus(string $imdb): array
+    {
+        if (!self::isValidImdb($imdb)) {
+            throw new \InvalidArgumentException('Invalid IMDb ID');
+        }
+
+        $exists = $this->thumbnailExists($imdb);
+        $thumbnailUrl = null;
+
+        if ($exists) {
+            $path = $this->thumbnailDirectory . '/' . $imdb . '.jpg';
+            $fingerprint = @hash_file('sha256', $path);
+            $thumbnailUrl = '/thumbs/' . $imdb . '.jpg';
+            if ($fingerprint !== false) {
+                $thumbnailUrl .= '?v=' . substr($fingerprint, 0, 12);
+            }
+        }
+
+        return [
+            'imdb' => $imdb,
+            'exists' => $exists,
+            'thumbnail_url' => $thumbnailUrl,
+            'global_usage' => $this->getGlobalUsage($imdb),
+        ];
+    }
+
     private function resolvePlaylist(string $filename)
     {
         return Database::table('playlists')
