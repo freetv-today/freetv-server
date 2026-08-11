@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 import { capitalizeFirstLetter } from '@/utils/utils';
 
+const IMDB_ID_PATTERN = /^tt\d+$/;
+
 /**
  * AdminShowForm - Reusable form for editing/adding a show
  * @param {Object} props
@@ -104,6 +106,9 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       if (!form[key] || String(form[key]).trim() === '') v[key] = 'Required';
     }
     if (form.desc && form.desc.length > 255) v.desc = 'Description must be 255 characters or less';
+    if (form.imdb && !IMDB_ID_PATTERN.test(form.imdb)) {
+      v.imdb = 'Must be a valid IMDb ID such as tt0052520';
+    }
     // Start/end: 4-digit years
     if (form.start && !/^\d{4}$/.test(form.start)) v.start = 'Must be 4-digit year';
     if (form.end && !/^\d{4}$/.test(form.end)) v.end = 'Must be 4-digit year';
@@ -251,7 +256,7 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
       </div>
       <div className="mb-2">
         <label className="form-label fw-bold">Description</label>
-        <textarea className="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} maxlength={255} placeholder="Show Description (Max 255 chars.)" />
+        <textarea className="form-control form-control-sm" name="desc" value={form.desc} onInput={handleChange} required rows={3} maxLength={255} placeholder="Show Description (Max 255 chars.)" />
         {validation.desc && <div className="text-danger small">{validation.desc}</div>}
       </div>
       <div className="row w-50">
@@ -274,11 +279,11 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           type="button" 
           className="btn btn-outline-primary btn-sm text-nowrap external-link-btn mt-2" 
           onClick={() => {
-            if (form.imdb) {
+            if (IMDB_ID_PATTERN.test(form.imdb)) {
               window.open(`https://www.imdb.com/title/${form.imdb}`, 'imdbShow', 'width=640,height=480');
             }
           }} 
-          disabled={!form.imdb}
+          disabled={!IMDB_ID_PATTERN.test(form.imdb)}
         >
           View IMDB Page
           <img src="/assets/external-link.svg" className="ms-2" width="14" alt="External link" />

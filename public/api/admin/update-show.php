@@ -13,8 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/ThumbnailService.php';
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\ThumbnailService;
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) {
@@ -83,6 +85,15 @@ foreach ($requiredShowFields as $field) {
         ]);
         exit;
     }
+}
+
+if (!ThumbnailService::isValidImdb($show['imdb'])) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Must be a valid IMDb ID such as tt0052520'
+    ]);
+    exit;
 }
 
 if (!in_array($show['status'], ['active', 'disabled'], true)) {
