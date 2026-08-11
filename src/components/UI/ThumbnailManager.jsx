@@ -67,7 +67,10 @@ export function ThumbnailManager() {
     const changedImdb = selectedShow?.imdb;
     if (!changedImdb) return;
 
-    setChangedPreview({ imdb: changedImdb, url: thumbnailUrl });
+    setChangedPreview({
+      imdb: changedImdb,
+      url: thumbnailUrl || createPath('/assets/vintage-tv.png'),
+    });
     await refreshThumbnails();
 
     const query = searchQuery.trim();

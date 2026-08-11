@@ -34,6 +34,7 @@ public/temp
 public/thumbs
 public/thumbs/index.html
 public/playlists/
+/temp/thumbnail-undo/
 
 # Files and notes which should't be checked into Github
 deleted_show_table-(future work).md

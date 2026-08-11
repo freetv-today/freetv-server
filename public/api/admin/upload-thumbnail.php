@@ -28,11 +28,15 @@ use FreeTV\Admin\ThumbnailUploadService;
 
 $imdb = $_POST['imdb'] ?? null;
 $operation = $_POST['operation'] ?? null;
+$previousUndoToken = $_POST['previous_undo_token'] ?? null;
 if (!is_string($imdb) || !ThumbnailService::isValidImdb($imdb)) {
     respond(400, ['success' => false, 'message' => 'Invalid IMDb ID']);
 }
 if (!is_string($operation) || !in_array($operation, ['upload', 'replace'], true)) {
     respond(400, ['success' => false, 'message' => 'Operation must be upload or replace']);
+}
+if ($previousUndoToken !== null && !is_string($previousUndoToken)) {
+    respond(400, ['success' => false, 'message' => 'Invalid previous undo token']);
 }
 
 $upload = $_FILES['image'] ?? null;
@@ -55,7 +59,13 @@ if (!is_string($sourcePath) || !is_int($sourceSize) || !is_uploaded_file($source
 }
 
 try {
-    $result = (new ThumbnailUploadService())->store($imdb, $sourcePath, $sourceSize, $operation);
+    $result = (new ThumbnailUploadService())->store(
+        $imdb,
+        $sourcePath,
+        $sourceSize,
+        $operation,
+        $previousUndoToken
+    );
     $result['exists'] = true;
     try {
         $result['global_usage'] = (new ThumbnailService())->getGlobalUsage($imdb);

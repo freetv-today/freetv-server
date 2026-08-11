@@ -322,13 +322,8 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
         )}
       </div>
 
-      {/* Thumbnail Controls Section */}
-      <ShowThumbnailControls
-        imdb={form.imdb}
-        mode={mode}
-      />
       {error && <div className="alert alert-danger">{error}</div>}
-      <div className="mt-5 d-flex justify-content-center gap-2">
+      <div className="mt-4 d-flex justify-content-center gap-2">
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
         <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
         {typeof onSaveAndAddMore === 'function' && (
@@ -336,6 +331,14 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
             {saving ? 'Saving...' : 'Save and Add More Shows'}
           </button>
         )}
+      </div>
+
+      {/* Live thumbnail editing is independent from the show form actions above. */}
+      <div className="mt-4">
+        <ShowThumbnailControls
+          imdb={form.imdb}
+          mode={mode}
+        />
       </div>
     </form>
   );

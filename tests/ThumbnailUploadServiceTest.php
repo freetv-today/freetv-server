@@ -45,11 +45,13 @@ if (!mkdir($testDirectory, 0775, true)) {
 
 $sourceDirectory = $testDirectory . '/source';
 $thumbnailDirectory = $testDirectory . '/thumbs';
+$undoDirectory = $testDirectory . '/undo';
 mkdir($sourceDirectory, 0775, true);
 mkdir($thumbnailDirectory, 0775, true);
+mkdir($undoDirectory, 0700, true);
 
 try {
-    $service = new ThumbnailUploadService($thumbnailDirectory);
+    $service = new ThumbnailUploadService($thumbnailDirectory, $undoDirectory);
     $largeJpeg = $sourceDirectory . '/large.jpg';
     makeTestImage($largeJpeg, 1200, 1600, 'jpeg');
 
@@ -135,8 +137,15 @@ try {
     foreach (glob($thumbnailDirectory . '/*') ?: [] as $path) {
         unlink($path);
     }
+    foreach (glob($undoDirectory . '/*') ?: [] as $path) {
+        unlink($path);
+    }
+    foreach (glob($undoDirectory . '/.*') ?: [] as $path) {
+        if (is_file($path)) unlink($path);
+    }
     rmdir($sourceDirectory);
     rmdir($thumbnailDirectory);
+    rmdir($undoDirectory);
     rmdir($testDirectory);
 }
 

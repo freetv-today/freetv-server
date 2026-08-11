@@ -21,17 +21,22 @@ class ThumbnailUploadService
     public const MAX_WIDTH = 1000;
     private const MAX_PIXELS = 40_000_000;
     private const JPEG_QUALITY = 85;
+    private const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
 
-    public function __construct(private ?string $thumbnailDirectory = null)
-    {
+    public function __construct(
+        private ?string $thumbnailDirectory = null,
+        private ?string $undoDirectory = null
+    ) {
         $this->thumbnailDirectory ??= dirname(__DIR__, 2) . '/thumbs';
+        $this->undoDirectory ??= dirname(__DIR__, 3) . '/temp/thumbnail-undo';
     }
 
     public function store(
         string $imdb,
         string $sourcePath,
         int $sourceSize,
-        string $operation
+        string $operation,
+        ?string $previousUndoToken = null
     ): array {
         if (!ThumbnailService::isValidImdb($imdb)) {
             throw new ThumbnailUploadException('Invalid IMDb ID');
@@ -49,18 +54,12 @@ class ThumbnailUploadService
             throw new ThumbnailUploadException('The uploaded file could not be read');
         }
 
-        $this->ensureThumbnailDirectory();
-        $targetPath = $this->thumbnailDirectory . '/' . $imdb . '.jpg';
-        $lockPath = sys_get_temp_dir() . '/freetv-thumbnail-' . hash('sha256', $targetPath) . '.lock';
-        $lock = @fopen($lockPath, 'c');
-        if ($lock === false || !flock($lock, LOCK_EX)) {
-            if (is_resource($lock)) {
-                fclose($lock);
-            }
-            throw new ThumbnailUploadException('Could not lock the thumbnail for writing', 500);
-        }
-
+        $this->ensureDirectories();
+        $targetPath = $this->thumbnailPath($imdb);
+        $lock = $this->acquireLock($imdb);
         $processedPath = null;
+        $undoToken = null;
+
         try {
             $this->assertOperationAllowed($targetPath, $operation);
             $processedPath = tempnam($this->thumbnailDirectory, '.thumbnail-');
@@ -72,56 +71,340 @@ class ThumbnailUploadService
             if (!@chmod($processedPath, 0644)) {
                 throw new ThumbnailUploadException('Could not set thumbnail permissions', 500);
             }
-            $this->assertOperationAllowed($targetPath, $operation);
 
-            if ($operation === 'upload') {
-                if (!@link($processedPath, $targetPath)) {
-                    if (is_file($targetPath)) {
-                        throw new ThumbnailUploadException('A thumbnail already exists for this IMDb ID', 409);
+            $expectedHash = hash_file('sha256', $processedPath);
+            if ($expectedHash === false) {
+                throw new ThumbnailUploadException('Could not verify the processed thumbnail', 500);
+            }
+
+            $this->assertOperationAllowed($targetPath, $operation);
+            $undoToken = $this->createUndoState(
+                $imdb,
+                $operation,
+                $expectedHash,
+                $operation === 'replace' ? $targetPath : null
+            );
+
+            try {
+                if ($operation === 'upload') {
+                    if (!@link($processedPath, $targetPath)) {
+                        if (is_file($targetPath)) {
+                            throw new ThumbnailUploadException(
+                                'A thumbnail already exists for this IMDb ID',
+                                409
+                            );
+                        }
+                        throw new ThumbnailUploadException('Could not save the thumbnail', 500);
                     }
-                    throw new ThumbnailUploadException('Could not save the thumbnail', 500);
+                    @unlink($processedPath);
+                } elseif (!@rename($processedPath, $targetPath)) {
+                    throw new ThumbnailUploadException('Could not replace the thumbnail', 500);
+                } else {
+                    $processedPath = null;
                 }
-                @unlink($processedPath);
-            } elseif (!@rename($processedPath, $targetPath)) {
-                throw new ThumbnailUploadException('Could not replace the thumbnail', 500);
-            } else {
-                $processedPath = null;
+            } catch (\Throwable $e) {
+                $this->discardUndo($undoToken);
+                throw $e;
             }
 
             clearstatcache(true, $targetPath);
             $fingerprint = hash_file('sha256', $targetPath);
-            if ($fingerprint === false) {
+            if ($fingerprint === false || !hash_equals($expectedHash, $fingerprint)) {
                 throw new ThumbnailUploadException('Could not verify the saved thumbnail', 500);
+            }
+
+            if ($previousUndoToken !== null && $previousUndoToken !== $undoToken) {
+                $this->discardUndo($previousUndoToken);
             }
 
             return [
                 'imdb' => $imdb,
                 'operation' => $operation,
-                'thumbnail_url' => '/thumbs/' . $imdb . '.jpg?v=' . substr($fingerprint, 0, 12),
+                'thumbnail_url' => $this->thumbnailUrl($imdb, $fingerprint),
                 'width' => $dimensions['width'],
                 'height' => $dimensions['height'],
                 'bytes' => filesize($targetPath),
+                'undo_token' => $undoToken,
             ];
         } finally {
             if ($processedPath !== null && is_file($processedPath)) {
                 @unlink($processedPath);
             }
-            flock($lock, LOCK_UN);
-            fclose($lock);
+            $this->releaseLock($lock);
         }
     }
 
-    private function ensureThumbnailDirectory(): void
+    public function undo(string $token): array
     {
-        if (!is_dir($this->thumbnailDirectory)
-            && !mkdir($this->thumbnailDirectory, 0775, true)
-            && !is_dir($this->thumbnailDirectory)
+        if (!$this->isValidToken($token)) {
+            throw new ThumbnailUploadException('Invalid undo token');
+        }
+
+        $this->ensureDirectories();
+        $state = $this->readUndoState($token);
+        $imdb = $state['imdb'];
+        $lock = $this->acquireLock($imdb);
+        $restorePath = null;
+        $consumingPath = null;
+
+        try {
+            $state = $this->readUndoState($token);
+            $targetPath = $this->thumbnailPath($imdb);
+            if (!is_file($targetPath)) {
+                throw new ThumbnailUploadException(
+                    'The live thumbnail no longer matches this undo operation',
+                    409
+                );
+            }
+
+            $currentHash = hash_file('sha256', $targetPath);
+            if ($currentHash === false || !hash_equals($state['expected_hash'], $currentHash)) {
+                throw new ThumbnailUploadException(
+                    'The live thumbnail no longer matches this undo operation',
+                    409
+                );
+            }
+
+            if ($state['operation'] === 'replace') {
+                $backupPath = $this->backupPath($token);
+                if (!is_file($backupPath)) {
+                    throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+                }
+                $backupHash = hash_file('sha256', $backupPath);
+                if ($backupHash === false || !hash_equals($state['backup_hash'], $backupHash)) {
+                    throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+                }
+
+                $restorePath = tempnam($this->thumbnailDirectory, '.thumbnail-restore-');
+                if ($restorePath === false || !@copy($backupPath, $restorePath)) {
+                    throw new ThumbnailUploadException('Could not prepare the prior thumbnail', 500);
+                }
+                if (!@chmod($restorePath, 0644)) {
+                    throw new ThumbnailUploadException('Could not set thumbnail permissions', 500);
+                }
+            }
+
+            $metadataPath = $this->metadataPath($token);
+            $consumingPath = $this->undoDirectory . '/.' . $token . '.consuming';
+            if (!@rename($metadataPath, $consumingPath)) {
+                throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+            }
+
+            if ($state['operation'] === 'upload') {
+                if (!@unlink($targetPath)) {
+                    @rename($consumingPath, $metadataPath);
+                    $consumingPath = null;
+                    throw new ThumbnailUploadException('Could not remove the uploaded thumbnail', 500);
+                }
+                $exists = false;
+                $thumbnailUrl = null;
+            } else {
+                if (!@rename($restorePath, $targetPath)) {
+                    @rename($consumingPath, $metadataPath);
+                    $consumingPath = null;
+                    throw new ThumbnailUploadException('Could not restore the prior thumbnail', 500);
+                }
+                $restorePath = null;
+                clearstatcache(true, $targetPath);
+                $restoredHash = hash_file('sha256', $targetPath);
+                if ($restoredHash === false || !hash_equals($state['backup_hash'], $restoredHash)) {
+                    throw new ThumbnailUploadException('Could not verify the restored thumbnail', 500);
+                }
+                $exists = true;
+                $thumbnailUrl = $this->thumbnailUrl($imdb, $restoredHash);
+            }
+
+            @unlink($consumingPath);
+            $consumingPath = null;
+            @unlink($this->backupPath($token));
+
+            return [
+                'imdb' => $imdb,
+                'operation' => 'undo',
+                'undone_operation' => $state['operation'],
+                'exists' => $exists,
+                'thumbnail_url' => $thumbnailUrl,
+                'undo_token' => null,
+            ];
+        } finally {
+            if ($restorePath !== null && is_file($restorePath)) {
+                @unlink($restorePath);
+            }
+            $this->releaseLock($lock);
+        }
+    }
+
+    public function discardUndo(string $token): void
+    {
+        if (!$this->isValidToken($token)) {
+            return;
+        }
+
+        @unlink($this->metadataPath($token));
+        @unlink($this->backupPath($token));
+    }
+
+    private function ensureDirectories(): void
+    {
+        $this->ensureDirectory($this->thumbnailDirectory, 0775, 'thumbnail');
+        $this->ensureDirectory($this->undoDirectory, 0700, 'thumbnail undo');
+    }
+
+    private function ensureDirectory(string $directory, int $permissions, string $label): void
+    {
+        if (!is_dir($directory)
+            && !mkdir($directory, $permissions, true)
+            && !is_dir($directory)
         ) {
-            throw new ThumbnailUploadException('Could not create the thumbnail directory', 500);
+            throw new ThumbnailUploadException("Could not create the {$label} directory", 500);
         }
-        if (!is_writable($this->thumbnailDirectory)) {
-            throw new ThumbnailUploadException('The thumbnail directory is not writable', 500);
+        if (!is_writable($directory)) {
+            throw new ThumbnailUploadException("The {$label} directory is not writable", 500);
         }
+    }
+
+    private function acquireLock(string $imdb)
+    {
+        $lockPath = $this->undoDirectory . '/.lock-' . hash('sha256', $imdb);
+        $lock = @fopen($lockPath, 'c');
+        if ($lock === false || !flock($lock, LOCK_EX)) {
+            if (is_resource($lock)) {
+                fclose($lock);
+            }
+            throw new ThumbnailUploadException('Could not lock the thumbnail for writing', 500);
+        }
+
+        return $lock;
+    }
+
+    private function releaseLock($lock): void
+    {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
+
+    private function createUndoState(
+        string $imdb,
+        string $operation,
+        string $expectedHash,
+        ?string $previousThumbnailPath
+    ): string {
+        do {
+            $token = bin2hex(random_bytes(32));
+        } while (is_file($this->metadataPath($token)) || is_file($this->backupPath($token)));
+
+        $backupHash = null;
+        $backupPath = $this->backupPath($token);
+        if ($previousThumbnailPath !== null) {
+            $temporaryBackup = tempnam($this->undoDirectory, '.backup-');
+            if ($temporaryBackup === false || !@copy($previousThumbnailPath, $temporaryBackup)) {
+                throw new ThumbnailUploadException('Could not preserve the prior thumbnail', 500);
+            }
+
+            try {
+                if (!@chmod($temporaryBackup, 0600)) {
+                    throw new ThumbnailUploadException('Could not protect the thumbnail backup', 500);
+                }
+                $sourceHash = hash_file('sha256', $previousThumbnailPath);
+                $backupHash = hash_file('sha256', $temporaryBackup);
+                if ($sourceHash === false || $backupHash === false || !hash_equals($sourceHash, $backupHash)) {
+                    throw new ThumbnailUploadException('Could not verify the thumbnail backup', 500);
+                }
+                if (!@rename($temporaryBackup, $backupPath)) {
+                    throw new ThumbnailUploadException('Could not preserve the prior thumbnail', 500);
+                }
+                $temporaryBackup = null;
+            } finally {
+                if ($temporaryBackup !== null && is_file($temporaryBackup)) {
+                    @unlink($temporaryBackup);
+                }
+            }
+        }
+
+        $state = [
+            'imdb' => $imdb,
+            'operation' => $operation,
+            'expected_hash' => $expectedHash,
+            'backup_hash' => $backupHash,
+            'created_at' => gmdate('c'),
+        ];
+        $temporaryMetadata = tempnam($this->undoDirectory, '.undo-');
+
+        try {
+            $encoded = json_encode($state, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            if ($temporaryMetadata === false
+                || file_put_contents($temporaryMetadata, $encoded, LOCK_EX) === false
+                || !@chmod($temporaryMetadata, 0600)
+                || !@rename($temporaryMetadata, $this->metadataPath($token))
+            ) {
+                throw new ThumbnailUploadException('Could not create thumbnail undo state', 500);
+            }
+            $temporaryMetadata = null;
+        } catch (\JsonException $e) {
+            throw new ThumbnailUploadException('Could not create thumbnail undo state', 500);
+        } finally {
+            if ($temporaryMetadata !== null && is_file($temporaryMetadata)) {
+                @unlink($temporaryMetadata);
+            }
+            if (!is_file($this->metadataPath($token))) {
+                @unlink($backupPath);
+            }
+        }
+
+        return $token;
+    }
+
+    private function readUndoState(string $token): array
+    {
+        $contents = @file_get_contents($this->metadataPath($token));
+        if ($contents === false) {
+            throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+        }
+
+        try {
+            $state = json_decode($contents, true, 16, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+        }
+
+        if (!is_array($state)
+            || !ThumbnailService::isValidImdb($state['imdb'] ?? null)
+            || !in_array($state['operation'] ?? null, ['upload', 'replace'], true)
+            || !is_string($state['expected_hash'] ?? null)
+            || preg_match('/^[a-f0-9]{64}$/', $state['expected_hash']) !== 1
+            || ($state['operation'] === 'replace'
+                && (!is_string($state['backup_hash'] ?? null)
+                    || preg_match('/^[a-f0-9]{64}$/', $state['backup_hash']) !== 1))
+        ) {
+            throw new ThumbnailUploadException('Undo state is missing or expired', 404);
+        }
+
+        return $state;
+    }
+
+    private function isValidToken(string $token): bool
+    {
+        return preg_match(self::TOKEN_PATTERN, $token) === 1;
+    }
+
+    private function metadataPath(string $token): string
+    {
+        return $this->undoDirectory . '/' . $token . '.json';
+    }
+
+    private function backupPath(string $token): string
+    {
+        return $this->undoDirectory . '/' . $token . '.jpg';
+    }
+
+    private function thumbnailPath(string $imdb): string
+    {
+        return $this->thumbnailDirectory . '/' . $imdb . '.jpg';
+    }
+
+    private function thumbnailUrl(string $imdb, string $hash): string
+    {
+        return '/thumbs/' . $imdb . '.jpg?v=' . substr($hash, 0, 12);
     }
 
     private function assertOperationAllowed(string $targetPath, string $operation): void

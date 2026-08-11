@@ -23,7 +23,9 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
     loading,
     error,
     success,
+    canUndo,
     uploadThumbnail,
+    undoThumbnail,
   } = useSingleThumbnail(imdb);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInput = useRef(null);
@@ -52,8 +54,15 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
       setSelectedFile(null);
       if (fileInput.current) fileInput.current.value = '';
       if (typeof onThumbnailChange === 'function') {
-        onThumbnailChange(result.thumbnail_url);
+        onThumbnailChange(result.thumbnail_url, result);
       }
+    }
+  };
+
+  const handleUndo = async () => {
+    const result = await undoThumbnail();
+    if (result && typeof onThumbnailChange === 'function') {
+      onThumbnailChange(result.thumbnail_url, result);
     }
   };
 
@@ -67,12 +76,15 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
       <div className="accordion-item">
         <h2 className="accordion-header">
           <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-            <span className="fw-bold">Thumbnail Controls</span>
+            <span className="fw-bold">Live Thumbnail Editor</span>
           </button>
         </h2>
         <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
           <div className="accordion-body">
             <div className="mb-4 p-3 border rounded bg-light">
+              <div className="alert alert-info py-2 small" role="note">
+                Thumbnail changes take effect immediately.
+              </div>
               {showPreview && (
                 <div className="text-center mt-2">
                   <img
@@ -116,6 +128,16 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
                 >
                   {loading ? 'Working...' : exists ? 'Replace Thumbnail' : 'Upload JPG'}
                 </button>
+                {canUndo && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={handleUndo}
+                    disabled={loading}
+                  >
+                    Undo
+                  </button>
+                )}
                 {!isValidImdb && (
                   <span className="small text-secondary">Enter a valid IMDb ID to enable thumbnail upload.</span>
                 )}
