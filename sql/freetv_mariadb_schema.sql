@@ -67,7 +67,6 @@ CREATE TABLE IF NOT EXISTS playlist_shows (
   end_year VARCHAR(20) NULL,
   imdb VARCHAR(50) NULL,
   sort_order INT NOT NULL DEFAULT 0,
-  thumbnail_path VARCHAR(500) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -78,24 +77,6 @@ CREATE TABLE IF NOT EXISTS playlist_shows (
   CONSTRAINT fk_playlist_shows_playlist
     FOREIGN KEY (playlist_id)
     REFERENCES playlists (id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS thumbnail_files (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  playlist_show_id INT UNSIGNED NOT NULL,
-  filename VARCHAR(255) NOT NULL,
-  relative_path VARCHAR(500) NOT NULL,
-  mime_type VARCHAR(100) NULL,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_thumbnail_files_show_filename (playlist_show_id, filename),
-  KEY idx_thumbnail_files_filename (filename),
-  CONSTRAINT fk_thumbnail_files_show
-    FOREIGN KEY (playlist_show_id)
-    REFERENCES playlist_shows (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

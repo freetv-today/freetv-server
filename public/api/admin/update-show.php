@@ -178,7 +178,6 @@ try {
             Database::table('playlist_shows')->insert(array_merge($showValues, [
                 'playlist_id' => $playlistRow->id,
                 'sort_order' => $sortOrder,
-                'thumbnail_path' => null,
             ]));
 
             Database::table('playlists')

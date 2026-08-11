@@ -1,60 +1,41 @@
 <?php
 
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . '/Authorization.php';
 \FreeTV\Admin\requireRole('editor');
-header('Content-Type: application/json');
-$thumbs_dir = __DIR__ . '/../../thumbs/'; // located in /public/thumbs/
-$playlist_data = null;
-$shows = [];
-$with_thumbnails = [];
-$missing_thumbnails = [];
 
-// Get showData from localStorage via POST (since PHP can't access browser localStorage)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = file_get_contents('php://input');
-    $json = json_decode($input, true);
-    if (isset($json['shows']) && is_array($json['shows'])) {
-        $shows = $json['shows'];
-    }
+function respond(int $status, array $payload): void
+{
+    http_response_code($status);
+    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
-$files = [];
-if (is_dir($thumbs_dir)) {
-    foreach (scandir($thumbs_dir) as $file) {
-        if (preg_match('/^tt\d+\.jpg$/', $file)) {
-            $files[] = $file;
-        }
-    }
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+    header('Allow: GET');
+    respond(405, ['success' => false, 'message' => 'Method not allowed']);
 }
 
-// Build sets for comparison
-$file_imdbs = array_map(function ($f) {
-    return preg_replace('/\.jpg$/', '', $f);
-}, $files);
-$file_imdb_set = array_flip($file_imdbs);
-
-// Deduplicate IMDB IDs in $shows
-$unique_imdbs = [];
-foreach ($shows as $show) {
-    if (!isset($show['imdb'])) {
-        continue;
-    }
-    $imdb = $show['imdb'];
-    if (!isset($unique_imdbs[$imdb])) {
-        $unique_imdbs[$imdb] = true;
-    }
+$playlist = $_GET['playlist'] ?? null;
+if (!is_string($playlist) || trim($playlist) === '') {
+    respond(400, ['success' => false, 'message' => 'Missing or invalid playlist filename']);
 }
 
-foreach (array_keys($unique_imdbs) as $imdb) {
-    if (isset($file_imdb_set[$imdb])) {
-        $with_thumbnails[] = $imdb;
-    } else {
-        $missing_thumbnails[] = $imdb;
-    }
-}
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/ThumbnailService.php';
 
-echo json_encode([
-    'thumbnails' => $files,
-    'with_thumbnails' => $with_thumbnails,
-    'missing_thumbnails' => $missing_thumbnails
-]);
+use FreeTV\Admin\ThumbnailService;
+
+try {
+    $overview = (new ThumbnailService())->getPlaylistOverview(trim($playlist));
+    if ($overview === null) {
+        respond(404, ['success' => false, 'message' => 'Playlist not found']);
+    }
+
+    respond(200, array_merge(['success' => true], $overview));
+} catch (\Throwable $e) {
+    error_log('List Thumbnails API Error: ' . $e->getMessage());
+    respond(500, ['success' => false, 'message' => 'Database error']);
+}
