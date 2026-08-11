@@ -12,7 +12,6 @@ export function useDataValidation() {
     issues: [],
     canProceed: false,
     details: {
-      hasConfig: false,
       hasPlaylistData: false,
       hasThumbnails: false
     }
@@ -26,28 +25,7 @@ export function useDataValidation() {
     setDataState(prev => ({ ...prev, loading: true }));
     const issues = [];
     let hasPlaylistData = false;
-    let hasConfig = false;
     let hasThumbnails = false;
-
-    try {
-      // Check for config.json
-      const configRes = await fetch('/config.json');
-      if (configRes.ok) {
-        hasConfig = true;
-      } else {
-        issues.push({
-          type: 'config',
-          message: 'config.json not found',
-          severity: 'critical'
-        });
-      }
-    } catch {
-      issues.push({
-        type: 'config',
-        message: 'Failed to load config.json',
-        severity: 'critical'
-      });
-    }
 
     try {
       // Check for playlist index
@@ -111,8 +89,8 @@ export function useDataValidation() {
       });
     }
 
-    const hasData = hasConfig && hasPlaylistData;
-    const canProceed = hasData; // Can proceed if we have config and playlist data
+    const hasData = hasPlaylistData;
+    const canProceed = hasData;
 
     setDataState({
       loading: false,
@@ -120,7 +98,6 @@ export function useDataValidation() {
       issues,
       canProceed,
       details: {
-        hasConfig,
         hasPlaylistData,
         hasThumbnails
       }
