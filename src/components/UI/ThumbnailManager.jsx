@@ -96,7 +96,7 @@ export function ThumbnailManager() {
         style={{ cursor: 'pointer' }}
         onClick={() => handleListModeChange('shared')}
       >
-        Shared thumbnails: {sharedThumbnails}
+        Shared thumbnails: {shared.length} ({formatCount(sharedThumbnails, 'reused show')})
       </li>
     </ul>;
   }
