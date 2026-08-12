@@ -21,7 +21,7 @@ export function Dashboard() {
     const dataValidation = useDataValidation();
 
     useEffect(() => {
-        document.title = "Admin Dashboard";
+        document.title = 'Admin Dashboard';
         log('Rendered Dashboard page (pages/dashboard.jsx)');
     }, []);
 
@@ -183,7 +183,8 @@ export function Dashboard() {
             author: currentPlaylistData.author ?? '',
             email: currentPlaylistData.email ?? '',
             link: currentPlaylistData.link ?? '',
-            lastupdated: currentPlaylistData.lastupdated ?? ''
+            lastupdated: currentPlaylistData.lastupdated ?? '',
+            is_default: currentPlaylistData.is_default === true
         };
     }, [currentPlaylistData]);
 

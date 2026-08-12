@@ -101,6 +101,7 @@ export async function switchPlaylist(filename, minTime = 1200) {
       || nullableMetadataFields.some(field => (
         playlistData[field] !== null && typeof playlistData[field] !== 'string'
       ))
+      || typeof playlistData.is_default !== 'boolean'
       || !Array.isArray(playlistData.shows)
     ) {
       throw new Error('Invalid playlist data');

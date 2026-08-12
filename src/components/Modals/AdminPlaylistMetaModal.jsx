@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from 'preact/hooks';
-import { useDebugLog } from '@/hooks/useDebugLog';
+import { useState, useEffect } from 'preact/hooks';
 
 /**
  * AdminPlaylistMetaModal - Modal for editing playlist meta data
@@ -9,18 +8,18 @@ import { useDebugLog } from '@/hooks/useDebugLog';
  * @param {boolean} props.saving - Whether the save is in progress
  * @param {string|null} props.error - Error message, if any
  * @param {function(Object):void} props.onSave - Called with updated meta on save
- * @param {Object} props.meta - The meta data object for the current playlist (dbtitle, dbversion, author, email, link, lastupdated)
+ * @param {Object} props.meta - The current playlist metadata, including is_default
  */
 
 export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, meta }) {
-  const log = useDebugLog();
   const [form, setForm] = useState({
     lastupdated: meta?.lastupdated || '',
     dbtitle: meta?.dbtitle || '',
     dbversion: meta?.dbversion || '',
     author: meta?.author || '',
     email: meta?.email || '',
-    link: meta?.link || ''
+    link: meta?.link || '',
+    is_default: meta?.is_default === true
   });
   const [touched, setTouched] = useState(false);
 
@@ -32,7 +31,8 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
       dbversion: meta?.dbversion || '',
       author: meta?.author || '',
       email: meta?.email || '',
-      link: meta?.link || ''
+      link: meta?.link || '',
+      is_default: meta?.is_default === true
     });
     setTouched(false);
   }, [meta, show]);
@@ -43,15 +43,25 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
     setTouched(true);
   }
 
+  function handleDefaultChange(e) {
+    if (meta?.is_default === true || e.currentTarget.checked !== true) return;
+    setForm(current => ({ ...current, is_default: true }));
+    setTouched(true);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    await onSave({
+    const updatedMeta = {
       dbtitle: form.dbtitle,
       dbversion: form.dbversion,
       author: form.author,
       email: form.email,
       link: form.link
-    });
+    };
+    if (meta?.is_default !== true && form.is_default === true) {
+      updatedMeta.is_default = true;
+    }
+    await onSave(updatedMeta);
   }
 
   if (!show) return null;
@@ -89,6 +99,19 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
               <div className="mb-3">
                 <label className="form-label">Link</label>
                 <input type="text" className="form-control form-control-sm" name="link" value={form.link} onInput={handleChange} />
+              </div>
+              <div className="form-check mb-3">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="playlist-default"
+                  checked={form.is_default}
+                  onChange={handleDefaultChange}
+                  disabled={saving || form.is_default}
+                />
+                <label className="form-check-label" htmlFor="playlist-default">
+                  Default Playlist
+                </label>
               </div>
               {error && <div className="alert alert-danger">{error}</div>}
             </div>

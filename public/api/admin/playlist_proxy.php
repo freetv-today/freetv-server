@@ -72,7 +72,17 @@ try {
 
     $playlist = Database::table('playlists')
         ->where('filename', $filename)
-        ->first(['id', 'filename', 'dbtitle', 'dbversion', 'author', 'email', 'link', 'lastupdated']);
+        ->first([
+            'id',
+            'filename',
+            'dbtitle',
+            'dbversion',
+            'author',
+            'email',
+            'link',
+            'lastupdated',
+            'is_default',
+        ]);
 
     if (!$playlist) {
         http_response_code(404);
@@ -126,6 +136,7 @@ try {
         'email' => $playlist->email,
         'link' => $playlist->link,
         'lastupdated' => $playlist->lastupdated,
+        'is_default' => (bool) $playlist->is_default,
         'shows' => $shows,
     ]);
 } catch (Throwable $e) {
