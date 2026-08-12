@@ -107,7 +107,7 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
 
               <div className="mt-3">
                 <label className="form-label small fw-bold" htmlFor="thumbnailImage">
-                  {exists ? 'Replacement JPEG' : 'Thumbnail JPEG'}
+                  {exists ? 'Replace Current Thumbnail Image:' : 'Add Thumbnail Image:'}
                 </label>
                 <input
                   ref={fileInput}
