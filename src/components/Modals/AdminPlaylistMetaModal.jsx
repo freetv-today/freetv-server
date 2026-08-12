@@ -22,6 +22,9 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
     is_default: meta?.is_default === true
   });
   const [touched, setTouched] = useState(false);
+  const defaultPlaylistTitle = form.is_default
+    ? 'This is the current default playlist. Choose another playlist to change the default.'
+    : 'Check this box and save to make this the default playlist.';
 
   // Reset form when meta or show changes
   useEffect(() => {
@@ -108,8 +111,13 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
                   checked={form.is_default}
                   onChange={handleDefaultChange}
                   disabled={saving || form.is_default}
+                  title={defaultPlaylistTitle}
                 />
-                <label className="form-check-label" htmlFor="playlist-default">
+                <label
+                  className="form-check-label"
+                  htmlFor="playlist-default"
+                  title={defaultPlaylistTitle}
+                >
                   Default Playlist
                 </label>
               </div>
