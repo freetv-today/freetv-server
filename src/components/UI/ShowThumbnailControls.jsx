@@ -76,14 +76,16 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
       <div className="accordion-item">
         <h2 className="accordion-header">
           <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            <img src="/assets/edit.svg" className="me-3" height="30" />
             <span className="fw-bold">Live Thumbnail Editor</span>
           </button>
         </h2>
         <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
           <div className="accordion-body">
             <div className="mb-4 p-3 border rounded bg-light">
-              <div className="alert alert-info py-2 small" role="note">
-                Thumbnail changes take effect immediately.
+              <div className="alert alert-warning alert-dismissible fade show small" role="note">
+                Image changes take effect immediately and aren't related to editing show data.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {showPreview && (
                 <div className="text-center mt-2">
