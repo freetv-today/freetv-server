@@ -1,0 +1,226 @@
+<?php
+
+namespace FreeTV\Admin\Publication;
+
+require_once __DIR__ . '/PublicationException.php';
+require_once __DIR__ . '/PublicationTimestamp.php';
+require_once __DIR__ . '/PlaylistPublicationSerializer.php';
+require_once __DIR__ . '/PlaylistIndexSerializer.php';
+
+use DateTimeImmutable;
+use DateTimeZone;
+use FreeTV\Admin\Database;
+use JsonException;
+use Throwable;
+
+class PlaylistPublicationService
+{
+    private string $publicationRoot;
+    private $playlistLoader;
+    private $showLoader;
+    private $timestampUpdater;
+    private $clock;
+
+    public function __construct(
+        ?string $publicationRoot = null,
+        ?callable $playlistLoader = null,
+        ?callable $showLoader = null,
+        ?callable $timestampUpdater = null,
+        ?callable $clock = null
+    ) {
+        $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
+        $this->playlistLoader = $playlistLoader ?? static fn() => Database::table('playlists')
+            ->select([
+                'id',
+                'filename',
+                'dbtitle',
+                'dbversion',
+                'author',
+                'email',
+                'link',
+                'lastupdated',
+                'is_default',
+                'sort_order',
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+        $this->showLoader = $showLoader ?? static fn(int $playlistId) => Database::table('playlist_shows')
+            ->where('playlist_id', $playlistId)
+            ->select([
+                'id',
+                'sort_order',
+                'category',
+                'status',
+                'identifier',
+                'title',
+                'description',
+                'start_year',
+                'end_year',
+                'imdb',
+                'group_name',
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+        $this->timestampUpdater = $timestampUpdater ?? static function (
+            int $playlistId,
+            string $databaseTimestamp
+        ): void {
+            $updatedRows = Database::table('playlists')
+                ->where('id', $playlistId)
+                ->update(['lastupdated' => $databaseTimestamp]);
+
+            if ($updatedRows === 0 && Database::table('playlists')->where('id', $playlistId)->exists()) {
+                return;
+            }
+            if ($updatedRows !== 1) {
+                throw new PublicationException(
+                    'Playlist was published, but its publication timestamp could not be saved'
+                );
+            }
+        };
+        $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    }
+
+    public function publish(string $filename): array
+    {
+        self::validateFilename($filename);
+
+        $playlists = [];
+        foreach (($this->playlistLoader)() as $playlist) {
+            $playlists[] = $playlist;
+        }
+
+        $selectedPlaylist = null;
+        foreach ($playlists as $playlist) {
+            if (self::value($playlist, 'filename') === $filename) {
+                $selectedPlaylist = $playlist;
+                break;
+            }
+        }
+
+        if ($selectedPlaylist === null) {
+            throw new PublicationException('Playlist not found', 404);
+        }
+
+        PlaylistIndexSerializer::validateDefault($playlists);
+        $publicationTimestamp = PublicationTimestamp::forOperation(($this->clock)());
+        $playlistArtifact = PlaylistPublicationSerializer::serialize(
+            $selectedPlaylist,
+            ($this->showLoader)((int) self::value($selectedPlaylist, 'id')),
+            $publicationTimestamp
+        );
+        $indexArtifact = PlaylistIndexSerializer::serialize(
+            $playlists,
+            $filename,
+            $publicationTimestamp
+        );
+
+        $playlistJson = $this->encodeArtifact($playlistArtifact, 'playlist');
+        $indexJson = $this->encodeArtifact($indexArtifact, 'playlist index');
+        $playlistDirectory = $this->ensurePlaylistDirectory();
+
+        $this->safeWrite($playlistDirectory . DIRECTORY_SEPARATOR . $filename, $playlistJson);
+        try {
+            $this->safeWrite($playlistDirectory . DIRECTORY_SEPARATOR . 'index.json', $indexJson);
+        } catch (Throwable $exception) {
+            throw new PublicationException(
+                'Playlist artifact was written, but playlist index publication failed: '
+                . $exception->getMessage(),
+                500
+            );
+        }
+
+        try {
+            ($this->timestampUpdater)(
+                (int) self::value($selectedPlaylist, 'id'),
+                PublicationTimestamp::toDatabase($publicationTimestamp)
+            );
+        } catch (PublicationException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            error_log('Playlist Publication Timestamp Update Error: ' . $exception->getMessage());
+            throw new PublicationException(
+                'Playlist artifacts were written, but the publication timestamp could not be saved'
+            );
+        }
+
+        return [
+            'filename' => $filename,
+            'lastupdated' => $publicationTimestamp,
+        ];
+    }
+
+    public static function validateFilename(string $filename): void
+    {
+        if (
+            basename($filename) !== $filename
+            || preg_match('/^[a-zA-Z0-9_-]+\.json$/', $filename) !== 1
+            || strcasecmp($filename, 'index.json') === 0
+        ) {
+            throw new PublicationException('Invalid playlist filename', 400);
+        }
+    }
+
+    private function encodeArtifact(array $artifact, string $artifactName): string
+    {
+        try {
+            return json_encode(
+                $artifact,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+            ) . "\n";
+        } catch (JsonException $exception) {
+            throw new PublicationException(
+                "Could not encode {$artifactName} artifact: " . $exception->getMessage(),
+                500
+            );
+        }
+    }
+
+    private function ensurePlaylistDirectory(): string
+    {
+        $playlistDirectory = $this->publicationRoot . DIRECTORY_SEPARATOR . 'playlists';
+        if (is_dir($playlistDirectory)) {
+            return $playlistDirectory;
+        }
+        if (file_exists($playlistDirectory)) {
+            throw new PublicationException('Playlist publication path is not a directory');
+        }
+        if (!mkdir($playlistDirectory, 0775, true) && !is_dir($playlistDirectory)) {
+            throw new PublicationException('Could not create playlist publication directory');
+        }
+
+        return $playlistDirectory;
+    }
+
+    private function safeWrite(string $destination, string $contents): void
+    {
+        $temporaryPath = tempnam(dirname($destination), '.publish-');
+        if ($temporaryPath === false) {
+            throw new PublicationException('Could not create temporary publication file');
+        }
+
+        try {
+            $bytesWritten = file_put_contents($temporaryPath, $contents, LOCK_EX);
+            if ($bytesWritten !== strlen($contents)) {
+                throw new PublicationException('Could not write complete publication artifact');
+            }
+            if (!chmod($temporaryPath, 0644)) {
+                throw new PublicationException('Could not set publication artifact permissions');
+            }
+            if (!rename($temporaryPath, $destination)) {
+                throw new PublicationException('Could not replace publication artifact');
+            }
+        } finally {
+            if (is_file($temporaryPath)) {
+                unlink($temporaryPath);
+            }
+        }
+    }
+
+    private static function value(array|object $row, string $field): mixed
+    {
+        return is_array($row) ? ($row[$field] ?? null) : ($row->{$field} ?? null);
+    }
+}

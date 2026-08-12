@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../public/api/admin/publication/PlaylistPublicationSerializer.php';
+require_once __DIR__ . '/../public/api/admin/publication/PublicationTimestamp.php';
 
 use FreeTV\Admin\Publication\PlaylistPublicationSerializer;
 

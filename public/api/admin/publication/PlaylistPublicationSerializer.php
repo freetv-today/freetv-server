@@ -2,11 +2,10 @@
 
 namespace FreeTV\Admin\Publication;
 
-use DateTimeImmutable;
+require_once __DIR__ . '/PublicationTimestamp.php';
+
 use DateTimeInterface;
-use DateTimeZone;
 use FreeTV\Admin\Database;
-use InvalidArgumentException;
 use RuntimeException;
 
 class PlaylistPublicationSerializer
@@ -103,7 +102,7 @@ class PlaylistPublicationSerializer
         }
 
         return [
-            'lastupdated' => self::formatPublicationTimestamp($publicationTimestamp),
+            'lastupdated' => PublicationTimestamp::format($publicationTimestamp),
             'dbtitle' => self::value($playlist, 'dbtitle'),
             'filename' => self::value($playlist, 'filename'),
             'dbversion' => self::value($playlist, 'dbversion'),
@@ -112,22 +111,6 @@ class PlaylistPublicationSerializer
             'link' => self::value($playlist, 'link'),
             'shows' => $serializedShows,
         ];
-    }
-
-    private static function formatPublicationTimestamp(
-        DateTimeInterface|string $publicationTimestamp
-    ): string {
-        try {
-            $timestamp = is_string($publicationTimestamp)
-                ? new DateTimeImmutable($publicationTimestamp)
-                : DateTimeImmutable::createFromInterface($publicationTimestamp);
-        } catch (\Exception $exception) {
-            throw new InvalidArgumentException('Invalid publication timestamp', 0, $exception);
-        }
-
-        return $timestamp
-            ->setTimezone(new DateTimeZone('UTC'))
-            ->format('Y-m-d\TH:i:s.v\Z');
     }
 
     private static function value(array|object $row, string $field): mixed
