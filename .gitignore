@@ -31,15 +31,8 @@ dist-ssr
 
 vendor/
 public/temp
-public/thumbs
-public/thumbs/index.html
+public/tests
+public/tools
+public/thumbs/
 public/playlists/
-/temp/thumbnail-undo/
-
-# Files and notes which should't be checked into Github
-deleted_show_table-(future work).md
-json-export-mini-spec.md
-bugs.md
-first-run-mini-spec.md
-FreeTV-Settings-Architecture.md
-/public/playlists
+temp/thumbnail-undo/
