@@ -35,4 +35,5 @@ public/tools
 public/thumbs/
 public/playlists/
 temp/thumbnail-undo/
+temp/publication-undo/
 public/config.json

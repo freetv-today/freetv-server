@@ -6,6 +6,7 @@ require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/PlaylistPublicationSerializer.php';
 require_once __DIR__ . '/PlaylistIndexSerializer.php';
+require_once __DIR__ . '/PublicationUndoService.php';
 
 use DateTimeImmutable;
 use DateTimeZone;
@@ -20,13 +21,15 @@ class PlaylistPublicationService
     private $showLoader;
     private $timestampUpdater;
     private $clock;
+    private PublicationUndoService $undoService;
 
     public function __construct(
         ?string $publicationRoot = null,
         ?callable $playlistLoader = null,
         ?callable $showLoader = null,
         ?callable $timestampUpdater = null,
-        ?callable $clock = null
+        ?callable $clock = null,
+        ?PublicationUndoService $undoService = null
     ) {
         $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
         $this->playlistLoader = $playlistLoader ?? static fn() => Database::table('playlists')
@@ -80,9 +83,15 @@ class PlaylistPublicationService
             }
         };
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $this->undoService = $undoService ?? new PublicationUndoService($this->publicationRoot);
     }
 
     public function publish(string $filename): array
+    {
+        return $this->undoService->withLock(fn() => $this->publishLocked($filename));
+    }
+
+    private function publishLocked(string $filename): array
     {
         self::validateFilename($filename);
 
@@ -121,30 +130,39 @@ class PlaylistPublicationService
         $playlistJson = $this->encodeArtifact($playlistArtifact, 'playlist');
         $indexJson = $this->encodeArtifact($indexArtifact, 'playlist index');
         $playlistDirectory = $this->ensurePlaylistDirectory();
-
-        $this->safeWrite($playlistDirectory . DIRECTORY_SEPARATOR . $filename, $playlistJson);
+        $preparedUndo = $this->undoService->prepare(
+            'playlist',
+            $filename,
+            ['playlists/' . $filename, 'playlists/index.json']
+        );
+        $databaseTimestampUpdated = false;
         try {
+            $this->safeWrite($playlistDirectory . DIRECTORY_SEPARATOR . $filename, $playlistJson);
             $this->safeWrite($playlistDirectory . DIRECTORY_SEPARATOR . 'index.json', $indexJson);
-        } catch (Throwable $exception) {
-            throw new PublicationException(
-                'Playlist artifact was written, but playlist index publication failed: '
-                . $exception->getMessage(),
-                500
-            );
-        }
-
-        try {
             ($this->timestampUpdater)(
                 (int) self::value($selectedPlaylist, 'id'),
                 PublicationTimestamp::toDatabase($publicationTimestamp)
             );
-        } catch (PublicationException $exception) {
-            throw $exception;
+            $databaseTimestampUpdated = true;
+            $this->undoService->promote($preparedUndo);
         } catch (Throwable $exception) {
-            error_log('Playlist Publication Timestamp Update Error: ' . $exception->getMessage());
-            throw new PublicationException(
-                'Playlist artifacts were written, but the publication timestamp could not be saved'
-            );
+            try {
+                $previousTimestamp = $this->undoService->preparedPlaylistTimestamp($preparedUndo);
+                $this->undoService->rollbackPrepared($preparedUndo);
+                if ($databaseTimestampUpdated) {
+                    ($this->timestampUpdater)(
+                        (int) self::value($selectedPlaylist, 'id'),
+                        PublicationTimestamp::toDatabase($previousTimestamp)
+                    );
+                }
+            } catch (Throwable $rollbackException) {
+                throw new PublicationException(
+                    'Playlist publication failed and the previous live artifacts could not be restored'
+                );
+            }
+            throw $exception instanceof PublicationException
+                ? $exception
+                : new PublicationException('Playlist publication failed: ' . $exception->getMessage());
         }
 
         return [

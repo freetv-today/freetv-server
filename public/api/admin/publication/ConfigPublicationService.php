@@ -6,29 +6,39 @@ require_once __DIR__ . '/../Settings.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/ConfigPublicationSerializer.php';
+require_once __DIR__ . '/PublicationUndoService.php';
 
 use DateTimeImmutable;
 use DateTimeZone;
 use FreeTV\Admin\Settings;
 use JsonException;
+use Throwable;
 
 class ConfigPublicationService
 {
     private string $publicationRoot;
     private $settingsLoader;
     private $clock;
+    private PublicationUndoService $undoService;
 
     public function __construct(
         ?string $publicationRoot = null,
         ?callable $settingsLoader = null,
-        ?callable $clock = null
+        ?callable $clock = null,
+        ?PublicationUndoService $undoService = null
     ) {
         $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
         $this->settingsLoader = $settingsLoader ?? static fn() => Settings::readPublishable();
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $this->undoService = $undoService ?? new PublicationUndoService($this->publicationRoot);
     }
 
     public function publish(): array
+    {
+        return $this->undoService->withLock(fn() => $this->publishLocked());
+    }
+
+    private function publishLocked(): array
     {
         $publicationTimestamp = PublicationTimestamp::forOperation(($this->clock)());
         $artifact = ConfigPublicationSerializer::serialize(
@@ -37,7 +47,22 @@ class ConfigPublicationService
         );
         $json = $this->encodeArtifact($artifact);
 
-        $this->safeWrite($this->publicationRoot . DIRECTORY_SEPARATOR . 'config.json', $json);
+        $preparedUndo = $this->undoService->prepare('config', 'config.json', ['config.json']);
+        try {
+            $this->safeWrite($this->publicationRoot . DIRECTORY_SEPARATOR . 'config.json', $json);
+            $this->undoService->promote($preparedUndo);
+        } catch (Throwable $exception) {
+            try {
+                $this->undoService->rollbackPrepared($preparedUndo);
+            } catch (Throwable $rollbackException) {
+                throw new PublicationException(
+                    'Config publication failed and the previous live artifact could not be restored'
+                );
+            }
+            throw $exception instanceof PublicationException
+                ? $exception
+                : new PublicationException('Config publication failed: ' . $exception->getMessage());
+        }
 
         return ['lastupdated' => $publicationTimestamp];
     }

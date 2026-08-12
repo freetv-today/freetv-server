@@ -5,9 +5,11 @@ require_once __DIR__ . '/../public/api/admin/publication/PublicationException.ph
 require_once __DIR__ . '/../public/api/admin/publication/PublicationTimestamp.php';
 require_once __DIR__ . '/../public/api/admin/publication/ConfigPublicationSerializer.php';
 require_once __DIR__ . '/../public/api/admin/publication/ConfigPublicationService.php';
+require_once __DIR__ . '/../public/api/admin/publication/PublicationUndoService.php';
 
 use FreeTV\Admin\Publication\ConfigPublicationService;
 use FreeTV\Admin\Publication\PublicationException;
+use FreeTV\Admin\Publication\PublicationUndoService;
 
 function assertConfigServiceSame($expected, $actual, string $message): void
 {
@@ -25,10 +27,13 @@ if (!mkdir($testRoot, 0700, true)) {
 }
 
 try {
+    file_put_contents($testRoot . '/config.json', '{"lastupdated":"2026-08-12T18:00:00.000Z","show_ads":false}');
+    $undoService = new PublicationUndoService($testRoot, $testRoot . '/undo');
     $service = new ConfigPublicationService(
         $testRoot,
         static fn() => ['show_ads' => true, 'showads' => false],
-        static fn() => new DateTimeImmutable('2026-08-12T19:30:00.876Z')
+        static fn() => new DateTimeImmutable('2026-08-12T19:30:00.876Z'),
+        $undoService
     );
     $result = $service->publish();
     $configPath = $testRoot . '/config.json';
@@ -57,19 +62,24 @@ try {
         (new ConfigPublicationService(
             $invalidRoot,
             static fn() => ['show_ads' => false],
-            static fn() => new DateTimeImmutable('2026-08-12T20:00:00Z')
+            static fn() => new DateTimeImmutable('2026-08-12T20:00:00Z'),
+            new PublicationUndoService($invalidRoot, $testRoot . '/invalid-undo')
         ))->publish();
         throw new RuntimeException('Invalid publication root did not fail');
     } catch (PublicationException $exception) {
         assertConfigServiceSame(
-            'Config publication root does not exist',
+            'Cannot publish without live artifact config.json',
             $exception->getMessage(),
             'Config write failure was not clear'
         );
     }
 } finally {
-    foreach (glob($testRoot . '/*') ?: [] as $path) {
-        unlink($path);
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($testRoot, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($iterator as $item) {
+        $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
     }
     rmdir($testRoot);
 }

@@ -5,9 +5,11 @@ require_once __DIR__ . '/../public/api/admin/publication/PublicationTimestamp.ph
 require_once __DIR__ . '/../public/api/admin/publication/PlaylistPublicationSerializer.php';
 require_once __DIR__ . '/../public/api/admin/publication/PlaylistIndexSerializer.php';
 require_once __DIR__ . '/../public/api/admin/publication/PlaylistPublicationService.php';
+require_once __DIR__ . '/../public/api/admin/publication/PublicationUndoService.php';
 
 use FreeTV\Admin\Publication\PlaylistPublicationService;
 use FreeTV\Admin\Publication\PublicationException;
+use FreeTV\Admin\Publication\PublicationUndoService;
 
 function assertPublicationServiceSame($expected, $actual, string $message): void
 {
@@ -106,6 +108,24 @@ $update = null;
 
 try {
     writePublishedIndex($indexPath, $publishedIndex);
+    file_put_contents(
+        $playlistDirectory . '/freetv.json',
+        json_encode([
+            'lastupdated' => '2026-08-12T08:00:00.000Z',
+            'dbtitle' => 'FreeTV',
+            'filename' => 'freetv.json',
+            'dbversion' => '1.0',
+            'author' => 'Free TV',
+            'email' => 'support@example.test',
+            'link' => 'https://example.test',
+            'shows' => [],
+        ], JSON_THROW_ON_ERROR)
+    );
+    $undoService = new PublicationUndoService(
+        $testRoot,
+        $testRoot . '/undo',
+        static function (): void {}
+    );
     $service = new PlaylistPublicationService(
         $testRoot,
         static fn() => $playlists,
@@ -117,7 +137,8 @@ try {
             }
             $update = [$playlistId, $timestamp];
         },
-        static fn() => new DateTimeImmutable('2026-08-12T16:30:00.987Z')
+        static fn() => new DateTimeImmutable('2026-08-12T16:30:00.987Z'),
+        $undoService
     );
 
     $result = $service->publish('freetv.json');
@@ -159,6 +180,40 @@ try {
         'Selected playlist database timestamp was not updated after publication'
     );
     $update = null;
+
+    $publishedPlaylistBeforeFailure = file_get_contents($playlistPath);
+    $publishedIndexBeforeFailure = file_get_contents($indexPath);
+    $undoStatusBeforeFailure = $undoService->status();
+    $failingService = new PlaylistPublicationService(
+        $testRoot,
+        static fn() => $playlists,
+        static fn(int $playlistId) => $playlistId === 2 ? $shows : [],
+        static function (): void {
+            throw new RuntimeException('Simulated timestamp update failure');
+        },
+        static fn() => new DateTimeImmutable('2026-08-12T17:00:00Z'),
+        $undoService
+    );
+    expectPublicationFailure(
+        fn() => $failingService->publish('freetv.json'),
+        500,
+        'Failed playlist publication did not report failure'
+    );
+    assertPublicationServiceSame(
+        $publishedPlaylistBeforeFailure,
+        file_get_contents($playlistPath),
+        'Failed playlist publication did not restore the prior playlist'
+    );
+    assertPublicationServiceSame(
+        $publishedIndexBeforeFailure,
+        file_get_contents($indexPath),
+        'Failed playlist publication did not restore the prior index'
+    );
+    assertPublicationServiceSame(
+        $undoStatusBeforeFailure,
+        $undoService->status(),
+        'Failed playlist publication replaced the previous Undo slot'
+    );
 
     expectPublicationFailure(
         fn() => $service->publish('../freetv.json'),
@@ -217,10 +272,13 @@ try {
         'A failed publication updated the MariaDB publication timestamp'
     );
 } finally {
-    foreach (glob($playlistDirectory . '/*') ?: [] as $path) {
-        unlink($path);
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($testRoot, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($iterator as $item) {
+        $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
     }
-    rmdir($playlistDirectory);
     rmdir($testRoot);
 }
 
