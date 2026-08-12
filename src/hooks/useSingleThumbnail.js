@@ -168,7 +168,7 @@ export function useSingleThumbnail(imdb) {
       setGlobalUsage(data.global_usage || { show_count: 0, playlist_count: 0 });
       setStatusLoaded(true);
       setUndoToken(null);
-      setSuccess(data.exists ? 'Thumbnail restored.' : 'Thumbnail upload undone.');
+      setSuccess(data.exists ? 'Previous thumbnail restored.' : 'Thumbnail upload undone.');
       setRefreshToken(token => token + 1);
       return data;
     } catch (undoError) {

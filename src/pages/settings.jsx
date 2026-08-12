@@ -118,7 +118,7 @@ export function AdminSettings() {
 
             <AdminMessage />
 
-            <form className="p-3 border border-primary rounded bg-white" onSubmit={handleSave}>
+            <form className="p-3 bg-white" onSubmit={handleSave}>
                 <div className="mb-4 text-center settingsAppWrapper">
                     <h4 className="mb-4">Application Options:</h4>
                     <div className="mx-auto w-100 w-md-auto" style={{ maxWidth: 250 }}>
