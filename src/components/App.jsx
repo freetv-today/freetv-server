@@ -7,6 +7,7 @@ import { AdminSearch } from '@pages/search';
 import { AdminProblems } from '@pages/problems';
 import { AdminSettings } from '@pages/settings';
 import { AdminUsers } from '@pages/users';
+import { AdminPublish } from '@pages/publish';
 import { AdminThumbnails } from '@/pages/thumbnails';
 import { EditShow } from '@pages/EditShow';
 import { AddShow } from '@pages/AddShow';
@@ -27,6 +28,7 @@ const AdminSearchRoute = () => <LayoutAdmin minimumRole={'viewer'}><AdminSearch 
 const AdminProblemsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminProblems /></LayoutAdmin>;
 const AdminSettingsRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminSettings /></LayoutAdmin>;
 const AdminUsersRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminUsers /></LayoutAdmin>;
+const AdminPublishRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminPublish /></LayoutAdmin>;
 const AdminThumbsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminThumbnails /></LayoutAdmin>;
 const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBlank>;
 
@@ -44,6 +46,7 @@ export function App() {
         <Route path={createPath("/dashboard/problems")} component={AdminProblemsRoute} />
         <Route path={createPath("/dashboard/settings")} component={AdminSettingsRoute} />
         <Route path={createPath("/dashboard/users")} component={AdminUsersRoute} />
+        <Route path={createPath("/dashboard/publish")} component={AdminPublishRoute} />
         <Route path={createPath("/dashboard/thumbnails")} component={AdminThumbsRoute} />
         <Route default component={NotFoundRoute} />
       </Router>

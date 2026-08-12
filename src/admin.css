@@ -116,6 +116,17 @@
     background-image: url('/assets/users-blue.svg');
 }
 
+/* Admin Dashboard top navbar: Publish */
+.publish-icon {
+    background-image: url('/assets/publish-white.svg');
+}
+.publish-icon:hover, .dropdown-item-custom:hover .publish-icon {
+    background-image: url('/assets/publish-blue.svg');
+}
+.icon-btn.active.publish-icon, .dropdown-item-custom.active .publish-icon {
+    background-image: url('/assets/publish-blue.svg');
+}
+
 /* Admin Dashboard top navbar: Settings */
 .settings-icon {
     background-image: url('/assets/settings-white.svg');

@@ -31,7 +31,6 @@ dist-ssr
 
 vendor/
 public/temp
-public/tests
 public/tools
 public/thumbs/
 public/playlists/
