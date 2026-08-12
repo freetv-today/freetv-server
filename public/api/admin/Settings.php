@@ -35,25 +35,52 @@ class Settings
 
     public static function read(): array
     {
+        $rows = Database::table('app_settings')
+            ->whereIn('setting_key', array_keys(self::DEFINITIONS))
+            ->get(['setting_key', 'setting_value']);
+
+        return self::fromRows($rows);
+    }
+
+    public static function fromRows(iterable $rows): array
+    {
         $settings = [];
         foreach (self::DEFINITIONS as $key => $definition) {
             $settings[$key] = $definition['default'];
         }
 
-        $rows = Database::table('app_settings')
-            ->whereIn('setting_key', array_keys(self::DEFINITIONS))
-            ->get(['setting_key', 'setting_value']);
-
         foreach ($rows as $row) {
-            $key = $row->setting_key;
+            $key = is_array($row) ? ($row['setting_key'] ?? null) : ($row->setting_key ?? null);
             if (!isset(self::DEFINITIONS[$key])) {
                 continue;
             }
 
-            $settings[$key] = self::deserialize($row->setting_value, self::DEFINITIONS[$key]);
+            $value = is_array($row) ? ($row['setting_value'] ?? null) : ($row->setting_value ?? null);
+            $settings[$key] = self::deserialize($value, self::DEFINITIONS[$key]);
         }
 
         return $settings;
+    }
+
+    public static function publishable(array $settings): array
+    {
+        $publishable = [];
+        foreach (self::DEFINITIONS as $key => $definition) {
+            if (($definition['publish'] ?? false) !== true) {
+                continue;
+            }
+
+            $value = array_key_exists($key, $settings) ? $settings[$key] : $definition['default'];
+            self::validate([$key => $value]);
+            $publishable[$key] = $value;
+        }
+
+        return $publishable;
+    }
+
+    public static function readPublishable(): array
+    {
+        return self::publishable(self::read());
     }
 
     public static function write(array $settings): array

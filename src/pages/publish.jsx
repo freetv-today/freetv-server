@@ -8,6 +8,8 @@ export function AdminPublish() {
     const [selectedFilename, setSelectedFilename] = useState(currentPlaylist || '');
     const [publishing, setPublishing] = useState(false);
     const [feedback, setFeedback] = useState(null);
+    const [configPublishing, setConfigPublishing] = useState(false);
+    const [configFeedback, setConfigFeedback] = useState(null);
 
     useEffect(() => {
         document.title = 'Free TV: Admin Dashboard - Publish';
@@ -52,6 +54,34 @@ export function AdminPublish() {
         }
     }
 
+    async function handleConfigPublish() {
+        if (configPublishing) return;
+
+        setConfigPublishing(true);
+        setConfigFeedback(null);
+        try {
+            const response = await fetch('/api/admin/publication/publish-config.php', {
+                method: 'POST',
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Viewer settings publication failed');
+            }
+
+            setConfigFeedback({
+                type: 'success',
+                text: `Viewer settings published successfully at ${result.publication.lastupdated}.`,
+            });
+        } catch (error) {
+            setConfigFeedback({
+                type: 'danger',
+                text: error instanceof Error ? error.message : 'Viewer settings publication failed',
+            });
+        } finally {
+            setConfigPublishing(false);
+        }
+    }
+
     return (
         <div className="container py-4" style={{ maxWidth: 750 }}>
             <h2 className="text-center mb-4">Publish</h2>
@@ -93,6 +123,23 @@ export function AdminPublish() {
                     </button>
                 </div>
             </form>
+
+            {configFeedback && (
+                <div className={`alert alert-${configFeedback.type} mt-4`} role="alert">
+                    {configFeedback.text}
+                </div>
+            )}
+
+            <div className="p-4 bg-white mt-4 text-center">
+                <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleConfigPublish}
+                    disabled={configPublishing}
+                >
+                    {configPublishing ? 'Publishing...' : 'Publish Viewer Settings'}
+                </button>
+            </div>
         </div>
     );
 }
