@@ -103,7 +103,7 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
                 <label className="form-label">Link</label>
                 <input type="text" className="form-control form-control-sm" name="link" value={form.link} onInput={handleChange} />
               </div>
-              <div className="form-check mb-3">
+              <div className="form-check mb-3 mt-4 ms-1" title={defaultPlaylistTitle}>
                 <input
                   type="checkbox"
                   className="form-check-input"
@@ -111,12 +111,10 @@ export function AdminPlaylistMetaModal({ show, onClose, saving, error, onSave, m
                   checked={form.is_default}
                   onChange={handleDefaultChange}
                   disabled={saving || form.is_default}
-                  title={defaultPlaylistTitle}
                 />
                 <label
                   className="form-check-label"
                   htmlFor="playlist-default"
-                  title={defaultPlaylistTitle}
                 >
                   Default Playlist
                 </label>
