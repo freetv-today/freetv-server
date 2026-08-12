@@ -30,7 +30,6 @@ dist-ssr
 .env.*.local
 
 vendor/
-public/temp
 public/tools
 public/thumbs/
 public/playlists/
