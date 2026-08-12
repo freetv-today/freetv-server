@@ -85,7 +85,7 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
             <div className="mb-4 p-3 border rounded bg-light">
               <div className="alert alert-warning alert-dismissible fade show small" role="note">
                 Image changes take effect immediately and aren't related to editing show data.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {showPreview && (
                 <div className="text-center mt-2">
