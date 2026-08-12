@@ -86,15 +86,20 @@ export function AdminPublish() {
         <div className="container py-4" style={{ maxWidth: 750 }}>
             <h2 className="text-center mb-4">Publish</h2>
 
+            <p className="pb-4">Changes that you make in the Admin Dashboard have to be published before the front end client (FreeTV Viewer) will see them. Use the buttons below to publish the changes you've made.</p>
+
+            <hr/>
+
             {feedback && (
-                <div className={`alert alert-${feedback.type}`} role="alert">
+                <div className={`alert alert-${feedback.type} alert-dismissible fade show`} role="alert">
                     {feedback.text}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             )}
 
             <form className="p-4 bg-white" onSubmit={handlePublish}>
                 <label className="form-label fw-bold" htmlFor="publishPlaylist">
-                    Playlist
+                    Publish One Playlist:
                 </label>
                 <select
                     id="publishPlaylist"
@@ -116,30 +121,38 @@ export function AdminPublish() {
                 <div className="text-center">
                     <button
                         type="submit"
-                        className="btn btn-primary"
+                        className="btn btn-outline-primary"
+                        title="If you modified show or playlist data you can publish your changes here"
                         disabled={publishing || selectedFilename === ''}
                     >
-                        {publishing ? 'Publishing...' : 'Publish Selected Playlist'}
+                        {publishing ? 'Publishing Playlist...' : 'Publish The Selected Playlist'}
                     </button>
                 </div>
             </form>
 
+            <hr/>
+
             {configFeedback && (
-                <div className={`alert alert-${configFeedback.type} mt-4`} role="alert">
+                <div className={`alert alert-${configFeedback.type} alert-dismissible fade show mt-4`} role="alert">
                     {configFeedback.text}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             )}
 
             <div className="p-4 bg-white mt-4 text-center">
                 <button
                     type="button"
-                    className="btn btn-primary"
+                    className="btn btn-outline-primary"
                     onClick={handleConfigPublish}
+                    title="If you modified configuration settings you can publish your changes here"
                     disabled={configPublishing}
                 >
-                    {configPublishing ? 'Publishing...' : 'Publish Viewer Settings'}
+                    {configPublishing ? 'Publishing...' : 'Publish Config Settings'}
                 </button>
             </div>
+            
+            <hr/>
+
         </div>
     );
 }
