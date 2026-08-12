@@ -13,7 +13,8 @@ class PlaylistIndexSerializer
     public static function serialize(
         iterable $playlists,
         string $selectedFilename,
-        DateTimeInterface|string $publicationTimestamp
+        DateTimeInterface|string $publicationTimestamp,
+        array $publishedTimestamps
     ): array {
         $orderedPlaylists = [];
         foreach ($playlists as $playlist) {
@@ -40,7 +41,7 @@ class PlaylistIndexSerializer
                 'dbtitle' => self::value($playlist, 'dbtitle'),
                 'lastupdated' => $filename === $selectedFilename
                     ? $canonicalPublicationTimestamp
-                    : self::storedTimestamp($playlist),
+                    : self::publishedTimestamp($filename, $publishedTimestamps),
             ];
 
             $author = self::value($playlist, 'author');
@@ -81,25 +82,34 @@ class PlaylistIndexSerializer
         return is_array($row) ? ($row[$field] ?? null) : ($row->{$field} ?? null);
     }
 
-    private static function storedTimestamp(array|object $playlist): string
+    private static function publishedTimestamp(mixed $filename, array $publishedTimestamps): string
     {
-        $timestamp = self::value($playlist, 'lastupdated');
-        if (!is_string($timestamp) && !$timestamp instanceof DateTimeInterface) {
+        if (!is_string($filename) || !array_key_exists($filename, $publishedTimestamps)) {
             throw new PublicationException(
-                'Playlist ' . self::value($playlist, 'filename')
-                . ' does not have a valid published lastupdated value',
+                'Existing published index is missing playlist ' . (string) $filename,
+                409
+            );
+        }
+
+        $timestamp = $publishedTimestamps[$filename];
+        if (!is_string($timestamp)) {
+            throw new PublicationException(
+                'Existing published index has an invalid lastupdated for playlist ' . $filename,
                 409
             );
         }
 
         try {
-            return PublicationTimestamp::format($timestamp);
+            if (PublicationTimestamp::format($timestamp) !== $timestamp) {
+                throw new InvalidArgumentException('Timestamp is not canonical');
+            }
         } catch (InvalidArgumentException $exception) {
             throw new PublicationException(
-                'Playlist ' . self::value($playlist, 'filename')
-                . ' does not have a valid published lastupdated value',
+                'Existing published index has an invalid lastupdated for playlist ' . $filename,
                 409
             );
         }
+
+        return $timestamp;
     }
 }

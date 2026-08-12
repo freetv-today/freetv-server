@@ -38,7 +38,6 @@ class PlaylistPublicationService
                 'author',
                 'email',
                 'link',
-                'lastupdated',
                 'is_default',
                 'sort_order',
             ])
@@ -105,6 +104,7 @@ class PlaylistPublicationService
         }
 
         PlaylistIndexSerializer::validateDefault($playlists);
+        $publishedTimestamps = $this->loadPublishedTimestamps();
         $publicationTimestamp = PublicationTimestamp::forOperation(($this->clock)());
         $playlistArtifact = PlaylistPublicationSerializer::serialize(
             $selectedPlaylist,
@@ -114,7 +114,8 @@ class PlaylistPublicationService
         $indexArtifact = PlaylistIndexSerializer::serialize(
             $playlists,
             $filename,
-            $publicationTimestamp
+            $publicationTimestamp,
+            $publishedTimestamps
         );
 
         $playlistJson = $this->encodeArtifact($playlistArtifact, 'playlist');
@@ -176,6 +177,54 @@ class PlaylistPublicationService
                 500
             );
         }
+    }
+
+    private function loadPublishedTimestamps(): array
+    {
+        $indexPath = $this->publicationRoot . DIRECTORY_SEPARATOR . 'playlists'
+            . DIRECTORY_SEPARATOR . 'index.json';
+        if (!is_file($indexPath) || !is_readable($indexPath)) {
+            throw new PublicationException('Existing published playlist index is missing', 409);
+        }
+
+        $contents = file_get_contents($indexPath);
+        if ($contents === false) {
+            throw new PublicationException('Existing published playlist index could not be read', 409);
+        }
+
+        try {
+            $index = json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new PublicationException('Existing published playlist index is invalid JSON', 409);
+        }
+
+        if (!is_object($index)
+            || !property_exists($index, 'playlists')
+            || !is_array($index->playlists)) {
+            throw new PublicationException('Existing published playlist index is malformed', 409);
+        }
+
+        $timestamps = [];
+        foreach ($index->playlists as $entry) {
+            if (!is_object($entry)
+                || !property_exists($entry, 'filename')
+                || !is_string($entry->filename)
+                || $entry->filename === '') {
+                throw new PublicationException('Existing published playlist index has an invalid entry', 409);
+            }
+
+            $entryFilename = $entry->filename;
+            if (array_key_exists($entryFilename, $timestamps)) {
+                throw new PublicationException(
+                    'Existing published playlist index has duplicate playlist ' . $entryFilename,
+                    409
+                );
+            }
+
+            $timestamps[$entryFilename] = $entry->lastupdated ?? null;
+        }
+
+        return $timestamps;
     }
 
     private function ensurePlaylistDirectory(): string

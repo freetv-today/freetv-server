@@ -23,7 +23,8 @@ function expectDefaultValidationFailure(array $playlists, int $count): void
         PlaylistIndexSerializer::serialize(
             $playlists,
             'selected.json',
-            '2026-08-12T16:30:00.000Z'
+            '2026-08-12T16:30:00.000Z',
+            []
         );
     } catch (PublicationException $exception) {
         assertIndexSame(
@@ -70,7 +71,16 @@ $playlists = [
 ];
 
 $timestamp = '2026-08-12T16:30:00.000Z';
-$index = PlaylistIndexSerializer::serialize($playlists, 'selected.json', $timestamp);
+$publishedTimestamps = [
+    'default.json' => '2026-08-09T08:00:00.000Z',
+    'third.json' => '2026-08-10T10:30:00.000Z',
+];
+$index = PlaylistIndexSerializer::serialize(
+    $playlists,
+    'selected.json',
+    $timestamp,
+    $publishedTimestamps
+);
 
 assertIndexSame('default.json', $index['default'], 'The database default was not published');
 assertIndexSame(
@@ -105,7 +115,12 @@ assertIndexSame(
 );
 assertIndexSame(
     $index,
-    PlaylistIndexSerializer::serialize($playlists, 'selected.json', $timestamp),
+    PlaylistIndexSerializer::serialize(
+        $playlists,
+        'selected.json',
+        $timestamp,
+        $publishedTimestamps
+    ),
     'Repeated index serialization with identical input must be deterministic'
 );
 

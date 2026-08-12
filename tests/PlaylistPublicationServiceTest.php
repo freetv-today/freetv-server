@@ -31,33 +31,42 @@ function expectPublicationFailure(callable $callback, int $status, string $messa
     throw new RuntimeException($message . ': expected PublicationException');
 }
 
+function writePublishedIndex(string $path, array $index): void
+{
+    $json = json_encode($index, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    if (file_put_contents($path, $json) === false) {
+        throw new RuntimeException('Could not write publication index fixture');
+    }
+}
+
 $testRoot = sys_get_temp_dir() . '/freetv-publication-test-' . bin2hex(random_bytes(8));
-if (!mkdir($testRoot, 0700, true)) {
+$playlistDirectory = $testRoot . '/playlists';
+if (!mkdir($playlistDirectory, 0700, true)) {
     throw new RuntimeException('Could not create publication test directory');
 }
 
 $playlists = [
     [
         'id' => 1,
-        'filename' => 'default.json',
-        'dbtitle' => 'Default',
+        'filename' => 'british.json',
+        'dbtitle' => 'British',
         'dbversion' => '1.0',
         'author' => 'Free TV',
         'email' => 'support@example.test',
         'link' => 'https://example.test',
-        'lastupdated' => '2026-08-01 12:00:00',
+        'lastupdated' => '2026-08-12 11:00:00',
         'is_default' => 1,
         'sort_order' => 0,
     ],
     [
         'id' => 2,
-        'filename' => 'selected.json',
-        'dbtitle' => 'Selected',
+        'filename' => 'freetv.json',
+        'dbtitle' => 'FreeTV',
         'dbversion' => '1.0',
         'author' => 'Free TV',
         'email' => 'support@example.test',
         'link' => 'https://example.test',
-        'lastupdated' => '2026-08-02 12:00:00',
+        'lastupdated' => '2026-08-12 10:00:00',
         'is_default' => 0,
         'sort_order' => 1,
     ],
@@ -75,15 +84,34 @@ $shows = [[
     'imdb' => 'tt0000001',
     'group_name' => null,
 ]];
+$publishedIndex = [
+    'default' => 'freetv.json',
+    'playlists' => [
+        [
+            'filename' => 'british.json',
+            'dbtitle' => 'British',
+            'lastupdated' => '2026-08-12T09:00:00.000Z',
+            'author' => 'Free TV',
+        ],
+        [
+            'filename' => 'freetv.json',
+            'dbtitle' => 'FreeTV',
+            'lastupdated' => '2026-08-12T08:00:00.000Z',
+            'author' => 'Free TV',
+        ],
+    ],
+];
+$indexPath = $playlistDirectory . '/index.json';
 $update = null;
 
 try {
+    writePublishedIndex($indexPath, $publishedIndex);
     $service = new PlaylistPublicationService(
         $testRoot,
         static fn() => $playlists,
         static fn(int $playlistId) => $playlistId === 2 ? $shows : [],
         static function (int $playlistId, string $timestamp) use (&$update, $testRoot): void {
-            if (!is_file($testRoot . '/playlists/selected.json')
+            if (!is_file($testRoot . '/playlists/freetv.json')
                 || !is_file($testRoot . '/playlists/index.json')) {
                 throw new RuntimeException('Database timestamp updated before both artifacts existed');
             }
@@ -92,15 +120,11 @@ try {
         static fn() => new DateTimeImmutable('2026-08-12T16:30:00.987Z')
     );
 
-    $result = $service->publish('selected.json');
-    $playlistPath = $testRoot . '/playlists/selected.json';
-    $indexPath = $testRoot . '/playlists/index.json';
+    $result = $service->publish('freetv.json');
+    $playlistPath = $playlistDirectory . '/freetv.json';
     $playlistArtifact = json_decode(file_get_contents($playlistPath), true, 512, JSON_THROW_ON_ERROR);
     $indexArtifact = json_decode(file_get_contents($indexPath), true, 512, JSON_THROW_ON_ERROR);
-    $selectedIndexEntry = array_values(array_filter(
-        $indexArtifact['playlists'],
-        static fn(array $entry): bool => $entry['filename'] === 'selected.json'
-    ))[0];
+    $entries = array_column($indexArtifact['playlists'], null, 'filename');
 
     assertPublicationServiceSame(true, is_file($playlistPath), 'Selected playlist file was not created');
     assertPublicationServiceSame(true, is_file($indexPath), 'Playlist index file was not created');
@@ -116,17 +140,28 @@ try {
     );
     assertPublicationServiceSame(
         $playlistArtifact['lastupdated'],
-        $selectedIndexEntry['lastupdated'],
+        $entries['freetv.json']['lastupdated'],
         'Playlist and matching index timestamps are not identical'
+    );
+    assertPublicationServiceSame(
+        '2026-08-12T09:00:00.000Z',
+        $entries['british.json']['lastupdated'],
+        'Unselected timestamp came from changed MariaDB data instead of the published index'
+    );
+    assertPublicationServiceSame(
+        'british.json',
+        $indexArtifact['default'],
+        'Regenerated default did not reflect the MariaDB default'
     );
     assertPublicationServiceSame(
         [2, '2026-08-12 16:30:00'],
         $update,
         'Selected playlist database timestamp was not updated after publication'
     );
+    $update = null;
 
     expectPublicationFailure(
-        fn() => $service->publish('../selected.json'),
+        fn() => $service->publish('../freetv.json'),
         400,
         'Unsafe playlist filename was accepted'
     );
@@ -135,14 +170,57 @@ try {
         404,
         'Missing playlist did not fail clearly'
     );
+
+    unlink($indexPath);
+    expectPublicationFailure(
+        fn() => $service->publish('freetv.json'),
+        409,
+        'Missing existing published index did not fail'
+    );
+
+    file_put_contents($indexPath, '{invalid json');
+    expectPublicationFailure(
+        fn() => $service->publish('freetv.json'),
+        409,
+        'Invalid existing published index JSON did not fail'
+    );
+
+    $missingBritish = $publishedIndex;
+    $missingBritish['playlists'] = [$publishedIndex['playlists'][1]];
+    writePublishedIndex($indexPath, $missingBritish);
+    expectPublicationFailure(
+        fn() => $service->publish('freetv.json'),
+        409,
+        'Missing unselected playlist entry did not fail'
+    );
+
+    $duplicateBritish = $publishedIndex;
+    $duplicateBritish['playlists'][] = $publishedIndex['playlists'][0];
+    writePublishedIndex($indexPath, $duplicateBritish);
+    expectPublicationFailure(
+        fn() => $service->publish('freetv.json'),
+        409,
+        'Duplicate existing playlist filename did not fail'
+    );
+
+    $invalidBritishTimestamp = $publishedIndex;
+    $invalidBritishTimestamp['playlists'][0]['lastupdated'] = 'not-a-timestamp';
+    writePublishedIndex($indexPath, $invalidBritishTimestamp);
+    expectPublicationFailure(
+        fn() => $service->publish('freetv.json'),
+        409,
+        'Invalid unselected playlist timestamp did not fail'
+    );
+    assertPublicationServiceSame(
+        null,
+        $update,
+        'A failed publication updated the MariaDB publication timestamp'
+    );
 } finally {
-    $playlistDirectory = $testRoot . '/playlists';
-    if (is_dir($playlistDirectory)) {
-        foreach (glob($playlistDirectory . '/*') ?: [] as $path) {
-            unlink($path);
-        }
-        rmdir($playlistDirectory);
+    foreach (glob($playlistDirectory . '/*') ?: [] as $path) {
+        unlink($path);
     }
+    rmdir($playlistDirectory);
     rmdir($testRoot);
 }
 
