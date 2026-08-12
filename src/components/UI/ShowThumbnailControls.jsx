@@ -128,7 +128,7 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
                   onClick={handleUpload}
                   disabled={controlsDisabled || !selectedFile}
                 >
-                  {loading ? 'Working...' : exists ? 'Replace Thumbnail' : 'Upload JPG'}
+                  {loading ? 'Working...' : exists ? 'Upload and Replace Thumbnail' : 'Upload JPG'}
                 </button>
                 {canUndo && (
                   <button
