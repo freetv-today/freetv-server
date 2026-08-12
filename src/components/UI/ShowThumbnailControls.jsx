@@ -83,22 +83,26 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
         <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#thumbnailControls">
           <div className="accordion-body">
             <div className="mb-4 p-3 border rounded bg-light">
-              <div className="alert alert-warning alert-dismissible fade show small" role="note">
-                Image changes take effect immediately and aren't related to editing show data.
-                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
+
               {showPreview && (
-                <div className="text-center mt-2">
-                  <img
-                    src={previewUrl}
-                    alt={exists ? 'Current thumbnail' : 'Thumbnail placeholder'}
-                    style={{ maxHeight: 180, maxWidth: '100%', border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
-                  />
-                  <div className="small text-muted mt-1">
-                    {exists ? 'Current thumbnail' : 'No thumbnail uploaded'}
+                <>
+                  <div className="alert alert-warning alert-dismissible fade show small" role="note">
+                    Image changes take effect immediately and aren't related to editing show data.
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                   </div>
-                </div>
+                  <div className="text-center mt-2">
+                    <img
+                      src={previewUrl}
+                      alt={exists ? 'Current thumbnail' : 'Thumbnail placeholder'}
+                      style={{ maxHeight: 180, maxWidth: '100%', border: '2px dashed #888', borderRadius: 8, background: '#fff' }}
+                    />
+                    <div className="small text-muted mt-1">
+                      {exists ? 'Current thumbnail' : 'No thumbnail uploaded'}
+                    </div>
+                  </div>
+                </>
               )}
+
               {exists && isShared && (
                 <div className={`small text-warning-emphasis mt-1${showPreview ? ' text-center' : ''}`}>
                   {usageText}
