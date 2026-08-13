@@ -209,7 +209,7 @@ export function AdminPublish() {
                     {configPublishing ? 'Publishing...' : 'Publish Config Settings'}
                 </button>
             </div>
-            
+
             <hr/>
 
             {undoFeedback && (
@@ -218,25 +218,24 @@ export function AdminPublish() {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             )}
-
-            <div className="p-4 bg-white mt-4 text-center">
-                {undoStatus.available && (
+            {undoStatus.available && (
+            <>
+                <div className="p-4 bg-white mt-4 text-center">
                     <p className="mb-3">
                         Last publication: {undoStatus.operation === 'config' ? 'Config Settings' : undoStatus.target}
                     </p>
-                )}
-                <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={handleUndo}
-                    disabled={undoing || !undoStatus.available}
-                >
-                    {undoing ? 'Restoring...' : 'Undo Last Publish'}
-                </button>
-            </div>
-
-            <hr/>
-
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={handleUndo}
+                        disabled={undoing || !undoStatus.available}
+                    >
+                        {undoing ? 'Restoring...' : 'Undo Last Publish'}
+                    </button>
+                </div>
+                <hr/>
+            </>
+            )}
         </div>
     );
 }
