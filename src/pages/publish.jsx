@@ -13,6 +13,9 @@ export function AdminPublish() {
     const [undoStatus, setUndoStatus] = useState({ available: false, operation: null, target: null });
     const [undoing, setUndoing] = useState(false);
     const [undoFeedback, setUndoFeedback] = useState(null);
+    const [publicationStatus, setPublicationStatus] = useState(null);
+    const [statusLoading, setStatusLoading] = useState(true);
+    const [statusError, setStatusError] = useState(null);
 
     useEffect(() => {
         document.title = 'Free TV: Admin Dashboard - Publish';
@@ -21,6 +24,7 @@ export function AdminPublish() {
 
     useEffect(() => {
         refreshUndoStatus();
+        refreshPublicationStatus();
     }, []);
 
     useEffect(() => {
@@ -51,7 +55,7 @@ export function AdminPublish() {
                 type: 'success',
                 text: `${selectedFilename} published successfully at ${result.publication.lastupdated}.`,
             });
-            await refreshUndoStatus();
+            await Promise.all([refreshUndoStatus(), refreshPublicationStatus()]);
         } catch (error) {
             setFeedback({
                 type: 'danger',
@@ -80,7 +84,7 @@ export function AdminPublish() {
                 type: 'success',
                 text: `Viewer settings published successfully at ${result.publication.lastupdated}.`,
             });
-            await refreshUndoStatus();
+            await Promise.all([refreshUndoStatus(), refreshPublicationStatus()]);
         } catch (error) {
             setConfigFeedback({
                 type: 'danger',
@@ -111,6 +115,23 @@ export function AdminPublish() {
         }
     }
 
+    async function refreshPublicationStatus() {
+        setStatusLoading(true);
+        setStatusError(null);
+        try {
+            const response = await fetch('/api/admin/publication/status.php');
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Could not load publication status');
+            }
+            setPublicationStatus(result.status);
+        } catch (error) {
+            setStatusError(error instanceof Error ? error.message : 'Could not load publication status');
+        } finally {
+            setStatusLoading(false);
+        }
+    }
+
     async function handleUndo() {
         if (undoing || !undoStatus.available) return;
 
@@ -126,7 +147,7 @@ export function AdminPublish() {
                 type: 'success',
                 text: `Restored the previous ${result.undo.operation} publication.`,
             });
-            await refreshUndoStatus();
+            await Promise.all([refreshUndoStatus(), refreshPublicationStatus()]);
         } catch (error) {
             setUndoFeedback({
                 type: 'danger',
@@ -135,6 +156,16 @@ export function AdminPublish() {
         } finally {
             setUndoing(false);
         }
+    }
+
+    function renderStatusBadge(item) {
+        if (item?.error) {
+            return <span className="badge text-bg-danger" title={item.error}>Error</span>;
+        }
+        if (item?.changed) {
+            return <span className="badge text-bg-warning">Unpublished changes</span>;
+        }
+        return <span className="badge text-bg-success">Published</span>;
     }
 
     return (
@@ -146,6 +177,54 @@ export function AdminPublish() {
                 front end client (FreeTV Viewer) will see them. Use the buttons below to publish
                 the changes you've made.
             </p>
+
+            <section className="p-4 bg-white mb-4" aria-labelledby="publicationStatusHeading">
+                <h3 id="publicationStatusHeading" className="h5 mb-3">Publication Status</h3>
+
+                {statusLoading && (
+                    <div className="text-center py-3">
+                        <div className="spinner-border spinner-border-sm text-primary" role="status">
+                            <span className="visually-hidden">Loading publication status...</span>
+                        </div>
+                    </div>
+                )}
+
+                {statusError && <div className="alert alert-danger mb-0">{statusError}</div>}
+
+                {!statusLoading && !statusError && publicationStatus && (
+                    <div className="table-responsive">
+                        <table className="table table-sm align-middle mb-0">
+                            <tbody>
+                                {publicationStatus.playlists.map(playlist => (
+                                    <tr key={playlist.filename}>
+                                        <th scope="row" className="fw-normal">{playlist.dbtitle}</th>
+                                        <td className="text-end">{renderStatusBadge(playlist)}</td>
+                                    </tr>
+                                ))}
+                                <tr>
+                                    <th scope="row" className="fw-normal">Config Settings</th>
+                                    <td className="text-end">{renderStatusBadge(publicationStatus.config)}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" className="fw-normal">Default Playlist</th>
+                                    <td className="text-end">
+                                        {renderStatusBadge(publicationStatus.default_playlist)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {[...publicationStatus.playlists,
+                            publicationStatus.config,
+                            publicationStatus.default_playlist]
+                            .filter(item => item.error)
+                            .map((item, index) => (
+                                <div className="small text-danger mt-2" key={`${item.filename || 'status'}-${index}`}>
+                                    {item.filename ? `${item.filename}: ` : ''}{item.error}
+                                </div>
+                            ))}
+                    </div>
+                )}
+            </section>
 
             <hr/>
 
