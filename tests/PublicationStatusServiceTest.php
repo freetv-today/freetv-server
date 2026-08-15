@@ -22,6 +22,13 @@ function assertStatusSame($expected, $actual, string $message): void
     }
 }
 
+function assertStatusError(array $status, string $message): void
+{
+    assertStatusSame(null, $status['changed'], $message);
+    assertStatusSame(true, is_string($status['error']) && $status['error'] !== '',
+        $message . ' did not include an explicit error');
+}
+
 function writeStatusJson(string $path, array $artifact): void
 {
     $json = json_encode($artifact, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
@@ -176,8 +183,44 @@ try {
         'Missing playlist was not marked unpublished');
     file_put_contents($playlistDirectory . '/freetv.json', '{invalid');
     $malformedPlaylist = $service->status()['playlists'][0];
-    assertStatusSame(null, $malformedPlaylist['changed'], 'Malformed playlist was not an error state');
-    assertStatusSame(true, is_string($malformedPlaylist['error']), 'Malformed playlist error was not explicit');
+    assertStatusError($malformedPlaylist, 'Malformed playlist was not an error state');
+
+    file_put_contents($playlistDirectory . '/freetv.json', '{}');
+    assertStatusError($service->status()['playlists'][0],
+        'Empty playlist object was not a structural error');
+
+    $invalidPlaylist = $publishedPlaylist;
+    unset($invalidPlaylist['dbtitle']);
+    writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
+    assertStatusError($service->status()['playlists'][0],
+        'Playlist missing a required top-level field was not a structural error');
+
+    $invalidPlaylist = $publishedPlaylist;
+    unset($invalidPlaylist['shows']);
+    writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
+    assertStatusError($service->status()['playlists'][0],
+        'Playlist missing shows was not a structural error');
+
+    $invalidPlaylist = $publishedPlaylist;
+    $invalidPlaylist['shows'] = 'not-an-array';
+    writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
+    assertStatusError($service->status()['playlists'][0],
+        'Playlist with a non-array shows value was not a structural error');
+
+    $invalidPlaylist = $publishedPlaylist;
+    $invalidPlaylist['shows'][0]['title'] = false;
+    writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
+    assertStatusError($service->status()['playlists'][0],
+        'Playlist with a malformed show was not a structural error');
+
+    $validChangedPlaylist = $publishedPlaylist;
+    unset($validChangedPlaylist['shows'][1]['group']);
+    writeStatusJson($playlistDirectory . '/freetv.json', $validChangedPlaylist);
+    $optionalGroupStatus = $service->status()['playlists'][0];
+    assertStatusSame(true, $optionalGroupStatus['changed'],
+        'Valid playlist with an omitted optional group was not marked changed');
+    assertStatusSame(null, $optionalGroupStatus['error'],
+        'Omitted optional show group was treated as a structural error');
     writeStatusJson($playlistDirectory . '/freetv.json', $publishedPlaylist);
 
     $settings['show_ads'] = true;
@@ -188,18 +231,75 @@ try {
         'Missing config was not marked unpublished');
     file_put_contents($testRoot . '/config.json', '{invalid');
     $malformedConfig = $service->status()['config'];
-    assertStatusSame(null, $malformedConfig['changed'], 'Malformed config was not an error state');
-    assertStatusSame(true, is_string($malformedConfig['error']), 'Malformed config error was not explicit');
+    assertStatusError($malformedConfig, 'Malformed config was not an error state');
+
+    file_put_contents($testRoot . '/config.json', '{}');
+    assertStatusError($service->status()['config'],
+        'Empty config object was not a structural error');
+
+    $invalidConfig = $publishedConfig;
+    unset($invalidConfig['show_ads']);
+    writeStatusJson($testRoot . '/config.json', $invalidConfig);
+    assertStatusError($service->status()['config'],
+        'Config missing show_ads was not a structural error');
+
+    $invalidConfig = $publishedConfig;
+    $invalidConfig['show_ads'] = 'false';
+    writeStatusJson($testRoot . '/config.json', $invalidConfig);
+    assertStatusError($service->status()['config'],
+        'Config with a non-boolean show_ads was not a structural error');
+
+    $validChangedConfig = $publishedConfig;
+    $validChangedConfig['show_ads'] = true;
+    writeStatusJson($testRoot . '/config.json', $validChangedConfig);
+    $validChangedConfigStatus = $service->status()['config'];
+    assertStatusSame(true, $validChangedConfigStatus['changed'],
+        'Structurally valid changed config was not marked changed');
+    assertStatusSame(null, $validChangedConfigStatus['error'],
+        'Structurally valid changed config produced an error');
     writeStatusJson($testRoot . '/config.json', $publishedConfig);
 
-    $publishedIndex['default'] = 'other.json';
+    $invalidIndex = $publishedIndex;
+    $invalidIndex['default'] = 'does-not-exist.json';
+    writeStatusJson($playlistDirectory . '/index.json', $invalidIndex);
+    assertStatusError($service->status()['default_playlist'],
+        'Index default absent from playlists was not a critical error');
+
+    $invalidIndex = $publishedIndex;
+    unset($invalidIndex['playlists'][0]['dbtitle']);
+    writeStatusJson($playlistDirectory . '/index.json', $invalidIndex);
+    assertStatusError($service->status()['default_playlist'],
+        'Index entry missing a required field was not a critical error');
+
+    $invalidIndex = $publishedIndex;
+    $invalidIndex['playlists'][0]['lastupdated'] = '2026-08-01 09:00:00';
+    writeStatusJson($playlistDirectory . '/index.json', $invalidIndex);
+    assertStatusError($service->status()['default_playlist'],
+        'Index entry with a noncanonical timestamp was not a critical error');
+
+    $indexWithoutAuthor = $publishedIndex;
+    unset($indexWithoutAuthor['playlists'][0]['author']);
+    writeStatusJson($playlistDirectory . '/index.json', $indexWithoutAuthor);
+    $indexWithoutAuthorStatus = $service->status()['default_playlist'];
+    assertStatusSame(false, $indexWithoutAuthorStatus['changed'],
+        'Index without optional author did not preserve matching default status');
+    assertStatusSame(null, $indexWithoutAuthorStatus['error'],
+        'Index without optional author was treated as malformed');
+
+    $differentRealDefaultIndex = $publishedIndex;
+    $differentRealDefaultIndex['default'] = 'other.json';
+    $differentRealDefaultIndex['playlists'][] = [
+        'filename' => 'other.json',
+        'dbtitle' => 'Other',
+        'lastupdated' => '2026-08-01T11:00:00.000Z',
+    ];
+    writeStatusJson($playlistDirectory . '/index.json', $differentRealDefaultIndex);
+    $differentDefaultStatus = $service->status()['default_playlist'];
+    assertStatusSame(true, $differentDefaultStatus['changed'],
+        'Valid changed default playlist was not detected');
+    assertStatusSame(null, $differentDefaultStatus['error'],
+        'Valid changed default playlist produced an error');
     writeStatusJson($playlistDirectory . '/index.json', $publishedIndex);
-    assertStatusSame(true, $service->status()['default_playlist']['changed'],
-        'Changed default playlist was not detected');
-    writeStatusJson($playlistDirectory . '/index.json', [
-        'default' => 'freetv.json',
-        'playlists' => $publishedIndex['playlists'],
-    ]);
 
     unlink($playlistDirectory . '/index.json');
     $missingIndex = $service->status()['default_playlist'];
@@ -212,10 +312,7 @@ try {
     writeStatusJson($playlistDirectory . '/index.json', ['default' => 'freetv.json']);
     assertStatusSame(null, $service->status()['default_playlist']['changed'],
         'Structurally malformed index was not a critical error');
-    writeStatusJson($playlistDirectory . '/index.json', [
-        'default' => 'freetv.json',
-        'playlists' => $publishedIndex['playlists'],
-    ]);
+    writeStatusJson($playlistDirectory . '/index.json', $publishedIndex);
 
     $hashesBefore = statusFileHashes($testRoot);
     $firstRepeatedStatus = $service->status();
