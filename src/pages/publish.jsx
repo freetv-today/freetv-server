@@ -8,6 +8,8 @@ export function AdminPublish() {
     const [selectedFilename, setSelectedFilename] = useState(currentPlaylist || '');
     const [publishing, setPublishing] = useState(false);
     const [feedback, setFeedback] = useState(null);
+    const [allPublishing, setAllPublishing] = useState(false);
+    const [allFeedback, setAllFeedback] = useState(null);
     const [configPublishing, setConfigPublishing] = useState(false);
     const [configFeedback, setConfigFeedback] = useState(null);
     const [undoStatus, setUndoStatus] = useState({ available: false, operation: null, target: null });
@@ -95,6 +97,35 @@ export function AdminPublish() {
         }
     }
 
+    async function handlePublishAllPlaylists() {
+        if (allPublishing) return;
+
+        setAllPublishing(true);
+        setAllFeedback(null);
+        try {
+            const response = await fetch('/api/admin/publication/publish-all-playlists.php', {
+                method: 'POST',
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Show and playlist content publication failed');
+            }
+
+            setAllFeedback({
+                type: result.publication.no_op ? 'info' : 'success',
+                text: result.message,
+            });
+            await Promise.all([refreshUndoStatus(), refreshPublicationStatus()]);
+        } catch (error) {
+            setAllFeedback({
+                type: 'danger',
+                text: error instanceof Error ? error.message : 'Show and playlist content publication failed',
+            });
+        } finally {
+            setAllPublishing(false);
+        }
+    }
+
     async function refreshUndoStatus() {
         try {
             const response = await fetch('/api/admin/publication/undo-status.php');
@@ -145,7 +176,9 @@ export function AdminPublish() {
             }
             setUndoFeedback({
                 type: 'success',
-                text: `Restored the previous ${result.undo.operation} publication.`,
+                text: result.undo.operation === 'playlist_all'
+                    ? 'Restored the previous Publish All Shows and Playlist Content operation.'
+                    : `Restored the previous ${result.undo.operation} publication.`,
             });
             await Promise.all([refreshUndoStatus(), refreshPublicationStatus()]);
         } catch (error) {
@@ -316,12 +349,32 @@ export function AdminPublish() {
                         type="submit"
                         className="btn btn-outline-primary"
                         title="If you modified show or playlist data you can publish your changes here"
-                        disabled={publishing || selectedFilename === ''}
+                        disabled={publishing || allPublishing || selectedFilename === ''}
                     >
                         {publishing ? 'Publishing Playlist...' : 'Publish The Selected Playlist'}
                     </button>
                 </div>
             </form>
+
+            {allFeedback && (
+                <div className={`alert alert-${allFeedback.type} alert-dismissible fade show mt-4`} role="alert">
+                    {allFeedback.text}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            )}
+
+            <div className="p-4 bg-white mt-4 text-center">
+                <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={handlePublishAllPlaylists}
+                    disabled={allPublishing || publishing}
+                >
+                    {allPublishing
+                        ? 'Publishing All Shows and Playlist Content...'
+                        : 'Publish All Shows and Playlist Content'}
+                </button>
+            </div>
 
             <hr/>
 

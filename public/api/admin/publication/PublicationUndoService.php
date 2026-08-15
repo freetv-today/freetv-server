@@ -64,7 +64,7 @@ class PublicationUndoService
 
     public function prepare(string $operation, string $target, array $relativePaths): string
     {
-        if (!in_array($operation, ['playlist', 'config'], true) || $relativePaths === []) {
+        if (!in_array($operation, ['playlist', 'playlist_all', 'config'], true) || $relativePaths === []) {
             throw new PublicationException('Invalid publication Undo operation');
         }
 
@@ -80,6 +80,11 @@ class PublicationUndoService
                 $this->validateRelativePath($relativePath);
                 $livePath = $this->publicationRoot . '/' . $relativePath;
                 if (!is_file($livePath) || !is_readable($livePath)) {
+                    if ($operation === 'playlist_all' && $relativePath !== 'playlists/index.json'
+                        && !file_exists($livePath)) {
+                        $files[] = ['path' => $relativePath, 'existed' => false];
+                        continue;
+                    }
                     throw new PublicationException('Cannot publish without live artifact ' . $relativePath, 409);
                 }
 
@@ -97,7 +102,7 @@ class PublicationUndoService
                 if ($liveHash === false || $backupHash === false || !hash_equals($liveHash, $backupHash)) {
                     throw new PublicationException('Could not verify Undo backup ' . $relativePath);
                 }
-                $files[] = ['path' => $relativePath, 'backup_hash' => $backupHash];
+                $files[] = ['path' => $relativePath, 'existed' => true, 'backup_hash' => $backupHash];
             }
 
             $this->writeMetadata($preparedRoot, [
@@ -108,6 +113,8 @@ class PublicationUndoService
             ]);
             if ($operation === 'playlist') {
                 $this->playlistTimestamp($preparedRoot, $target);
+            } elseif ($operation === 'playlist_all') {
+                $this->playlistTimestamps($preparedRoot, $files);
             }
         } catch (Throwable $exception) {
             $this->removeTree($preparedRoot);
@@ -174,6 +181,20 @@ class PublicationUndoService
         return $this->playlistTimestamp($preparedRoot, $metadata['target']);
     }
 
+    public function preparedPlaylistTimestamps(string $preparedName): array
+    {
+        $preparedRoot = $this->preparedRoot($preparedName);
+        $metadata = $this->readMetadata($preparedRoot);
+        if (!in_array($metadata['operation'], ['playlist', 'playlist_all'], true)) {
+            throw new PublicationException('Undo state is not a playlist publication');
+        }
+        if ($metadata['operation'] === 'playlist') {
+            return [$metadata['target'] => $this->playlistTimestamp($preparedRoot, $metadata['target'])];
+        }
+
+        return $this->playlistTimestamps($preparedRoot, $metadata['files']);
+    }
+
     public function status(): array
     {
         return $this->withLock(function (): array {
@@ -210,6 +231,13 @@ class PublicationUndoService
                         $metadata['target'],
                         PublicationTimestamp::toDatabase($timestamp)
                     );
+                } elseif ($metadata['operation'] === 'playlist_all') {
+                    foreach ($this->playlistTimestamps($activeRoot, $metadata['files']) as $filename => $timestamp) {
+                        ($this->playlistTimestampUpdater)(
+                            $filename,
+                            PublicationTimestamp::toDatabase($timestamp)
+                        );
+                    }
                 }
             } catch (Throwable $exception) {
                 try {
@@ -241,9 +269,11 @@ class PublicationUndoService
             if (preg_match(self::HASH_PATTERN, $file['published_hash'] ?? '') !== 1) {
                 throw new PublicationException('Publication Undo metadata is invalid', 409);
             }
-            $backupHash = hash_file('sha256', $stateRoot . '/files/' . $file['path']);
-            if ($backupHash === false || !hash_equals($file['backup_hash'], $backupHash)) {
-                throw new PublicationException('Publication Undo backup is corrupted', 409);
+            if ($this->fileExisted($file)) {
+                $backupHash = hash_file('sha256', $stateRoot . '/files/' . $file['path']);
+                if ($backupHash === false || !hash_equals($file['backup_hash'], $backupHash)) {
+                    throw new PublicationException('Publication Undo backup is corrupted', 409);
+                }
             }
 
             $livePath = $this->publicationRoot . '/' . $file['path'];
@@ -262,6 +292,12 @@ class PublicationUndoService
         foreach ($files as $file) {
             $source = $sourceRoot . '/files/' . $file['path'];
             $destination = $this->publicationRoot . '/' . $file['path'];
+            if ($verifyBackup && !$this->fileExisted($file)) {
+                if (is_file($destination) && !unlink($destination)) {
+                    throw new PublicationException('Could not remove newly published artifact ' . $file['path']);
+                }
+                continue;
+            }
             $expectedHash = $verifyBackup ? $file['backup_hash'] : hash_file('sha256', $source);
             $this->safeCopy($source, $destination);
             $restoredHash = hash_file('sha256', $destination);
@@ -315,6 +351,38 @@ class PublicationUndoService
         return $playlistTimestamp;
     }
 
+    private function playlistTimestamps(string $stateRoot, array $files): array
+    {
+        $index = $this->readJson($stateRoot . '/files/playlists/index.json');
+        $indexTimestamps = [];
+        foreach (($index['playlists'] ?? []) as $entry) {
+            if (is_array($entry) && is_string($entry['filename'] ?? null)) {
+                $indexTimestamps[$entry['filename']] = $entry['lastupdated'] ?? null;
+            }
+        }
+
+        $timestamps = [];
+        foreach ($files as $file) {
+            if ($file['path'] === 'playlists/index.json') {
+                continue;
+            }
+            $filename = basename($file['path']);
+            $timestamp = $indexTimestamps[$filename] ?? null;
+            if ($this->fileExisted($file)) {
+                $playlist = $this->readJson($stateRoot . '/files/' . $file['path']);
+                if (($playlist['lastupdated'] ?? null) !== $timestamp) {
+                    throw new PublicationException('Playlist Undo timestamps are inconsistent', 409);
+                }
+            }
+            if (!is_string($timestamp) || PublicationTimestamp::format($timestamp) !== $timestamp) {
+                throw new PublicationException('Playlist Undo timestamps are inconsistent', 409);
+            }
+            $timestamps[$filename] = $timestamp;
+        }
+
+        return $timestamps;
+    }
+
     private function readJson(string $path): array
     {
         try {
@@ -331,7 +399,7 @@ class PublicationUndoService
     private function readMetadata(string $root, bool $requirePublishedHashes = false): array
     {
         $metadata = $this->readJson($root . '/operation.json');
-        if (!in_array($metadata['operation'] ?? null, ['playlist', 'config'], true)
+        if (!in_array($metadata['operation'] ?? null, ['playlist', 'playlist_all', 'config'], true)
             || !is_string($metadata['target'] ?? null)
             || !is_string($metadata['created_at'] ?? null)
             || !is_array($metadata['files'] ?? null)
@@ -346,9 +414,14 @@ class PublicationUndoService
             throw new PublicationException('Publication Undo metadata is invalid', 409);
         }
         foreach ($metadata['files'] as $file) {
-            if (!is_array($file)
-                || !is_string($file['path'] ?? null)
-                || preg_match(self::HASH_PATTERN, $file['backup_hash'] ?? '') !== 1
+            if (!is_array($file)) {
+                throw new PublicationException('Publication Undo metadata is invalid', 409);
+            }
+            $existed = $this->fileExisted($file);
+            if (!is_string($file['path'] ?? null)
+                || (array_key_exists('existed', $file) && !is_bool($file['existed']))
+                || ($existed && preg_match(self::HASH_PATTERN, $file['backup_hash'] ?? '') !== 1)
+                || (!$existed && array_key_exists('backup_hash', $file))
                 || (array_key_exists('published_hash', $file)
                     && preg_match(self::HASH_PATTERN, $file['published_hash']) !== 1)) {
                 throw new PublicationException('Publication Undo metadata is invalid', 409);
@@ -365,13 +438,23 @@ class PublicationUndoService
             if ($metadata['target'] !== 'config.json' || $paths !== ['config.json']) {
                 throw new PublicationException('Publication Undo metadata is invalid', 409);
             }
-        } else {
+        } elseif ($metadata['operation'] === 'playlist') {
             if (preg_match('/^[a-zA-Z0-9_-]+\.json$/', $metadata['target']) !== 1) {
                 throw new PublicationException('Publication Undo metadata is invalid', 409);
             }
             $expectedPaths = ['playlists/' . $metadata['target'], 'playlists/index.json'];
             sort($expectedPaths);
             if ($paths !== $expectedPaths) {
+                throw new PublicationException('Publication Undo metadata is invalid', 409);
+            }
+        } else {
+            if ($metadata['target'] !== 'All Shows and Playlist Content'
+                || !in_array('playlists/index.json', $paths, true)
+                || count($paths) !== count(array_unique($paths))
+                || array_filter(
+                    $paths,
+                    static fn(string $path): bool => !str_starts_with($path, 'playlists/')
+                ) !== []) {
                 throw new PublicationException('Publication Undo metadata is invalid', 409);
             }
         }
@@ -419,6 +502,11 @@ class PublicationUndoService
             return;
         }
         throw new PublicationException('Publication Undo contains an invalid artifact path', 409);
+    }
+
+    private function fileExisted(array $file): bool
+    {
+        return ($file['existed'] ?? true) === true;
     }
 
     private function preparedRoot(string $preparedName): string

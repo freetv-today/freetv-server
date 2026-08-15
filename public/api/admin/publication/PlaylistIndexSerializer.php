@@ -16,6 +16,20 @@ class PlaylistIndexSerializer
         DateTimeInterface|string $publicationTimestamp,
         array $publishedTimestamps
     ): array {
+        return self::serializeChanged(
+            $playlists,
+            [$selectedFilename],
+            $publicationTimestamp,
+            $publishedTimestamps
+        );
+    }
+
+    public static function serializeChanged(
+        iterable $playlists,
+        array $changedFilenames,
+        DateTimeInterface|string $publicationTimestamp,
+        array $publishedTimestamps
+    ): array {
         $orderedPlaylists = [];
         foreach ($playlists as $playlist) {
             $orderedPlaylists[] = $playlist;
@@ -33,13 +47,14 @@ class PlaylistIndexSerializer
         });
 
         $canonicalPublicationTimestamp = PublicationTimestamp::format($publicationTimestamp);
+        $changed = array_fill_keys($changedFilenames, true);
         $entries = [];
         foreach ($orderedPlaylists as $playlist) {
             $filename = self::value($playlist, 'filename');
             $entry = [
                 'filename' => $filename,
                 'dbtitle' => self::value($playlist, 'dbtitle'),
-                'lastupdated' => $filename === $selectedFilename
+                'lastupdated' => array_key_exists($filename, $changed)
                     ? $canonicalPublicationTimestamp
                     : self::publishedTimestamp($filename, $publishedTimestamps),
             ];

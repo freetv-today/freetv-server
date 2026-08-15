@@ -62,7 +62,6 @@ function playlistJson(string $timestamp, string $title): string
     return json_encode([
         'lastupdated' => $timestamp,
         'dbtitle' => $title,
-        'filename' => 'freetv.json',
         'dbversion' => '1.0',
         'author' => 'Free TV',
         'email' => 'support@example.test',
