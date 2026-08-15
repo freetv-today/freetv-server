@@ -168,6 +168,52 @@ export function AdminPublish() {
         return <span className="badge text-bg-success">Published</span>;
     }
 
+    function renderPlaylistDelta(playlist) {
+        if (!playlist?.changed || !playlist.delta) return null;
+
+        const details = [];
+        if (playlist.delta.shows_added > 0) {
+            details.push(`+${playlist.delta.shows_added} ${playlist.delta.shows_added === 1 ? 'show' : 'shows'}`);
+        }
+        if (playlist.delta.shows_edited > 0) {
+            details.push(`~${playlist.delta.shows_edited} edited`);
+        }
+        if (playlist.delta.shows_removed > 0) {
+            details.push(`-${playlist.delta.shows_removed} ${playlist.delta.shows_removed === 1 ? 'show' : 'shows'}`);
+        }
+        if (playlist.delta.order_changed) {
+            details.push('Show order changed');
+        }
+        if (playlist.delta.metadata_changed) {
+            details.push(`Playlist metadata: ${playlist.delta.metadata_fields.join(', ')}`);
+        }
+
+        return details.length > 0
+            ? <div className="small text-body-secondary mt-1">{details.join(' · ')}</div>
+            : null;
+    }
+
+    function renderConfigDelta(config) {
+        if (!config?.changed || !config.delta?.fields?.length) return null;
+
+        return (
+            <div className="small text-body-secondary mt-1">
+                {config.delta.fields.map(field => `${field} changed`).join(' · ')}
+            </div>
+        );
+    }
+
+    function renderDefaultDelta(defaultPlaylist) {
+        if (!defaultPlaylist?.changed || defaultPlaylist.error
+            || !defaultPlaylist.published || !defaultPlaylist.database) return null;
+
+        return (
+            <div className="small text-body-secondary mt-1">
+                {defaultPlaylist.published} → {defaultPlaylist.database}
+            </div>
+        );
+    }
+
     return (
         <div className="container py-4" style={{ maxWidth: 750 }}>
             <h2 className="text-center mb-4">Publish</h2>
@@ -197,17 +243,26 @@ export function AdminPublish() {
                             <tbody>
                                 {publicationStatus.playlists.map(playlist => (
                                     <tr key={playlist.filename}>
-                                        <th scope="row" className="fw-normal">{playlist.dbtitle}</th>
-                                        <td className="text-end">{renderStatusBadge(playlist)}</td>
+                                        <th scope="row" className="fw-normal">
+                                            {playlist.dbtitle}
+                                            {renderPlaylistDelta(playlist)}
+                                        </th>
+                                        <td className="text-end align-top">{renderStatusBadge(playlist)}</td>
                                     </tr>
                                 ))}
                                 <tr>
-                                    <th scope="row" className="fw-normal">Config Settings</th>
-                                    <td className="text-end">{renderStatusBadge(publicationStatus.config)}</td>
+                                    <th scope="row" className="fw-normal">
+                                        Config Settings
+                                        {renderConfigDelta(publicationStatus.config)}
+                                    </th>
+                                    <td className="text-end align-top">{renderStatusBadge(publicationStatus.config)}</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row" className="fw-normal">Default Playlist</th>
-                                    <td className="text-end">
+                                    <th scope="row" className="fw-normal">
+                                        Default Playlist
+                                        {renderDefaultDelta(publicationStatus.default_playlist)}
+                                    </th>
+                                    <td className="text-end align-top">
                                         {renderStatusBadge(publicationStatus.default_playlist)}
                                     </td>
                                 </tr>

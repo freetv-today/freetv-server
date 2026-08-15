@@ -150,10 +150,23 @@ try {
         'Different config lastupdated incorrectly produced changed status');
     assertStatusSame(false, $baseline['default_playlist']['changed'],
         'Matching default playlist incorrectly produced changed status');
+    assertStatusSame([
+        'shows_added' => 0,
+        'shows_removed' => 0,
+        'shows_edited' => 0,
+        'order_changed' => false,
+        'metadata_changed' => false,
+        'metadata_fields' => [],
+    ], $baseline['playlists'][0]['delta'], 'Matching playlist produced an unexpected delta');
+    assertStatusSame([], $baseline['config']['delta']['fields'],
+        'Matching config produced an unexpected field delta');
 
     $showsByPlaylist[1][0]['title'] = 'Edited First Show';
-    assertStatusSame(true, $service->status()['playlists'][0]['changed'],
+    $editedShowStatus = $service->status()['playlists'][0];
+    assertStatusSame(true, $editedShowStatus['changed'],
         'Changed show title was not detected');
+    assertStatusSame(1, $editedShowStatus['delta']['shows_edited'],
+        'Changed show title was not detailed as an edit');
     $showsByPlaylist[1] = $baseShows;
 
     $showsByPlaylist[1][] = array_merge($baseShows[1], [
@@ -162,30 +175,45 @@ try {
         'identifier' => 'third-show',
         'title' => 'Third Show',
     ]);
-    assertStatusSame(true, $service->status()['playlists'][0]['changed'], 'Added show was not detected');
+    $addedShowStatus = $service->status()['playlists'][0];
+    assertStatusSame(true, $addedShowStatus['changed'], 'Added show was not detected');
+    assertStatusSame(1, $addedShowStatus['delta']['shows_added'], 'Added show was not detailed');
     $showsByPlaylist[1] = [$baseShows[0]];
-    assertStatusSame(true, $service->status()['playlists'][0]['changed'], 'Removed show was not detected');
+    $removedShowStatus = $service->status()['playlists'][0];
+    assertStatusSame(true, $removedShowStatus['changed'], 'Removed show was not detected');
+    assertStatusSame(1, $removedShowStatus['delta']['shows_removed'], 'Removed show was not detailed');
 
     $showsByPlaylist[1] = $baseShows;
     $showsByPlaylist[1][0]['sort_order'] = 1;
     $showsByPlaylist[1][1]['sort_order'] = 0;
-    assertStatusSame(true, $service->status()['playlists'][0]['changed'], 'Show reorder was not detected');
+    $reorderedStatus = $service->status()['playlists'][0];
+    assertStatusSame(true, $reorderedStatus['changed'], 'Show reorder was not detected');
+    assertStatusSame(true, $reorderedStatus['delta']['order_changed'], 'Show reorder was not detailed');
+    assertStatusSame(0, $reorderedStatus['delta']['shows_edited'], 'Show reorder was detailed as an edit');
     $showsByPlaylist[1] = $baseShows;
 
     foreach (['dbversion', 'author', 'email', 'link', 'dbtitle'] as $field) {
         $playlistRows[0] = $basePlaylist;
         $playlistRows[0][$field] = 'Changed ' . $field;
-        assertStatusSame(true, $service->status()['playlists'][0]['changed'],
+        $metadataStatus = $service->status()['playlists'][0];
+        assertStatusSame(true, $metadataStatus['changed'],
             "Changed {$field} was not detected");
+        assertStatusSame([$field], $metadataStatus['delta']['metadata_fields'],
+            "Changed {$field} was not detailed as playlist metadata");
     }
     $playlistRows[0] = $basePlaylist;
 
     unlink($playlistDirectory . '/freetv.json');
-    assertStatusSame(true, $service->status()['playlists'][0]['changed'],
+    $missingPlaylist = $service->status()['playlists'][0];
+    assertStatusSame(true, $missingPlaylist['changed'],
         'Missing playlist was not marked unpublished');
+    assertStatusSame(false, array_key_exists('delta', $missingPlaylist),
+        'Missing playlist invented delta counts');
     file_put_contents($playlistDirectory . '/freetv.json', '{invalid');
     $malformedPlaylist = $service->status()['playlists'][0];
     assertStatusError($malformedPlaylist, 'Malformed playlist was not an error state');
+    assertStatusSame(false, array_key_exists('delta', $malformedPlaylist),
+        'Malformed playlist included a misleading delta');
 
     file_put_contents($playlistDirectory . '/freetv.json', '{}');
     assertStatusError($service->status()['playlists'][0],
@@ -221,6 +249,14 @@ try {
     assertStatusError($service->status()['playlists'][0],
         'Playlist with a malformed show was not a structural error');
 
+    $duplicatePlaylist = $publishedPlaylist;
+    $duplicatePlaylist['shows'][] = $duplicatePlaylist['shows'][0];
+    writeStatusJson($playlistDirectory . '/freetv.json', $duplicatePlaylist);
+    $duplicateStatus = $service->status()['playlists'][0];
+    assertStatusError($duplicateStatus, 'Duplicate show identifier was not an explicit status error');
+    assertStatusSame(false, array_key_exists('delta', $duplicateStatus),
+        'Duplicate show identifier produced an ambiguous delta');
+
     $validChangedPlaylist = $publishedPlaylist;
     unset($validChangedPlaylist['shows'][1]['group']);
     writeStatusJson($playlistDirectory . '/freetv.json', $validChangedPlaylist);
@@ -235,11 +271,16 @@ try {
     assertStatusSame(true, $service->status()['config']['changed'], 'Changed show_ads was not detected');
     $settings['show_ads'] = false;
     unlink($testRoot . '/config.json');
-    assertStatusSame(true, $service->status()['config']['changed'],
+    $missingConfig = $service->status()['config'];
+    assertStatusSame(true, $missingConfig['changed'],
         'Missing config was not marked unpublished');
+    assertStatusSame(false, array_key_exists('delta', $missingConfig),
+        'Missing config invented a field delta');
     file_put_contents($testRoot . '/config.json', '{invalid');
     $malformedConfig = $service->status()['config'];
     assertStatusError($malformedConfig, 'Malformed config was not an error state');
+    assertStatusSame(false, array_key_exists('delta', $malformedConfig),
+        'Malformed config included a misleading delta');
 
     file_put_contents($testRoot . '/config.json', '{}');
     assertStatusError($service->status()['config'],
@@ -265,6 +306,8 @@ try {
         'Structurally valid changed config was not marked changed');
     assertStatusSame(null, $validChangedConfigStatus['error'],
         'Structurally valid changed config produced an error');
+    assertStatusSame(['show_ads'], $validChangedConfigStatus['delta']['fields'],
+        'Changed show_ads was not detailed');
     writeStatusJson($testRoot . '/config.json', $publishedConfig);
 
     $invalidIndex = $publishedIndex;
@@ -313,6 +356,10 @@ try {
         'Valid changed default playlist was not detected');
     assertStatusSame(null, $differentDefaultStatus['error'],
         'Valid changed default playlist produced an error');
+    assertStatusSame('freetv.json', $differentDefaultStatus['database'],
+        'Changed default status lost the MariaDB target');
+    assertStatusSame('other.json', $differentDefaultStatus['published'],
+        'Changed default status lost the published source');
     writeStatusJson($playlistDirectory . '/index.json', $publishedIndex);
 
     unlink($playlistDirectory . '/index.json');

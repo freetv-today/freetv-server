@@ -18,6 +18,7 @@ require_once __DIR__ . '/../Settings.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/PublicationSemanticHasher.php';
+require_once __DIR__ . '/PublicationSemanticDelta.php';
 require_once __DIR__ . '/PlaylistPublicationSerializer.php';
 require_once __DIR__ . '/ConfigPublicationSerializer.php';
 require_once __DIR__ . '/PublicationStatusService.php';
