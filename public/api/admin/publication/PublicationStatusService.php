@@ -247,8 +247,8 @@ class PublicationStatusService
         if (!$this->isCanonicalTimestamp($published->lastupdated)) {
             return 'has an invalid lastupdated';
         }
-        if (!is_string($published->dbtitle) || !is_string($published->filename)) {
-            return 'has an invalid dbtitle or filename';
+        if (!is_string($published->dbtitle)) {
+            return 'has an invalid dbtitle';
         }
         foreach (['dbversion', 'author', 'email', 'link'] as $field) {
             if ($published->{$field} !== null && !is_string($published->{$field})) {

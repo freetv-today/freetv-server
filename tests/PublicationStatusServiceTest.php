@@ -141,6 +141,8 @@ try {
     writeStatusJson($playlistDirectory . '/index.json', $publishedIndex);
     writeStatusJson($testRoot . '/config.json', $publishedConfig);
 
+    assertStatusSame(false, array_key_exists('filename', $publishedPlaylist),
+        'Playlist serializer unexpectedly emitted a top-level filename');
     $baseline = $service->status();
     assertStatusSame(false, $baseline['playlists'][0]['changed'],
         'Different playlist lastupdated incorrectly produced changed status');
@@ -194,6 +196,12 @@ try {
     writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
     assertStatusError($service->status()['playlists'][0],
         'Playlist missing a required top-level field was not a structural error');
+
+    $invalidPlaylist = $publishedPlaylist;
+    $invalidPlaylist['filename'] = 'freetv.json';
+    writeStatusJson($playlistDirectory . '/freetv.json', $invalidPlaylist);
+    assertStatusError($service->status()['playlists'][0],
+        'Playlist with an unexpected top-level filename was not a structural error');
 
     $invalidPlaylist = $publishedPlaylist;
     unset($invalidPlaylist['shows']);
@@ -264,6 +272,12 @@ try {
     writeStatusJson($playlistDirectory . '/index.json', $invalidIndex);
     assertStatusError($service->status()['default_playlist'],
         'Index default absent from playlists was not a critical error');
+
+    $invalidIndex = $publishedIndex;
+    unset($invalidIndex['playlists'][0]['filename']);
+    writeStatusJson($playlistDirectory . '/index.json', $invalidIndex);
+    assertStatusError($service->status()['default_playlist'],
+        'Index entry missing filename was not a critical error');
 
     $invalidIndex = $publishedIndex;
     unset($invalidIndex['playlists'][0]['dbtitle']);

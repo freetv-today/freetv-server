@@ -104,7 +104,6 @@ class PlaylistPublicationSerializer
         return [
             'lastupdated' => PublicationTimestamp::format($publicationTimestamp),
             'dbtitle' => self::value($playlist, 'dbtitle'),
-            'filename' => self::value($playlist, 'filename'),
             'dbversion' => self::value($playlist, 'dbversion'),
             'author' => self::value($playlist, 'author'),
             'email' => self::value($playlist, 'email'),

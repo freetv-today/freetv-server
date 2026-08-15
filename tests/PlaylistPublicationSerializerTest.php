@@ -85,15 +85,15 @@ $timestamp = new DateTimeImmutable('2026-07-01 16:39:06.000000-04:00');
 $artifact = PlaylistPublicationSerializer::serialize($playlist, $shows, $timestamp);
 
 assertPublicationSame(
-    ['lastupdated', 'dbtitle', 'filename', 'dbversion', 'author', 'email', 'link', 'shows'],
+    ['lastupdated', 'dbtitle', 'dbversion', 'author', 'email', 'link', 'shows'],
     array_keys($artifact),
     'Playlist artifact top-level shape is not the Viewer contract'
 );
 assertPublicationSame(false, array_key_exists('is_default', $artifact), 'is_default must not be published');
+assertPublicationSame(false, array_key_exists('filename', $artifact), 'filename must not be published');
 assertPublicationSame(
     [
         'dbtitle' => 'Fixture Playlist',
-        'filename' => 'fixture.json',
         'dbversion' => '2.1',
         'author' => 'FreeTV',
         'email' => 'admin@example.test',
@@ -101,7 +101,6 @@ assertPublicationSame(
     ],
     array_intersect_key($artifact, array_flip([
         'dbtitle',
-        'filename',
         'dbversion',
         'author',
         'email',

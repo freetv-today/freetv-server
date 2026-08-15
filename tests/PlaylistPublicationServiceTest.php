@@ -113,7 +113,6 @@ try {
         json_encode([
             'lastupdated' => '2026-08-12T08:00:00.000Z',
             'dbtitle' => 'FreeTV',
-            'filename' => 'freetv.json',
             'dbversion' => '1.0',
             'author' => 'Free TV',
             'email' => 'support@example.test',
