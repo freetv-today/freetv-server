@@ -388,30 +388,71 @@ try {
     );
     $undoService->undo();
 
-    writeAllPlaylistsFixture($testRoot, $playlists, $shows, 'british.json');
-    unlink($testRoot . '/playlists/holidays.json');
+    $previouslyPublishedPlaylists = array_slice($publishedPlaylists, 0, 2);
+    if (is_file($testRoot . '/playlists/holidays.json')) {
+        unlink($testRoot . '/playlists/holidays.json');
+    }
+    writeAllPlaylistsFixture($testRoot, $previouslyPublishedPlaylists, $publishedShows, 'british.json');
+    $mixedOldPlaylist = file_get_contents($testRoot . '/playlists/freetv.json');
+    $mixedOldIndex = file_get_contents($testRoot . '/playlists/index.json');
+    $preparedTimestamps = $undoService->withLock(
+        static function (PublicationUndoService $locked): array {
+            $prepared = $locked->prepare(
+                'playlist_all',
+                'All Shows and Playlist Content',
+                ['playlists/holidays.json', 'playlists/index.json']
+            );
+            $timestamps = $locked->preparedPlaylistTimestamps($prepared);
+            $locked->rollbackPrepared($prepared);
+            return $timestamps;
+        }
+    );
+    assertAllPlaylistsSame([], $preparedTimestamps,
+        'Prepared Undo derived a timestamp for a never-before-published playlist');
+
     $missingArtifactWrites = [];
-    (new AllPlaylistsPublicationService(
+    $newPlaylistTimestampUpdates = [];
+    $undoUpdates = [];
+    $mixedResult = (new AllPlaylistsPublicationService(
         $testRoot,
         static fn() => $playlists,
         static fn(int $playlistId) => $shows[$playlistId],
-        static function (): void {},
+        static function (int $playlistId, string $timestamp) use (&$newPlaylistTimestampUpdates): void {
+            $newPlaylistTimestampUpdates[] = [$playlistId, $timestamp];
+        },
         static fn() => new DateTimeImmutable('2026-08-12T17:50:00Z'),
         $undoService,
         allPlaylistsWriter($missingArtifactWrites)
     ))->publish();
+    assertAllPlaylistsSame(['freetv.json', 'holidays.json'], $mixedResult['playlists'],
+        'Mixed operation did not publish both existing and new playlists');
+    assertAllPlaylistsSame([
+        [1, '2026-08-12 17:50:00'],
+        [3, '2026-08-12 17:50:00'],
+    ], $newPlaylistTimestampUpdates, 'Successful mixed publication did not update both DB timestamps');
     assertAllPlaylistsSame(true, is_file($testRoot . '/playlists/holidays.json'),
         'Missing changed playlist was not initially published');
+    $mixedIndex = json_decode(file_get_contents($testRoot . '/playlists/index.json'), true, 64,
+        JSON_THROW_ON_ERROR);
+    assertAllPlaylistsSame(true, in_array('holidays.json', array_column($mixedIndex['playlists'], 'filename'), true),
+        'Published index did not gain the never-before-published playlist');
     $missingMetadata = json_decode(file_get_contents($testRoot . '/undo/active/operation.json'), true, 64,
         JSON_THROW_ON_ERROR);
     $missingFiles = array_column($missingMetadata['files'], null, 'path');
     assertAllPlaylistsSame(false, $missingFiles['playlists/holidays.json']['existed'],
         'Undo did not record that the initially published playlist was previously absent');
     $undoService->undo();
+    assertAllPlaylistsSame($mixedOldPlaylist, file_get_contents($testRoot . '/playlists/freetv.json'),
+        'Mixed Undo did not restore the previously published playlist');
     assertAllPlaylistsSame(false, is_file($testRoot . '/playlists/holidays.json'),
         'Undo did not remove an initially published playlist artifact');
+    assertAllPlaylistsSame($mixedOldIndex, file_get_contents($testRoot . '/playlists/index.json'),
+        'Mixed Undo did not restore the index without the new playlist');
+    assertAllPlaylistsSame([
+        ['freetv.json', '2026-08-12 08:00:00'],
+    ], $undoUpdates, 'Mixed Undo restored a DB timestamp for the never-before-published playlist');
 
-    writeAllPlaylistsFixture($testRoot, $publishedPlaylists, $publishedShows);
+    writeAllPlaylistsFixture($testRoot, $previouslyPublishedPlaylists, $publishedShows);
     activateConfigUndo($undoService, $testRoot);
     $priorUndo = $undoService->status();
     $failureFiles = allPlaylistsHashes($testRoot);
@@ -426,7 +467,7 @@ try {
         },
         static fn() => new DateTimeImmutable('2026-08-12T18:00:00Z'),
         $undoService,
-        allPlaylistsWriter($failedWrites, 2)
+        allPlaylistsWriter($failedWrites, 3)
     );
     expectAllPlaylistsFailure(fn() => $writeFailureService->publish(), 500,
         'Write failure did not abort the operation');
@@ -437,14 +478,23 @@ try {
 
     $databaseTimestamps = [
         1 => '2026-08-12 08:00:00',
-        3 => '2026-08-12 10:00:00',
+        2 => '2026-08-12 09:00:00',
+        3 => null,
     ];
+    $timestampFailureCalls = [];
+    $timestampFailurePlaylists = [$playlists[2], $playlists[0], $playlists[1]];
+    $timestampFailureShows = $shows;
+    $timestampFailureShows[2][0]['title'] = 'Changed British Show';
     $timestampFailureService = new AllPlaylistsPublicationService(
         $testRoot,
-        static fn() => $playlists,
-        static fn(int $playlistId) => $shows[$playlistId],
-        static function (int $playlistId, string $timestamp) use (&$databaseTimestamps): void {
-            if ($playlistId === 3 && $timestamp === '2026-08-12 18:30:00') {
+        static fn() => $timestampFailurePlaylists,
+        static fn(int $playlistId) => $timestampFailureShows[$playlistId],
+        static function (int $playlistId, string $timestamp) use (
+            &$databaseTimestamps,
+            &$timestampFailureCalls
+        ): void {
+            $timestampFailureCalls[] = [$playlistId, $timestamp];
+            if ($playlistId === 2 && $timestamp === '2026-08-12 18:30:00') {
                 throw new RuntimeException('Simulated DB timestamp failure');
             }
             $databaseTimestamps[$playlistId] = $timestamp;
@@ -458,6 +508,16 @@ try {
         'DB timestamp failure did not restore publication files');
     assertAllPlaylistsSame('2026-08-12 08:00:00', $databaseTimestamps[1],
         'DB timestamp failure did not restore an already updated playlist timestamp');
+    assertAllPlaylistsSame('2026-08-12 18:30:00', $databaseTimestamps[3],
+        'DB timestamp failure attempted to restore the new playlist to a nonexistent prior timestamp');
+    assertAllPlaylistsSame('2026-08-12 09:00:00', $databaseTimestamps[2],
+        'Failed DB update changed the untouched playlist timestamp');
+    assertAllPlaylistsSame([
+        [3, '2026-08-12 18:30:00'],
+        [1, '2026-08-12 18:30:00'],
+        [2, '2026-08-12 18:30:00'],
+        [1, '2026-08-12 08:00:00'],
+    ], $timestampFailureCalls, 'Failed mixed publication restored the wrong DB timestamps');
     assertAllPlaylistsSame($priorUndo, $undoService->status(), 'DB timestamp failure replaced prior Undo');
 
     file_put_contents($testRoot . '/playlists/freetv.json', '{invalid');

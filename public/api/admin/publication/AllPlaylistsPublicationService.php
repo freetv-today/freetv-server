@@ -177,6 +177,9 @@ class AllPlaylistsPublicationService
             try {
                 $this->undoService->rollbackPrepared($preparedUndo);
                 foreach ($updatedFilenames as $filename) {
+                    if (!array_key_exists($filename, $previousTimestamps)) {
+                        continue;
+                    }
                     $playlist = $state['playlists_by_filename'][$filename];
                     ($this->timestampUpdater)(
                         (int) self::value($playlist, 'id'),

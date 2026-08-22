@@ -363,16 +363,14 @@ class PublicationUndoService
 
         $timestamps = [];
         foreach ($files as $file) {
-            if ($file['path'] === 'playlists/index.json') {
+            if ($file['path'] === 'playlists/index.json' || !$this->fileExisted($file)) {
                 continue;
             }
             $filename = basename($file['path']);
             $timestamp = $indexTimestamps[$filename] ?? null;
-            if ($this->fileExisted($file)) {
-                $playlist = $this->readJson($stateRoot . '/files/' . $file['path']);
-                if (($playlist['lastupdated'] ?? null) !== $timestamp) {
-                    throw new PublicationException('Playlist Undo timestamps are inconsistent', 409);
-                }
+            $playlist = $this->readJson($stateRoot . '/files/' . $file['path']);
+            if (($playlist['lastupdated'] ?? null) !== $timestamp) {
+                throw new PublicationException('Playlist Undo timestamps are inconsistent', 409);
             }
             if (!is_string($timestamp) || PublicationTimestamp::format($timestamp) !== $timestamp) {
                 throw new PublicationException('Playlist Undo timestamps are inconsistent', 409);
