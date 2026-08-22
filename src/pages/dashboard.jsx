@@ -10,15 +10,12 @@ import { AdminDeleteShowModal } from '@/components/Modals/AdminDeleteShowModal';
 import { AdminPlaylistMetaModal } from '@/components/Modals/AdminPlaylistMetaModal';
 import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { useDataValidation } from '@/hooks/useDataValidation';
 import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { DataSetupPage } from '@/pages/DataSetupPage';
 
 export function Dashboard() {
 
     const log = useDebugLog();
-    const dataValidation = useDataValidation();
 
     useEffect(() => {
         document.title = 'Admin Dashboard';
@@ -187,15 +184,6 @@ export function Dashboard() {
             is_default: currentPlaylistData.is_default === true
         };
     }, [currentPlaylistData]);
-
-    // Keep all hooks above these conditional render paths.
-    if (dataValidation.loading) {
-        return <SpinnerLoadingAppData />;
-    }
-
-    if (!dataValidation.canProceed) {
-        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
-    }
 
     if (loading) return <SpinnerLoadingAppData />;
     if (error) return <div className="alert alert-danger mt-4">{error}</div>;

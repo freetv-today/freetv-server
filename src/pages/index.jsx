@@ -1,33 +1,25 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { useDataValidation } from '@/hooks/useDataValidation';
+import { useDatabaseReadiness } from '@/hooks/useDatabaseReadiness';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
-import { DataSetupPage } from '@/pages/DataSetupPage';
+import { DatabaseReadinessPage } from '@/pages/DatabaseReadinessPage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { createPath, createApiPath } from '@/utils/env';
+import { createPath } from '@/utils/env';
 
 export function AdminLogin() {
 
     const log = useDebugLog();
     const { route } = useLocation();
-    const dataValidation = useDataValidation();
+    const readiness = useDatabaseReadiness();
     const [loading, setLoading] = useState(false);
     const [checkingSession, setCheckingSession] = useState(true);
 
-    // If data validation is still loading, show spinner
-    if (dataValidation.loading) {
-        return <SpinnerLoadingAppData />;
-    }
-
-    // If data is missing, show setup page
-    if (!dataValidation.canProceed) {
-        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
-    }
-
-    // Check for valid admin session on mount
+    // Check for a valid admin session once the backend and database are ready.
     useEffect(() => {
+        if (readiness.status !== 'ready') return undefined;
+
         let isMounted = true;
         fetch('/api/admin/session.php', { credentials: 'include' })
             .then(res => res.json())
@@ -45,11 +37,25 @@ export function AdminLogin() {
                 if (isMounted) setCheckingSession(false);
             });
         return () => { isMounted = false; };
-    }, [route]);
+    }, [readiness.status, route]);
 
     useEffect(() => {
 		document.title = "Free TV: Admin Dashboard";
 	}, []);
+
+    if (readiness.status === 'checking') {
+        return <SpinnerLoadingAppData />;
+    }
+
+    if (readiness.status !== 'ready') {
+        return (
+            <DatabaseReadinessPage
+                status={readiness.status}
+                missingTables={readiness.missingTables}
+                onRetry={readiness.retry}
+            />
+        );
+    }
         
     async function handleLogin(e) {
         e.preventDefault();

@@ -7,6 +7,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class Database
 {
     private static $capsule = null;
+    private static $environmentLoaded = false;
 
     public static function init()
     {
@@ -36,10 +37,34 @@ class Database
         return $capsule;
     }
 
-    private static function getConfig()
+    public static function hasExplicitConfig()
     {
+        self::loadEnvironment();
+
+        foreach ([
+            ['VITE_DB_HOST', 'DB_HOST'],
+            ['VITE_DB_NAME', 'DB_NAME'],
+            ['VITE_DB_USER', 'DB_USER'],
+        ] as $names) {
+            [$configured] = self::getFirstConfiguredValue($names, false);
+            if (!$configured) {
+                return false;
+            }
+        }
+
+        // A password setting must be explicit, but an empty password is valid.
+        [$passwordConfigured] = self::getFirstConfiguredValue(['VITE_DB_PASS', 'DB_PASS']);
+        return $passwordConfigured;
+    }
+
+    private static function loadEnvironment()
+    {
+        if (self::$environmentLoaded) {
+            return;
+        }
+
         // From public/api/admin/ -> go up 3 levels to root
-        $rootPath = dirname(__DIR__, 3); 
+        $rootPath = dirname(__DIR__, 3);
         $envPath = $rootPath . '/.env';
 
         error_log("Looking for .env at: " . $envPath);
@@ -58,11 +83,35 @@ class Database
             error_log("❌ Could not load .env file at " . $envPath);
         }
 
+        self::$environmentLoaded = true;
+    }
+
+    private static function getFirstConfiguredValue($names, $allowEmpty = true)
+    {
+        foreach ($names as $name) {
+            $value = getenv($name);
+            if ($value !== false && ($allowEmpty || trim((string) $value) !== '')) {
+                return [true, (string) $value];
+            }
+        }
+
+        return [false, ''];
+    }
+
+    private static function getConfig()
+    {
+        self::loadEnvironment();
+
+        [, $host] = self::getFirstConfiguredValue(['VITE_DB_HOST', 'DB_HOST'], false);
+        [, $database] = self::getFirstConfiguredValue(['VITE_DB_NAME', 'DB_NAME'], false);
+        [, $user] = self::getFirstConfiguredValue(['VITE_DB_USER', 'DB_USER'], false);
+        [, $pass] = self::getFirstConfiguredValue(['VITE_DB_PASS', 'DB_PASS']);
+
         $config = [
-            'host'     => getenv('VITE_DB_HOST') ?: getenv('DB_HOST') ?: '127.0.0.1',
-            'database' => getenv('VITE_DB_NAME') ?: getenv('DB_NAME') ?: 'freetv',
-            'user'     => getenv('VITE_DB_USER') ?: getenv('DB_USER') ?: 'root',
-            'pass'     => getenv('VITE_DB_PASS') ?: getenv('DB_PASS') ?: '',
+            'host'     => $host !== '' ? $host : '127.0.0.1',
+            'database' => $database !== '' ? $database : 'freetv',
+            'user'     => $user !== '' ? $user : 'root',
+            'pass'     => $pass,
         ];
 
         error_log("Final DB Config - User: " . $config['user'] . " | Pass length: " . strlen($config['pass']));
