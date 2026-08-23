@@ -68,4 +68,13 @@ if ($missingTables !== []) {
     respond('schema_missing', 503, ['missing_tables' => $missingTables]);
 }
 
+try {
+    if (!Database::table('users')->exists()) {
+        respond('initialization_required', 200);
+    }
+} catch (\Throwable $e) {
+    error_log('Readiness application state inspection error: ' . $e->getMessage());
+    respond('database_unavailable', 503);
+}
+
 respond('ready', 200);

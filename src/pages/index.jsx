@@ -5,6 +5,7 @@ import { useDatabaseReadiness } from '@/hooks/useDatabaseReadiness';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { DatabaseReadinessPage } from '@/pages/DatabaseReadinessPage';
+import { DataInitializationPage } from '@/pages/DataInitializationPage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
 
@@ -45,6 +46,10 @@ export function AdminLogin() {
 
     if (readiness.status === 'checking') {
         return <SpinnerLoadingAppData />;
+    }
+
+    if (readiness.status === 'initialization_required') {
+        return <DataInitializationPage onInitialized={readiness.retry} />;
     }
 
     if (readiness.status !== 'ready') {

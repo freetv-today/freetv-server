@@ -5,6 +5,7 @@ const BACKEND_STATUSES = new Set([
   'database_config_missing',
   'database_unavailable',
   'schema_missing',
+  'initialization_required',
   'ready'
 ]);
 
