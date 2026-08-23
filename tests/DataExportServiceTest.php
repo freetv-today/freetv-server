@@ -84,11 +84,9 @@ $testRoot = sys_get_temp_dir() . '/freetv-data-export-test-' . bin2hex(random_by
 $publicationRoot = $testRoot . '/public';
 $playlistRoot = $publicationRoot . '/playlists';
 $undoRoot = $testRoot . '/undo';
-if (!mkdir($playlistRoot, 0700, true) || !mkdir($undoRoot, 0700, true)) {
-    throw new RuntimeException('Could not create data export test directories');
+if (!mkdir($playlistRoot, 0700, true)) {
+    throw new RuntimeException('Could not create data export test publication directory');
 }
-file_put_contents($undoRoot . '/.lock', '');
-file_put_contents($undoRoot . '/sentinel', 'unchanged undo state');
 
 $playlists = [
     [
@@ -241,8 +239,9 @@ try {
     mkdir($publicationRoot . '/thumbs', 0700);
     file_put_contents($publicationRoot . '/thumbs/example.jpg', 'not exported');
     $publicationBefore = exportTreeHashes($publicationRoot);
-    $undoBefore = exportTreeHashes($undoRoot);
     $databaseBefore = serialize([$playlists, $shows, $settings, $timestamps]);
+    assertExportSame(false, file_exists($undoRoot),
+        'Fresh export fixture unexpectedly contains publication Undo infrastructure');
 
     $cleanStatus = $status->status();
     assertExportSame(
@@ -313,13 +312,24 @@ try {
     }
     assertExportSame(false, file_exists($destination . '/thumbs'), 'Export included thumbnails');
     assertExportSame($publicationBefore, exportTreeHashes($publicationRoot), 'Export mutated publication files');
-    assertExportSame($undoBefore, exportTreeHashes($undoRoot), 'Export mutated publication Undo state');
     assertExportSame($databaseBefore, serialize([$playlists, $shows, $settings, $timestamps]),
         'Export mutated authoritative fixture state');
+    assertExportSame(true, is_dir($undoRoot),
+        'Data export did not initialize the shared publication lock directory');
+    assertExportSame(true, is_file($undoRoot . '/.lock'),
+        'Data export did not initialize the shared publication lock file');
+    $undoEntries = array_values(array_diff(scandir($undoRoot) ?: [], ['.', '..']));
+    sort($undoEntries, SORT_STRING);
+    assertExportSame(['.lock'], $undoEntries,
+        'Fresh data export created publication Undo snapshot state');
+
+    file_put_contents($undoRoot . '/sentinel', 'unchanged undo state');
+    $undoBefore = exportTreeHashes($undoRoot);
 
     $nullRevisionDestination = $testRoot . '/null-revision';
     $nullManifest = $newService(static fn(): ?string => null)->export($nullRevisionDestination);
     assertExportSame(null, $nullManifest['server_revision'], 'Unavailable revision did not use null');
+    assertExportSame($undoBefore, exportTreeHashes($undoRoot), 'Export mutated publication Undo state');
 
     $shows[1][0]['title'] = 'Unpublished title';
     expectExportFailure(
@@ -407,14 +417,21 @@ try {
         'Rejected publication-root destination was modified');
 
     unlink($undoRoot . '/.lock');
-    expectExportFailure(
-        fn() => $newService()->export($testRoot . '/missing-publication-lock'),
-        'Missing publication lock was accepted'
-    );
-    assertExportSame(false, file_exists($undoRoot . '/.lock'),
-        'Data export created a missing publication lock');
-    assertExportSame(false, file_exists($testRoot . '/missing-publication-lock'),
-        'Missing publication lock left an export directory');
+    $newService()->export($testRoot . '/missing-publication-lock');
+    assertExportSame(true, is_file($undoRoot . '/.lock'),
+        'Data export did not recreate the missing shared publication lock');
+    assertExportSame(true, is_file($testRoot . '/missing-publication-lock/manifest.json'),
+        'Data export did not succeed with a missing publication lock');
+    $undoEntries = array_values(array_diff(scandir($undoRoot) ?: [], ['.', '..']));
+    sort($undoEntries, SORT_STRING);
+    assertExportSame(['.lock', 'sentinel'], $undoEntries,
+        'Data export created publication Undo snapshot state while recreating the lock');
+    assertExportSame($undoBefore, exportTreeHashes($undoRoot),
+        'Recreating the publication lock modified existing Undo fixture state');
+    assertExportSame($publicationBefore, exportTreeHashes($publicationRoot),
+        'Fresh-lock export mutated publication artifacts');
+    assertExportSame($databaseBefore, serialize([$playlists, $shows, $settings, $timestamps]),
+        'Fresh-lock export mutated authoritative fixture state');
 } finally {
     removeExportTree($testRoot);
 }

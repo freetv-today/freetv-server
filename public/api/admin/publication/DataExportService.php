@@ -45,7 +45,7 @@ class DataExportService
     {
         $resolvedDestination = $this->validateDestination($destination);
 
-        return $this->undoService->withExistingLock(
+        return $this->undoService->withLock(
             fn(): array => $this->exportLocked($resolvedDestination)
         );
     }
