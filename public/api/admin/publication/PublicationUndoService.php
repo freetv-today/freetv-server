@@ -47,6 +47,20 @@ class PublicationUndoService
     {
         $this->ensureUndoRoot();
         $lock = fopen($this->undoRoot . '/.lock', 'c');
+        return $this->runWithLock($lock, $operation);
+    }
+
+    public function withExistingLock(callable $operation)
+    {
+        $lockPath = $this->undoRoot . '/.lock';
+        $lock = is_file($lockPath) && is_readable($lockPath)
+            ? fopen($lockPath, 'r')
+            : false;
+        return $this->runWithLock($lock, $operation);
+    }
+
+    private function runWithLock($lock, callable $operation)
+    {
         if ($lock === false || !flock($lock, LOCK_EX)) {
             if (is_resource($lock)) {
                 fclose($lock);
