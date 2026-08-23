@@ -101,6 +101,7 @@ $playlists = [
         'link' => null,
         'is_default' => 0,
         'sort_order' => 1,
+        'lastupdated' => '2026-08-23 09:15:00',
     ],
     [
         'id' => 1,
@@ -112,6 +113,7 @@ $playlists = [
         'link' => 'https://example.test',
         'is_default' => 1,
         'sort_order' => 0,
+        'lastupdated' => '2026-08-22 11:03:27',
     ],
 ];
 usort($playlists, static fn(array $left, array $right): int => $left['sort_order'] <=> $right['sort_order']);
@@ -223,23 +225,12 @@ $status = new PublicationStatusService(
         return $settings;
     }
 );
-$databaseTimestamps = static function () use (&$timestamps): array {
-    $rows = [];
-    foreach ($timestamps as $filename => $timestamp) {
-        $rows[] = [
-            'filename' => $filename,
-            'lastupdated' => str_replace(['T', '.000Z'], [' ', ''], $timestamp),
-        ];
-    }
-    return $rows;
-};
 $undo = new PublicationUndoService($publicationRoot, $undoRoot, static function (): void {
     throw new RuntimeException('Data export attempted to update a database timestamp');
 });
 $newService = static fn(?callable $revision = null): DataExportService => new DataExportService(
     $publicationRoot,
     $status,
-    $databaseTimestamps,
     static fn(): DateTimeImmutable => new DateTimeImmutable('2026-08-23T14:32:18.456Z'),
     $revision ?? static fn(): string => str_repeat('a', 40),
     $undo
@@ -252,6 +243,35 @@ try {
     $publicationBefore = exportTreeHashes($publicationRoot);
     $undoBefore = exportTreeHashes($undoRoot);
     $databaseBefore = serialize([$playlists, $shows, $settings, $timestamps]);
+
+    $cleanStatus = $status->status();
+    assertExportSame(
+        [false, false],
+        array_column($cleanStatus['playlists'], 'changed'),
+        'Fixture playlists are not semantically clean'
+    );
+    assertExportSame(false, $cleanStatus['config']['changed'], 'Fixture config is not clean');
+    assertExportSame(false, $cleanStatus['default_playlist']['changed'],
+        'Fixture default playlist is not clean');
+    assertExportSame('2026-08-22 11:03:27', $playlists[0]['lastupdated'],
+        'Fixture does not represent a newer MariaDB playlist timestamp');
+    assertExportSame(false, $playlists[0]['lastupdated'] === $timestamps['alpha.json'],
+        'Fixture MariaDB and artifact timestamps unexpectedly agree');
+
+    $publishedAlpha = json_decode(
+        (string) file_get_contents($playlistRoot . '/alpha.json'),
+        true,
+        512,
+        JSON_THROW_ON_ERROR
+    );
+    $publishedIndex = json_decode(
+        (string) file_get_contents($playlistRoot . '/index.json'),
+        true,
+        512,
+        JSON_THROW_ON_ERROR
+    );
+    assertExportSame($publishedAlpha['lastupdated'], $publishedIndex['playlists'][0]['lastupdated'],
+        'Fixture playlist and index timestamps do not agree');
 
     $destination = $testRoot . '/export';
     $manifest = $newService()->export($destination);
@@ -365,13 +385,6 @@ try {
         'Playlist/index timestamp mismatch did not refuse export'
     );
     $writeFixture();
-
-    $timestamps['alpha.json'] = '2026-08-20T10:00:01.000Z';
-    expectExportFailure(
-        fn() => $newService()->export($testRoot . '/database-timestamp-mismatch'),
-        'Published/MariaDB timestamp mismatch did not refuse export'
-    );
-    $timestamps['alpha.json'] = '2026-08-20T10:00:00.000Z';
 
     mkdir($testRoot . '/existing-empty', 0700);
     expectExportFailure(

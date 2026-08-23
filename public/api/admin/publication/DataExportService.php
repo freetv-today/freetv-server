@@ -2,7 +2,6 @@
 
 namespace FreeTV\Admin\Publication;
 
-require_once __DIR__ . '/../Database.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/PlaylistPublicationService.php';
@@ -11,7 +10,6 @@ require_once __DIR__ . '/PublicationUndoService.php';
 
 use DateTimeImmutable;
 use DateTimeZone;
-use FreeTV\Admin\Database;
 use InvalidArgumentException;
 use JsonException;
 use Throwable;
@@ -22,14 +20,12 @@ class DataExportService
     private string $serverRoot;
     private PublicationStatusService $statusService;
     private PublicationUndoService $undoService;
-    private $playlistTimestampLoader;
     private $clock;
     private $revisionResolver;
 
     public function __construct(
         ?string $publicationRoot = null,
         ?PublicationStatusService $statusService = null,
-        ?callable $playlistTimestampLoader = null,
         ?callable $clock = null,
         ?callable $revisionResolver = null,
         ?PublicationUndoService $undoService = null
@@ -40,10 +36,6 @@ class DataExportService
             DIRECTORY_SEPARATOR
         );
         $this->statusService = $statusService ?? new PublicationStatusService($this->publicationRoot);
-        $this->playlistTimestampLoader = $playlistTimestampLoader ?? static fn() =>
-            Database::table('playlists')
-                ->select(['filename', 'lastupdated'])
-                ->get();
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $this->revisionResolver = $revisionResolver ?? fn(): ?string => $this->resolveServerRevision();
         $this->undoService = $undoService ?? new PublicationUndoService($this->publicationRoot);
@@ -192,7 +184,6 @@ class DataExportService
             );
         }
 
-        $databaseTimestamps = $this->loadDatabaseTimestamps($expectedFilenames);
         $playlistArtifacts = [];
         $playlistManifest = [];
         $showCount = 0;
@@ -205,12 +196,6 @@ class DataExportService
             if (($indexEntries[$filename]['lastupdated'] ?? null) !== $publishedAt) {
                 throw new PublicationException(
                     'Published playlist and index timestamps differ for ' . $filename,
-                    409
-                );
-            }
-            if (($databaseTimestamps[$filename] ?? null) !== $publishedAt) {
-                throw new PublicationException(
-                    'Published playlist timestamp differs from MariaDB for ' . $filename,
                     409
                 );
             }
@@ -245,37 +230,6 @@ class DataExportService
             'show_count' => $showCount,
             'files' => $files,
         ];
-    }
-
-    private function loadDatabaseTimestamps(array $expectedFilenames): array
-    {
-        $timestamps = [];
-        foreach (($this->playlistTimestampLoader)() as $row) {
-            $filename = self::value($row, 'filename');
-            $timestamp = self::value($row, 'lastupdated');
-            if (!is_string($filename) || isset($timestamps[$filename])) {
-                throw new PublicationException('MariaDB playlist timestamp state is invalid', 409);
-            }
-            try {
-                if (!is_string($timestamp)) {
-                    throw new InvalidArgumentException('Timestamp is not a string');
-                }
-                $timestamps[$filename] = PublicationTimestamp::format($timestamp, 'UTC');
-            } catch (InvalidArgumentException $exception) {
-                throw new PublicationException(
-                    'MariaDB playlist has an invalid lastupdated for ' . $filename,
-                    409
-                );
-            }
-        }
-
-        $databaseFilenames = array_keys($timestamps);
-        sort($databaseFilenames, SORT_STRING);
-        if ($databaseFilenames !== $expectedFilenames) {
-            throw new PublicationException('MariaDB playlist timestamp state is incomplete', 409);
-        }
-
-        return $timestamps;
     }
 
     private function assertIndexEntryMatchesArtifact(array $entry, array $artifact, string $filename): void
@@ -483,10 +437,5 @@ class DataExportService
             $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
         }
         rmdir($destination);
-    }
-
-    private static function value(array|object $row, string $field): mixed
-    {
-        return is_array($row) ? ($row[$field] ?? null) : ($row->{$field} ?? null);
     }
 }
