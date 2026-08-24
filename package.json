@@ -11,7 +11,9 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"build": "vite build && npm run validate:dist",
+		"validate:dist": "node scripts/validate-admin-dist.js",
+		"test:admin-dist": "node tests/AdminDistContractTest.js",
 		"preview": "vite preview"
 	},
 	"dependencies": {

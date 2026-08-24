@@ -1,7 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
-import { createPath } from '@/utils/env';
 import { useAdminAuth } from '@context/AdminSessionContext';
+import { gearIcon, infoIcon } from '@/adminAssets';
 
 /**
  * AdminDashboardFilters - filter controls for dashboard table
@@ -67,7 +67,7 @@ export function AdminDashboardFilters({
                   onClick={onMetaClick}
                 >
                   <img
-                    src={createPath('/assets/gear-fill.svg')}
+                    src={gearIcon}
                     width="20"
                     height="20"
                     alt=""
@@ -84,7 +84,7 @@ export function AdminDashboardFilters({
                 onClick={onInfoClick}
               >
                 <img
-                  src={createPath('/assets/info-circle-black.svg')}
+                  src={infoIcon}
                   width="22"
                   height="22"
                   alt=""

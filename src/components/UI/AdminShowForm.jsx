@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 import { capitalizeFirstLetter } from '@/utils/utils';
+import { externalLinkIcon } from '@/adminAssets';
 
 const IMDB_ID_PATTERN = /^tt\d+$/;
 
@@ -251,7 +252,7 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           disabled={!form.title}
         >
           Search IMDB by Title
-          <img src="/assets/external-link.svg" className="ms-2" width="14" alt="External link" />
+          <img src={externalLinkIcon} className="ms-2" width="14" alt="External link" />
         </button>
       </div>
       <div className="mb-2">
@@ -286,7 +287,7 @@ export function AdminShowForm({ initialData = {}, onSave, onSaveAndAddMore, onCa
           disabled={!IMDB_ID_PATTERN.test(form.imdb)}
         >
           View IMDB Page
-          <img src="/assets/external-link.svg" className="ms-2" width="14" alt="External link" />
+          <img src={externalLinkIcon} className="ms-2" width="14" alt="External link" />
         </button>
       </div>
 

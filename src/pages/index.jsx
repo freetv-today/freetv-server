@@ -8,6 +8,7 @@ import { DatabaseReadinessPage } from '@/pages/DatabaseReadinessPage';
 import { DataInitializationPage } from '@/pages/DataInitializationPage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
+import { freeTvLogo } from '@/adminAssets';
 
 export function AdminLogin() {
 
@@ -102,7 +103,7 @@ export function AdminLogin() {
                         <div className="d-flex flex-column nowrap justify-content-center align-items-center mb-3">
                             <div className="d-flex align-items-center">
                                 <img
-                                    src={createPath('/assets/freetv.png')}
+                                    src={freeTvLogo}
                                     alt="Free TV Logo"
                                     title="Free TV"
                                     width="125"

@@ -1,6 +1,6 @@
 import { useSingleThumbnail } from '@/hooks/useSingleThumbnail';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { createPath } from '@/utils/env';
+import { editIcon, vintageTv } from '@/adminAssets';
 
 function pluralize(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`;
@@ -69,14 +69,14 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
   const controlsDisabled = !isValidImdb || !statusLoaded || loading;
   const previewUrl = exists && thumbnailUrl
     ? thumbnailUrl
-    : createPath('/assets/vintage-tv.png');
+    : vintageTv;
 
   return (
     <div className="accordion" id="thumbnailControls">
       <div className="accordion-item">
         <h2 className="accordion-header">
           <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-            <img src="/assets/edit.svg" className="me-3" height="30" />
+            <img src={editIcon} className="me-3" height="30" />
             <span className="fw-bold">Live Thumbnail Editor</span>
           </button>
         </h2>

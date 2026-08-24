@@ -17,7 +17,7 @@ body {
 /* Fonts */
 @font-face {
     font-family: "Bruno Ace";
-    src: url('/assets/fonts/BrunoAce-Regular.ttf');
+    src: url('../public/assets/fonts/BrunoAce-Regular.ttf');
     font-display: swap;
 }
 .bruno-ace {

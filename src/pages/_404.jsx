@@ -3,6 +3,7 @@ import { useEffect } from 'preact/hooks';
 import { Link } from '@components/Navigation/Link';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { createPath } from '@/utils/env';
+import { sadFace } from '@/adminAssets';
 
 export function NotFound() {
 
@@ -34,7 +35,7 @@ export function NotFound() {
                     </>)
                 }
             </p>
-            <img src={createPath('/assets/sadface.svg')} width="140" title="Not Found" />
+            <img src={sadFace} width="140" title="Not Found" />
         </div>
     );
 }

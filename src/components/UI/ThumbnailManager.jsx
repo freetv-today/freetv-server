@@ -1,7 +1,7 @@
 import { useThumbnail } from '@/hooks/useThumbnail';
 import { useEffect, useState } from 'preact/hooks';
-import { createPath } from '@/utils/env';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
+import { vintageTv } from '@/adminAssets';
 
 function formatCount(count, singular) {
   return `${count} ${singular}${count === 1 ? '' : 's'}`;
@@ -69,7 +69,7 @@ export function ThumbnailManager() {
 
     setChangedPreview({
       imdb: changedImdb,
-      url: thumbnailUrl || createPath('/assets/vintage-tv.png'),
+      url: thumbnailUrl || vintageTv,
     });
     await refreshThumbnails();
 
@@ -89,7 +89,7 @@ export function ThumbnailManager() {
     ? changedPreview.url
     : selectedShow?.has_thumbnail
       ? `/thumbs/${selectedShow.imdb}.jpg`
-      : createPath('/assets/vintage-tv.png');
+      : vintageTv;
   const globalUsage = selectedShow?.global_usage;
   const selectedPlaylistShowCount = selectedShow?.selected_playlist_show_count || 0;
   const showSelectedPlaylistUsage = selectedPlaylistShowCount > 1;

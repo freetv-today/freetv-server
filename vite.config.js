@@ -3,7 +3,7 @@ import preact from '@preact/preset-vite';
 import { resolve } from 'path';
 import { fileURLToPath, URL } from 'node:url';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   // Load environment variables
   const env = loadEnv(mode, '.', '');
 
@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [preact()],
     base: base,
+    // Server public/ is the PHP/publication web root, not the Admin asset source.
+    // Keep it available to the standalone dev server, but never copy it into dist.
+    publicDir: command === 'build' ? false : 'public',
     resolve: {
       alias: {
         '@': resolve(fileURLToPath(new URL('.', import.meta.url)), 'src'),
