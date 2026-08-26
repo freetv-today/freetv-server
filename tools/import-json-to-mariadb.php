@@ -1,5 +1,8 @@
 <?php
 /**
+ * DEPRECATED: legacy-schema importer. Do not use for server-refactor databases.
+ * Use import-clean-json-to-mariadb.php for current playlist content instead.
+ *
  * Temporary importer for moving freetv-data JSON files into MariaDB.
  *
  * Usage:
