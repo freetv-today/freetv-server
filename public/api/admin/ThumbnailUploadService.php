@@ -2,6 +2,8 @@
 
 namespace FreeTV\Admin;
 
+require_once __DIR__ . '/ServerPaths.php';
+
 class ThumbnailUploadException extends \RuntimeException
 {
     public function __construct(string $message, private int $httpStatus = 400)
@@ -27,8 +29,11 @@ class ThumbnailUploadService
         private ?string $thumbnailDirectory = null,
         private ?string $undoDirectory = null
     ) {
-        $this->thumbnailDirectory ??= dirname(__DIR__, 2) . '/thumbs';
-        $this->undoDirectory ??= dirname(__DIR__, 3) . '/temp/thumbnail-undo';
+        if ($this->thumbnailDirectory === null || $this->undoDirectory === null) {
+            $serverPaths = new ServerPaths();
+            $this->thumbnailDirectory ??= $serverPaths->publicRoot() . '/thumbs';
+            $this->undoDirectory ??= $serverPaths->tempRoot() . '/thumbnail-undo';
+        }
     }
 
     public function store(

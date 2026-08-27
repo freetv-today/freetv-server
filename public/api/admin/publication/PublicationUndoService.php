@@ -3,10 +3,12 @@
 namespace FreeTV\Admin\Publication;
 
 require_once __DIR__ . '/../Database.php';
+require_once __DIR__ . '/../ServerPaths.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\ServerPaths;
 use JsonException;
 use Throwable;
 
@@ -21,11 +23,20 @@ class PublicationUndoService
     public function __construct(
         ?string $publicationRoot = null,
         ?string $undoRoot = null,
-        ?callable $playlistTimestampUpdater = null
+        ?callable $playlistTimestampUpdater = null,
+        ?ServerPaths $serverPaths = null
     ) {
-        $serverRoot = dirname(__DIR__, 4);
-        $this->publicationRoot = rtrim($publicationRoot ?? $serverRoot . '/public', DIRECTORY_SEPARATOR);
-        $this->undoRoot = rtrim($undoRoot ?? $serverRoot . '/temp/publication-undo', DIRECTORY_SEPARATOR);
+        if ($publicationRoot === null || $undoRoot === null) {
+            $serverPaths ??= new ServerPaths();
+        }
+        $this->publicationRoot = rtrim(
+            $publicationRoot ?? $serverPaths->publicRoot(),
+            DIRECTORY_SEPARATOR
+        );
+        $this->undoRoot = rtrim(
+            $undoRoot ?? $serverPaths->tempRoot() . '/publication-undo',
+            DIRECTORY_SEPARATOR
+        );
         $this->playlistTimestampUpdater = $playlistTimestampUpdater ?? static function (
             string $filename,
             string $databaseTimestamp

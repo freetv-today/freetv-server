@@ -2,6 +2,8 @@
 
 namespace FreeTV\Admin\Publication;
 
+require_once __DIR__ . '/../ServerPaths.php';
+
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/PlaylistPublicationSerializer.php';
@@ -14,6 +16,7 @@ require_once __DIR__ . '/PublicationUndoService.php';
 use DateTimeImmutable;
 use DateTimeZone;
 use FreeTV\Admin\Database;
+use FreeTV\Admin\ServerPaths;
 use JsonException;
 use Throwable;
 
@@ -36,7 +39,10 @@ class AllPlaylistsPublicationService
         ?PublicationUndoService $undoService = null,
         ?callable $artifactWriter = null
     ) {
-        $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
+        $this->publicationRoot = rtrim(
+            $publicationRoot ?? (new ServerPaths())->publicRoot(),
+            DIRECTORY_SEPARATOR
+        );
         $this->playlistLoader = $playlistLoader ?? static fn() => Database::table('playlists')
             ->select([
                 'id',

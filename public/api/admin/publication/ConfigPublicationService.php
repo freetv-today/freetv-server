@@ -2,6 +2,8 @@
 
 namespace FreeTV\Admin\Publication;
 
+require_once __DIR__ . '/../ServerPaths.php';
+
 require_once __DIR__ . '/../Settings.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
@@ -11,6 +13,7 @@ require_once __DIR__ . '/PublicationUndoService.php';
 use DateTimeImmutable;
 use DateTimeZone;
 use FreeTV\Admin\Settings;
+use FreeTV\Admin\ServerPaths;
 use JsonException;
 use Throwable;
 
@@ -27,7 +30,10 @@ class ConfigPublicationService
         ?callable $clock = null,
         ?PublicationUndoService $undoService = null
     ) {
-        $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
+        $this->publicationRoot = rtrim(
+            $publicationRoot ?? (new ServerPaths())->publicRoot(),
+            DIRECTORY_SEPARATOR
+        );
         $this->settingsLoader = $settingsLoader ?? static fn() => Settings::readPublishable();
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $this->undoService = $undoService ?? new PublicationUndoService($this->publicationRoot);

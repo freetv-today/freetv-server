@@ -2,6 +2,8 @@
 
 namespace FreeTV\Admin\Publication;
 
+require_once __DIR__ . '/../ServerPaths.php';
+
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 require_once __DIR__ . '/PlaylistPublicationService.php';
@@ -12,6 +14,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
 use JsonException;
+use FreeTV\Admin\ServerPaths;
 use Throwable;
 
 class DataExportService
@@ -30,9 +33,10 @@ class DataExportService
         ?callable $revisionResolver = null,
         ?PublicationUndoService $undoService = null
     ) {
-        $this->serverRoot = dirname(__DIR__, 4);
+        $serverPaths = new ServerPaths();
+        $this->serverRoot = $serverPaths->appRoot();
         $this->publicationRoot = rtrim(
-            $publicationRoot ?? $this->serverRoot . '/public',
+            $publicationRoot ?? $serverPaths->publicRoot(),
             DIRECTORY_SEPARATOR
         );
         $this->statusService = $statusService ?? new PublicationStatusService($this->publicationRoot);

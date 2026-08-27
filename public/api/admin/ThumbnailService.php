@@ -2,13 +2,15 @@
 
 namespace FreeTV\Admin;
 
+require_once __DIR__ . '/ServerPaths.php';
+
 class ThumbnailService
 {
     private string $thumbnailDirectory;
 
     public function __construct(?string $thumbnailDirectory = null)
     {
-        $this->thumbnailDirectory = $thumbnailDirectory ?? dirname(__DIR__, 2) . '/thumbs';
+        $this->thumbnailDirectory = $thumbnailDirectory ?? (new ServerPaths())->publicRoot() . '/thumbs';
     }
 
     public static function isValidImdb($imdb): bool

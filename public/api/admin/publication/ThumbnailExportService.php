@@ -2,12 +2,15 @@
 
 namespace FreeTV\Admin\Publication;
 
+require_once __DIR__ . '/../ServerPaths.php';
+
 require_once __DIR__ . '/../ThumbnailService.php';
 require_once __DIR__ . '/PublicationTimestamp.php';
 
 use DateTimeImmutable;
 use DateTimeZone;
 use FreeTV\Admin\ThumbnailService;
+use FreeTV\Admin\ServerPaths;
 use JsonException;
 use RuntimeException;
 use Throwable;
@@ -39,9 +42,10 @@ class ThumbnailExportService
         ?callable $revisionResolver = null,
         ?callable $fileStager = null
     ) {
-        $this->serverRoot = dirname(__DIR__, 4);
+        $serverPaths = new ServerPaths();
+        $this->serverRoot = $serverPaths->appRoot();
         $this->thumbnailDirectory = rtrim(
-            $thumbnailDirectory ?? $this->serverRoot . '/public/thumbs',
+            $thumbnailDirectory ?? $serverPaths->publicRoot() . '/thumbs',
             DIRECTORY_SEPARATOR
         );
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));

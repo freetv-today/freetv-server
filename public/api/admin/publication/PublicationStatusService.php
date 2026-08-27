@@ -3,6 +3,7 @@
 namespace FreeTV\Admin\Publication;
 
 require_once __DIR__ . '/../Settings.php';
+require_once __DIR__ . '/../ServerPaths.php';
 require_once __DIR__ . '/PublicationException.php';
 require_once __DIR__ . '/PublicationSemanticHasher.php';
 require_once __DIR__ . '/PublicationSemanticDelta.php';
@@ -11,6 +12,7 @@ require_once __DIR__ . '/ConfigPublicationSerializer.php';
 
 use FreeTV\Admin\Database;
 use FreeTV\Admin\Settings;
+use FreeTV\Admin\ServerPaths;
 use InvalidArgumentException;
 use JsonException;
 
@@ -29,7 +31,10 @@ class PublicationStatusService
         ?callable $showLoader = null,
         ?callable $settingsLoader = null
     ) {
-        $this->publicationRoot = rtrim($publicationRoot ?? dirname(__DIR__, 3), DIRECTORY_SEPARATOR);
+        $this->publicationRoot = rtrim(
+            $publicationRoot ?? (new ServerPaths())->publicRoot(),
+            DIRECTORY_SEPARATOR
+        );
         $this->playlistLoader = $playlistLoader ?? static fn() => Database::table('playlists')
             ->select([
                 'id',
