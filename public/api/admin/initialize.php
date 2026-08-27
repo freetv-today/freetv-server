@@ -1,6 +1,7 @@
 <?php
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\InitializationPlan;
 
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
@@ -76,6 +77,7 @@ if (!file_exists($autoloadPath)) {
 try {
     require_once $autoloadPath;
     require_once __DIR__ . '/Database.php';
+    require_once __DIR__ . '/InitializationPlan.php';
 } catch (\Throwable $e) {
     error_log('Initialization dependency loading error: ' . $e->getMessage());
     initializeRespond(503, ['success' => false, 'message' => 'PHP dependencies are unavailable']);
@@ -116,11 +118,9 @@ try {
             ->lockForUpdate()
             ->first(['id']) !== null;
 
-        if ($hasUsers) {
+        $plan = InitializationPlan::forState($hasUsers, $hasPlaylists, $hasPlaylistShows);
+        if ($plan === InitializationPlan::ALREADY_INITIALIZED) {
             return 'already_initialized';
-        }
-        if ($hasPlaylists || $hasPlaylistShows) {
-            return 'existing_content';
         }
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -135,17 +135,19 @@ try {
             'status' => 'active',
         ]);
 
-        Database::table('playlists')->insert([
-            'filename' => 'playlist-one.json',
-            'dbtitle' => 'Playlist One',
-            'dbversion' => null,
-            'author' => null,
-            'email' => null,
-            'link' => null,
-            'lastupdated' => $connection->raw('CURRENT_TIMESTAMP'),
-            'is_default' => 1,
-            'sort_order' => 0,
-        ]);
+        if ($plan === InitializationPlan::CREATE_ADMIN_AND_STARTER) {
+            Database::table('playlists')->insert([
+                'filename' => 'playlist-one.json',
+                'dbtitle' => 'Playlist One',
+                'dbversion' => null,
+                'author' => null,
+                'email' => null,
+                'link' => null,
+                'lastupdated' => $connection->raw('CURRENT_TIMESTAMP'),
+                'is_default' => 1,
+                'sort_order' => 0,
+            ]);
+        }
 
         Database::table('app_settings')->insertOrIgnore([
             'setting_key' => 'show_ads',
@@ -170,13 +172,6 @@ try {
 
 if ($result === 'already_initialized') {
     initializeRespond(409, ['success' => false, 'message' => 'FreeTV has already been initialized']);
-}
-
-if ($result === 'existing_content') {
-    initializeRespond(409, [
-        'success' => false,
-        'message' => 'Start Fresh requires empty users, playlists, and playlist shows tables',
-    ]);
 }
 
 initializeRespond(201, ['success' => true, 'message' => 'FreeTV library initialized']);

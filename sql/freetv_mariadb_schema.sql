@@ -1,12 +1,7 @@
--- FreeTV MariaDB schema
--- Import into MariaDB / phpMyAdmin as a SQL file.
--- Recommended database: freetv
-
-CREATE DATABASE IF NOT EXISTS freetv
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE freetv;
+-- FreeTV portable MariaDB schema package.
+-- Import into an already-created, selected database.
+-- Includes the complete current schema and canonical app_settings defaults.
+-- Includes no playlist/show content, problem reports, or users.
 
 CREATE TABLE IF NOT EXISTS app_settings (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
