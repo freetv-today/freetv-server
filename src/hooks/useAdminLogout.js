@@ -1,6 +1,6 @@
 import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { createPath } from '@/utils/env';
 
 /**
@@ -31,7 +31,10 @@ export function useAdminLogout() {
 				// ignore error, just redirect
 			}
 			log('Logging out of Admin Dashboard');
-			setAdminMsg({ type: 'success', text: 'You have been logged out of your account.' });
+			setAdminFlashMsg(
+				{ type: 'success', text: 'You have been logged out of your account.' },
+				createPath('/')
+			);
 			route(createPath('/'));
 		}
 	};

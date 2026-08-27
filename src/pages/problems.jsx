@@ -23,10 +23,6 @@ export function AdminProblems() {
     useEffect(() => {
         document.title = 'Free TV: Admin Dashboard - Problems';
         log('Rendered Admin Problems page (pages/problems.jsx)');
-        // On unmount, remove adminMsg from localStorage
-        return () => {
-            localStorage.removeItem('adminMsg');
-        };
     }, []);
 
     useEffect(() => {

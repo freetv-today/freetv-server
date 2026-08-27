@@ -3,7 +3,7 @@ import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 import { useLocation } from 'preact-iso';
 import { AdminShowForm } from '@/components/UI/AdminShowForm';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { setAdminFlashMsg, setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
@@ -59,7 +59,10 @@ export function AddShow() {
           if (typeof resetFormCallback === 'function') resetFormCallback();
         } else {
           await switchPlaylist(currentPlaylist);
-          setAdminMsg({ type: 'success', text: 'The new show has been added successfully.' });
+          setAdminFlashMsg(
+            { type: 'success', text: 'The new show has been added successfully.' },
+            createPath('/dashboard')
+          );
           route(createPath('/dashboard'));
         }
       }

@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 import { useLocation } from 'preact-iso';
 import { AdminShowForm } from '@/components/UI/AdminShowForm';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
@@ -53,9 +53,15 @@ export function EditShow() {
         await switchPlaylist(playlist);
         // Check if identifier changed
         if (updatedShow.identifier !== identifier) {
-          setAdminMsg({ type: 'success', text: 'The show has been updated successfully. The identifier was changed.' });
+          setAdminFlashMsg(
+            { type: 'success', text: 'The show has been updated successfully. The identifier was changed.' },
+            createPath('/dashboard')
+          );
         } else {
-          setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
+          setAdminFlashMsg(
+            { type: 'success', text: 'The show you edited has been updated successfully.' },
+            createPath('/dashboard')
+          );
         }
         route(createPath('/dashboard')); // <-- Always route back to dashboard
       }
