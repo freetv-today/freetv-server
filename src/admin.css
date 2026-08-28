@@ -127,6 +127,17 @@
     background-image: url('../public/assets/publish-blue.svg');
 }
 
+/* Admin Dashboard top navbar: Data Snapshot */
+.snapshot-icon {
+    background-image: url('../public/assets/database-white.svg');
+}
+.snapshot-icon:hover, .dropdown-item-custom:hover .snapshot-icon {
+    background-image: url('../public/assets/database-blue.svg');
+}
+.icon-btn.active.snapshot-icon, .dropdown-item-custom.active .snapshot-icon {
+    background-image: url('../public/assets/database-blue.svg');
+}
+
 /* Admin Dashboard top navbar: Settings */
 .settings-icon {
     background-image: url('../public/assets/settings-white.svg');
@@ -136,17 +147,6 @@
 }
 .icon-btn.active.settings-icon, .dropdown-item-custom.active .settings-icon {
     background-image: url('../public/assets/settings-blue.svg');
-}
-
-/* Admin Dashboard top navbar: Data Snapshot */
-.snapshot-icon {
-    background-image: url('../public/assets/snapshot-white.svg');
-}
-.snapshot-icon:hover, .dropdown-item-custom:hover .snapshot-icon {
-    background-image: url('../public/assets/snapshot-blue.svg');
-}
-.icon-btn.active.snapshot-icon, .dropdown-item-custom.active .snapshot-icon {
-    background-image: url('../public/assets/snapshot-blue.svg');
 }
 
 /* Admin Dashboard top navbar: Logout */
