@@ -2,6 +2,7 @@
     "name": "freetv/server",
     "type": "project",
     "require": {
+        "ext-zip": "*",
         "illuminate/database": "^13.18",
         "vlucas/phpdotenv": "^5.6"
     },

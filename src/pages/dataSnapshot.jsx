@@ -27,6 +27,9 @@ export function DataSnapshotController() {
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [productionSnapshot, setProductionSnapshot] = useState(null);
+  const [creatingSnapshot, setCreatingSnapshot] = useState(false);
+  const [creationError, setCreationError] = useState(null);
 
   useEffect(() => {
     document.title = 'Free TV: Admin Dashboard - Data Snapshot Controller';
@@ -59,6 +62,32 @@ export function DataSnapshotController() {
     return () => controller.abort();
   }, []);
 
+  async function createProductionSnapshot() {
+    if (creatingSnapshot) return;
+
+    setCreatingSnapshot(true);
+    setCreationError(null);
+    setProductionSnapshot(null);
+    try {
+      const response = await fetch('/api/admin/data-snapshot-create.php', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const result = await response.json().catch(() => null);
+      if (!result) {
+        throw new Error('Snapshot creation returned an invalid response');
+      }
+      if (!response.ok || !result.success || result.status !== 'created') {
+        throw new Error(result.message || 'Could not create the production content snapshot');
+      }
+      setProductionSnapshot(result.snapshot);
+    } catch (requestError) {
+      setCreationError(requestError.message || 'Could not create the production content snapshot');
+    } finally {
+      setCreatingSnapshot(false);
+    }
+  }
+
   if (loading) return <SpinnerLoadingAppData />;
 
   return (
@@ -71,6 +100,59 @@ export function DataSnapshotController() {
           <div>{error}</div>
         </div>
       )}
+
+      <section className="bg-white border rounded p-4 mb-4" aria-labelledby="productionSnapshotHeading">
+        <h3 id="productionSnapshotHeading" className="h5 mb-2">Production Content Snapshot</h3>
+        <p className="text-muted mb-3">
+          Create a private snapshot of the current production playlists, shows, and thumbnails.
+        </p>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={creatingSnapshot}
+          aria-busy={creatingSnapshot}
+          onClick={() => void createProductionSnapshot()}
+        >
+          {creatingSnapshot && (
+            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+          )}
+          {creatingSnapshot ? 'Creating Snapshot…' : 'Create Snapshot'}
+        </button>
+
+        {creationError && (
+          <div className="alert alert-danger mt-3 mb-0" role="alert">
+            <h4 className="h6 alert-heading">Snapshot creation failed</h4>
+            <div>{creationError}</div>
+          </div>
+        )}
+
+        {productionSnapshot && (
+          <div className="alert alert-success mt-3 mb-0" role="status">
+            <h4 className="h6 alert-heading">Snapshot created successfully</h4>
+            <CountRow
+              label="Production snapshot"
+              value={formatDateTime(productionSnapshot.production_snapshot_at)}
+            />
+            <CountRow
+              label="Capture completed"
+              value={formatDateTime(productionSnapshot.capture_completed_at)}
+            />
+            <CountRow label="Playlists" value={productionSnapshot.counts.playlists} />
+            <CountRow label="Shows" value={productionSnapshot.counts.shows} />
+            <CountRow label="Thumbnails" value={productionSnapshot.counts.thumbnails} />
+            {productionSnapshot.download_available && (
+              <a
+                className="btn btn-success mt-3"
+                href={`/api/admin/data-snapshot-download.php?snapshot=${encodeURIComponent(productionSnapshot.name)}`}
+                download={`${productionSnapshot.name}.zip`}
+              >
+                Download Snapshot
+              </a>
+            )}
+          </div>
+        )}
+      </section>
 
       {snapshot && (
         <>
