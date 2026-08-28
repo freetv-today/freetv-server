@@ -56,6 +56,11 @@ export function AdminToggleDropDownMenu() {
         </Link>
       </li>}
       {isAdmin && <li>
+        <Link className="dropdown-item-custom" href={createPath('/dashboard/data-snapshot')}>
+          <span className="icon-sm snapshot-icon"></span>Data Snapshot
+        </Link>
+      </li>}
+      {isAdmin && <li>
         <Link className="dropdown-item-custom" href={createPath('/dashboard/settings')}>
           <span className="icon-sm settings-icon"></span>Settings
         </Link>

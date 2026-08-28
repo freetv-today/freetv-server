@@ -4,6 +4,7 @@ import { ButtonAdminProblemsNav } from '@components/Navigation/ButtonAdminProble
 import { ButtonAdminUsersNav } from '@components/Navigation/ButtonAdminUsersNav';
 import { ButtonAdminSettingsNav } from '@components/Navigation/ButtonAdminSettingsNav';
 import { ButtonAdminPublishNav } from '@components/Navigation/ButtonAdminPublishNav';
+import { ButtonAdminDataSnapshotNav } from '@components/Navigation/ButtonAdminDataSnapshotNav';
 import { ButtonAdminThumbsNav } from './ButtonAdminThumbsNav';
 import { ImageSmallLogo } from '@components/UI/ImageSmallLogo';
 import { AdminToggleDropDownMenu } from '@components/Navigation/AdminToggleDropDownMenu';
@@ -29,6 +30,7 @@ export function NavbarAdmin({ problemCount }) {
           {canManageReports && <ButtonAdminProblemsNav count={problemCount} />}
           {isAdmin && <ButtonAdminUsersNav />}
           {isAdmin && <ButtonAdminPublishNav />}
+          {isAdmin && <ButtonAdminDataSnapshotNav />}
           {isAdmin && <ButtonAdminSettingsNav />}
         </div>
 

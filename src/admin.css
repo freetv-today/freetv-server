@@ -138,6 +138,17 @@
     background-image: url('../public/assets/settings-blue.svg');
 }
 
+/* Admin Dashboard top navbar: Data Snapshot */
+.snapshot-icon {
+    background-image: url('../public/assets/snapshot-white.svg');
+}
+.snapshot-icon:hover, .dropdown-item-custom:hover .snapshot-icon {
+    background-image: url('../public/assets/snapshot-blue.svg');
+}
+.icon-btn.active.snapshot-icon, .dropdown-item-custom.active .snapshot-icon {
+    background-image: url('../public/assets/snapshot-blue.svg');
+}
+
 /* Admin Dashboard top navbar: Logout */
 .logout-icon {
     background-image: url('../public/assets/logout-white.svg');
