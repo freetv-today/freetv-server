@@ -3,6 +3,8 @@ import { useLocation } from 'preact-iso';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { switchPlaylist } from '@signals/playlistSignal';
 import { createPath } from '@/utils/env'; 
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 /**
  * useAdminShowActions - shared admin show actions for dashboard/search
@@ -14,6 +16,7 @@ import { createPath } from '@/utils/env';
 export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, onDataChanged) {
   
   const location = useLocation();
+  const { isAdmin } = useAdminAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showToDelete, setShowToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -56,6 +59,8 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
         setMessage({ type: 'danger', text: data && data.message ? data.message : 'Status update failed.' });
         return;
       }
+      if (isAdmin) void refreshPublicationStatus();
+
       let playlistRefreshed = false;
       try {
         playlistRefreshed = await switchPlaylist(currentPlaylist);
@@ -74,7 +79,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
     } catch {
       setMessage({ type: 'danger', text: 'Status update failed.' });
     }
-  }, [currentPlaylist, setMessage, onDataChanged]);
+  }, [currentPlaylist, setMessage, onDataChanged, isAdmin]);
 
   // Confirm delete handler
   const handleDeleteConfirm = useCallback(async () => {
@@ -105,6 +110,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
         setDeleteError(errorMessage);
         return false;
       }
+      if (isAdmin) void refreshPublicationStatus();
 
       let playlistRefreshed = false;
       try {
@@ -136,7 +142,7 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
     } finally {
       setDeleting(false);
     }
-  }, [showToDelete, currentPlaylist, setMessage, onDataChanged]);
+  }, [showToDelete, currentPlaylist, setMessage, onDataChanged, isAdmin]);
 
   // Modal close handlers
   const closeDeleteModal = useCallback(() => {

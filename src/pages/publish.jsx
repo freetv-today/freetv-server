@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { playlistSignal } from '@signals/playlistSignal';
+import {
+    publicationStatusSignal,
+    refreshPublicationStatus,
+} from '@signals/publicationStatusSignal';
 
 export function AdminPublish() {
     const log = useDebugLog();
@@ -15,9 +19,11 @@ export function AdminPublish() {
     const [undoStatus, setUndoStatus] = useState({ available: false, operation: null, target: null });
     const [undoing, setUndoing] = useState(false);
     const [undoFeedback, setUndoFeedback] = useState(null);
-    const [publicationStatus, setPublicationStatus] = useState(null);
-    const [statusLoading, setStatusLoading] = useState(true);
-    const [statusError, setStatusError] = useState(null);
+    const {
+        status: publicationStatus,
+        loading: statusLoading,
+        error: statusError,
+    } = publicationStatusSignal.value;
 
     useEffect(() => {
         document.title = 'Free TV: Admin Dashboard - Publish';
@@ -26,7 +32,6 @@ export function AdminPublish() {
 
     useEffect(() => {
         refreshUndoStatus();
-        refreshPublicationStatus();
     }, []);
 
     useEffect(() => {
@@ -146,23 +151,6 @@ export function AdminPublish() {
         }
     }
 
-    async function refreshPublicationStatus() {
-        setStatusLoading(true);
-        setStatusError(null);
-        try {
-            const response = await fetch('/api/admin/publication/status.php');
-            const result = await response.json();
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Could not load publication status');
-            }
-            setPublicationStatus(result.status);
-        } catch (error) {
-            setStatusError(error instanceof Error ? error.message : 'Could not load publication status');
-        } finally {
-            setStatusLoading(false);
-        }
-    }
-
     async function handleUndo() {
         if (undoing || !undoStatus.available) return;
 
@@ -270,7 +258,7 @@ export function AdminPublish() {
 
                 {statusError && <div className="alert alert-danger mb-0">{statusError}</div>}
 
-                {!statusLoading && !statusError && publicationStatus && (
+                {!statusLoading && publicationStatus && (
                     <div className="table-responsive">
                         <table className="table table-sm align-middle mb-0">
                             <tbody>

@@ -5,11 +5,14 @@ import { loadPlaylists, switchPlaylist } from '@signals/playlistSignal';
 import { AdminFilenameInfoModal } from '@/components/Modals/AdminFilenameInfoModal';
 import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { createPath } from '@/utils/env';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function AddPlaylist() {
 
     const { route } = useLocation();
     const log = useDebugLog();
+    const { isAdmin } = useAdminAuth();
 
     // Form state
     const [form, setForm] = useState({
@@ -98,6 +101,8 @@ export function AddPlaylist() {
                 window.scrollTo({ top: 0, behavior: 'auto' });
                 return;
             }
+            if (isAdmin) void refreshPublicationStatus();
+
             // Always reload playlists so select list updates
             await loadPlaylists();
             if (action === 'draft') {

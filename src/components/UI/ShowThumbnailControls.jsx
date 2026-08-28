@@ -145,7 +145,7 @@ export function ShowThumbnailControls({ imdb, showPreview = true, onThumbnailCha
                   </button>
                 )}
                 {!isValidImdb && (
-                  <span className="small text-secondary">Enter a valid IMDb ID to enable thumbnail upload.</span>
+                  <span className="small text-danger">Enter a valid IMDb ID to enable thumbnail upload.</span>
                 )}
                 {isValidImdb && loading && <span className="small text-info">Loading...</span>}
               </div>

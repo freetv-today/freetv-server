@@ -6,6 +6,8 @@ import { playlistSignal } from '@signals/playlistSignal';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { AdminSessionProvider, hasMinimumRole } from '@context/AdminSessionContext';
 import { ErrorPage } from '@pages/ErrorPage';
+import { useEffect } from 'preact/hooks';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function LayoutAdmin({ children, minimumRole = 'viewer' }) {
 
@@ -13,6 +15,13 @@ export function LayoutAdmin({ children, minimumRole = 'viewer' }) {
   const canManageReports = hasMinimumRole(user, 'editor');
   const problemCount = useProblemCount(canManageReports);
   usePlaylistInitialization(user);
+
+  useEffect(() => {
+    if (hasMinimumRole(user, 'admin')) {
+      void refreshPublicationStatus();
+    }
+  }, [user]);
+
   const {
     initialized: playlistsInitialized,
     initializing: playlistsInitializing,

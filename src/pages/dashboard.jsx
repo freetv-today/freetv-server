@@ -12,10 +12,13 @@ import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function Dashboard() {
 
     const log = useDebugLog();
+    const { isAdmin } = useAdminAuth();
 
     useEffect(() => {
         document.title = 'Admin Dashboard';
@@ -136,6 +139,7 @@ export function Dashboard() {
                 setMetaError(errorMessage);
                 return;
             }
+            if (isAdmin) void refreshPublicationStatus();
 
             const refreshed = await loadPlaylists(0);
             const refreshedPlaylistState = playlistSignal.value;

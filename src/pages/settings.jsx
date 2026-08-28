@@ -6,6 +6,7 @@ import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function AdminSettings() {
     /** @type {import('preact').RefObject<Object>} */
@@ -79,6 +80,8 @@ export function AdminSettings() {
             if (!response.ok || !data.success) {
                 throw new Error(data.message || 'Failed to save settings.');
             }
+            void refreshPublicationStatus();
+
             if (typeof data.settings?.show_ads !== 'boolean') {
                 throw new Error('Invalid settings response');
             }

@@ -6,10 +6,13 @@ import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function EditShow() {
 
   const { url, route } = useLocation();
+  const { isAdmin } = useAdminAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -50,6 +53,7 @@ export function EditShow() {
       if (!res.ok || !data.success) {
         setError(data && data.message ? data.message : 'Save failed.');
       } else {
+        if (isAdmin) void refreshPublicationStatus();
         await switchPlaylist(playlist);
         // Check if identifier changed
         if (updatedShow.identifier !== identifier) {
