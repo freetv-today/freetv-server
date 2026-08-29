@@ -6,17 +6,16 @@
     "noEmit": true,
     "allowJs": true,
     "checkJs": true,
-    "baseUrl": "src",
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["*"],
-      "@components/*": ["components/*"],
-      "@pages/*": ["pages/*"],
-      "@context/*": ["context/*"],
-      "@signals/*": ["signals/*"],
-      "@hooks/*": ["hooks/*"],
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@context/*": ["./src/context/*"],
+      "@signals/*": ["./src/signals/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "react": ["./node_modules/preact/compat/"],
       "react-dom": ["./node_modules/preact/compat/"]
     }
