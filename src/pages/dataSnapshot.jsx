@@ -201,8 +201,8 @@ export function DataSnapshotController() {
             </div>
           </section>
 
-          <div className="alert alert-info mt-4 mb-0" role="note">
-            This status view does not detect deleted shows or thumbnail changes. Full snapshot comparison via the CLI does include thumbnails.
+          <div className="alert alert-info text-center mt-4 mb-0 w-75 m-auto" role="note">
+            This status view does not detect deleted shows or thumbnail changes.<br/>Full snapshot comparison via the CLI does include thumbnails.
           </div>
         </>
       )}
