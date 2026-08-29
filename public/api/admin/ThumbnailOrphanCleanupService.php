@@ -83,7 +83,7 @@ final class ThumbnailOrphanCleanupService
             'audit_summary' => $audit['summary'],
             'orphan_count' => count($candidates),
             'quarantine_directory' => $quarantineDirectory,
-            'would_move' => array_map(
+            'candidates' => array_map(
                 fn(array $candidate): array => $this->plannedFile($candidate),
                 $candidates
             ),

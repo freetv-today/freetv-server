@@ -156,7 +156,7 @@ try {
     orphanCleanupAssertSame(5, $dryRun['orphan_count'], 'Dry run orphan count is incorrect');
     orphanCleanupAssertSame(
         ['tt0000100.jpg', 'tt0000200.jpg', 'tt0000400.jpg', 'tt0000500.jpg', 'tt0000600.jpg'],
-        array_column($dryRun['would_move'], 'filename'),
+        array_column($dryRun['candidates'], 'filename'),
         'Dry run candidates are not deterministic'
     );
     orphanCleanupAssertSame([], $referenceChecks, 'Dry run performed database reference rechecks');
