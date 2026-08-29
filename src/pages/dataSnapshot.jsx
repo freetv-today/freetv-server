@@ -2,6 +2,15 @@ import { useEffect, useState } from 'preact/hooks';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { formatDateTime } from '@/utils/utils';
 
+function snapshotDownloadUrl(snapshotName) {
+  const path = `/api/admin/data-snapshot-download.php?snapshot=${encodeURIComponent(snapshotName)}`;
+  const developmentApiOrigin = import.meta.env.DEV
+    ? import.meta.env.VITE_API_PROXY_TARGET?.replace(/\/+$/, '')
+    : '';
+
+  return developmentApiOrigin ? `${developmentApiOrigin}${path}` : path;
+}
+
 function CountRow({ label, value }) {
   return (
     <div className="d-flex justify-content-between gap-3 border-bottom py-2">
@@ -144,7 +153,7 @@ export function DataSnapshotController() {
             {productionSnapshot.download_available && (
               <a
                 className="btn btn-success mt-3"
-                href={`/api/admin/data-snapshot-download.php?snapshot=${encodeURIComponent(productionSnapshot.name)}`}
+                href={snapshotDownloadUrl(productionSnapshot.name)}
                 download={`${productionSnapshot.name}.zip`}
               >
                 Download Snapshot
