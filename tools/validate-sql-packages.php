@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 $serverRoot = dirname(__DIR__);
 require_once __DIR__ . '/lib/SqlPackageGenerator.php';
+require_once __DIR__ . '/lib/SqlPackageCandidateDirectory.php';
 if (is_file($serverRoot . '/vendor/autoload.php')) {
     require_once $serverRoot . '/vendor/autoload.php';
     if (class_exists(\Dotenv\Dotenv::class)) {
@@ -13,6 +14,7 @@ if (is_file($serverRoot . '/vendor/autoload.php')) {
 }
 
 use FreeTV\Tools\SqlPackageGenerator;
+use FreeTV\Tools\SqlPackageCandidateDirectory;
 
 function restoreEnvironment(string $name, string $default): string
 {
@@ -25,7 +27,7 @@ function restoreEnvironment(string $name, string $default): string
 
 function restoreUsage(): never
 {
-    fwrite(STDERR, "Usage: php tools/validate-sql-packages.php --run --expect-playlists=N --expect-shows=N --expect-sample-shows=N\n");
+    fwrite(STDERR, "Usage: php tools/validate-sql-packages.php --run --expect-playlists=N --expect-shows=N --expect-sample-shows=N [--package-dir=PATH]\n");
     exit(2);
 }
 
@@ -186,6 +188,7 @@ function restoreLogicalFingerprint(PDO $server, string $database): string
 
 $run = false;
 $expectedPlaylists = $expectedShows = $expectedSampleShows = null;
+$configuredPackageDirectory = null;
 foreach (array_slice($argv, 1) as $argument) {
     if ($argument === '--run') {
         $run = true;
@@ -195,6 +198,8 @@ foreach (array_slice($argv, 1) as $argument) {
         $expectedShows = (int) $matches[1];
     } elseif (preg_match('/^--expect-sample-shows=(\d+)$/', $argument, $matches)) {
         $expectedSampleShows = (int) $matches[1];
+    } elseif (str_starts_with($argument, '--package-dir=') && $configuredPackageDirectory === null) {
+        $configuredPackageDirectory = substr($argument, strlen('--package-dir='));
     } else {
         restoreUsage();
     }
@@ -207,6 +212,14 @@ $host = restoreEnvironment('DB_HOST', '127.0.0.1');
 $port = restoreEnvironment('DB_PORT', '3306');
 $user = restoreEnvironment('DB_USER', 'freetv');
 $password = restoreEnvironment('DB_PASS', '');
+$canonicalPackageDirectory = $serverRoot . '/sql';
+$packageDirectory = $configuredPackageDirectory === null
+    ? $canonicalPackageDirectory
+    : SqlPackageCandidateDirectory::resolveForRead(
+        $configuredPackageDirectory,
+        $canonicalPackageDirectory,
+        array_values(SqlPackageGenerator::FILES)
+    );
 $suffix = bin2hex(random_bytes(4));
 $contracts = [
     'schema' => [
@@ -247,8 +260,8 @@ try {
     foreach ($contracts as $kind => $contract) {
         $createLabel = $contract['create_file'];
         $tablesLabel = $contract['tables_file'];
-        $createSql = restoreReadFile($serverRoot . '/sql/' . $createLabel);
-        $tablesSql = restoreReadFile($serverRoot . '/sql/' . $tablesLabel);
+        $createSql = restoreReadFile($packageDirectory . '/' . $createLabel);
+        $tablesSql = restoreReadFile($packageDirectory . '/' . $tablesLabel);
         $createBody = restoreCreateDbBody($createSql, $createLabel);
         restoreTablesOnlyBody($tablesSql, $tablesLabel);
         if ($createBody !== $tablesSql) {

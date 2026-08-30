@@ -95,7 +95,7 @@ SQL;
     {
         $resolved = realpath($sqlDirectory);
         if ($resolved === false || !is_dir($resolved) || basename($resolved) !== 'sql') {
-            throw new RuntimeException('SQL output must be an existing repository sql directory');
+            throw new RuntimeException('SQL output must be an existing directory named sql');
         }
         if (array_keys($packages) !== array_keys(self::FILES)) {
             throw new RuntimeException('Refusing to write an incomplete SQL package set');

@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/lib/SqlPackageGenerator.php';
+require_once __DIR__ . '/lib/SqlPackageCandidateDirectory.php';
 
 $serverRoot = dirname(__DIR__);
 if (is_file($serverRoot . '/vendor/autoload.php')) {
@@ -15,6 +16,7 @@ if (is_file($serverRoot . '/vendor/autoload.php')) {
 
 use FreeTV\Tools\SqlPackageGenerator;
 use FreeTV\Tools\SqlPackageSource;
+use FreeTV\Tools\SqlPackageCandidateDirectory;
 
 function packageEnvironment(string $name, string $default): string
 {
@@ -27,16 +29,19 @@ function packageEnvironment(string $name, string $default): string
 
 function packageUsage(): never
 {
-    fwrite(STDERR, "Usage: php tools/generate-sql-packages.php --expect-playlists=N --expect-shows=N\n");
+    fwrite(STDERR, "Usage: php tools/generate-sql-packages.php --expect-playlists=N --expect-shows=N [--output-dir=PATH]\n");
     exit(2);
 }
 
 $expectedPlaylists = $expectedShows = null;
+$configuredOutputDirectory = null;
 foreach (array_slice($argv, 1) as $argument) {
     if (preg_match('/^--expect-playlists=(\d+)$/', $argument, $matches)) {
         $expectedPlaylists = (int) $matches[1];
     } elseif (preg_match('/^--expect-shows=(\d+)$/', $argument, $matches)) {
         $expectedShows = (int) $matches[1];
+    } elseif (str_starts_with($argument, '--output-dir=') && $configuredOutputDirectory === null) {
+        $configuredOutputDirectory = substr($argument, strlen('--output-dir='));
     } else {
         packageUsage();
     }
@@ -71,19 +76,31 @@ try {
     if ($schema === false) {
         throw new RuntimeException('Could not read canonical schema package');
     }
+    $canonicalOutputDirectory = $serverRoot . '/sql';
+    $outputDirectory = $configuredOutputDirectory === null
+        ? $canonicalOutputDirectory
+        : SqlPackageCandidateDirectory::resolveForWrite($configuredOutputDirectory, $canonicalOutputDirectory);
     $generator = new SqlPackageGenerator($schema);
     $result = $generator->generate($source['playlists'], $source['shows']);
-    $generator->write($serverRoot . '/sql', $result['packages']);
+    $generator->write($outputDirectory, $result['packages']);
 
     printf("Generated %d packages with %d full shows and %d sample shows.\n",
         count($result['packages']),
         $result['show_count'],
         $result['sample_count']
     );
+    $displayPrefix = $configuredOutputDirectory === null ? 'sql/' : '';
     foreach (SqlPackageGenerator::FILES as $filename) {
-        printf("  sql/%s: %d bytes\n", $filename, filesize($serverRoot . '/sql/' . $filename));
+        printf("  %s%s: %d bytes\n", $displayPrefix, $filename, filesize($outputDirectory . '/' . $filename));
     }
     fwrite(STDOUT, "Database access was read-only; users and local app_settings values were not serialized.\n");
+    if ($configuredOutputDirectory !== null) {
+        fwrite(STDOUT, 'SQL_PACKAGE_SUMMARY ' . json_encode([
+            'playlist_count' => $result['playlist_count'],
+            'show_count' => $result['show_count'],
+            'sample_count' => $result['sample_count'],
+        ], JSON_THROW_ON_ERROR) . "\n");
+    }
 } catch (Throwable $exception) {
     fwrite(STDERR, "ERROR: {$exception->getMessage()}\n");
     exit(1);
