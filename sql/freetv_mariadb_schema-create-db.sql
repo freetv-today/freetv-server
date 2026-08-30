@@ -1,5 +1,9 @@
--- FreeTV portable MariaDB schema package.
--- Import into an already-created, selected database.
+CREATE DATABASE IF NOT EXISTS `freetv`
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE `freetv`;
+-- FreeTV MariaDB schema installation package.
 -- Includes the complete current schema and canonical app_settings defaults.
 -- Includes no playlist/show content, problem reports, or users.
 

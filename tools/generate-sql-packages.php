@@ -66,7 +66,7 @@ try {
         throw new RuntimeException('Source counts do not match the explicitly expected checkpoint');
     }
 
-    $schemaPath = $serverRoot . '/sql/freetv_mariadb_schema.sql';
+    $schemaPath = $serverRoot . '/sql/freetv_mariadb_schema-tables-only.sql';
     $schema = file_get_contents($schemaPath);
     if ($schema === false) {
         throw new RuntimeException('Could not read canonical schema package');

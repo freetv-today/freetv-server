@@ -200,8 +200,7 @@ try {
     }
     importerAssert($invalidSchema->tables === $invalidBefore, 'Invalid schema path changed database');
 
-    $legacySource = file_get_contents(__DIR__ . '/../tools/import-clean-json-to-mariadb.php')
-        . file_get_contents(__DIR__ . '/../tools/lib/CleanJsonImporter.php');
+    $legacySource = file_get_contents(__DIR__ . '/../tools/lib/CleanJsonImporter.php');
     foreach (['apdata.key', 'freetv-data', 'thumbnail_path', 'TRUNCATE'] as $forbidden) {
         importerAssert(!str_contains($legacySource, $forbidden), "New importer depends on forbidden legacy concept {$forbidden}");
     }

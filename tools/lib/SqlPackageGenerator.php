@@ -11,11 +11,22 @@ use Throwable;
 final class SqlPackageGenerator
 {
     public const FILES = [
-        'schema' => 'freetv_mariadb_schema.sql',
-        'data' => 'freetv_mariadb_data.sql',
-        'sample' => 'freetv_mariadb_sample.sql',
-        'full' => 'freetv_mariadb_full.sql',
+        'schema_create_db' => 'freetv_mariadb_schema-create-db.sql',
+        'schema_tables_only' => 'freetv_mariadb_schema-tables-only.sql',
+        'full_create_db' => 'freetv_mariadb_full-create-db.sql',
+        'full_tables_only' => 'freetv_mariadb_full_data-tables-only.sql',
+        'sample_create_db' => 'freetv_mariadb_sample-create-db.sql',
+        'sample_tables_only' => 'freetv_mariadb_sample_data-tables-only.sql',
     ];
+
+    public const DATABASE_WRAPPER = <<<'SQL'
+CREATE DATABASE IF NOT EXISTS `freetv`
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE `freetv`;
+
+SQL;
 
     public function __construct(private string $schemaSql)
     {
@@ -43,19 +54,10 @@ final class SqlPackageGenerator
         $this->validateRows($playlists, $shows);
         $dataBody = $this->contentSql($playlists, $shows);
         $sampleShows = $this->sampleShows($playlists, $shows);
-        $sampleBody = $this->contentSql($playlists, $sampleShows);
+        $sampleDataBody = $this->contentSql($playlists, $sampleShows);
 
-        $dataHeader = <<<'SQL'
--- FreeTV cleaned production data package.
--- Import after freetv_mariadb_schema.sql into an empty current-schema content database.
--- Includes playlists and playlist_shows only; performs no DELETE statements.
--- Playlist IDs are deterministic package-local IDs assigned by playlist order.
--- Includes no schema, app_settings, problem reports, or users.
-
-SQL;
         $sampleHeader = <<<'SQL'
 -- FreeTV representative sample installation package.
--- Import into an already-created, selected empty database.
 -- Includes the current schema, canonical settings, all playlists, and deterministic sample content.
 -- Sample rule: allocate up to 8 shows per playlist, distribute remaining slots in playlist order,
 -- then select round-robin across sorted categories while preserving retained source order.
@@ -63,25 +65,24 @@ SQL;
 
 SQL;
         $fullHeader = <<<'SQL'
--- FreeTV full local development installation package.
--- Creates and selects database freetv, then installs current schema, canonical settings,
--- and the complete cleaned production playlist/show library.
+-- FreeTV full official-data installation package.
+-- Includes the current schema, canonical settings, and the complete official playlist/show library.
 -- Includes no problem reports or users; first-run admin initialization is still required.
-
-CREATE DATABASE IF NOT EXISTS freetv
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE freetv;
 
 SQL;
 
+        $schemaBody = $this->schemaSql;
+        $fullBody = $fullHeader . $schemaBody . "\n" . $dataBody;
+        $sampleBody = $sampleHeader . $schemaBody . "\n" . $sampleDataBody;
+
         return [
             'packages' => [
-                'schema' => $this->schemaSql,
-                'data' => $dataHeader . $dataBody,
-                'sample' => $sampleHeader . $this->schemaSql . "\n" . $sampleBody,
-                'full' => $fullHeader . $this->schemaSql . "\n" . $dataBody,
+                'schema_create_db' => self::DATABASE_WRAPPER . $schemaBody,
+                'schema_tables_only' => $schemaBody,
+                'full_create_db' => self::DATABASE_WRAPPER . $fullBody,
+                'full_tables_only' => $fullBody,
+                'sample_create_db' => self::DATABASE_WRAPPER . $sampleBody,
+                'sample_tables_only' => $sampleBody,
             ],
             'sample_count' => count($sampleShows),
             'playlist_count' => count($playlists),

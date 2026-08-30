@@ -1,11 +1,14 @@
+CREATE DATABASE IF NOT EXISTS `freetv`
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE `freetv`;
 -- FreeTV representative sample installation package.
--- Import into an already-created, selected empty database.
 -- Includes the current schema, canonical settings, all playlists, and deterministic sample content.
 -- Sample rule: allocate up to 8 shows per playlist, distribute remaining slots in playlist order,
 -- then select round-robin across sorted categories while preserving retained source order.
 -- Includes no problem reports or users.
--- FreeTV portable MariaDB schema package.
--- Import into an already-created, selected database.
+-- FreeTV MariaDB schema installation package.
 -- Includes the complete current schema and canonical app_settings defaults.
 -- Includes no playlist/show content, problem reports, or users.
 
@@ -127,7 +130,7 @@ CREATE TABLE IF NOT EXISTS problem_report_ips (
 START TRANSACTION;
 
 INSERT INTO playlists (`id`, `filename`, `dbtitle`, `dbversion`, `author`, `email`, `link`, `lastupdated`, `is_default`, `sort_order`) VALUES
-  (1, CONVERT(0x6672656574762e6a736f6e USING utf8mb4), CONVERT(0x44656661756c742054562053686f7773 USING utf8mb4), CONVERT(0x312e30 USING utf8mb4), CONVERT(0x46726565205456 USING utf8mb4), CONVERT(0x737570706f7274406672656574762e746f646179 USING utf8mb4), CONVERT(0x68747470733a2f2f6672656574762e746f646179 USING utf8mb4), CONVERT(0x323032362d30382d30382032333a35393a3538 USING utf8mb4), 1, 0),
+  (1, CONVERT(0x6672656574762e6a736f6e USING utf8mb4), CONVERT(0x44656661756c742054562053686f7773 USING utf8mb4), CONVERT(0x312e30 USING utf8mb4), CONVERT(0x46726565205456 USING utf8mb4), CONVERT(0x737570706f7274406672656574762e746f646179 USING utf8mb4), CONVERT(0x68747470733a2f2f6672656574762e746f646179 USING utf8mb4), CONVERT(0x323032362d30382d32392031333a32393a3235 USING utf8mb4), 1, 0),
   (2, CONVERT(0x6674762d627269746973682e6a736f6e USING utf8mb4), CONVERT(0x42726974697368205456 USING utf8mb4), CONVERT(0x312e30 USING utf8mb4), CONVERT(0x46726565205456 USING utf8mb4), CONVERT(0x737570706f7274406672656574762e746f646179 USING utf8mb4), CONVERT(0x68747470733a2f2f6672656574762e746f646179 USING utf8mb4), CONVERT(0x323032362d30372d30312030323a30383a3430 USING utf8mb4), 0, 1),
   (3, CONVERT(0x6674762d686f6c69646179732e6a736f6e USING utf8mb4), CONVERT(0x486f6c696461792053686f7773 USING utf8mb4), CONVERT(0x312e30 USING utf8mb4), CONVERT(0x46726565205456 USING utf8mb4), CONVERT(0x737570706f7274406672656574762e746f646179 USING utf8mb4), CONVERT(0x68747470733a2f2f6672656574762e746f646179 USING utf8mb4), CONVERT(0x323032352d31302d30382031383a30383a3136 USING utf8mb4), 0, 2),
   (4, CONVERT(0x6674762d6d6f766965732e6a736f6e USING utf8mb4), CONVERT(0x4d6f76696573 USING utf8mb4), CONVERT(0x312e30 USING utf8mb4), CONVERT(0x46726565205456 USING utf8mb4), CONVERT(0x737570706f7274406672656574762e746f646179 USING utf8mb4), CONVERT(0x68747470733a2f2f6672656574762e746f646179 USING utf8mb4), CONVERT(0x323032362d30372d30312031323a33373a3131 USING utf8mb4), 0, 3);

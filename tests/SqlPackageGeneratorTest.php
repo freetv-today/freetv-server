@@ -52,7 +52,7 @@ function sqlPackageRows(): array
     return [$playlists, $shows];
 }
 
-$schema = (string) file_get_contents(__DIR__ . '/../sql/freetv_mariadb_schema.sql');
+$schema = (string) file_get_contents(__DIR__ . '/../sql/freetv_mariadb_schema-tables-only.sql');
 $generator = new SqlPackageGenerator($schema);
 [$playlists, $shows] = sqlPackageRows();
 $first = $generator->generate($playlists, $shows);
@@ -65,18 +65,41 @@ sqlPackageAssert(SqlPackageGenerator::literal("quote' slash\\ café\n") === 'CON
 sqlPackageAssert(SqlPackageGenerator::literal(null) === 'NULL', 'NULL literal is incorrect');
 
 $packages = $first['packages'];
-sqlPackageAssert(!preg_match('/^\s*(CREATE\s+DATABASE|USE\s+)/mi', $packages['schema']), 'Schema package selects a database');
-sqlPackageAssert(!str_contains($packages['schema'], 'INSERT INTO playlists'), 'Schema package contains playlist data');
-sqlPackageAssert(str_contains($packages['schema'], "VALUES ('show_ads', 'false', 'viewer')"), 'Schema package lacks canonical setting seed');
-sqlPackageAssert(!preg_match('/CREATE\s+TABLE/i', $packages['data']), 'Data package contains schema DDL');
-sqlPackageAssert(str_contains($packages['data'], 'INSERT INTO playlists') && str_contains($packages['data'], 'INSERT INTO playlist_shows'), 'Data package lacks content inserts');
-sqlPackageAssert(str_contains($packages['data'], '`sort_order`) VALUES'), 'Generated INSERT column list is malformed');
-sqlPackageAssert(str_contains($packages['sample'], 'CREATE TABLE IF NOT EXISTS users') && str_contains($packages['sample'], 'INSERT INTO playlist_shows'), 'Sample package is not self-contained');
-sqlPackageAssert(str_contains($packages['full'], 'CREATE DATABASE IF NOT EXISTS freetv') && str_contains($packages['full'], 'USE freetv;'), 'Full package lacks database bootstrap');
+sqlPackageAssert(array_values(SqlPackageGenerator::FILES) === [
+    'freetv_mariadb_schema-create-db.sql',
+    'freetv_mariadb_schema-tables-only.sql',
+    'freetv_mariadb_full-create-db.sql',
+    'freetv_mariadb_full_data-tables-only.sql',
+    'freetv_mariadb_sample-create-db.sql',
+    'freetv_mariadb_sample_data-tables-only.sql',
+], 'Output filenames do not match the six-package contract');
+
+$pairs = [
+    ['schema_create_db', 'schema_tables_only'],
+    ['full_create_db', 'full_tables_only'],
+    ['sample_create_db', 'sample_tables_only'],
+];
+foreach ($pairs as [$createKey, $tablesKey]) {
+    sqlPackageAssert(str_starts_with($packages[$createKey], SqlPackageGenerator::DATABASE_WRAPPER), "{$createKey} lacks the canonical database wrapper");
+    sqlPackageAssert(substr($packages[$createKey], strlen(SqlPackageGenerator::DATABASE_WRAPPER)) === $packages[$tablesKey], "{$createKey}/{$tablesKey} bodies differ");
+    sqlPackageAssert(!preg_match('/^\s*(CREATE\s+DATABASE|USE\s+)/mi', $packages[$tablesKey]), "{$tablesKey} creates or selects a database");
+}
+
+sqlPackageAssert(!str_contains($packages['schema_tables_only'], 'INSERT INTO playlists'), 'Schema package contains playlist data');
+sqlPackageAssert(str_contains($packages['schema_tables_only'], "VALUES ('show_ads', 'false', 'viewer')"), 'Schema package lacks canonical setting seed');
+sqlPackageAssert(str_contains($packages['full_tables_only'], 'CREATE TABLE IF NOT EXISTS users'), 'Full package lacks schema DDL');
+sqlPackageAssert(str_contains($packages['full_tables_only'], 'INSERT INTO playlists') && str_contains($packages['full_tables_only'], 'INSERT INTO playlist_shows'), 'Full package lacks content inserts');
+sqlPackageAssert(str_contains($packages['full_tables_only'], '`sort_order`) VALUES'), 'Generated INSERT column list is malformed');
+sqlPackageAssert(str_contains($packages['sample_tables_only'], 'CREATE TABLE IF NOT EXISTS users') && str_contains($packages['sample_tables_only'], 'INSERT INTO playlist_shows'), 'Sample package is not self-contained');
+sqlPackageAssert($packages['sample_tables_only'] !== $packages['full_tables_only'], 'Sample package unexpectedly contains the full dataset');
+foreach (['schema_tables_only', 'full_tables_only', 'sample_tables_only'] as $name) {
+    sqlPackageAssert(substr_count($packages[$name], "VALUES ('show_ads', 'false', 'viewer')") === 1, "{$name} does not contain exactly one canonical settings seed");
+    sqlPackageAssert(!str_contains($packages[$name], "VALUES ('show_ads', 'true', 'viewer')"), "{$name} contains a mutable show_ads value");
+}
 
 foreach ($packages as $name => $sql) {
     sqlPackageAssert(!preg_match('/INSERT\s+(?:IGNORE\s+)?INTO\s+users\b/i', $sql), "{$name} exports users");
-    sqlPackageAssert(!preg_match('/INSERT\s+(?:IGNORE\s+)?INTO\s+problem_reports?\b/i', $sql), "{$name} exports problem reports");
+    sqlPackageAssert(!preg_match('/INSERT\s+(?:IGNORE\s+)?INTO\s+problem_report(?:s|_ips)\b/i', $sql), "{$name} exports problem-report data");
     sqlPackageAssert(!str_contains($sql, '/home/'), "{$name} contains a host path");
     sqlPackageAssert(!preg_match('/generated (?:at|on)/i', $sql), "{$name} contains volatile generation metadata");
 }
