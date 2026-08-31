@@ -1,6 +1,6 @@
 {
 	"name": "freetv-server",
-	"version": "1.0.0-beta",
+	"version": "3.0.0-beta",
 	"description": "Server-side administration tools to manage a collection of free TV shows and movies from the Internet Archive.",
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",
