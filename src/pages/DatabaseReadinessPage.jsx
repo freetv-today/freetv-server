@@ -1,6 +1,8 @@
 const DATABASE_COPY = {
   database_config_missing: 'MariaDB access has not been configured for FreeTV.',
   database_unavailable: 'FreeTV could not connect to MariaDB using the configured credentials.',
+  database_permissions_insufficient: 'FreeTV can connect to MariaDB, but the configured account cannot '
+    + 'perform the database, table, or data operations required to initialize FreeTV.',
   schema_missing: 'MariaDB is reachable, but the FreeTV schema has not been imported or is incomplete.'
 };
 
@@ -58,24 +60,42 @@ export function DatabaseReadinessPage({ status, missingTables = [], onRetry }) {
             </p>
           )}
 
-          <p>
-            FreeTV does not install or configure MariaDB, phpMyAdmin, or database accounts.
-            Before continuing, you must have:
-          </p>
-          <ul>
-            <li>MariaDB running</li>
-            <li>A MariaDB user/account for FreeTV</li>
-            <li>FreeTV database credentials configured</li>
-          </ul>
+          {status === 'database_permissions_insufficient' ? (
+            <>
+              <p>
+                FreeTV does not install or configure MariaDB or database accounts. Verify MariaDB
+                independently before troubleshooting FreeTV further.
+              </p>
+              <p>Your account must support a basic MariaDB “hello world” workflow:</p>
+              <ul>
+                <li>Create a database if your environment permits it, or use your assigned database</li>
+                <li>Create a table</li>
+                <li>Insert a row</li>
+                <li>Read that row back</li>
+              </ul>
+            </>
+          ) : (
+            <>
+              <p>
+                FreeTV does not install or configure MariaDB, phpMyAdmin, or database accounts.
+                Before continuing, you must have:
+              </p>
+              <ul>
+                <li>MariaDB running</li>
+                <li>A MariaDB user/account for FreeTV</li>
+                <li>FreeTV database credentials configured</li>
+              </ul>
 
-          <h3 className="h5 mt-4">Import the FreeTV schema with phpMyAdmin</h3>
-          <ol>
-            <li>Open phpMyAdmin.</li>
-            <li>Choose Import.</li>
-            <li>Select the supplied FreeTV SQL schema.</li>
-            <li>Run the import.</li>
-            <li>Return here and click Try Again.</li>
-          </ol>
+              <h3 className="h5 mt-4">Import the FreeTV schema with phpMyAdmin</h3>
+              <ol>
+                <li>Open phpMyAdmin.</li>
+                <li>Choose Import.</li>
+                <li>Select the supplied FreeTV SQL schema.</li>
+                <li>Run the import.</li>
+                <li>Return here and click Try Again.</li>
+              </ol>
+            </>
+          )}
           <p className="small text-muted">
             If MariaDB, phpMyAdmin, or a database account is not available, follow the documentation
             for your operating system, hosting provider, MariaDB, or phpMyAdmin.

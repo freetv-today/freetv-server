@@ -18,17 +18,7 @@ class Database
 
         $capsule = new Capsule;
 
-        $config = self::getConfig();
-
-        $capsule->addConnection([
-            'driver'    => 'mysql',
-            'host'      => $config['host'],
-            'database'  => $config['database'],
-            'username'  => $config['user'],
-            'password'  => $config['pass'],
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-        ]);
+        $capsule->addConnection(self::getConnectionConfig());
 
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
@@ -94,6 +84,33 @@ class Database
         error_log("Final DB Config - User: " . $config['user'] . " | Pass length: " . strlen($config['pass']));
 
         return $config;
+    }
+
+    private static function getConnectionConfig($database = null)
+    {
+        $config = self::getConfig();
+
+        return [
+            'driver'    => 'mysql',
+            'host'      => $config['host'],
+            'database'  => $database ?? $config['database'],
+            'username'  => $config['user'],
+            'password'  => $config['pass'],
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ];
+    }
+
+    public static function createReadinessConnection($database)
+    {
+        if (!is_string($database)
+            || preg_match('/^freetv_readiness_[a-f0-9]{12}$/D', $database) !== 1) {
+            throw new \InvalidArgumentException('Unsafe readiness database name');
+        }
+
+        $capsule = new Capsule;
+        $capsule->addConnection(self::getConnectionConfig($database), 'readiness_probe');
+        return $capsule->getConnection('readiness_probe');
     }
 
     public static function table($table)

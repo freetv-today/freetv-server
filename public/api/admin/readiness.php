@@ -1,6 +1,8 @@
 <?php
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\DatabaseCapabilityProbe;
+use FreeTV\Admin\DatabasePermissionsInsufficientException;
 
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
@@ -26,6 +28,7 @@ if (!file_exists($autoloadPath)) {
 try {
     require_once $autoloadPath;
     require_once __DIR__ . '/Database.php';
+    require_once __DIR__ . '/DatabaseCapabilityProbe.php';
 } catch (\Throwable $e) {
     error_log('Readiness dependency loading error: ' . $e->getMessage());
     respond('dependencies_missing', 503);
@@ -70,7 +73,16 @@ if ($missingTables !== []) {
 
 try {
     if (!Database::table('users')->exists()) {
-        respond('initialization_required', 200);
+        try {
+            $databaseMode = (new DatabaseCapabilityProbe($connection))->detect();
+        } catch (DatabasePermissionsInsufficientException $e) {
+            error_log('Readiness database permissions error: ' . $e->getMessage());
+            respond('database_permissions_insufficient', 503);
+        } catch (\Throwable $e) {
+            error_log('Readiness database capability probe error: ' . $e->getMessage());
+            respond('database_unavailable', 503);
+        }
+        respond('initialization_required', 200, ['database_mode' => $databaseMode]);
     }
 } catch (\Throwable $e) {
     error_log('Readiness application state inspection error: ' . $e->getMessage());

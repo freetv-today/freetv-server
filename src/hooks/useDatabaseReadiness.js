@@ -4,6 +4,7 @@ const BACKEND_STATUSES = new Set([
   'dependencies_missing',
   'database_config_missing',
   'database_unavailable',
+  'database_permissions_insufficient',
   'schema_missing',
   'initialization_required',
   'ready'
@@ -12,11 +13,12 @@ const BACKEND_STATUSES = new Set([
 export function useDatabaseReadiness() {
   const [readiness, setReadiness] = useState({
     status: 'checking',
-    missingTables: []
+    missingTables: [],
+    databaseMode: null
   });
 
   const checkReadiness = useCallback(async () => {
-    setReadiness({ status: 'checking', missingTables: [] });
+    setReadiness({ status: 'checking', missingTables: [], databaseMode: null });
 
     try {
       const response = await fetch('/api/admin/readiness.php', {
@@ -33,10 +35,14 @@ export function useDatabaseReadiness() {
         status: data.status,
         missingTables: data.status === 'schema_missing' && Array.isArray(data.missing_tables)
           ? data.missing_tables
-          : []
+          : [],
+        databaseMode: data.database_mode === 'create_database'
+          || data.database_mode === 'existing_database'
+          ? data.database_mode
+          : null
       });
     } catch {
-      setReadiness({ status: 'api_unavailable', missingTables: [] });
+      setReadiness({ status: 'api_unavailable', missingTables: [], databaseMode: null });
     }
   }, []);
 
