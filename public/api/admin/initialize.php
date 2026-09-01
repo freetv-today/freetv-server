@@ -3,6 +3,8 @@
 use FreeTV\Admin\Database;
 use FreeTV\Admin\InitializationPlan;
 
+require_once __DIR__ . '/Session.php';
+
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
 
@@ -54,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     initializeRespond(405, ['success' => false, 'message' => 'Method not allowed']);
 }
+
+session_start();
 
 $input = initializeReadJsonObject();
 $allowedFields = ['username', 'password', 'password_confirmation'];
@@ -174,4 +178,5 @@ if ($result === 'already_initialized') {
     initializeRespond(409, ['success' => false, 'message' => 'FreeTV has already been initialized']);
 }
 
+\FreeTV\Admin\destroyAdminSession();
 initializeRespond(201, ['success' => true, 'message' => 'FreeTV library initialized']);
