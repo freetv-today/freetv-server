@@ -14,6 +14,7 @@ test('readiness preserves existing statuses and adds the permissions status', ()
     'dependencies_missing',
     'database_config_missing',
     'database_unavailable',
+    'database_missing',
     'schema_missing',
     'initialization_required',
     'ready',
@@ -29,10 +30,14 @@ test('frontend preserves only the two valid database capability modes', () => {
   assert.match(readinessHook, /databaseMode: null/);
 });
 
-test('schema behavior remains ahead of capability probing and ready remains unchanged', () => {
+test('capability probing precedes target schema inspection and ready remains unchanged', () => {
   const schemaResponse = readinessEndpoint.indexOf("respond('schema_missing'");
   const capabilityProbe = readinessEndpoint.indexOf('new DatabaseCapabilityProbe');
-  assert.ok(schemaResponse >= 0 && capabilityProbe > schemaResponse);
+  const targetConnection = readinessEndpoint.indexOf('Database::createConfiguredConnection');
+  assert.ok(schemaResponse >= 0 && capabilityProbe >= 0 && capabilityProbe < targetConnection);
+  assert.match(readinessEndpoint, /respond\('database_missing', 503, \['database_mode' => \$databaseMode\]\)/);
+  assert.match(readinessEndpoint, /Database::createBootstrapConnection/);
+  assert.match(readinessEndpoint, /Database::createConfiguredConnection/);
   assert.match(readinessEndpoint, /respond\('initialization_required', 200, \['database_mode' => \$databaseMode\]\)/);
   assert.match(readinessEndpoint, /respond\('ready', 200\)/);
 });

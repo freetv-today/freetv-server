@@ -92,28 +92,33 @@ $databaseName = 'freetv_readiness_aaaaaaaaaaaa';
 $tableName = 'freetv_readiness_bbbbbbbbbbbb';
 
 // Full provisioning capability.
+$bootstrap = new ReadinessFakeConnection();
 $configured = new ReadinessFakeConnection();
 $isolated = new ReadinessFakeConnection();
 $factoryDatabase = null;
 $probe = new DatabaseCapabilityProbe(
-    $configured,
+    $bootstrap,
     static function (string $database) use ($isolated, &$factoryDatabase): ReadinessFakeConnection {
         $factoryDatabase = $database;
         return $isolated;
     },
-    readinessNames([$databaseName])
+    readinessNames([$databaseName]),
+    null,
+    static fn(): ReadinessFakeConnection => $configured
 );
 readinessAssertSame(DatabaseCapabilityProbe::MODE_CREATE_DATABASE, $probe->detect(),
     'Full probe should classify create_database mode');
 readinessAssertSame($databaseName, $factoryDatabase, 'Probe did not connect to the disposable database');
-readinessAssertTrue(readinessHasOperation($configured, "CREATE DATABASE `{$databaseName}`"),
-    'Disposable database was not created');
+readinessAssertTrue(readinessHasOperation($bootstrap, "CREATE DATABASE `{$databaseName}`"),
+    'Disposable database was not created from the bootstrap connection');
 readinessAssertTrue(readinessHasOperation($isolated, "CREATE TABLE `{$databaseName}`"),
     'Disposable database table was not created');
 readinessAssertTrue(readinessHasOperation($isolated, 'INSERT INTO'), 'Known row was not inserted');
 readinessAssertTrue(readinessHasOperation($isolated, 'SELECT `probe_value`'), 'Known row was not read');
-readinessAssertTrue(readinessHasOperation($configured, "DROP DATABASE `{$databaseName}`"),
-    'Disposable database was not removed');
+readinessAssertTrue(readinessHasOperation($bootstrap, "DROP DATABASE `{$databaseName}`"),
+    'Disposable database was not removed from the bootstrap connection');
+readinessAssertSame([], $configured->operations,
+    'Configured target connection must not be required for create_database capability');
 
 // Hosted/pre-created database fallback.
 $configured = new ReadinessFakeConnection(['CREATE DATABASE' => readinessPermissionError()]);

@@ -45,10 +45,37 @@ if (!Database::hasExplicitConfig()) {
 }
 
 try {
-    $connection = Database::init()->getConnection();
+    $bootstrapConnection = Database::createBootstrapConnection();
+    $bootstrapConnection->getPdo();
+} catch (\Throwable $e) {
+    error_log('Readiness MariaDB bootstrap connection error: ' . $e->getMessage());
+    respond('database_unavailable', 503);
+}
+
+try {
+    $databaseMode = (new DatabaseCapabilityProbe(
+        $bootstrapConnection,
+        null,
+        null,
+        null,
+        static fn() => Database::createConfiguredConnection()
+    ))->detect();
+} catch (DatabasePermissionsInsufficientException $e) {
+    error_log('Readiness database permissions error: ' . $e->getMessage());
+    respond('database_permissions_insufficient', 503);
+} catch (\Throwable $e) {
+    error_log('Readiness database capability probe error: ' . $e->getMessage());
+    respond('database_unavailable', 503);
+}
+
+try {
+    $connection = Database::createConfiguredConnection();
     $connection->getPdo();
 } catch (\Throwable $e) {
-    error_log('Readiness database connection error: ' . $e->getMessage());
+    if ($databaseMode === DatabaseCapabilityProbe::MODE_CREATE_DATABASE) {
+        respond('database_missing', 503, ['database_mode' => $databaseMode]);
+    }
+    error_log('Readiness configured database connection error: ' . $e->getMessage());
     respond('database_unavailable', 503);
 }
 
@@ -68,20 +95,11 @@ try {
 }
 
 if ($missingTables !== []) {
-    respond('schema_missing', 503, ['missing_tables' => $missingTables]);
+    respond('schema_missing', 503, ['missing_tables' => $missingTables, 'database_mode' => $databaseMode]);
 }
 
 try {
     if (!Database::table('users')->exists()) {
-        try {
-            $databaseMode = (new DatabaseCapabilityProbe($connection))->detect();
-        } catch (DatabasePermissionsInsufficientException $e) {
-            error_log('Readiness database permissions error: ' . $e->getMessage());
-            respond('database_permissions_insufficient', 503);
-        } catch (\Throwable $e) {
-            error_log('Readiness database capability probe error: ' . $e->getMessage());
-            respond('database_unavailable', 503);
-        }
         respond('initialization_required', 200, ['database_mode' => $databaseMode]);
     }
 } catch (\Throwable $e) {

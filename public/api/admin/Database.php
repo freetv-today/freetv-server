@@ -90,15 +90,38 @@ class Database
     {
         $config = self::getConfig();
 
-        return [
+        $connectionConfig = [
             'driver'    => 'mysql',
             'host'      => $config['host'],
-            'database'  => $database ?? $config['database'],
             'username'  => $config['user'],
             'password'  => $config['pass'],
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
         ];
+
+        if ($database !== null) {
+            $connectionConfig['database'] = $database;
+        } else {
+            $connectionConfig['database'] = $config['database'];
+        }
+
+        return $connectionConfig;
+    }
+
+    public static function createBootstrapConnection()
+    {
+        $capsule = new Capsule;
+        $config = self::getConnectionConfig();
+        unset($config['database']);
+        $capsule->addConnection($config, 'readiness_bootstrap');
+        return $capsule->getConnection('readiness_bootstrap');
+    }
+
+    public static function createConfiguredConnection()
+    {
+        $capsule = new Capsule;
+        $capsule->addConnection(self::getConnectionConfig(), 'readiness_configured');
+        return $capsule->getConnection('readiness_configured');
     }
 
     public static function createReadinessConnection($database)

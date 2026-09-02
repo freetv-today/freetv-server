@@ -4,6 +4,7 @@ const BACKEND_STATUSES = new Set([
   'dependencies_missing',
   'database_config_missing',
   'database_unavailable',
+  'database_missing',
   'database_permissions_insufficient',
   'schema_missing',
   'initialization_required',

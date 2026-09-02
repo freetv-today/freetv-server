@@ -1,6 +1,7 @@
 const DATABASE_COPY = {
   database_config_missing: 'MariaDB access has not been configured for FreeTV.',
   database_unavailable: 'FreeTV could not connect to MariaDB using the configured credentials.',
+  database_missing: 'MariaDB access is available, but the configured FreeTV database does not exist yet.',
   database_permissions_insufficient: 'FreeTV can connect to MariaDB, but the configured account cannot '
     + 'perform the database, table, or data operations required to initialize FreeTV.',
   schema_missing: 'MariaDB is reachable, but the FreeTV schema has not been imported or is incomplete.'

@@ -17,18 +17,22 @@ final class DatabaseCapabilityProbe
     private const VERIFIED_VALUE = 'freetv-readiness-write-read-ok';
     private const CREATE_DATABASE_PERMISSION_ERROR_CODES = [1044, 1142, 1227];
 
-    private $configuredConnection;
+    private $bootstrapConnection;
+    private $configuredConnectionFactory;
     private $isolatedConnectionFactory;
     private $nameGenerator;
     private $logger;
 
     public function __construct(
-        $configuredConnection,
+        $bootstrapConnection,
         ?callable $isolatedConnectionFactory = null,
         ?callable $nameGenerator = null,
-        ?callable $logger = null
+        ?callable $logger = null,
+        ?callable $configuredConnectionFactory = null
     ) {
-        $this->configuredConnection = $configuredConnection;
+        $this->bootstrapConnection = $bootstrapConnection;
+        $this->configuredConnectionFactory = $configuredConnectionFactory
+            ?? static fn() => $bootstrapConnection;
         $this->isolatedConnectionFactory = $isolatedConnectionFactory
             ?? static fn(string $database) => Database::createReadinessConnection($database);
         $this->nameGenerator = $nameGenerator
@@ -42,7 +46,7 @@ final class DatabaseCapabilityProbe
 
         try {
             $this->executeStatement(
-                $this->configuredConnection,
+                $this->bootstrapConnection,
                 'CREATE DATABASE ' . $this->quoteIdentifier($databaseName)
             );
         } catch (\Throwable $exception) {
@@ -102,6 +106,7 @@ final class DatabaseCapabilityProbe
 
     private function probeConfiguredDatabase(): string
     {
+        $configuredConnection = ($this->configuredConnectionFactory)();
         $tableName = $this->generateSafeName();
         $tableCreated = false;
         $failure = null;
@@ -109,19 +114,19 @@ final class DatabaseCapabilityProbe
 
         try {
             $this->executeStatement(
-                $this->configuredConnection,
+                $configuredConnection,
                 'CREATE TABLE ' . $this->quoteIdentifier($tableName)
                     . ' (`probe_value` VARCHAR(64) NOT NULL) ENGINE=InnoDB'
             );
             $tableCreated = true;
-            $this->writeAndVerify($this->configuredConnection, $tableName);
+            $this->writeAndVerify($configuredConnection, $tableName);
         } catch (\Throwable $exception) {
             $failure = $exception;
         }
 
         if ($tableCreated) {
             try {
-                $this->dropTable($tableName);
+                $this->dropTable($configuredConnection, $tableName);
             } catch (\Throwable $exception) {
                 $cleanupFailure = $exception;
             }
@@ -178,16 +183,16 @@ final class DatabaseCapabilityProbe
     {
         $this->assertSafeName($databaseName);
         $this->executeStatement(
-            $this->configuredConnection,
+            $this->bootstrapConnection,
             'DROP DATABASE ' . $this->quoteIdentifier($databaseName)
         );
     }
 
-    private function dropTable(string $tableName): void
+    private function dropTable($connection, string $tableName): void
     {
         $this->assertSafeName($tableName);
         $this->executeStatement(
-            $this->configuredConnection,
+            $connection,
             'DROP TABLE ' . $this->quoteIdentifier($tableName)
         );
     }
