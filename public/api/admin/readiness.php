@@ -3,6 +3,7 @@
 use FreeTV\Admin\Database;
 use FreeTV\Admin\DatabaseCapabilityProbe;
 use FreeTV\Admin\DatabasePermissionsInsufficientException;
+use FreeTV\Admin\DatabaseReadiness;
 
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
@@ -29,6 +30,10 @@ try {
     require_once $autoloadPath;
     require_once __DIR__ . '/Database.php';
     require_once __DIR__ . '/DatabaseCapabilityProbe.php';
+    require_once __DIR__ . '/MariaDbError.php';
+    require_once __DIR__ . '/SqlPackageExecutor.php';
+    require_once __DIR__ . '/SchemaBootstrapper.php';
+    require_once __DIR__ . '/DatabaseReadiness.php';
 } catch (\Throwable $e) {
     error_log('Readiness dependency loading error: ' . $e->getMessage());
     respond('dependencies_missing', 503);
@@ -53,58 +58,25 @@ try {
 }
 
 try {
-    $databaseMode = (new DatabaseCapabilityProbe(
-        $bootstrapConnection,
-        null,
-        null,
-        null,
-        static fn() => Database::createConfiguredConnection()
-    ))->detect();
+    $result = (new DatabaseReadiness(
+        static fn() => Database::createConfiguredConnection(),
+        static fn(): string => (new DatabaseCapabilityProbe(
+            $bootstrapConnection,
+            null,
+            null,
+            null,
+            static fn() => Database::createConfiguredConnection()
+        ))->detect()
+    ))->check();
 } catch (DatabasePermissionsInsufficientException $e) {
     error_log('Readiness database permissions error: ' . $e->getMessage());
     respond('database_permissions_insufficient', 503);
 } catch (\Throwable $e) {
-    error_log('Readiness database capability probe error: ' . $e->getMessage());
+    error_log('Readiness database inspection error: ' . $e->getMessage());
     respond('database_unavailable', 503);
 }
 
-try {
-    $connection = Database::createConfiguredConnection();
-    $connection->getPdo();
-} catch (\Throwable $e) {
-    if ($databaseMode === DatabaseCapabilityProbe::MODE_CREATE_DATABASE) {
-        respond('database_missing', 503, ['database_mode' => $databaseMode]);
-    }
-    error_log('Readiness configured database connection error: ' . $e->getMessage());
-    respond('database_unavailable', 503);
-}
-
-$requiredTables = ['users', 'playlists', 'playlist_shows', 'app_settings'];
-$missingTables = [];
-
-try {
-    $schema = $connection->getSchemaBuilder();
-    foreach ($requiredTables as $table) {
-        if (!$schema->hasTable($table)) {
-            $missingTables[] = $table;
-        }
-    }
-} catch (\Throwable $e) {
-    error_log('Readiness schema inspection error: ' . $e->getMessage());
-    respond('database_unavailable', 503);
-}
-
-if ($missingTables !== []) {
-    respond('schema_missing', 503, ['missing_tables' => $missingTables, 'database_mode' => $databaseMode]);
-}
-
-try {
-    if (!Database::table('users')->exists()) {
-        respond('initialization_required', 200, ['database_mode' => $databaseMode]);
-    }
-} catch (\Throwable $e) {
-    error_log('Readiness application state inspection error: ' . $e->getMessage());
-    respond('database_unavailable', 503);
-}
-
-respond('ready', 200);
+$status = $result['status'];
+$httpStatus = $result['http_status'];
+unset($result['status'], $result['http_status']);
+respond($status, $httpStatus, $result);

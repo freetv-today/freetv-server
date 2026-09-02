@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readinessEndpoint = fs.readFileSync(path.join(root, 'public/api/admin/readiness.php'), 'utf8');
+const readinessService = fs.readFileSync(path.join(root, 'public/api/admin/DatabaseReadiness.php'), 'utf8');
 const readinessHook = fs.readFileSync(path.join(root, 'src/hooks/useDatabaseReadiness.js'), 'utf8');
 const readinessPage = fs.readFileSync(path.join(root, 'src/pages/DatabaseReadinessPage.jsx'), 'utf8');
+const loginPage = fs.readFileSync(path.join(root, 'src/pages/index.jsx'), 'utf8');
 
 test('readiness preserves existing statuses and adds the permissions status', () => {
   for (const status of [
@@ -30,16 +32,23 @@ test('frontend preserves only the two valid database capability modes', () => {
   assert.match(readinessHook, /databaseMode: null/);
 });
 
-test('capability probing precedes target schema inspection and ready remains unchanged', () => {
-  const schemaResponse = readinessEndpoint.indexOf("respond('schema_missing'");
-  const capabilityProbe = readinessEndpoint.indexOf('new DatabaseCapabilityProbe');
-  const targetConnection = readinessEndpoint.indexOf('Database::createConfiguredConnection');
-  assert.ok(schemaResponse >= 0 && capabilityProbe >= 0 && capabilityProbe < targetConnection);
-  assert.match(readinessEndpoint, /respond\('database_missing', 503, \['database_mode' => \$databaseMode\]\)/);
+test('target inspection precedes deferred capability probing and ready remains unchanged', () => {
+  const targetConnection = readinessService.indexOf("$connection = ($this->configuredConnectionFactory)()");
+  const readyResponse = readinessService.indexOf("'status' => 'ready'");
+  const capabilityProbe = readinessService.indexOf("$mode = ($this->capabilityProbe)()");
+  assert.ok(targetConnection >= 0 && readyResponse > targetConnection && capabilityProbe > readyResponse);
+  assert.match(readinessService, /MariaDbError::isUnknownDatabase/);
+  assert.match(readinessService, /'status' => 'database_missing'/);
   assert.match(readinessEndpoint, /Database::createBootstrapConnection/);
   assert.match(readinessEndpoint, /Database::createConfiguredConnection/);
-  assert.match(readinessEndpoint, /respond\('initialization_required', 200, \['database_mode' => \$databaseMode\]\)/);
-  assert.match(readinessEndpoint, /respond\('ready', 200\)/);
+  assert.match(readinessService, /'status' => 'initialization_required'/);
+  assert.match(readinessService, /'status' => 'ready'/);
+});
+
+test('recoverable missing database and schema states expose the existing initialization page', () => {
+  assert.match(loginPage, /readiness\.status === 'database_missing'/);
+  assert.match(loginPage, /readiness\.status === 'schema_missing'/);
+  assert.match(loginPage, /readiness\.databaseMode !== null/);
 });
 
 test('permissions page gives provider-neutral independent MariaDB guidance', () => {

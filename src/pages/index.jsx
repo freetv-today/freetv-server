@@ -49,7 +49,9 @@ export function AdminLogin() {
         return <SpinnerLoadingAppData />;
     }
 
-    if (readiness.status === 'initialization_required') {
+    if (readiness.status === 'initialization_required'
+        || ((readiness.status === 'database_missing' || readiness.status === 'schema_missing')
+            && readiness.databaseMode !== null)) {
         return <DataInitializationPage onInitialized={readiness.retry} />;
     }
 

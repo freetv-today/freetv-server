@@ -106,6 +106,11 @@ class Database
         return $connectionConfig;
     }
 
+    public static function configuredDatabaseName(): string
+    {
+        return self::getConfig()['database'];
+    }
+
     public static function createBootstrapConnection()
     {
         $capsule = new Capsule;

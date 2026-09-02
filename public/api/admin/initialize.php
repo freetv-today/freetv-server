@@ -1,7 +1,9 @@
 <?php
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\DatabaseCapabilityProbe;
 use FreeTV\Admin\InitializationPlan;
+use FreeTV\Admin\SchemaBootstrapper;
 
 require_once __DIR__ . '/Session.php';
 
@@ -81,6 +83,11 @@ if (!file_exists($autoloadPath)) {
 try {
     require_once $autoloadPath;
     require_once __DIR__ . '/Database.php';
+    require_once __DIR__ . '/DatabaseCapabilityProbe.php';
+    require_once __DIR__ . '/MariaDbError.php';
+    require_once __DIR__ . '/DatabaseIdentifier.php';
+    require_once __DIR__ . '/SqlPackageExecutor.php';
+    require_once __DIR__ . '/SchemaBootstrapper.php';
     require_once __DIR__ . '/InitializationPlan.php';
 } catch (\Throwable $e) {
     error_log('Initialization dependency loading error: ' . $e->getMessage());
@@ -92,14 +99,15 @@ if (!class_exists('\Illuminate\Database\Capsule\Manager') || !Database::hasExpli
 }
 
 $connection = null;
+$bootstrapConnection = null;
 $lockAcquired = false;
 $lockName = 'freetv_initialize_application';
 
 try {
-    $connection = Database::init()->getConnection();
-    $connection->getPdo();
+    $bootstrapConnection = Database::createBootstrapConnection();
+    $bootstrapConnection->getPdo();
 
-    $lockResult = $connection->selectOne('SELECT GET_LOCK(?, 10) AS acquired', [$lockName]);
+    $lockResult = $bootstrapConnection->selectOne('SELECT GET_LOCK(?, 10) AS acquired', [$lockName]);
     if (!$lockResult || (int) $lockResult->acquired !== 1) {
         initializeRespond(409, [
             'success' => false,
@@ -108,66 +116,84 @@ try {
     }
     $lockAcquired = true;
 
-    $result = $connection->transaction(function () use ($connection, $username, $password): string {
-        $hasUsers = Database::table('users')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->first(['id']) !== null;
-        $hasPlaylists = Database::table('playlists')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->first(['id']) !== null;
-        $hasPlaylistShows = Database::table('playlist_shows')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->first(['id']) !== null;
+    [$connection, $schemaState] = (new SchemaBootstrapper(
+        $bootstrapConnection,
+        static fn() => Database::createConfiguredConnection(),
+        static fn(): string => (new DatabaseCapabilityProbe(
+            $bootstrapConnection,
+            null,
+            null,
+            null,
+            static fn() => Database::createConfiguredConnection()
+        ))->detect(),
+        Database::configuredDatabaseName(),
+        dirname(__DIR__, 3) . '/sql/freetv_mariadb_schema-tables-only.sql'
+    ))->prepare();
 
-        $plan = InitializationPlan::forState($hasUsers, $hasPlaylists, $hasPlaylistShows);
-        if ($plan === InitializationPlan::ALREADY_INITIALIZED) {
-            return 'already_initialized';
-        }
+    if ($schemaState === SchemaBootstrapper::ALREADY_INITIALIZED) {
+        $result = 'already_initialized';
+    } else {
+        $result = $connection->transaction(function () use ($connection, $username, $password): string {
+            $hasUsers = $connection->table('users')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->first(['id']) !== null;
+            $hasPlaylists = $connection->table('playlists')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->first(['id']) !== null;
+            $hasPlaylistShows = $connection->table('playlist_shows')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->first(['id']) !== null;
 
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        if ($passwordHash === false) {
-            throw new \RuntimeException('Password hashing failed');
-        }
+            $plan = InitializationPlan::forState($hasUsers, $hasPlaylists, $hasPlaylistShows);
+            if ($plan === InitializationPlan::ALREADY_INITIALIZED) {
+                return 'already_initialized';
+            }
 
-        Database::table('users')->insert([
-            'username' => $username,
-            'password_hash' => $passwordHash,
-            'role' => 'admin',
-            'status' => 'active',
-        ]);
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            if ($passwordHash === false) {
+                throw new \RuntimeException('Password hashing failed');
+            }
 
-        if ($plan === InitializationPlan::CREATE_ADMIN_AND_STARTER) {
-            Database::table('playlists')->insert([
-                'filename' => 'playlist-one.json',
-                'dbtitle' => 'Playlist One',
-                'dbversion' => null,
-                'author' => null,
-                'email' => null,
-                'link' => null,
-                'lastupdated' => $connection->raw('CURRENT_TIMESTAMP'),
-                'is_default' => 1,
-                'sort_order' => 0,
+            $connection->table('users')->insert([
+                'username' => $username,
+                'password_hash' => $passwordHash,
+                'role' => 'admin',
+                'status' => 'active',
             ]);
-        }
 
-        Database::table('app_settings')->insertOrIgnore([
-            'setting_key' => 'show_ads',
-            'setting_value' => 'false',
-            'scope' => 'viewer',
-        ]);
+            if ($plan === InitializationPlan::CREATE_ADMIN_AND_STARTER) {
+                $connection->table('playlists')->insert([
+                    'filename' => 'playlist-one.json',
+                    'dbtitle' => 'Playlist One',
+                    'dbversion' => null,
+                    'author' => null,
+                    'email' => null,
+                    'link' => null,
+                    'lastupdated' => $connection->raw('CURRENT_TIMESTAMP'),
+                    'is_default' => 1,
+                    'sort_order' => 0,
+                ]);
+            }
 
-        return 'initialized';
-    });
+            $connection->table('app_settings')->insertOrIgnore([
+                'setting_key' => 'show_ads',
+                'setting_value' => 'false',
+                'scope' => 'viewer',
+            ]);
+
+            return 'initialized';
+        });
+    }
 } catch (\Throwable $e) {
     error_log('Initialization database error: ' . $e->getMessage());
     initializeRespond(500, ['success' => false, 'message' => 'FreeTV initialization failed']);
 } finally {
-    if ($lockAcquired && $connection !== null) {
+    if ($lockAcquired && $bootstrapConnection !== null) {
         try {
-            $connection->selectOne('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
+            $bootstrapConnection->selectOne('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
         } catch (\Throwable $releaseException) {
             error_log('Initialization lock release error: ' . $releaseException->getMessage());
         }
