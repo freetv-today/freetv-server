@@ -29,7 +29,9 @@ initializationContractAssert(
 );
 initializationContractAssert(
     str_contains($endpoint, 'new Bootstrapper(')
-        && str_contains($endpoint, '))->fresh($username, $password)'),
+        && str_contains($endpoint, "'sample' => \$bootstrapper->sample(\$username, \$password)")
+        && str_contains($endpoint, "'official' => \$bootstrapper->official(\$username, \$password)")
+        && str_contains($endpoint, 'default => $bootstrapper->fresh($username, $password)'),
     'Start Fresh must delegate application orchestration to Bootstrapper'
 );
 $failureResponse = strpos($endpoint, "initializeRespond(500, ['success' => false");

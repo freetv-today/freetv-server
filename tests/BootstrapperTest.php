@@ -10,6 +10,7 @@ require_once __DIR__ . '/../public/api/admin/SchemaBootstrapper.php';
 require_once __DIR__ . '/../public/api/admin/FreshBootstrapData.php';
 require_once __DIR__ . '/../public/api/admin/FreshDatabaseInstaller.php';
 require_once __DIR__ . '/../public/api/admin/FreshArtifactInstaller.php';
+require_once __DIR__ . '/../public/api/admin/PackageBootstrapContracts.php';
 require_once __DIR__ . '/../public/api/admin/Settings.php';
 require_once __DIR__ . '/../public/api/admin/publication/PublicationException.php';
 require_once __DIR__ . '/../public/api/admin/publication/PublicationTimestamp.php';

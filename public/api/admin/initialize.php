@@ -62,10 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 session_start();
 
 $input = initializeReadJsonObject();
-$allowedFields = ['username', 'password', 'password_confirmation'];
+$allowedFields = ['mode', 'username', 'password', 'password_confirmation'];
 $unexpectedFields = array_diff(array_keys($input), $allowedFields);
 if ($unexpectedFields !== []) {
     initializeRespond(400, ['success' => false, 'message' => 'Unexpected request fields']);
+}
+
+$mode = $input['mode'] ?? 'fresh';
+if (!is_string($mode) || !in_array($mode, ['fresh', 'sample', 'official'], true)) {
+    initializeRespond(400, ['success' => false, 'message' => 'Invalid initialization mode']);
 }
 
 $username = initializeValidateUsername($input['username'] ?? null);
@@ -91,6 +96,12 @@ try {
     require_once __DIR__ . '/FreshBootstrapData.php';
     require_once __DIR__ . '/FreshDatabaseInstaller.php';
     require_once __DIR__ . '/FreshArtifactInstaller.php';
+    require_once __DIR__ . '/DatasetPackage.php';
+    require_once __DIR__ . '/PackageBootstrapContracts.php';
+    require_once __DIR__ . '/DatasetPackageValidator.php';
+    require_once __DIR__ . '/DatasetPackageProvider.php';
+    require_once __DIR__ . '/PackageDatabaseInstaller.php';
+    require_once __DIR__ . '/PackageArtifactInstaller.php';
     require_once __DIR__ . '/publication/PublicationException.php';
     require_once __DIR__ . '/publication/PublicationTimestamp.php';
     require_once __DIR__ . '/publication/ConfigPublicationSerializer.php';
@@ -137,14 +148,33 @@ try {
         dirname(__DIR__, 3) . '/sql/freetv_mariadb_schema-tables-only.sql'
     );
     $paths = new \FreeTV\Admin\ServerPaths();
-    $result = (new Bootstrapper(
+    $sqlExecutor = new \FreeTV\Admin\SqlPackageExecutor();
+    $bootstrapper = new Bootstrapper(
         $schemaBootstrapper,
         new \FreeTV\Admin\FreshBootstrapData(
             $paths->appRoot() . '/resources/bootstrap/fresh.json'
         ),
         new \FreeTV\Admin\FreshDatabaseInstaller(),
-        new \FreeTV\Admin\FreshArtifactInstaller($paths->publicRoot())
-    ))->fresh($username, $password);
+        new \FreeTV\Admin\FreshArtifactInstaller($paths->publicRoot()),
+        null,
+        new \FreeTV\Admin\DatasetPackageProvider(
+            $paths->tempRoot(),
+            new \FreeTV\Admin\DatasetPackageValidator()
+        ),
+        new \FreeTV\Admin\PackageDatabaseInstaller(
+            $sqlExecutor,
+            $paths->appRoot() . '/sql/freetv_mariadb_schema-tables-only.sql'
+        ),
+        new \FreeTV\Admin\PackageArtifactInstaller($paths->publicRoot())
+    );
+    if ($mode !== 'fresh') {
+        @set_time_limit(600);
+    }
+    $result = match ($mode) {
+        'sample' => $bootstrapper->sample($username, $password),
+        'official' => $bootstrapper->official($username, $password),
+        default => $bootstrapper->fresh($username, $password),
+    };
 } catch (\Throwable $e) {
     error_log('Initialization database error: ' . $e->getMessage());
     initializeRespond(500, ['success' => false, 'message' => 'FreeTV initialization failed']);

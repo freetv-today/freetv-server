@@ -93,6 +93,21 @@ final class SchemaBootstrapper
         return [$connection, self::SCHEMA_INSTALLED];
     }
 
+    public function isAlreadyInitialized(): bool
+    {
+        try {
+            $connection = ($this->configuredConnectionFactory)();
+            $connection->getPdo();
+        } catch (\Throwable $exception) {
+            if (MariaDbError::isUnknownDatabase($exception)) {
+                return false;
+            }
+            throw $exception;
+        }
+
+        return $this->hasInitializedUser($connection);
+    }
+
     /** @return list<string> */
     private function missingTables($connection): array
     {
