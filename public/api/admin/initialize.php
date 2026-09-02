@@ -2,7 +2,7 @@
 
 use FreeTV\Admin\Database;
 use FreeTV\Admin\DatabaseCapabilityProbe;
-use FreeTV\Admin\InitializationPlan;
+use FreeTV\Admin\Bootstrapper;
 use FreeTV\Admin\SchemaBootstrapper;
 
 require_once __DIR__ . '/Session.php';
@@ -88,7 +88,15 @@ try {
     require_once __DIR__ . '/DatabaseIdentifier.php';
     require_once __DIR__ . '/SqlPackageExecutor.php';
     require_once __DIR__ . '/SchemaBootstrapper.php';
-    require_once __DIR__ . '/InitializationPlan.php';
+    require_once __DIR__ . '/FreshBootstrapData.php';
+    require_once __DIR__ . '/FreshDatabaseInstaller.php';
+    require_once __DIR__ . '/FreshArtifactInstaller.php';
+    require_once __DIR__ . '/publication/PublicationException.php';
+    require_once __DIR__ . '/publication/PublicationTimestamp.php';
+    require_once __DIR__ . '/publication/ConfigPublicationSerializer.php';
+    require_once __DIR__ . '/publication/PlaylistPublicationSerializer.php';
+    require_once __DIR__ . '/publication/PlaylistIndexSerializer.php';
+    require_once __DIR__ . '/Bootstrapper.php';
 } catch (\Throwable $e) {
     error_log('Initialization dependency loading error: ' . $e->getMessage());
     initializeRespond(503, ['success' => false, 'message' => 'PHP dependencies are unavailable']);
@@ -98,7 +106,6 @@ if (!class_exists('\Illuminate\Database\Capsule\Manager') || !Database::hasExpli
     initializeRespond(503, ['success' => false, 'message' => 'Database setup is incomplete']);
 }
 
-$connection = null;
 $bootstrapConnection = null;
 $lockAcquired = false;
 $lockName = 'freetv_initialize_application';
@@ -116,7 +123,7 @@ try {
     }
     $lockAcquired = true;
 
-    [$connection, $schemaState] = (new SchemaBootstrapper(
+    $schemaBootstrapper = new SchemaBootstrapper(
         $bootstrapConnection,
         static fn() => Database::createConfiguredConnection(),
         static fn(): string => (new DatabaseCapabilityProbe(
@@ -128,65 +135,16 @@ try {
         ))->detect(),
         Database::configuredDatabaseName(),
         dirname(__DIR__, 3) . '/sql/freetv_mariadb_schema-tables-only.sql'
-    ))->prepare();
-
-    if ($schemaState === SchemaBootstrapper::ALREADY_INITIALIZED) {
-        $result = 'already_initialized';
-    } else {
-        $result = $connection->transaction(function () use ($connection, $username, $password): string {
-            $hasUsers = $connection->table('users')
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->first(['id']) !== null;
-            $hasPlaylists = $connection->table('playlists')
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->first(['id']) !== null;
-            $hasPlaylistShows = $connection->table('playlist_shows')
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->first(['id']) !== null;
-
-            $plan = InitializationPlan::forState($hasUsers, $hasPlaylists, $hasPlaylistShows);
-            if ($plan === InitializationPlan::ALREADY_INITIALIZED) {
-                return 'already_initialized';
-            }
-
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            if ($passwordHash === false) {
-                throw new \RuntimeException('Password hashing failed');
-            }
-
-            $connection->table('users')->insert([
-                'username' => $username,
-                'password_hash' => $passwordHash,
-                'role' => 'admin',
-                'status' => 'active',
-            ]);
-
-            if ($plan === InitializationPlan::CREATE_ADMIN_AND_STARTER) {
-                $connection->table('playlists')->insert([
-                    'filename' => 'playlist-one.json',
-                    'dbtitle' => 'Playlist One',
-                    'dbversion' => null,
-                    'author' => null,
-                    'email' => null,
-                    'link' => null,
-                    'lastupdated' => $connection->raw('CURRENT_TIMESTAMP'),
-                    'is_default' => 1,
-                    'sort_order' => 0,
-                ]);
-            }
-
-            $connection->table('app_settings')->insertOrIgnore([
-                'setting_key' => 'show_ads',
-                'setting_value' => 'false',
-                'scope' => 'viewer',
-            ]);
-
-            return 'initialized';
-        });
-    }
+    );
+    $paths = new \FreeTV\Admin\ServerPaths();
+    $result = (new Bootstrapper(
+        $schemaBootstrapper,
+        new \FreeTV\Admin\FreshBootstrapData(
+            $paths->appRoot() . '/resources/bootstrap/fresh.json'
+        ),
+        new \FreeTV\Admin\FreshDatabaseInstaller(),
+        new \FreeTV\Admin\FreshArtifactInstaller($paths->publicRoot())
+    ))->fresh($username, $password);
 } catch (\Throwable $e) {
     error_log('Initialization database error: ' . $e->getMessage());
     initializeRespond(500, ['success' => false, 'message' => 'FreeTV initialization failed']);
@@ -200,7 +158,7 @@ try {
     }
 }
 
-if ($result === 'already_initialized') {
+if ($result === Bootstrapper::ALREADY_INITIALIZED) {
     initializeRespond(409, ['success' => false, 'message' => 'FreeTV has already been initialized']);
 }
 

@@ -27,9 +27,14 @@ initializationContractAssert(
     strpos($endpoint, 'GET_LOCK') < strpos($endpoint, 'new SchemaBootstrapper'),
     'Initialization lock must be acquired before schema bootstrap'
 );
+initializationContractAssert(
+    str_contains($endpoint, 'new Bootstrapper(')
+        && str_contains($endpoint, '))->fresh($username, $password)'),
+    'Start Fresh must delegate application orchestration to Bootstrapper'
+);
 $failureResponse = strpos($endpoint, "initializeRespond(500, ['success' => false");
 $sessionDestroy = strpos($endpoint, 'destroyAdminSession()');
-$alreadyInitialized = strpos($endpoint, "if (\$result === 'already_initialized')");
+$alreadyInitialized = strpos($endpoint, 'if ($result === Bootstrapper::ALREADY_INITIALIZED)');
 initializationContractAssert(
     $failureResponse !== false && $sessionDestroy !== false && $failureResponse < $sessionDestroy,
     'Failure handling must occur without destroying the Admin session'
