@@ -43,9 +43,7 @@ class Database
             }
         }
 
-        // A password setting must be explicit, but an empty password is valid.
-        [$passwordConfigured] = self::getFirstConfiguredValue(['VITE_DB_PASS', 'DB_PASS']);
-        return $passwordConfigured;
+        return true;
     }
 
     private static function loadEnvironment()
