@@ -8,28 +8,51 @@ require_once __DIR__ . '/PackageBootstrapContracts.php';
 
 final class DatasetPackageProvider implements DatasetPackageSource
 {
-    private const URLS = [
-        'sample' => 'https://github.com/freetv-today/freetv-data/releases/download/'
-            . 'v3.0.0-data-preview/freetv-sample-data.zip',
-        'official' => 'https://github.com/freetv-today/freetv-data/releases/download/'
-            . 'v3.0.0-data-preview/freetv-official-data.zip',
+    private const PACKAGES = [
+        'sample' => [
+            'url' => 'https://github.com/freetv-today/freetv-data/releases/download/'
+                . 'v3.0.0-data-preview/freetv-sample-data.zip',
+            'sha256' => 'f7faca5c456b417ba643c8dfcf3b5d56a322557586fe00409c1d7512b67e9026',
+        ],
+        'official' => [
+            'url' => 'https://github.com/freetv-today/freetv-data/releases/download/'
+                . 'v3.0.0-data-preview/freetv-official-data.zip',
+            'sha256' => '82c8bb5e05d6325c249948db667ed553b3fe9cad803f0fe044fddef7fdca3f45',
+        ],
     ];
     private const MAX_DOWNLOAD_BYTES = 268435456;
 
     private $downloader;
+    private $packageValidator;
+    private array $packages;
 
     public function __construct(
         private string $tempRoot,
         private DatasetPackageValidator $validator,
-        ?callable $downloader = null
+        ?callable $downloader = null,
+        ?array $packages = null,
+        ?callable $packageValidator = null
     ) {
         $this->downloader = $downloader ?? fn(string $url, string $path) => $this->download($url, $path);
+        $this->packages = $packages ?? self::PACKAGES;
+        $this->packageValidator = $packageValidator
+            ?? fn(string $zipPath, string $root, string $dataset): array =>
+                $this->validator->extractAndValidate($zipPath, $root, $dataset);
     }
 
     public function acquire(string $dataset): DatasetPackage
     {
-        if (!isset(self::URLS[$dataset])) {
+        if (!isset($this->packages[$dataset])) {
             throw new \InvalidArgumentException('Unsupported initialization mode');
+        }
+        $definition = $this->packages[$dataset];
+        if (!is_array($definition)
+            || array_keys($definition) !== ['url', 'sha256']
+            || !is_string($definition['url'])
+            || !str_starts_with($definition['url'], 'https://')
+            || !is_string($definition['sha256'])
+            || preg_match('/^[a-f0-9]{64}$/D', $definition['sha256']) !== 1) {
+            throw new \LogicException('Dataset package definition is invalid');
         }
         $base = rtrim($this->tempRoot, DIRECTORY_SEPARATOR) . '/bootstrap-packages';
         if (is_link($base) || (file_exists($base) && !is_dir($base))) {
@@ -48,9 +71,16 @@ final class DatasetPackageProvider implements DatasetPackageSource
 
         try {
             $zipPath = $workspace . '/download.zip';
-            ($this->downloader)(self::URLS[$dataset], $zipPath);
+            ($this->downloader)($definition['url'], $zipPath);
+            $archiveHash = is_file($zipPath) ? hash_file('sha256', $zipPath) : false;
+            if (!is_string($archiveHash)) {
+                throw new \RuntimeException('Could not verify the downloaded dataset archive');
+            }
+            if (!hash_equals($definition['sha256'], $archiveHash)) {
+                throw new \RuntimeException('Downloaded dataset archive SHA-256 does not match the pinned asset');
+            }
             $root = $workspace . '/extracted';
-            $files = $this->validator->extractAndValidate($zipPath, $root, $dataset);
+            $files = ($this->packageValidator)($zipPath, $root, $dataset);
             if (!unlink($zipPath)) {
                 throw new \RuntimeException('Could not remove validated dataset download');
             }

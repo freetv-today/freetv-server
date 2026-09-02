@@ -92,6 +92,20 @@ function datasetExpectFailure(string $label, callable $fixture, string $expected
     }
 }
 
+function datasetProviderDefinitions(string $sampleHash, ?string $officialHash = null): array
+{
+    return [
+        'sample' => [
+            'url' => 'https://fixtures.invalid/freetv-sample-data.zip',
+            'sha256' => $sampleHash,
+        ],
+        'official' => [
+            'url' => 'https://fixtures.invalid/freetv-official-data.zip',
+            'sha256' => $officialHash ?? $sampleHash,
+        ],
+    ];
+}
+
 $root = sys_get_temp_dir() . '/freetv-dataset-valid-' . bin2hex(random_bytes(6));
 mkdir($root, 0700);
 try {
@@ -167,10 +181,12 @@ $root = sys_get_temp_dir() . '/freetv-dataset-provider-' . bin2hex(random_bytes(
 mkdir($root, 0700);
 $fixtureZip = $root . '/fixture.zip';
 datasetWriteZip($fixtureZip);
+$fixtureHash = hash_file('sha256', $fixtureZip);
 $provider = new DatasetPackageProvider(
     $root . '/temp',
     new DatasetPackageValidator(),
-    static fn(string $url, string $destination): bool => copy($fixtureZip, $destination)
+    static fn(string $url, string $destination): bool => copy($fixtureZip, $destination),
+    datasetProviderDefinitions($fixtureHash)
 );
 $package = $provider->acquire('sample');
 $workspace = dirname($package->root());
@@ -182,12 +198,41 @@ if (file_exists($workspace)) {
     throw new RuntimeException('Validated package workspace was not cleaned');
 }
 
+$validationCalls = 0;
+$mismatchedProvider = new DatasetPackageProvider(
+    $root . '/temp',
+    new DatasetPackageValidator(),
+    static fn(string $url, string $destination): bool => copy($fixtureZip, $destination),
+    datasetProviderDefinitions(str_repeat('0', 64)),
+    static function (string $zipPath, string $extractionRoot, string $dataset) use (&$validationCalls): array {
+        $validationCalls++;
+        throw new RuntimeException('Package validation must not run after an archive hash mismatch');
+    }
+);
+try {
+    $mismatchedProvider->acquire('sample');
+    throw new RuntimeException('Mismatched dataset archive SHA-256 was accepted');
+} catch (RuntimeException $exception) {
+    if (!str_contains($exception->getMessage(), 'does not match the pinned asset')) {
+        throw $exception;
+    }
+}
+if ($validationCalls !== 0) {
+    throw new RuntimeException('Archive mismatch proceeded to package extraction');
+}
+$leftovers = glob($root . '/temp/bootstrap-packages/package-*');
+if ($leftovers !== []) {
+    throw new RuntimeException('Archive hash mismatch left a temporary workspace');
+}
+
 $invalidZip = $root . '/invalid.zip';
 file_put_contents($invalidZip, 'not a zip');
+$invalidZipHash = hash_file('sha256', $invalidZip);
 $failingProvider = new DatasetPackageProvider(
     $root . '/temp',
     new DatasetPackageValidator(),
-    static fn(string $url, string $destination): bool => copy($invalidZip, $destination)
+    static fn(string $url, string $destination): bool => copy($invalidZip, $destination),
+    datasetProviderDefinitions($invalidZipHash)
 );
 try {
     $failingProvider->acquire('official');
