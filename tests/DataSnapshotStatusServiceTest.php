@@ -91,43 +91,72 @@ function runSnapshotEndpoint(string $method, ?array $user): array
 
 $manifestFixture = [
     'format_version' => 1,
-    'production_snapshot_at' => '2026-08-28T16:47:31.000Z',
-    'generated_at' => '2026-08-28T16:47:31.000Z',
+    'generated_at' => '2026-08-31T01:05:06.169Z',
+    'reconciled_snapshot' => [
+        'name' => 'freetv-content-snapshot-20260829T120445Z',
+        'captured_at' => '2026-08-29T12:04:45.000Z',
+    ],
     'counts' => [
-        'playlists' => 5,
-        'shows' => 301,
-        'thumbnails' => 420,
+        'playlists' => 4,
+        'shows' => 308,
+        'sample_shows' => 50,
+        'thumbnails' => 275,
     ],
 ];
 $manifestJson = json_encode($manifestFixture, JSON_THROW_ON_ERROR);
 $parsedManifest = DataSnapshotManifest::fromJson($manifestJson);
-assertSnapshotSame($manifestFixture, $parsedManifest, 'Valid manifest was not parsed as expected');
+$expectedManifest = $manifestFixture;
+unset($expectedManifest['counts']['sample_shows']);
+assertSnapshotSame(
+    $expectedManifest,
+    $parsedManifest,
+    'Valid manifest was not parsed as expected'
+);
 
 foreach ([
     '{invalid',
-    json_encode(array_diff_key($manifestFixture, ['production_snapshot_at' => true]), JSON_THROW_ON_ERROR),
-    json_encode(array_replace($manifestFixture, ['production_snapshot_at' => 'not-a-timestamp']), JSON_THROW_ON_ERROR),
+    json_encode(array_diff_key($manifestFixture, ['reconciled_snapshot' => true]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['reconciled_snapshot' => 'invalid']), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['reconciled_snapshot' => array_diff_key(
+        $manifestFixture['reconciled_snapshot'],
+        ['name' => true]
+    )]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace_recursive($manifestFixture, [
+        'reconciled_snapshot' => ['name' => ''],
+    ]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['reconciled_snapshot' => array_diff_key(
+        $manifestFixture['reconciled_snapshot'],
+        ['captured_at' => true]
+    )]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace_recursive($manifestFixture, [
+        'reconciled_snapshot' => ['captured_at' => 'not-a-timestamp'],
+    ]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['generated_at' => 'not-a-timestamp']), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['counts' => 'invalid']), JSON_THROW_ON_ERROR),
     json_encode(array_replace($manifestFixture, ['counts' => ['playlists' => 5]]), JSON_THROW_ON_ERROR),
     json_encode(array_replace_recursive($manifestFixture, ['counts' => ['shows' => -1]]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['format_version' => 0]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['format_version' => 2]), JSON_THROW_ON_ERROR),
+    json_encode(array_replace($manifestFixture, ['format_version' => '1']), JSON_THROW_ON_ERROR),
 ] as $invalidManifest) {
     expectInvalidSnapshotManifest($invalidManifest, 'Invalid manifest was accepted');
 }
 
-$databaseBoundary = PublicationTimestamp::toDatabase($parsedManifest['production_snapshot_at']);
-assertSnapshotSame('2026-08-28 16:47:31', $databaseBoundary,
+$databaseBoundary = PublicationTimestamp::toDatabase($parsedManifest['reconciled_snapshot']['captured_at']);
+assertSnapshotSame('2026-08-29 12:04:45', $databaseBoundary,
     'Snapshot timestamp was not converted to MariaDB format');
 
 $rows = [
     'playlists' => [
         ['created_at' => '2026-08-01 00:00:00', 'updated_at' => '2026-08-01 00:00:00'],
-        ['created_at' => '2026-08-28 16:47:32', 'updated_at' => '2026-08-28 16:48:00'],
-        ['created_at' => '2026-08-01 00:00:00', 'updated_at' => '2026-08-28 16:47:32'],
-        ['created_at' => '2026-08-29 00:00:00', 'updated_at' => '2026-08-29 00:00:00'],
+        ['created_at' => '2026-08-29 12:04:46', 'updated_at' => '2026-08-29 12:05:00'],
+        ['created_at' => '2026-08-01 00:00:00', 'updated_at' => '2026-08-29 12:04:46'],
+        ['created_at' => '2026-08-30 00:00:00', 'updated_at' => '2026-08-30 00:00:00'],
     ],
     'playlist_shows' => [
-        ['created_at' => '2026-08-28 16:47:31', 'updated_at' => '2026-08-28 16:47:32'],
-        ['created_at' => '2026-08-28 16:47:32', 'updated_at' => '2026-08-28 16:47:33'],
-        ['created_at' => '2026-08-01 00:00:00', 'updated_at' => '2026-08-28 16:47:31'],
+        ['created_at' => '2026-08-29 12:04:45', 'updated_at' => '2026-08-29 12:04:46'],
+        ['created_at' => '2026-08-29 12:04:46', 'updated_at' => '2026-08-29 12:04:47'],
+        ['created_at' => '2026-08-01 00:00:00', 'updated_at' => '2026-08-29 12:04:45'],
     ],
 ];
 

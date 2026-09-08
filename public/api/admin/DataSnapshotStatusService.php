@@ -36,7 +36,9 @@ class DataSnapshotStatusService
         }
 
         $manifest = DataSnapshotManifest::fromJson($manifestJson);
-        $snapshotAt = PublicationTimestamp::toDatabase($manifest['production_snapshot_at']);
+        $snapshotAt = PublicationTimestamp::toDatabase(
+            $manifest['reconciled_snapshot']['captured_at']
+        );
 
         $playlists = $this->tableStatus('playlists', $snapshotAt);
         $shows = $this->tableStatus('playlist_shows', $snapshotAt);

@@ -14,6 +14,7 @@
 		"build": "vite build && npm run validate:dist",
 		"validate:dist": "node scripts/validate-admin-dist.js",
 		"test:admin-dist": "node tests/AdminDistContractTest.js",
+		"test:data-snapshot-nav": "node --test tests/DataSnapshotNavigationFlagTest.js",
 		"preview": "vite preview"
 	},
 	"dependencies": {

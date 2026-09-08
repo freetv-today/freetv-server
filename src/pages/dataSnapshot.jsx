@@ -170,8 +170,12 @@ export function DataSnapshotController() {
               <div className="bg-white border rounded p-4 h-100">
                 <h3 id="officialDatasetHeading" className="h5 mb-3">Official Dataset</h3>
                 <CountRow
-                  label="Production snapshot"
-                  value={formatDateTime(snapshot.official_dataset.production_snapshot_at)}
+                  label="Reconciled snapshot"
+                  value={snapshot.official_dataset.reconciled_snapshot.name}
+                />
+                <CountRow
+                  label="Captured"
+                  value={formatDateTime(snapshot.official_dataset.reconciled_snapshot.captured_at)}
                 />
                 <CountRow
                   label="Dataset generated"

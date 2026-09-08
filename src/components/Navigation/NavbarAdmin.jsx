@@ -11,6 +11,7 @@ import { AdminToggleDropDownMenu } from '@components/Navigation/AdminToggleDropD
 import { SelectLarge } from '@components/Navigation/SelectLarge';
 import { useAdminLogout } from '@hooks/useAdminLogout';
 import { useAdminAuth } from '@context/AdminSessionContext';
+import { shouldShowDataSnapshotNavigation } from '@/utils/dataSnapshotNavigation';
 
 // Accept problemCount as a prop
 
@@ -18,6 +19,10 @@ export function NavbarAdmin({ problemCount }) {
 
   const handleLogout = useAdminLogout();
   const { isAdmin, canManageReports, canManageThumbnails } = useAdminAuth();
+  const showDataSnapshotNavigation = shouldShowDataSnapshotNavigation(
+    isAdmin,
+    import.meta.env.VITE_ENABLE_DATA_SNAPSHOT,
+  );
 
   return (
     <nav id="navbar" className="navbar navbar-dark bg-dark fixed-top">
@@ -30,7 +35,7 @@ export function NavbarAdmin({ problemCount }) {
           {canManageReports && <ButtonAdminProblemsNav count={problemCount} />}
           {isAdmin && <ButtonAdminUsersNav />}
           {isAdmin && <ButtonAdminPublishNav />}
-          {isAdmin && <ButtonAdminDataSnapshotNav />}
+          {showDataSnapshotNavigation && <ButtonAdminDataSnapshotNav />}
           {isAdmin && <ButtonAdminSettingsNav />}
         </div>
 

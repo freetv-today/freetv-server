@@ -4,11 +4,16 @@ import { Link } from '@components/Navigation/Link';
 import { createPath } from '@/utils/env';
 import { useAdminAuth } from '@context/AdminSessionContext';
 import { hasUnpublishedChangesSignal } from '@signals/publicationStatusSignal';
+import { shouldShowDataSnapshotNavigation } from '@/utils/dataSnapshotNavigation';
 
 export function AdminToggleDropDownMenu() {
   const handleLogout = useAdminLogout();
   const { isAdmin, canManageReports, canManageThumbnails } = useAdminAuth();
   const hasUnpublishedChanges = hasUnpublishedChangesSignal.value;
+  const showDataSnapshotNavigation = shouldShowDataSnapshotNavigation(
+    isAdmin,
+    import.meta.env.VITE_ENABLE_DATA_SNAPSHOT,
+  );
   return (
     <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-custom p-2 pb-3">
       <li className="pt-1 px-1">
@@ -55,7 +60,7 @@ export function AdminToggleDropDownMenu() {
           )}
         </Link>
       </li>}
-      {isAdmin && <li>
+      {showDataSnapshotNavigation && <li>
         <Link className="dropdown-item-custom" href={createPath('/dashboard/data-snapshot')}>
           <span className="icon-sm snapshot-icon"></span>Data Snapshot
         </Link>
