@@ -101,6 +101,7 @@ try {
     require_once __DIR__ . '/DatasetPackageValidator.php';
     require_once __DIR__ . '/DatasetPackageProvider.php';
     require_once __DIR__ . '/BaselineDatasetPackageProvider.php';
+    require_once __DIR__ . '/InitializationErrorResponse.php';
     require_once __DIR__ . '/PackageDatabaseInstaller.php';
     require_once __DIR__ . '/PackageArtifactInstaller.php';
     require_once __DIR__ . '/publication/PublicationException.php';
@@ -185,7 +186,8 @@ try {
     };
 } catch (\Throwable $e) {
     error_log('Initialization database error: ' . $e->getMessage());
-    initializeRespond(500, ['success' => false, 'message' => 'FreeTV initialization failed']);
+    $failure = \FreeTV\Admin\InitializationErrorResponse::forException($e);
+    initializeRespond($failure['http_status'], $failure['payload']);
 } finally {
     if ($lockAcquired && $bootstrapConnection !== null) {
         try {

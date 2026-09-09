@@ -63,6 +63,15 @@ test('Baseline is wired to its local package provider without remote metadata or
   assert.doesNotMatch(baselineProvider, /METADATA_URL|curl|https?:\/\//);
 });
 
+test('recognized remote failures use stable codes without changing the four setup choices', () => {
+  for (const code of ['dataset_unavailable', 'dataset_metadata_invalid', 'dataset_integrity_failed']) {
+    assert.match(page, new RegExp(`${code}:`));
+  }
+  assert.match(page, /DATASET_FAILURES\[data\?\.error_code\]/);
+  assert.equal((page.match(/^\s+mode: '(?:fresh|baseline|sample|official)',$/gm) || []).length, 4);
+  assert.doesNotMatch(page, /setSelectedMode\('baseline'\)/);
+});
+
 test('current package metadata and downloads retain the required trust ordering and TLS controls', () => {
   assert.match(provider, /https:\/\/freetv\.today\/api\/admin\/dataset-package-metadata\.php/);
   assert.match(provider, /MAX_METADATA_BYTES\s*=\s*65536/);

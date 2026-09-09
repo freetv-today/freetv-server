@@ -36,7 +36,7 @@ initializationContractAssert(
         && !str_contains($endpoint, 'default => $bootstrapper->fresh($username, $password)'),
     'Initialization modes must explicitly delegate application orchestration to Bootstrapper'
 );
-$failureResponse = strpos($endpoint, "initializeRespond(500, ['success' => false");
+$failureResponse = strpos($endpoint, 'InitializationErrorResponse::forException($e)');
 $sessionDestroy = strpos($endpoint, 'destroyAdminSession()');
 $alreadyInitialized = strpos($endpoint, 'if ($result === Bootstrapper::ALREADY_INITIALIZED)');
 initializationContractAssert(
@@ -50,6 +50,16 @@ initializationContractAssert(
 initializationContractAssert(
     strpos($endpoint, 'initializeRespond(201', $sessionDestroy) > $sessionDestroy,
     'Admin session must be destroyed immediately before successful response'
+);
+initializationContractAssert(
+    str_contains($endpoint, 'InitializationErrorResponse::forException($e)')
+        && str_contains($endpoint, "initializeRespond(\$failure['http_status'], \$failure['payload'])"),
+    'Bootstrap failures must use the safe initialization error response mapping'
+);
+initializationContractAssert(
+    str_contains($endpoint, "initializeRespond(409, ['success' => false, 'message' => 'FreeTV has already been initialized'])")
+        && str_contains($endpoint, "initializeRespond(201, ['success' => true, 'message' => 'FreeTV library initialized'])"),
+    'Already-initialized and successful initialization response contracts changed'
 );
 
 fwrite(STDOUT, "InitializationBootstrapContractTest passed\n");

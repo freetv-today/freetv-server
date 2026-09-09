@@ -10,6 +10,9 @@ import { sadFace } from '@/adminAssets';
  * @param {boolean} [props.showReload=false] - Show reload button
  * @param {function} [props.onReload] - Reload button callback
  * @param {boolean} [props.showHome=true] - Show home button
+ * @param {string} [props.homePath='/'] - Default home button route
+ * @param {string} [props.homeLabel='Back to Login'] - Home button label
+ * @param {function} [props.onHome] - Optional home button callback
  */
 
 export function ErrorPage({ 
@@ -19,7 +22,8 @@ export function ErrorPage({
   onReload,
   showHome = true,
   homePath = '/',
-  homeLabel = 'Back to Login'
+  homeLabel = 'Back to Login',
+  onHome
 }) {
   const { route } = useLocation();
 
@@ -36,7 +40,10 @@ export function ErrorPage({
           </button>
         )}
         {showHome && (
-          <button className="btn btn-outline-secondary" onClick={() => route(createPath(homePath))}>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => onHome ? onHome() : route(createPath(homePath))}
+          >
             {homeLabel}
           </button>
         )}

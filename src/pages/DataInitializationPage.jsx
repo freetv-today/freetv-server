@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { ErrorPage } from '@/pages/ErrorPage';
 
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 
@@ -33,6 +34,24 @@ const INITIALIZATION_MODES = [
   }
 ];
 
+const DATASET_FAILURES = {
+  dataset_unavailable: {
+    type: 'Current Dataset Unavailable',
+    message: 'FreeTV could not reach the current dataset service. You can try again or choose another setup option.',
+    retryable: true
+  },
+  dataset_metadata_invalid: {
+    type: 'Dataset Information Error',
+    message: 'FreeTV could not safely verify the current dataset information. Please return to Data Setup and choose another option or try again later.',
+    retryable: false
+  },
+  dataset_integrity_failed: {
+    type: 'Dataset Verification Failed',
+    message: 'The downloaded dataset could not be safely verified. It was not installed.',
+    retryable: false
+  }
+};
+
 export function DataInitializationPage({ onInitialized }) {
   const [selectedMode, setSelectedMode] = useState(null);
   const [username, setUsername] = useState('');
@@ -40,6 +59,7 @@ export function DataInitializationPage({ onInitialized }) {
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [datasetFailure, setDatasetFailure] = useState(null);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -75,6 +95,11 @@ export function DataInitializationPage({ onInitialized }) {
       const data = await response.json().catch(() => null);
 
       if (!response.ok || data?.success !== true) {
+        const recognizedFailure = DATASET_FAILURES[data?.error_code];
+        if (recognizedFailure) {
+          setDatasetFailure(recognizedFailure);
+          return;
+        }
         setError(data?.message || 'FreeTV initialization failed. Please try again.');
         return;
       }
@@ -85,6 +110,23 @@ export function DataInitializationPage({ onInitialized }) {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (datasetFailure) {
+    return (
+      <ErrorPage
+        type={datasetFailure.type}
+        message={datasetFailure.message}
+        showReload={datasetFailure.retryable}
+        onReload={() => setDatasetFailure(null)}
+        homeLabel="Back to Data Setup"
+        onHome={() => {
+          setDatasetFailure(null);
+          setSelectedMode(null);
+          setError('');
+        }}
+      />
+    );
   }
 
   if (selectedMode) {
