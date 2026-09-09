@@ -22,13 +22,19 @@ test('First Run UI exposes three peer modes through initialize.php', () => {
   assert.match(endpoint, /\$bootstrapper->fresh/);
 });
 
-test('fixed release downloads retain TLS verification and pin archive hashes', () => {
-  assert.match(provider, /v3\.0\.0-data-preview\/freetv-sample-data\.zip/);
-  assert.match(provider, /v3\.0\.0-data-preview\/freetv-official-data\.zip/);
-  assert.match(provider, /f7faca5c456b417ba643c8dfcf3b5d56a322557586fe00409c1d7512b67e9026/);
-  assert.match(provider, /82c8bb5e05d6325c249948db667ed553b3fe9cad803f0fe044fddef7fdca3f45/);
+test('current package metadata and downloads retain the required trust ordering and TLS controls', () => {
+  assert.match(provider, /https:\/\/freetv\.today\/api\/admin\/dataset-package-metadata\.php/);
+  assert.match(provider, /MAX_METADATA_BYTES\s*=\s*65536/);
+  assert.match(provider, /\$this->metadataFetcher/);
+  assert.match(provider, /\$this->downloader/);
+  assert.doesNotMatch(provider, /v3\.0\.0-data-preview/);
   assert.match(provider, /hash_file\('sha256', \$zipPath\)/);
   assert.match(provider, /hash_equals\(\$definition\['sha256'\], \$archiveHash\)/);
+  assert.ok(
+    provider.indexOf('hash_equals($definition[\'sha256\'], $archiveHash)')
+      < provider.indexOf('($this->packageValidator)($zipPath, $root, $dataset)'),
+    'Outer archive SHA-256 must be verified before package extraction/validation',
+  );
   assert.match(provider, /CURLOPT_PROTOCOLS\s*=>\s*CURLPROTO_HTTPS/);
   assert.match(provider, /CURLOPT_REDIR_PROTOCOLS\s*=>\s*CURLPROTO_HTTPS/);
   assert.match(provider, /CURLOPT_SSL_VERIFYPEER\s*=>\s*true/);

@@ -92,9 +92,9 @@ function datasetExpectFailure(string $label, callable $fixture, string $expected
     }
 }
 
-function datasetProviderDefinitions(string $sampleHash, ?string $officialHash = null): array
+function datasetProviderMetadata(string $sampleHash, ?string $officialHash = null): string
 {
-    return [
+    return json_encode(['format_version' => 1] + [
         'sample' => [
             'url' => 'https://fixtures.invalid/freetv-sample-data.zip',
             'sha256' => $sampleHash,
@@ -103,7 +103,7 @@ function datasetProviderDefinitions(string $sampleHash, ?string $officialHash = 
             'url' => 'https://fixtures.invalid/freetv-official-data.zip',
             'sha256' => $officialHash ?? $sampleHash,
         ],
-    ];
+    ], JSON_THROW_ON_ERROR);
 }
 
 $root = sys_get_temp_dir() . '/freetv-dataset-valid-' . bin2hex(random_bytes(6));
@@ -186,7 +186,7 @@ $provider = new DatasetPackageProvider(
     $root . '/temp',
     new DatasetPackageValidator(),
     static fn(string $url, string $destination): bool => copy($fixtureZip, $destination),
-    datasetProviderDefinitions($fixtureHash)
+    static fn(): string => datasetProviderMetadata($fixtureHash)
 );
 $package = $provider->acquire('sample');
 $workspace = dirname($package->root());
@@ -203,7 +203,7 @@ $mismatchedProvider = new DatasetPackageProvider(
     $root . '/temp',
     new DatasetPackageValidator(),
     static fn(string $url, string $destination): bool => copy($fixtureZip, $destination),
-    datasetProviderDefinitions(str_repeat('0', 64)),
+    static fn(): string => datasetProviderMetadata(str_repeat('0', 64)),
     static function (string $zipPath, string $extractionRoot, string $dataset) use (&$validationCalls): array {
         $validationCalls++;
         throw new RuntimeException('Package validation must not run after an archive hash mismatch');
@@ -213,7 +213,7 @@ try {
     $mismatchedProvider->acquire('sample');
     throw new RuntimeException('Mismatched dataset archive SHA-256 was accepted');
 } catch (RuntimeException $exception) {
-    if (!str_contains($exception->getMessage(), 'does not match the pinned asset')) {
+    if (!str_contains($exception->getMessage(), 'does not match the metadata asset')) {
         throw $exception;
     }
 }
@@ -232,7 +232,7 @@ $failingProvider = new DatasetPackageProvider(
     $root . '/temp',
     new DatasetPackageValidator(),
     static fn(string $url, string $destination): bool => copy($invalidZip, $destination),
-    datasetProviderDefinitions($invalidZipHash)
+    static fn(): string => datasetProviderMetadata($invalidZipHash)
 );
 try {
     $failingProvider->acquire('official');
