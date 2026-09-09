@@ -65,9 +65,64 @@ function providerWorkspaceDirectories(string $tempRoot): array
     return glob($tempRoot . '/bootstrap-packages/package-*') ?: [];
 }
 
+function providerSetMetadataUrlEnvironment(?string $value): void
+{
+    $name = 'FREETV_DATASET_METADATA_URL';
+    if ($value === null) {
+        putenv($name);
+        unset($_ENV[$name]);
+        return;
+    }
+    putenv($name . '=' . $value);
+    $_ENV[$name] = $value;
+}
+
 $testRoot = sys_get_temp_dir() . '/freetv-package-provider-' . bin2hex(random_bytes(6));
+$metadataUrlEnvironment = getenv('FREETV_DATASET_METADATA_URL');
+$metadataUrlInEnv = array_key_exists('FREETV_DATASET_METADATA_URL', $_ENV);
+$metadataUrlEnvValue = $_ENV['FREETV_DATASET_METADATA_URL'] ?? null;
 mkdir($testRoot, 0700);
 try {
+    providerSetMetadataUrlEnvironment(null);
+    $defaultProvider = new DatasetPackageProvider(
+        $testRoot . '/default-url',
+        new DatasetPackageValidator(),
+        appRoot: $testRoot . '/default-app'
+    );
+    providerAssertSame(
+        'https://freetv.today/api/admin/dataset-package-metadata.php',
+        $defaultProvider->metadataUrl(),
+        'Provider did not retain the zero-configuration production metadata URL'
+    );
+
+    $overrideUrl = 'https://test.freetv.today/api/admin/dataset-package-metadata.php';
+    providerSetMetadataUrlEnvironment($overrideUrl);
+    $overrideProvider = new DatasetPackageProvider(
+        $testRoot . '/override-url',
+        new DatasetPackageValidator(),
+        appRoot: $testRoot . '/override-app'
+    );
+    providerAssertSame($overrideUrl, $overrideProvider->metadataUrl(),
+        'Provider did not use the configured metadata URL');
+
+    foreach ([
+        'HTTP URL' => 'http://test.freetv.today/api/admin/dataset-package-metadata.php',
+        'malformed URL' => 'not a URL',
+        'credential URL' => 'https://user:secret@test.freetv.today/api/admin/dataset-package-metadata.php',
+    ] as $label => $invalidUrl) {
+        providerSetMetadataUrlEnvironment($invalidUrl);
+        expectProviderException(
+            InvalidArgumentException::class,
+            static fn() => new DatasetPackageProvider(
+                $testRoot . '/invalid-config-' . md5($label),
+                new DatasetPackageValidator(),
+                appRoot: $testRoot . '/invalid-config-app-' . md5($label)
+            ),
+            "{$label} metadata endpoint override was accepted"
+        );
+    }
+    providerSetMetadataUrlEnvironment(null);
+
     $downloads = [];
     $validationCalls = [];
     $bytesByUrl = [
@@ -275,10 +330,20 @@ try {
     ), 'Provider still contains the preview Official archive hash');
     providerAssertSame(
         'https://freetv.today/api/admin/dataset-package-metadata.php',
-        DatasetPackageProvider::METADATA_URL,
-        'Provider metadata trust-source URL is incorrect'
+        DatasetPackageProvider::DEFAULT_METADATA_URL,
+        'Provider default metadata trust-source URL is incorrect'
     );
 } finally {
+    if ($metadataUrlEnvironment === false) {
+        putenv('FREETV_DATASET_METADATA_URL');
+    } else {
+        putenv('FREETV_DATASET_METADATA_URL=' . $metadataUrlEnvironment);
+    }
+    if ($metadataUrlInEnv) {
+        $_ENV['FREETV_DATASET_METADATA_URL'] = $metadataUrlEnvValue;
+    } else {
+        unset($_ENV['FREETV_DATASET_METADATA_URL']);
+    }
     DatasetPackage::removeTree($testRoot);
 }
 

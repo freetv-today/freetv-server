@@ -162,7 +162,8 @@ try {
         null,
         new \FreeTV\Admin\DatasetPackageProvider(
             $paths->tempRoot(),
-            $packageValidator
+            $packageValidator,
+            appRoot: $paths->appRoot()
         ),
         new \FreeTV\Admin\PackageDatabaseInstaller(
             $sqlExecutor,

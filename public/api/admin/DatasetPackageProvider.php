@@ -6,10 +6,12 @@ namespace FreeTV\Admin;
 
 require_once __DIR__ . '/PackageBootstrapContracts.php';
 require_once __DIR__ . '/DatasetPackageExceptions.php';
+require_once __DIR__ . '/RuntimeEnvironment.php';
 
 final class DatasetPackageProvider implements DatasetPackageSource
 {
-    public const METADATA_URL = 'https://freetv.today/api/admin/dataset-package-metadata.php';
+    public const DEFAULT_METADATA_URL = 'https://freetv.today/api/admin/dataset-package-metadata.php';
+    public const METADATA_URL = self::DEFAULT_METADATA_URL;
 
     private const DATASETS = ['sample', 'official'];
     private const MAX_METADATA_BYTES = 65536;
@@ -18,19 +20,38 @@ final class DatasetPackageProvider implements DatasetPackageSource
     private $downloader;
     private $metadataFetcher;
     private $packageValidator;
+    private string $metadataUrl;
 
     public function __construct(
         private string $tempRoot,
         private DatasetPackageValidator $validator,
         ?callable $downloader = null,
         ?callable $metadataFetcher = null,
-        ?callable $packageValidator = null
+        ?callable $packageValidator = null,
+        ?string $appRoot = null
     ) {
+        $configuredUrl = RuntimeEnvironment::configuredValue(
+            'FREETV_DATASET_METADATA_URL',
+            $appRoot ?? dirname(__DIR__, 3)
+        );
+        $this->metadataUrl = $configuredUrl['configured']
+            ? $configuredUrl['value']
+            : self::DEFAULT_METADATA_URL;
+        if (!$this->isHttpsUrl($this->metadataUrl)) {
+            throw new \InvalidArgumentException(
+                'FREETV_DATASET_METADATA_URL must be a valid HTTPS URL without embedded credentials'
+            );
+        }
         $this->downloader = $downloader ?? fn(string $url, string $path) => $this->download($url, $path);
         $this->metadataFetcher = $metadataFetcher ?? fn(): string => $this->downloadMetadata();
         $this->packageValidator = $packageValidator
             ?? fn(string $zipPath, string $root, string $dataset): array =>
                 $this->validator->extractAndValidate($zipPath, $root, $dataset);
+    }
+
+    public function metadataUrl(): string
+    {
+        return $this->metadataUrl;
     }
 
     public function acquire(string $dataset): DatasetPackage
@@ -191,7 +212,7 @@ final class DatasetPackageProvider implements DatasetPackageSource
         }
         $contents = '';
         $tooLarge = false;
-        $curl = curl_init(self::METADATA_URL);
+        $curl = curl_init($this->metadataUrl);
         if ($curl === false) {
             throw new DatasetPackageMetadataAvailabilityException(
                 'Could not initialize the dataset package metadata request'
