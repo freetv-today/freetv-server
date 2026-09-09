@@ -8,6 +8,7 @@ require_once __DIR__ . '/../public/api/admin/DatasetPackageValidator.php';
 require_once __DIR__ . '/../public/api/admin/DatasetPackageProvider.php';
 
 use FreeTV\Admin\DatasetPackage;
+use FreeTV\Admin\DatasetPackageAvailabilityException;
 use FreeTV\Admin\DatasetPackageIntegrityException;
 use FreeTV\Admin\DatasetPackageMetadataAvailabilityException;
 use FreeTV\Admin\DatasetPackageMetadataIntegrityException;
@@ -178,8 +179,31 @@ try {
     );
     providerAssertSame(true, $availability->getPrevious() instanceof RuntimeException,
         'Metadata availability failure did not retain its cause');
+    providerAssertSame(true, $availability instanceof DatasetPackageAvailabilityException,
+        'Metadata failure is not part of the shared availability category');
     providerAssertSame([], providerWorkspaceDirectories($testRoot . '/availability'),
         'Metadata availability failure created a private workspace');
+
+    $downloadAvailabilityRoot = $testRoot . '/download-availability';
+    $downloadAvailability = new DatasetPackageProvider(
+        $downloadAvailabilityRoot,
+        new DatasetPackageValidator(),
+        static function (): void {
+            throw new RuntimeException('injected package transport failure');
+        },
+        static fn(): string => providerMetadataJson(providerMetadata())
+    );
+    $packageAvailability = expectProviderException(
+        DatasetPackageAvailabilityException::class,
+        static fn() => $downloadAvailability->acquire('sample'),
+        'Remote package transport failure was not classified as availability'
+    );
+    providerAssertSame(false, $packageAvailability instanceof DatasetPackageIntegrityException,
+        'Remote package transport failure was misclassified as integrity');
+    providerAssertSame(true, $packageAvailability->getPrevious() instanceof RuntimeException,
+        'Remote package transport failure did not retain its cause');
+    providerAssertSame([], providerWorkspaceDirectories($downloadAvailabilityRoot),
+        'Remote package transport failure retained a private workspace');
 
     $integrityProvider = new DatasetPackageProvider(
         $testRoot . '/integrity',

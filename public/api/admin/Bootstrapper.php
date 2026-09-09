@@ -28,19 +28,25 @@ final class Bootstrapper
         ?callable $clock = null,
         private ?DatasetPackageSource $packageProvider = null,
         private ?PackageDatabaseInstallation $packageDatabaseInstaller = null,
-        private ?PackageArtifactStager $packageArtifactInstaller = null
+        private ?PackageArtifactStager $packageArtifactInstaller = null,
+        private ?DatasetPackageSource $baselinePackageProvider = null
     ) {
         $this->clock = $clock ?? static fn() => new DateTimeImmutable('now', new DateTimeZone('UTC'));
     }
 
     public function sample(string $username, string $password): string
     {
-        return $this->package('sample', $username, $password);
+        return $this->package($this->packageProvider, 'sample', $username, $password);
     }
 
     public function official(string $username, string $password): string
     {
-        return $this->package('official', $username, $password);
+        return $this->package($this->packageProvider, 'official', $username, $password);
+    }
+
+    public function baseline(string $username, string $password): string
+    {
+        return $this->package($this->baselinePackageProvider, 'sample', $username, $password);
     }
 
     public function fresh(string $username, string $password): string
@@ -107,19 +113,24 @@ final class Bootstrapper
         return self::INITIALIZED;
     }
 
-    private function package(string $dataset, string $username, string $password): string
+    private function package(
+        ?DatasetPackageSource $packageProvider,
+        string $dataset,
+        string $username,
+        string $password
+    ): string
     {
-        if ($this->packageProvider === null
+        if ($packageProvider === null
             || $this->packageDatabaseInstaller === null
             || $this->packageArtifactInstaller === null) {
-            throw new \LogicException('Downloaded dataset bootstrap is not configured');
+            throw new \LogicException('Dataset package bootstrap is not configured');
         }
 
         if ($this->schemaBootstrapper->isAlreadyInitialized()) {
             return self::ALREADY_INITIALIZED;
         }
 
-        $package = $this->packageProvider->acquire($dataset);
+        $package = $packageProvider->acquire($dataset);
         try {
             // Validate SQL before SchemaBootstrapper can create or modify the configured database.
             $dataStatements = $this->packageDatabaseInstaller->validatedDataStatements($package);

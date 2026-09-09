@@ -69,7 +69,7 @@ if ($unexpectedFields !== []) {
 }
 
 $mode = $input['mode'] ?? 'fresh';
-if (!is_string($mode) || !in_array($mode, ['fresh', 'sample', 'official'], true)) {
+if (!is_string($mode) || !in_array($mode, ['fresh', 'baseline', 'sample', 'official'], true)) {
     initializeRespond(400, ['success' => false, 'message' => 'Invalid initialization mode']);
 }
 
@@ -100,6 +100,7 @@ try {
     require_once __DIR__ . '/PackageBootstrapContracts.php';
     require_once __DIR__ . '/DatasetPackageValidator.php';
     require_once __DIR__ . '/DatasetPackageProvider.php';
+    require_once __DIR__ . '/BaselineDatasetPackageProvider.php';
     require_once __DIR__ . '/PackageDatabaseInstaller.php';
     require_once __DIR__ . '/PackageArtifactInstaller.php';
     require_once __DIR__ . '/publication/PublicationException.php';
@@ -149,6 +150,7 @@ try {
     );
     $paths = new \FreeTV\Admin\ServerPaths();
     $sqlExecutor = new \FreeTV\Admin\SqlPackageExecutor();
+    $packageValidator = new \FreeTV\Admin\DatasetPackageValidator();
     $bootstrapper = new Bootstrapper(
         $schemaBootstrapper,
         new \FreeTV\Admin\FreshBootstrapData(
@@ -159,21 +161,27 @@ try {
         null,
         new \FreeTV\Admin\DatasetPackageProvider(
             $paths->tempRoot(),
-            new \FreeTV\Admin\DatasetPackageValidator()
+            $packageValidator
         ),
         new \FreeTV\Admin\PackageDatabaseInstaller(
             $sqlExecutor,
             $paths->appRoot() . '/sql/freetv_mariadb_schema-tables-only.sql'
         ),
-        new \FreeTV\Admin\PackageArtifactInstaller($paths->publicRoot())
+        new \FreeTV\Admin\PackageArtifactInstaller($paths->publicRoot()),
+        new \FreeTV\Admin\BaselineDatasetPackageProvider(
+            $paths->appRoot(),
+            $paths->tempRoot(),
+            $packageValidator
+        )
     );
     if ($mode !== 'fresh') {
         @set_time_limit(600);
     }
     $result = match ($mode) {
+        'fresh' => $bootstrapper->fresh($username, $password),
+        'baseline' => $bootstrapper->baseline($username, $password),
         'sample' => $bootstrapper->sample($username, $password),
         'official' => $bootstrapper->official($username, $password),
-        default => $bootstrapper->fresh($username, $password),
     };
 } catch (\Throwable $e) {
     error_log('Initialization database error: ' . $e->getMessage());

@@ -129,6 +129,17 @@ final class FakeDatasetSource implements DatasetPackageSource
     }
 }
 
+final class FailingDatasetSource implements DatasetPackageSource
+{
+    public array $requested = [];
+
+    public function acquire(string $dataset): DatasetPackage
+    {
+        $this->requested[] = $dataset;
+        throw new RuntimeException('injected Baseline acquisition failure');
+    }
+}
+
 final class FakePackageDatabase implements PackageDatabaseInstallation
 {
     public array $events = [];
@@ -200,11 +211,19 @@ final class FakePackageArtifactStager implements PackageArtifactStager
     }
 }
 
+function packageBootstrapAssert(bool $condition, string $message): void
+{
+    if (!$condition) {
+        throw new RuntimeException($message);
+    }
+}
+
 function packageBootstrapper(
     PackageBootstrapConnection $connection,
     DatasetPackageSource $source,
     PackageDatabaseInstallation $database,
-    PackageArtifactStager $artifacts
+    PackageArtifactStager $artifacts,
+    ?DatasetPackageSource $baselineSource = null
 ): Bootstrapper {
     $schema = new SchemaBootstrapper(
         new PackageBootstrapServer(),
@@ -222,16 +241,89 @@ function packageBootstrapper(
         null,
         $source,
         $database,
-        $artifacts
+        $artifacts,
+        $baselineSource
     );
 }
 
-function packageBootstrapAssert(bool $condition, string $message): void
-{
-    if (!$condition) {
-        throw new RuntimeException($message);
-    }
+$connection = new PackageBootstrapConnection();
+$remoteSource = new FakeDatasetSource();
+$baselineSource = new FakeDatasetSource();
+$database = new FakePackageDatabase();
+$installation = new FakeStagedArtifacts();
+$result = packageBootstrapper(
+    $connection,
+    $remoteSource,
+    $database,
+    new FakePackageArtifactStager($installation),
+    $baselineSource
+)->baseline('baseline_admin', 'baseline_password');
+packageBootstrapAssert($result === Bootstrapper::INITIALIZED, 'Baseline route did not initialize');
+packageBootstrapAssert($remoteSource->requested === [], 'Baseline route invoked the Current package source');
+packageBootstrapAssert($baselineSource->requested === ['sample'],
+    'Baseline route did not request the Sample package contract from the bundled source');
+packageBootstrapAssert($database->events === [
+    'validate:sample',
+    'install:sample:baseline_admin:baseline_password',
+    'verify:sample',
+], 'Baseline route did not run the shared package database pipeline');
+packageBootstrapAssert($installation->promoted && $installation->committed,
+    'Baseline route did not commit artifacts');
+packageBootstrapAssert($connection->commits === 1 && $connection->rollbacks === 0,
+    'Baseline route did not commit MariaDB exactly once');
+packageBootstrapAssert(!file_exists($baselineSource->workspaces[0]),
+    'Baseline route did not clean its package workspace');
+
+$connection = new PackageBootstrapConnection();
+$remoteSource = new FakeDatasetSource();
+$failingBaselineSource = new FailingDatasetSource();
+$database = new FakePackageDatabase();
+$installation = new FakeStagedArtifacts();
+try {
+    packageBootstrapper(
+        $connection,
+        $remoteSource,
+        $database,
+        new FakePackageArtifactStager($installation),
+        $failingBaselineSource
+    )->baseline('admin', 'password');
+    throw new RuntimeException('Expected Baseline acquisition failure');
+} catch (RuntimeException $exception) {
+    packageBootstrapAssert($exception->getMessage() === 'injected Baseline acquisition failure',
+        'Unexpected Baseline acquisition failure');
 }
+packageBootstrapAssert($failingBaselineSource->requested === ['sample'],
+    'Baseline acquisition failure did not request the Sample contract');
+packageBootstrapAssert($connection->begins === 0 && $connection->commits === 0 && $connection->rollbacks === 0,
+    'Baseline acquisition failure modified the database');
+packageBootstrapAssert($database->events === [],
+    'Baseline acquisition failure reached the database package installer');
+packageBootstrapAssert($remoteSource->requested === [],
+    'Baseline acquisition failure fell back to Current Sample');
+
+$connection = new PackageBootstrapConnection();
+$remoteSource = new FakeDatasetSource();
+$baselineSource = new FakeDatasetSource();
+$database = new FakePackageDatabase();
+$installation = new FakeStagedArtifacts();
+$installation->failPromotion = true;
+try {
+    packageBootstrapper(
+        $connection,
+        $remoteSource,
+        $database,
+        new FakePackageArtifactStager($installation),
+        $baselineSource
+    )->baseline('admin', 'password');
+    throw new RuntimeException('Expected Baseline artifact promotion failure');
+} catch (RuntimeException $exception) {
+    packageBootstrapAssert($exception->getMessage() === 'injected artifact promotion failure',
+        'Unexpected Baseline artifact failure');
+}
+packageBootstrapAssert($connection->rollbacks === 1, 'Baseline artifact failure did not roll back MariaDB');
+packageBootstrapAssert($installation->rolledBack, 'Baseline artifact failure did not roll back artifacts');
+packageBootstrapAssert(!file_exists($baselineSource->workspaces[0]),
+    'Baseline artifact failure did not clean its package workspace');
 
 foreach (['sample', 'official'] as $dataset) {
     $connection = new PackageBootstrapConnection();

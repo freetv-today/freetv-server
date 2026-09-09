@@ -2,6 +2,37 @@ import { useState } from 'preact/hooks';
 
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 
+const INITIALIZATION_MODES = [
+  {
+    mode: 'fresh',
+    title: 'Start Fresh',
+    description: 'Create an empty FreeTV library.',
+    button: 'Start Fresh',
+    current: false
+  },
+  {
+    mode: 'baseline',
+    title: 'Baseline Sample Data',
+    description: 'Initialize with the bundled sample library.',
+    button: 'Use Baseline Sample Data',
+    current: false
+  },
+  {
+    mode: 'sample',
+    title: 'Current Sample Data',
+    description: 'Initialize with the current sample library.',
+    button: 'Use Current Sample Data',
+    current: true
+  },
+  {
+    mode: 'official',
+    title: 'Current Official Data',
+    description: 'Initialize with the current complete library.',
+    button: 'Use Current Official Data',
+    current: true
+  }
+];
+
 export function DataInitializationPage({ onInitialized }) {
   const [selectedMode, setSelectedMode] = useState(null);
   const [username, setUsername] = useState('');
@@ -57,9 +88,8 @@ export function DataInitializationPage({ onInitialized }) {
   }
 
   if (selectedMode) {
-    const modeLabel = selectedMode === 'fresh'
-      ? 'Start Fresh'
-      : selectedMode === 'sample' ? 'Sample Data' : 'Official Data';
+    const modeLabel = INITIALIZATION_MODES.find(option => option.mode === selectedMode)?.title;
+    const currentDataset = selectedMode === 'sample' || selectedMode === 'official';
     return (
       <div className="container py-5" style={{ maxWidth: 680 }}>
         <div className="card shadow">
@@ -68,10 +98,18 @@ export function DataInitializationPage({ onInitialized }) {
             <p className="text-muted">
               {selectedMode === 'fresh'
                 ? 'Start Fresh creates the first Administrator account and one empty default playlist named Playlist One. It does not add any shows.'
-                : `${modeLabel} downloads and verifies the selected FreeTV dataset, installs its matching Viewer files, and creates your Administrator account.`}
+                : selectedMode === 'baseline'
+                  ? 'Baseline Sample Data verifies and installs the bundled sample library and creates your Administrator account.'
+                  : `${modeLabel} downloads and verifies the selected FreeTV dataset, installs its matching Viewer files, and creates your Administrator account.`}
             </p>
 
-            {submitting && selectedMode !== 'fresh' && (
+            {submitting && selectedMode === 'baseline' && (
+              <div className="alert alert-info" role="status">
+                Verifying and installing Baseline Sample Data. This may take several minutes.
+              </div>
+            )}
+
+            {submitting && currentDataset && (
               <div className="alert alert-info" role="status">
                 Downloading, verifying, and installing {modeLabel}. This may take several minutes.
               </div>
@@ -155,44 +193,34 @@ export function DataInitializationPage({ onInitialized }) {
       </div>
 
       <div className="row g-4 justify-content-center">
-        <div className="col-md-4">
-          <div className="card h-100 border-primary shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h2 className="h4 card-title">Start Fresh</h2>
-              <p className="card-text">
-                Create the first FreeTV Administrator account and one empty default playlist named
-                Playlist One. No shows will be added.
-              </p>
-              <button className="btn btn-primary mt-auto" type="button" onClick={() => setSelectedMode('fresh')}>
-                Start Fresh
-              </button>
+        {INITIALIZATION_MODES.map(option => (
+          <div className="col-12 col-md-6" key={option.mode}>
+            <div className={`card h-100 shadow-sm ${option.current ? 'border-warning bg-light' : 'border-primary'}`}>
+              <div className="card-body d-flex flex-column">
+                <h2 className="h4 card-title d-flex align-items-center gap-2">
+                  <span>{option.title}</span>
+                  {option.current && (
+                    <img
+                      src="/assets/internet.svg"
+                      title="Internet required"
+                      alt="Internet required"
+                      width="20"
+                      height="20"
+                    />
+                  )}
+                </h2>
+                <p className="card-text">{option.description}</p>
+                <button
+                  className={`btn ${option.current ? 'btn-warning' : 'btn-primary'} mt-auto`}
+                  type="button"
+                  onClick={() => setSelectedMode(option.mode)}
+                >
+                  {option.button}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card h-100 shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h2 className="h4 card-title">Sample Data</h2>
-              <p className="card-text">Initialize FreeTV with a small example library.</p>
-              <button className="btn btn-primary mt-auto" type="button" onClick={() => setSelectedMode('sample')}>
-                Use Sample Data
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card h-100 shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h2 className="h4 card-title">Official Data</h2>
-              <p className="card-text">Initialize FreeTV with the official library data.</p>
-              <button className="btn btn-primary mt-auto" type="button" onClick={() => setSelectedMode('official')}>
-                Use Official Data
-              </button>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

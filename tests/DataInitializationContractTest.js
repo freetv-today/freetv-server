@@ -8,18 +8,59 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const page = fs.readFileSync(path.join(root, 'src/pages/DataInitializationPage.jsx'), 'utf8');
 const endpoint = fs.readFileSync(path.join(root, 'public/api/admin/initialize.php'), 'utf8');
 const provider = fs.readFileSync(path.join(root, 'public/api/admin/DatasetPackageProvider.php'), 'utf8');
+const baselineProvider = fs.readFileSync(
+  path.join(root, 'public/api/admin/BaselineDatasetPackageProvider.php'),
+  'utf8',
+);
 
-test('First Run UI exposes three peer modes through initialize.php', () => {
-  for (const mode of ['fresh', 'sample', 'official']) {
-    assert.match(page, new RegExp(`setSelectedMode\\('${mode}'\\)`));
+test('First Run UI exposes exactly four peer modes in the approved order', () => {
+  const modes = ['fresh', 'baseline', 'sample', 'official'];
+  const titles = [
+    'Start Fresh',
+    'Baseline Sample Data',
+    'Current Sample Data',
+    'Current Official Data',
+  ];
+  const descriptions = [
+    'Create an empty FreeTV library.',
+    'Initialize with the bundled sample library.',
+    'Initialize with the current sample library.',
+    'Initialize with the current complete library.',
+  ];
+  let previous = -1;
+  for (let index = 0; index < modes.length; index += 1) {
+    const position = page.indexOf(`mode: '${modes[index]}'`);
+    assert.ok(position > previous, `${modes[index]} is missing or out of order`);
+    previous = position;
+    assert.ok(page.indexOf(`title: '${titles[index]}'`, position) > position);
+    assert.ok(page.indexOf(`description: '${descriptions[index]}'`, position) > position);
   }
+  assert.equal((page.match(/^\s+mode: '(?:fresh|baseline|sample|official)',$/gm) || []).length, 4);
   assert.match(page, /mode: selectedMode/);
   assert.match(page, /This may take several minutes/);
   assert.doesNotMatch(page, /Coming Soon/);
-  assert.match(endpoint, /\['fresh', 'sample', 'official'\]/);
+  assert.match(endpoint, /\['fresh', 'baseline', 'sample', 'official'\]/);
+  assert.match(endpoint, /\$bootstrapper->baseline/);
   assert.match(endpoint, /\$bootstrapper->sample/);
   assert.match(endpoint, /\$bootstrapper->official/);
   assert.match(endpoint, /\$bootstrapper->fresh/);
+});
+
+test('local and Current choices have distinct visual and progress treatment', () => {
+  assert.match(page, /option\.current \? 'btn-warning' : 'btn-primary'/);
+  assert.match(page, /src="\/assets\/internet\.svg"/);
+  assert.equal((page.match(/title="Internet required"/g) || []).length, 1);
+  assert.equal((page.match(/alt="Internet required"/g) || []).length, 1);
+  assert.match(page, /selectedMode === 'baseline'/);
+  assert.match(page, /Verifying and installing Baseline Sample Data/);
+  assert.match(page, /Downloading, verifying, and installing \{modeLabel\}/);
+  assert.doesNotMatch(page, /Baseline Sample Data downloads/);
+});
+
+test('Baseline is wired to its local package provider without remote metadata or downloads', () => {
+  assert.match(endpoint, /new \\FreeTV\\Admin\\BaselineDatasetPackageProvider/);
+  assert.match(baselineProvider, /resources\/freetv-baseline-sample-data\.zip/);
+  assert.doesNotMatch(baselineProvider, /METADATA_URL|curl|https?:\/\//);
 });
 
 test('current package metadata and downloads retain the required trust ordering and TLS controls', () => {

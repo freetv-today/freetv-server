@@ -5,18 +5,7 @@ declare(strict_types=1);
 namespace FreeTV\Admin;
 
 require_once __DIR__ . '/PackageBootstrapContracts.php';
-
-class DatasetPackageMetadataAvailabilityException extends \RuntimeException
-{
-}
-
-class DatasetPackageMetadataIntegrityException extends \RuntimeException
-{
-}
-
-class DatasetPackageIntegrityException extends \RuntimeException
-{
-}
+require_once __DIR__ . '/DatasetPackageExceptions.php';
 
 final class DatasetPackageProvider implements DatasetPackageSource
 {
@@ -67,7 +56,17 @@ final class DatasetPackageProvider implements DatasetPackageSource
 
         try {
             $zipPath = $workspace . '/download.zip';
-            ($this->downloader)($definition['url'], $zipPath);
+            try {
+                ($this->downloader)($definition['url'], $zipPath);
+            } catch (DatasetPackageAvailabilityException $exception) {
+                throw $exception;
+            } catch (\Throwable $exception) {
+                throw new DatasetPackageAvailabilityException(
+                    'Could not retrieve the current dataset package',
+                    0,
+                    $exception
+                );
+            }
             $archiveHash = is_file($zipPath) ? hash_file('sha256', $zipPath) : false;
             if (!is_string($archiveHash)) {
                 throw new DatasetPackageIntegrityException('Could not verify the downloaded dataset archive');
@@ -240,7 +239,9 @@ final class DatasetPackageProvider implements DatasetPackageSource
     private function download(string $url, string $destination): void
     {
         if (!function_exists('curl_init')) {
-            throw new \RuntimeException('PHP cURL support is required to download initialization data');
+            throw new DatasetPackageAvailabilityException(
+                'PHP cURL support is required to download initialization data'
+            );
         }
         $target = fopen($destination, 'x+b');
         if (!is_resource($target)) {
@@ -250,7 +251,7 @@ final class DatasetPackageProvider implements DatasetPackageSource
         $curl = curl_init($url);
         if ($curl === false) {
             fclose($target);
-            throw new \RuntimeException('Could not initialize the dataset download');
+            throw new DatasetPackageAvailabilityException('Could not initialize the dataset download');
         }
         curl_setopt_array($curl, [
             CURLOPT_FOLLOWLOCATION => true,
@@ -281,7 +282,9 @@ final class DatasetPackageProvider implements DatasetPackageSource
             $success = curl_exec($curl);
             $httpStatus = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
             if ($success !== true || $httpStatus !== 200 || $bytes === 0) {
-                throw new \RuntimeException('Dataset download failed or returned an incomplete response');
+                throw new DatasetPackageAvailabilityException(
+                    'Dataset download failed or returned an incomplete response'
+                );
             }
         } finally {
             curl_close($curl);
