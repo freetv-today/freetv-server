@@ -37,7 +37,6 @@ test('First Run UI exposes exactly four peer modes in the approved order', () =>
   }
   assert.equal((page.match(/^\s+mode: '(?:fresh|baseline|sample|official)',$/gm) || []).length, 4);
   assert.match(page, /mode: selectedMode/);
-  assert.match(page, /This may take several minutes/);
   assert.doesNotMatch(page, /Coming Soon/);
   assert.match(endpoint, /\['fresh', 'baseline', 'sample', 'official'\]/);
   assert.match(endpoint, /\$bootstrapper->baseline/);
@@ -52,8 +51,10 @@ test('local and Current choices have distinct visual and progress treatment', ()
   assert.equal((page.match(/title="Internet required"/g) || []).length, 1);
   assert.equal((page.match(/alt="Internet required"/g) || []).length, 1);
   assert.match(page, /selectedMode === 'baseline'/);
-  assert.match(page, /Verifying and installing Baseline Sample Data/);
-  assert.match(page, /Downloading, verifying, and installing \{modeLabel\}/);
+  assert.match(page, /spinner-border spinner-border-sm me-2/);
+  assert.match(page, /Initializing \$\{modeLabel\}\.\.\./);
+  assert.doesNotMatch(page, /alert alert-info/);
+  assert.doesNotMatch(page, /This may take several minutes/);
   assert.doesNotMatch(page, /Baseline Sample Data downloads/);
 });
 

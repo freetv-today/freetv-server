@@ -52,6 +52,11 @@ const DATASET_FAILURES = {
   }
 };
 
+const CURRENT_DATASET_FAILURE_MESSAGE = 'FreeTV was unable to retrieve or safely verify the data being downloaded. '
+  + 'The Administrator account was not created, and FreeTV initialization was not completed. '
+  + 'Check your Internet connection, then return to Data Setup to try again. If the problem continues, '
+  + 'choose another setup option or try again later. See the FreeTV documentation for additional troubleshooting help.';
+
 export function DataInitializationPage({ onInitialized }) {
   const [selectedMode, setSelectedMode] = useState(null);
   const [username, setUsername] = useState('');
@@ -113,10 +118,13 @@ export function DataInitializationPage({ onInitialized }) {
   }
 
   if (datasetFailure) {
+    const currentDatasetTitle = selectedMode === 'sample'
+      ? 'Error Getting Current Sample Data'
+      : selectedMode === 'official' ? 'Error Getting Current Official Data' : null;
     return (
       <ErrorPage
-        type={datasetFailure.type}
-        message={datasetFailure.message}
+        type={currentDatasetTitle || datasetFailure.type}
+        message={currentDatasetTitle ? CURRENT_DATASET_FAILURE_MESSAGE : datasetFailure.message}
         showReload={datasetFailure.retryable}
         onReload={() => setDatasetFailure(null)}
         homeLabel="Back to Data Setup"
@@ -131,7 +139,6 @@ export function DataInitializationPage({ onInitialized }) {
 
   if (selectedMode) {
     const modeLabel = INITIALIZATION_MODES.find(option => option.mode === selectedMode)?.title;
-    const currentDataset = selectedMode === 'sample' || selectedMode === 'official';
     return (
       <div className="container py-5" style={{ maxWidth: 680 }}>
         <div className="card shadow">
@@ -144,18 +151,6 @@ export function DataInitializationPage({ onInitialized }) {
                   ? 'Baseline Sample Data verifies and installs the bundled sample library and creates your Administrator account.'
                   : `${modeLabel} downloads and verifies the selected FreeTV dataset, installs its matching Viewer files, and creates your Administrator account.`}
             </p>
-
-            {submitting && selectedMode === 'baseline' && (
-              <div className="alert alert-info" role="status">
-                Verifying and installing Baseline Sample Data. This may take several minutes.
-              </div>
-            )}
-
-            {submitting && currentDataset && (
-              <div className="alert alert-info" role="status">
-                Downloading, verifying, and installing {modeLabel}. This may take several minutes.
-              </div>
-            )}
 
             {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
@@ -209,7 +204,14 @@ export function DataInitializationPage({ onInitialized }) {
               </div>
               <div className="d-flex gap-2 flex-wrap">
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? `Installing ${modeLabel}...` : `Initialize with ${modeLabel}`}
+                  {submitting ? (
+                    <>
+                      {selectedMode !== 'fresh' && (
+                        <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+                      )}
+                      {selectedMode === 'fresh' ? `Installing ${modeLabel}...` : `Initializing ${modeLabel}...`}
+                    </>
+                  ) : `Initialize with ${modeLabel}`}
                 </button>
                 <button
                   type="button"
