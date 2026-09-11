@@ -31,7 +31,6 @@ foreach ([1, 3307, 65535] as $validPort) {
     }
 }
 
-putenv('DB_PORT=');
 foreach (['', '   '] as $emptyPort) {
     putenv('DB_PORT=' . $emptyPort);
     if (Database::createConfiguredConnection()->getConfig('port') !== 3306) {
