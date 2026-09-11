@@ -32,8 +32,11 @@ foreach ([1, 3307, 65535] as $validPort) {
 }
 
 putenv('DB_PORT=');
-if (Database::createConfiguredConnection()->getConfig('port') !== 3306) {
-    throw new RuntimeException('Empty DB_PORT must default to 3306');
+foreach (['', '   '] as $emptyPort) {
+    putenv('DB_PORT=' . $emptyPort);
+    if (Database::createConfiguredConnection()->getConfig('port') !== 3306) {
+        throw new RuntimeException('Empty DB_PORT must default to 3306');
+    }
 }
 
 foreach (['not-a-number', '0', '-1', '65536'] as $invalidPort) {
