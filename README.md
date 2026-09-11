@@ -1,164 +1,57 @@
-# Free TV Server
+# FreeTV Admin Dashboard
 
-<img src="public/assets/freetv.png" width="120" style="margin-bottom: 20px;">
+<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a backend interface for managing hand-picked video content which is hosted on the the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MySQL/Maria database and exported via a publishing process to be consumed by the FreeTV Viewer. 
 
-See it online at: https://freetv.today
+The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish the content in JSON format. 
 
-**Version 1.0.0 - Beta**
-
-Free TV Server contains both a front-end site for end users and a back-end administration tool (the Admin Dashboard) for managing content.
-
-The front-end site allows users to watch free TV and movie content from the Internet Archive.
-
-The administrator can log into the Admin Dashboard and add/remove shows, create playlists, fetch thumbnails, modify playlist data, and change configuration settings.
-
-This is the main server for the Free TV project which provides centralized content management. This server is the main source for playlist data (categories and shows) which are consumed by stand-alone client apps.
-
----
-
-## Table of Contents
-
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-- [Code Style](#code-style)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Requirements
-
-- Node.js v18 or higher
-- PHP 7.4 or higher
-- Git (for cloning the repository)
-
----
-
-## Getting Started
-
-1. **Clone the repository:**
-   ```
-   git clone https://github.com/freetv-today/freetv-server
-   cd freetv-server
-   ```
-
-2. **Install dependencies:**
-   ```
-   npm install
-   ```
-
-3. **Start the PHP development server (serves the backend API):**
-   ```
-   php -S localhost:8000
-   ```
-
-4. **Run the Preact/Vite development server (in a new console window or tab):**
-   ```
-   npm run dev
-   ```
-
-5. **Open your browser and visit:**  
-   [http://localhost:5173](http://localhost:5173) 
-
----
-
-## Code Style
-
-PHP code in `public/api/` follows the [PSR-12](https://www.php-fig.org/psr/psr-12/) standard, as configured in [`phpcs.xml.dist`](phpcs.xml.dist).
-
-If you want to lint PHP code locally, install [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer):
-
-```bash
-composer global require "squizlabs/php_codesniffer=*"
-```
-
-Then run:
-```bash
-phpcs
-```
-
-> **Note:** PHPCS is optional for contributors and not required to run or build the app.
-
----
+<img src="public/assets/freetv-admin-screenshot.jpg" width="600">
 
 ## Features
 
-**Front-End:** Free TV Viewer
+- Foo
+- Bar
+- Baz
+- Bat
+- Quux
 
-- Browse and watch curated TV and movie content from the Internet Archive.
-- All data and playlists are managed via JSON files.
+## Requirements
 
-**Back-End:** Admin Dashboard
+- NodeJS
+- PHP
+- MariaDB/MySQL
+- Vite
+- Preact
 
-- Web-based dashboard for managing shows, playlists, thumbnails, and server configuration.
-- Supports adding/removing/editing TV shows and movies.
-- Allows creation and management of playlists.
-- Fetch and manage thumbnails.
-- Modify playlist data and configuration settings.
+## How do I ...  ???
 
----
+The FreeTV project consists of several repositories that can be run independently or together at the same time. The table below provides a quick reference for common development, data, build, and deployment tasks.
+
+| I want to...                                                       | What do I do?                                                                                                                                                                                                                                                                                | What happens?                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Run only the Admin Dashboard locally**                           | In a terminal, navigate to `freetv-server/public`. Start a PHP development server with `php -S localhost:8081`. Then open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both be running simultaneously. | Starts the PHP API on port `8081` and the Admin Dashboard using the default Vite development server port. Vite displays the local URL when it starts.                                                                                                                 |
+| **Run only the Viewer locally**                                    | Navigate to `freetv-viewer/` and run `npm run dev`.                                                                                                                                                                                                                                          | Starts the Viewer using the default Vite development server port. The Viewer can run from its local static data without the Admin PHP development server. Backend-dependent actions such as reporting a problem require the appropriate API endpoint to be available. |
+| **Run the complete FreeTV development environment**                | Navigate to `freetv-tooling/` and run `npm run dev:all`.                                                                                                                                                                                                                                     | Starts the coordinated Viewer, Admin Dashboard, and PHP development environment. Tooling manages the development configuration needed to run the applications together.                                                                                               |
+| **Check the current FreeTV development environment**               | Navigate to `freetv-tooling/` and run `npm run status`.                                                                                                                                                                                                                                      | Reports the current state of the FreeTV repositories and development environment.                                                                                                                                                                                     |
+| **Validate FreeTV data before publishing it**                      | Navigate to `freetv-tooling/` and run `npm run data:validate`.                                                                                                                                                                                                                               | Validates the current data against the FreeTV publication contracts without publishing it. A successful validation provides the GO/NO-GO check before publication.                                                                                                    |
+| **Publish updated FreeTV data**                                    | Navigate to `freetv-tooling/` and run `npm run data:publish`.                                                                                                                                                                                                                                | Publishes the validated Admin data into the managed Viewer/data artifacts using the FreeTV publication workflow.                                                                                                                                                      |
+| **Build the Current Sample and Current Official dataset packages** | Navigate to `freetv-tooling/` and run `npm run release:build`.                                                                                                                                                                                                                               | Generates the distributable Current Sample and Current Official First Run packages in the FreeTV data release output.                                                                                                                                                 |
+| **Clean up the thumbnail collection**                              | Navigate to `freetv-tooling/` and run `npm run clean:thumbs`.                                                                                                                                                                                                                                | Runs the managed thumbnail cleanup workflow against the FreeTV data used by Tooling.                                                                                                                                                                                  |
+| **Build the complete production assembly**                         | Navigate to `freetv-tooling/` and run `npm run build:all`.                                                                                                                                                                                                                                   | Builds the Viewer and Admin Dashboard, stages the current data exports, assembles the complete production output, and verifies the resulting assembly.                                                                                                                |
+| **Verify an existing production assembly**                         | Navigate to `freetv-tooling/` and run `npm run verify`.                                                                                                                                                                                                                                      | Runs the production verification checks against the assembled FreeTV output without rebuilding it.                                                                                                                                                                    |
+| **Run only the Admin production build**                            | Navigate to `freetv-server/` and run `npm run build`.                                                                                                                                                                                                                                        | Creates and validates the Admin Dashboard production frontend build. This does **not** create the complete deployable FreeTV production assembly.                                                                                                                     |
+| **Run only the Viewer production build**                           | Navigate to `freetv-viewer/` and run `npm run build`.                                                                                                                                                                                                                                        | Creates and validates the Viewer production build. This does **not** create the complete deployable FreeTV production assembly.                                                                                                                                       |
+
+For detailed Tooling commands and workflows, see the `freetv-tooling` documentation. For information about generated datasets and published data artifacts, see the `freetv-data` documentation.
+
 
 ## Project Structure
 
-A brief overview of the main directories and files:
-
-- **public/**
-  - `api/` – Backend PHP scripts serving as the API for the frontend and admin dashboard.
-  - `assets/` – Static assets such as images and icons (including the main logo).
-  - `config.json` – Server configuration file.
-  - `playlists/` – JSON files containing TV/movie playlists consumed by the frontend.
-  - `temp/` – Temporary files and cache.
-  - `thumbs/` – Thumbnail images for shows and movies.
-  - `tools/` – Utility scripts and tools for admins/devs.
-
-- **src/**
-  - `components/` – Reusable UI components for the Preact frontend.
-  - `context/` – Context providers for app-wide state management.
-  - `hooks/` – Custom hooks for reusable logic.
-  - `index.jsx` – Main entry point for the frontend app.
-  - `pages/` – Route-level components for different app pages.
-  - `signals/` – Preact Signals for state management.
-  - `style.css` – Global styles for the frontend.
-  - `utils.js` – General utility functions.
-
-- **Other important files:**
-  - `.gitignore` – Specifies files and directories ignored by Git.
-  - `LICENSE` – Open source license (MIT).
-  - `package.json` – Project metadata and dependencies.
-  - `phpcs.xml.dist` – Coding standards for PHP code (PSR-12).
-  - `vite.config.js` – Vite configuration for development and build.
-  - `eslint.config.js` – ESLint configuration for JavaScript/Preact code.
-  - `index.html` – The main HTML file served by Vite.
-
----
+```text
+Put a tree here
+```
 
 ## Development
 
-- **Linting:**  
-  JavaScript/Preact code can be linted using ESLint (configured in `eslint.config.js`).  
-  PHP code can be linted using PHPCS (see [Code Style](#code-style)).
-
-- **Building for Production:**  
-  To build the front-end for production, run:
-  ```
-  npm run build
-  ```
-
-- **Preview Production Build:**  
-  ```
-  npm run preview
-  ```
-
----
-
-## Contributing
-
-Contributions are welcome! Please open issues or submit pull requests for bug fixes, new features, or documentation improvements.
-
----
 
 ## License
 
