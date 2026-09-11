@@ -43,10 +43,6 @@ export default defineConfig(({ command, mode }) => {
       proxy: {
          '/api': apiProxyTarget
       }
-    },
-    // Tell Vite to not process these asset references
-    define: {
-      __SUPPRESS_ASSET_WARNINGS__: true
     }
   };
 });
