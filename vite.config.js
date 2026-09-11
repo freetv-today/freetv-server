@@ -3,6 +3,33 @@ import preact from '@preact/preset-vite';
 import { resolve } from 'path';
 import { fileURLToPath, URL } from 'node:url';
 
+function developmentAdminAssets(base) {
+  const assetBase = `${base.endsWith('/') ? base : `${base}/`}assets/`;
+
+  return {
+    name: 'development-admin-assets',
+    apply: 'serve',
+    enforce: 'pre',
+    transform(code, id) {
+      if (id.endsWith('/src/adminAssets.js')) {
+        return code.replace(
+          /from '\.\.\/public\/assets\/([^']+)'/g,
+          "from '/assets/$1?url'"
+        );
+      }
+      return null;
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html
+          .replace('./public/assets/freetv.png', `${assetBase}freetv.png`)
+          .replace('./public/assets/error-reload.svg', `${assetBase}error-reload.svg`);
+      }
+    }
+  };
+}
+
 export default defineConfig(({ command, mode }) => {
   // Load environment variables
   const env = loadEnv(mode, '.', '');
@@ -14,7 +41,7 @@ export default defineConfig(({ command, mode }) => {
   const base = env.VITE_BASE_PATH || (mode === 'production' ? '/admin/' : '/');
   
   return {
-    plugins: [preact()],
+    plugins: [preact(), developmentAdminAssets(base)],
     base: base,
     // Server public/ is the PHP/publication web root, not the Admin asset source.
     // Keep it available to the standalone dev server, but never copy it into dist.

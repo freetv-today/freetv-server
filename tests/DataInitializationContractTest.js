@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const page = fs.readFileSync(path.join(root, 'src/pages/DataInitializationPage.jsx'), 'utf8');
+const adminAssets = fs.readFileSync(path.join(root, 'src/adminAssets.js'), 'utf8');
 const endpoint = fs.readFileSync(path.join(root, 'public/api/admin/initialize.php'), 'utf8');
 const provider = fs.readFileSync(path.join(root, 'public/api/admin/DatasetPackageProvider.php'), 'utf8');
 const baselineProvider = fs.readFileSync(
@@ -47,7 +48,10 @@ test('First Run UI exposes exactly four peer modes in the approved order', () =>
 
 test('local and Current choices have distinct visual and progress treatment', () => {
   assert.match(page, /option\.current \? 'btn-warning' : 'btn-primary'/);
-  assert.match(page, /src="\/assets\/internet\.svg"/);
+  assert.match(adminAssets, /internetIcon \} from '\.\.\/public\/assets\/internet\.svg'/);
+  assert.match(page, /import \{ internetIcon \} from '@\/adminAssets'/);
+  assert.match(page, /src=\{internetIcon\}/);
+  assert.doesNotMatch(page, /\/assets\/internet\.svg/);
   assert.equal((page.match(/title="Internet required"/g) || []).length, 1);
   assert.equal((page.match(/alt="Internet required"/g) || []).length, 1);
   assert.match(page, /selectedMode === 'baseline'/);

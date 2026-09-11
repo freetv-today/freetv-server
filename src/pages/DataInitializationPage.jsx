@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { internetIcon } from '@/adminAssets';
 import { ErrorPage } from '@/pages/ErrorPage';
 
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
@@ -245,7 +246,7 @@ export function DataInitializationPage({ onInitialized }) {
                   <span>{option.title}</span>
                   {option.current && (
                     <img
-                      src="/assets/internet.svg"
+                      src={internetIcon}
                       title="Internet required"
                       alt="Internet required"
                       width="20"
