@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from '@/utils/utils';
 import { AdminShowActions } from '@components/Navigation/AdminShowActions';
-import { useAdminPlaylistData } from '@hooks/useAdminPlaylistData';
 import { useAdminAuth } from '@context/AdminSessionContext';
+import { playlistSignal } from '@signals/playlistSignal';
 
 /**
  * AdminSearchResults - displays admin search results in a table with admin actions
@@ -16,17 +16,17 @@ import { useAdminAuth } from '@context/AdminSessionContext';
 export function AdminSearchResults({ results = [], onEdit, onTest, onStatusToggle, statusUpdatingIdentifier }) {
 
   const { canEditContent } = useAdminAuth();
+  const { currentPlaylist, currentPlaylistData } = playlistSignal.value;
+  const playlistTitle = currentPlaylistData?.dbtitle ?? currentPlaylist;
 
   if (!results) return null;
   if (results.length === 0) {
     return <p className="fs-4 text-center text-danger fw-bold mt-5">No search results found</p>;
   }
 
-  const { getCurrentPlaylistTitle } = useAdminPlaylistData();
-
   return (
     <>
-      <h3 className="text-center fs-5 my-5">Search results from playlist: "{getCurrentPlaylistTitle()}"</h3>
+      <h3 className="text-center fs-5 my-5">Search results from playlist: "{playlistTitle}"</h3>
       <div className="table-responsive my-4">
         <table className="table table-striped table-hover align-middle mb-5">
           <thead>
