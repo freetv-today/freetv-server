@@ -35,7 +35,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, '.', '');
 
   const apiProxyTarget =
-  env.VITE_API_PROXY_TARGET || 'http://localhost:8000';
+  env.VITE_API_PROXY_TARGET || 'http://localhost:8081';
   
   // Use environment-based base path
   const base = env.VITE_BASE_PATH || (mode === 'production' ? '/admin/' : '/');
