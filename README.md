@@ -30,8 +30,6 @@ The FreeTV Admin Dashboard allows administrators to add new shows and playlists,
 
 The FreeTV project consists of several repositories that can be run independently or together. The tables below provide a quick reference for common development, data, build, and deployment tasks.
 
-<br/>
-
 ## FreeTV Admin Dashboard
 
 | I want to... | What do I do? | What happens? |
