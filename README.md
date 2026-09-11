@@ -39,6 +39,21 @@ The PHP process must also have permission to write to the configured public dire
 
 Frontend dependencies, including Preact, Vite, and Bootstrap, are installed through npm. PHP dependencies, including Illuminate Database and PHP dotenv, are installed through Composer.
 
+## Getting Started
+
+1. Clone or download `freetv-server`.
+2. Navigate to `freetv-server` directory and run `npm install`.
+3. Run `composer install`.
+4. Create `.env` from `.env.example`.
+5. Enter MariaDB credentials. Ensure the configured account can either:
+    - create the configured database, or
+    - use an existing database and create tables within it
+6. Start PHP development server from `freetv-server/public/`.
+7. Start Vite development server from `freetv-server` directory by typing `npm run dev`.
+8. Open the local URL printed by Vite in your browser.
+9. Complete First Run steps (sets up database and Admin user account).
+10. Log in to FreeTV Admin Dashboard using the account you created in the previous step.
+
 # How do I ...  ?
 
 The FreeTV project consists of several repositories that can be run independently or together. The tables below provide a quick reference for common development, data, build, and deployment tasks.

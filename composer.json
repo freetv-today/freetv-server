@@ -2,7 +2,11 @@
     "name": "freetv/server",
     "type": "project",
     "require": {
+        "php": "^8.4.1",
         "ext-curl": "*",
+        "ext-imagick": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
         "ext-zip": "*",
         "illuminate/database": "^13.18",
         "vlucas/phpdotenv": "^5.6"

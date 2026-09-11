@@ -1,7 +1,7 @@
 {
 	"name": "freetv-server",
 	"version": "3.0.0-beta",
-	"description": "Server-side administration tools to manage a collection of free TV shows and movies from the Internet Archive.",
+	"description": "Server-side administration tools to manage a collection of FreeTV shows and movies from the Internet Archive.",
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",
 	"homepage": "https://freetv.today",
@@ -30,5 +30,8 @@
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-react": "^7.37.5",
 		"vite": "^6.0.4"
+	},
+	"engines": {
+    	"node": ">=22"
 	}
 }
