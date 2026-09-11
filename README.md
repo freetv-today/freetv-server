@@ -68,6 +68,10 @@ The FreeTV project consists of several repositories that can be run independentl
 
 # Architecture
 
+The FreeTV Admin Dashboard is divided into a browser frontend and a PHP backend. The frontend is a Preact single-page application built with Vite and styled with Bootstrap. It communicates with JSON API endpoints implemented in PHP under `public/api/`.
+
+The PHP application loads private runtime configuration through PHP dotenv and uses the Illuminate Database component to communicate with MariaDB. MariaDB stores authoritative Admin data, while the filesystem holds published Viewer artifacts, thumbnails, and temporary recovery state.
+
 ## Data Flow
 
 ```mermaid
@@ -127,9 +131,9 @@ freetv-server/
 │   └── thumbnail-undo/     Thumbnail recovery state
 ├── tests/                  PHP and JavaScript contract tests
 ├── tools/                  Export and SQL-package tools used by Tooling
-├── .env.example            PHP runtime configuration example
-├── .env.development        Admin development build configuration
-├── .env.production         Admin production build configuration
+├── .env.example            PHP runtime configuration template
+├── .env.development        Vite frontend development configuration
+├── .env.production         Vite frontend production configuration
 ├── composer.json           PHP dependencies
 ├── package.json            Frontend commands and dependencies
 └── vite.config.js          Admin Dashboard Vite configuration
