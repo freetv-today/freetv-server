@@ -39,8 +39,6 @@ The PHP process must also have permission to write to the configured public dire
 
 Frontend dependencies, including Preact, Vite, and Bootstrap, are installed through npm. PHP dependencies, including Illuminate Database and PHP dotenv, are installed through Composer.
 
-<br/>
-
 # How do I ...  ?
 
 The FreeTV project consists of several repositories that can be run independently or together. The tables below provide a quick reference for common development, data, build, and deployment tasks.
