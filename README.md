@@ -68,10 +68,16 @@ The FreeTV project consists of several repositories that can be run independentl
 | --- | --- | --- |
 | **Build or deploy a complete FreeTV installation** | See the production documentation in [FreeTV Tooling](https://github.com/freetv-today/freetv-tooling). | Explains how the repositories are assembled and prepared for deployment. Tooling does not automatically upload or deploy the result. |
 
+# Architecture
+
+## Data Flow
+
+## Repository Relationships
+
 ## Project Structure
 
-```text
-Put a tree here
+```html
+🌳
 ```
 
 ## Development
