@@ -99,9 +99,40 @@ The repositories can be developed independently when appropriate. Tasks that cro
 
 ## Project Structure
 
-```html
-put a tree here
-🌳
+The following tree highlights the directories and files most relevant to installing, developing, publishing, and maintaining the Admin Dashboard. It does not list every source file or API endpoint.
+
+```text
+freetv-server/
+├── public/
+│   ├── api/
+│   │   └── admin/          Admin API endpoints and backend services
+│   └── assets/             Admin Dashboard images and static assets
+├── resources/
+│   ├── bootstrap/          First Run bootstrap resources
+│   └── freetv-baseline-sample-data.zip
+│                           Bundled offline Baseline Sample Data
+├── scripts/                Repository maintenance and validation scripts
+├── sql/                    Generated MariaDB schema and dataset packages
+├── src/
+│   ├── components/         Reusable Admin Dashboard components
+│   ├── context/            Admin session and application context
+│   ├── hooks/              Frontend data and behavior hooks
+│   ├── pages/              Admin Dashboard pages
+│   ├── signals/            Shared reactive state
+│   └── utils/              Frontend utilities
+├── temp/
+│   ├── data-snapshots/     Optional Data Snapshot working files
+│   ├── publication-undo/   Publication rollback state
+│   ├── thumbnail-quarantine/
+│   └── thumbnail-undo/     Thumbnail recovery state
+├── tests/                  PHP and JavaScript contract tests
+├── tools/                  Export and SQL-package tools used by Tooling
+├── .env.example            PHP runtime configuration example
+├── .env.development        Admin development build configuration
+├── .env.production         Admin production build configuration
+├── composer.json           PHP dependencies
+├── package.json            Frontend commands and dependencies
+└── vite.config.js          Admin Dashboard Vite configuration
 ```
 
 # Development
