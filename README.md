@@ -42,17 +42,17 @@ Frontend dependencies, including Preact, Vite, and Bootstrap, are installed thro
 ## Getting Started
 
 1. Clone or download `freetv-server`.
-2. Navigate to `freetv-server` directory and run `npm install`.
-3. Run `composer install`.
+2. Navigate to the `freetv-server` directory and run `npm install`.
+3. From the same directory, run `composer install`.
 4. Create `.env` from `.env.example`.
-5. Enter MariaDB credentials. Ensure the configured account can either:
+5. Enter your MariaDB credentials. The configured account must be able to either:
     - create the configured database, or
-    - use an existing database and create tables within it
-6. Start PHP development server from `freetv-server/public/`.
-7. Start Vite development server from `freetv-server` directory by typing `npm run dev`.
+    - use an existing database and create tables within it.
+6. In a terminal, navigate to `freetv-server/public`. Start the PHP development server with `php -S localhost:8081`.
+7. Open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both remain running.
 8. Open the local URL printed by Vite in your browser.
-9. Complete First Run steps (sets up database and Admin user account).
-10. Log in to FreeTV Admin Dashboard using the account you created in the previous step.
+9. Complete First Run to initialize the database, establish the matching Viewer artifacts, and create the first Administrator account.
+10. Log in to the FreeTV Admin Dashboard using the account you created during First Run.
 
 # How do I ...  ?
 

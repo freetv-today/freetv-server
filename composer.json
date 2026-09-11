@@ -1,5 +1,7 @@
 {
-    "name": "freetv/server",
+    "name": "freetv/admin",
+    "description": "A backend UI for managing a hand-picked list of shows from the Internet Archive",
+    "license": "GPL-3.0-only",
     "type": "project",
     "require": {
         "php": "^8.4.1",
@@ -14,7 +16,7 @@
     "authors": [
         {
             "name": "Ken Dawson",
-            "email": "147560212+kendawson-online@users.noreply.github.com"
+            "email": "github@kendawson.online"
         }
     ]
 }
