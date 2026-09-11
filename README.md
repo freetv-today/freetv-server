@@ -4,7 +4,9 @@
 
 The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish Viewer-compatible JSON artifacts. 
 
-<img src="public/assets/freetv-admin-screenshot.jpg" width="600">
+<div style="text-align: center; margin-top: 30px;">
+<a href="public/assets/freetv-admin-screenshot.jpg" target="_blank" title="Screenshot of FreeTV Admin Dashboard"><img src="public/assets/freetv-admin-screenshot.jpg" width="600"></a>
+</div>
 
 ## Features
 
