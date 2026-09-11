@@ -18,11 +18,26 @@ The FreeTV Admin Dashboard allows administrators to add new shows and playlists,
 
 ## Requirements
 
-- NodeJS
-- PHP
-- MariaDB/MySQL
-- Vite
-- Preact
+### System Requirements
+
+- Node.js 22 or newer
+- npm
+- PHP 8.4.1 or newer
+- Composer
+- MariaDB
+- A modern web browser
+
+### Required PHP Extensions
+
+- cURL
+- Imagick
+- PDO
+- PDO MySQL
+- ZIP
+
+The PHP process must also have permission to write to the configured public directory and the repository’s `temp/` directories.
+
+Frontend dependencies—including Preact, Vite, and Bootstrap-related integration—are managed by the project. PHP dependencies—including Illuminate Database and PHP dotenv—are installed through Composer.
 
 <br/>
 
