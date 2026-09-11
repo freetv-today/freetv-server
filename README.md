@@ -77,6 +77,7 @@ The FreeTV project consists of several repositories that can be run independentl
 ## Project Structure
 
 ```html
+put a tree here
 🌳
 ```
 
