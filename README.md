@@ -1,8 +1,8 @@
 # FreeTV Admin Dashboard
 
-<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a backend interface for managing hand-picked video content which is hosted on the the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MySQL/Maria database and exported via a publishing process to be consumed by the FreeTV Viewer. 
+<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a backend interface for managing hand-picked video content which is hosted on the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MariaDB database and exported via a publishing process to be consumed by the FreeTV Viewer. 
 
-The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish the content in JSON format. 
+The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish Viewer-compatible JSON artifacts. 
 
 <img src="public/assets/freetv-admin-screenshot.jpg" width="600">
 
@@ -22,9 +22,14 @@ The FreeTV Admin Dashboard allows administrators to add new shows and playlists,
 - Vite
 - Preact
 
-## How do I ...  ???
+<br/>
 
-The FreeTV project consists of several repositories that can be run independently or together at the same time. The table below provides a quick reference for common development, data, build, and deployment tasks.
+# How do I ...  ?
+
+
+The FreeTV project consists of several repositories that can be run independently or together. The table below provides a quick reference for common development, data, build, and deployment tasks.
+
+<br/>
 
 | I want to...                                                       | What do I do?                                                                                                                                                                                                                                                                                | What happens?                                                                                                                                                                                                                                                         |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
