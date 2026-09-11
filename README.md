@@ -169,6 +169,28 @@ freetv-server/
 
 # Development
 
+## Database and Runtime Configuration
+
+The PHP backend reads its runtime configuration from `.env` in the `freetv-server` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
+
+| Variable | Required? | Purpose |
+| --- | --- | --- |
+| `DB_HOST` | Yes | Hostname or IP address of the MariaDB server. |
+| `DB_PORT` | No | MariaDB port. Defaults to `3306` when omitted or empty. Valid values are `1` through `65535`. |
+| `DB_NAME` | Yes | Name of the database used by FreeTV. |
+| `DB_USER` | Yes | MariaDB account used by the PHP backend. |
+| `DB_PASS` | No | Password for the configured MariaDB account. May be empty when the account does not require one. |
+| `FREETV_PUBLIC_PATH` | No | Filesystem path where public Viewer artifacts and thumbnails are stored. Relative paths are resolved from the private application root. |
+
+A typical local configuration is:
+
+```dotenv
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=freetv
+DB_USER=user
+DB_PASS=<password>
+FREETV_PUBLIC_PATH=public
 
 # License
 
