@@ -1,7 +1,7 @@
 {
-	"name": "freetv-server",
+	"name": "freetv-admin",
 	"version": "3.0.0-beta",
-	"description": "Server-side administration tools to manage a collection of FreeTV shows and movies from the Internet Archive.",
+	"description": "Administration tools for managing a collection of shows and movies for FreeTV.",
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",
 	"homepage": "https://freetv.today",
