@@ -70,7 +70,32 @@ The FreeTV project consists of several repositories that can be run independentl
 
 ## Data Flow
 
+```mermaid
+flowchart TD
+    DATA["First Run dataset package"] -->|"Imports SQL"| DB[("MariaDB")]
+    DATA -->|"Installs matching artifacts"| ARTIFACTS["Published Viewer artifacts"]
+    ADMIN["FreeTV Admin Dashboard"] -->|"Reads and writes"| DB
+    DB -->|"Publish"| ARTIFACTS
+    ARTIFACTS -->|"Static JSON and thumbnails"| VIEWER["FreeTV Viewer"]
+```
+MariaDB is the authoritative source for data managed through the FreeTV Admin Dashboard. The Viewer does not read directly from MariaDB. Instead, the Admin publication process generates static JSON and thumbnail artifacts that the Viewer consumes.
+
+First Run establishes both sides of this relationship. It initializes MariaDB and installs the corresponding Viewer artifacts from the selected dataset package. Because the database and Viewer artifacts represent the same initial dataset, a successful First Run leaves the Publish page in a clean state.
+
+After initialization, changes made through the Admin affect MariaDB first. They become visible to the Viewer only after they are published.
+
 ## Repository Relationships
+
+The FreeTV repositories have separate responsibilities:
+
+| Repository | Responsibility |
+| --- | --- |
+| [`freetv-server`](https://github.com/freetv-today/freetv-server) | Provides the FreeTV Admin Dashboard, PHP API, MariaDB-backed management system, First Run process, and publication system. |
+| [`freetv-viewer`](https://github.com/freetv-today/freetv-viewer) | Provides the end-user application that consumes published static Viewer artifacts. |
+| [`freetv-data`](https://github.com/freetv-today/freetv-data) | Stores the official distributable datasets, Viewer artifacts, SQL packages, release packages, and integrity metadata. |
+| [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) | Coordinates cross-repository development, validation, builds, data workflows, and production assembly. |
+
+The repositories can be developed independently when appropriate. Tasks that cross repository boundaries—such as running the complete development environment or building a production assembly—are owned by `freetv-tooling`.
 
 ## Project Structure
 
