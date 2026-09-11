@@ -71,9 +71,22 @@ class Database
         [, $database] = self::getFirstConfiguredValue(['VITE_DB_NAME', 'DB_NAME'], false);
         [, $user] = self::getFirstConfiguredValue(['VITE_DB_USER', 'DB_USER'], false);
         [, $pass] = self::getFirstConfiguredValue(['VITE_DB_PASS', 'DB_PASS']);
+        $port = getenv('DB_PORT');
+
+        if ($port === false || trim((string) $port) === '') {
+            $port = 3306;
+        } else {
+            $port = filter_var($port, FILTER_VALIDATE_INT, [
+                'options' => ['min_range' => 1, 'max_range' => 65535],
+            ]);
+            if ($port === false) {
+                throw new \UnexpectedValueException('DB_PORT must be an integer between 1 and 65535');
+            }
+        }
 
         $config = [
             'host'     => $host !== '' ? $host : '127.0.0.1',
+            'port'     => $port,
             'database' => $database !== '' ? $database : 'freetv',
             'user'     => $user !== '' ? $user : 'root',
             'pass'     => $pass,
@@ -91,6 +104,7 @@ class Database
         $connectionConfig = [
             'driver'    => 'mysql',
             'host'      => $config['host'],
+            'port'      => $config['port'],
             'username'  => $config['user'],
             'password'  => $config['pass'],
             'charset'   => 'utf8mb4',

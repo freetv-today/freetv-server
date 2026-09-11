@@ -6,8 +6,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../public/api/admin/Database.php';
 
 use FreeTV\Admin\Database;
+use FreeTV\Admin\RuntimeEnvironment;
+use FreeTV\Admin\ServerPaths;
 
-foreach (['VITE_DB_HOST', 'DB_HOST', 'VITE_DB_NAME', 'DB_NAME', 'VITE_DB_USER', 'DB_USER', 'VITE_DB_PASS', 'DB_PASS'] as $name) {
+RuntimeEnvironment::load((new ServerPaths())->appRoot());
+
+foreach (['VITE_DB_HOST', 'DB_HOST', 'VITE_DB_NAME', 'DB_NAME', 'VITE_DB_USER', 'DB_USER', 'VITE_DB_PASS', 'DB_PASS', 'DB_PORT'] as $name) {
     putenv($name);
 }
 
@@ -15,6 +19,35 @@ putenv('DB_HOST=127.0.0.1');
 putenv('DB_NAME=freetv');
 putenv('DB_USER=freetv');
 putenv('DB_PASS');
+
+if (Database::createConfiguredConnection()->getConfig('port') !== 3306) {
+    throw new RuntimeException('Absent DB_PORT must default to 3306');
+}
+
+foreach ([1, 3307, 65535] as $validPort) {
+    putenv('DB_PORT=' . $validPort);
+    if (Database::createConfiguredConnection()->getConfig('port') !== $validPort) {
+        throw new RuntimeException('A valid custom DB_PORT must be used');
+    }
+}
+
+putenv('DB_PORT=');
+if (Database::createConfiguredConnection()->getConfig('port') !== 3306) {
+    throw new RuntimeException('Empty DB_PORT must default to 3306');
+}
+
+foreach (['not-a-number', '0', '-1', '65536'] as $invalidPort) {
+    putenv('DB_PORT=' . $invalidPort);
+    try {
+        Database::createConfiguredConnection();
+        throw new RuntimeException('Invalid DB_PORT was accepted: ' . $invalidPort);
+    } catch (UnexpectedValueException $exception) {
+        if ($exception->getMessage() !== 'DB_PORT must be an integer between 1 and 65535') {
+            throw new RuntimeException('Invalid DB_PORT produced an unclear configuration error');
+        }
+    }
+}
+putenv('DB_PORT');
 
 if (!Database::hasExplicitConfig()) {
     throw new RuntimeException('Absent DB_PASS must be accepted when required database settings are present');
