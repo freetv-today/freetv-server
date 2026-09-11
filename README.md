@@ -72,15 +72,15 @@ The FreeTV project consists of several repositories that can be run independentl
 
 ```mermaid
 flowchart TD
-    DATA["First Run dataset package"] -->|"Imports SQL"| DB[("MariaDB")]
-    DATA -->|"Installs matching artifacts"| ARTIFACTS["Published Viewer artifacts"]
+    FIRST_RUN["First Run"] -->|"Initializes"| DB[("MariaDB")]
+    FIRST_RUN -->|"Establishes matching"| ARTIFACTS["Published Viewer artifacts"]
     ADMIN["FreeTV Admin Dashboard"] -->|"Reads and writes"| DB
     DB -->|"Publish"| ARTIFACTS
     ARTIFACTS -->|"Static JSON and thumbnails"| VIEWER["FreeTV Viewer"]
 ```
 MariaDB is the authoritative source for data managed through the FreeTV Admin Dashboard. The Viewer does not read directly from MariaDB. Instead, the Admin publication process generates static JSON and thumbnail artifacts that the Viewer consumes.
 
-First Run establishes both sides of this relationship. It initializes MariaDB and installs the corresponding Viewer artifacts from the selected dataset package. Because the database and Viewer artifacts represent the same initial dataset, a successful First Run leaves the Publish page in a clean state.
+First Run establishes both sides of this relationship. It initializes MariaDB and establishes the corresponding Viewer artifacts using the selected initialization mode. Because the database and Viewer artifacts represent the same initial state, a successful First Run leaves the Publish page clean.
 
 After initialization, changes made through the Admin affect MariaDB first. They become visible to the Viewer only after they are published.
 
