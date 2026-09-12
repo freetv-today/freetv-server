@@ -287,7 +287,7 @@ To create and validate the standalone Admin production frontend, navigate to `fr
 npm run build
 ```
 
-The build is written to `dist/` and validated by the repository’s Admin distribution contract. This frontend-only build is not a complete deployable FreeTV production assembly. Use [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) when building the complete application.
+The build is written to `dist/` and validated by the repository’s Admin distribution contract. This frontend-only build is not a complete deployable FreeTV production assembly. Use [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) to build the complete deployable FreeTV site. Tooling combines the Viewer frontend, Admin Dashboard, PHP API and runtime dependencies, and the current published JSON and thumbnails into one verified production assembly.
 
 # License
 
