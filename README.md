@@ -60,7 +60,7 @@ Frontend dependencies, including Preact, Vite, and Bootstrap, are installed thro
 
 ## How do I ...  ?
 
-The FreeTV project consists of several repositories that can be run independently or together. The tables below provide a quick reference for common development, data, build, and deployment tasks. <br/>
+The FreeTV project consists of several repositories that can be run independently or together. The `freetv-server` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The tables below cover freetv-server first; the remaining tables provide a map of the wider FreeTV ecosystem.<br/>
 
 ### • FreeTV Admin Dashboard •
 
