@@ -1,6 +1,6 @@
 # FreeTV Admin Dashboard
 
-<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a backend interface for managing hand-picked video content hosted on the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MariaDB database and exported via a publishing process to be consumed by the FreeTV Viewer.
+<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a web-based interface for managing hand-picked video content hosted on the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MariaDB database and exported via a publishing process to be consumed by the FreeTV Viewer.
 
 The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish Viewer-compatible JSON artifacts.
 
@@ -89,7 +89,8 @@ flowchart TD
     FIRST_RUN["First Run"] -->|"Initializes"| DB[("MariaDB")]
     FIRST_RUN -->|"Establishes matching"| ARTIFACTS["Published Viewer artifacts"]
     ADMIN["FreeTV Admin Dashboard"] -->|"Reads and writes"| DB
-    DB -->|"Publish"| ARTIFACTS
+    DB -->|"Publishes JSON"| ARTIFACTS
+    ADMIN -->|"Manages thumbnails"| ARTIFACTS
     ARTIFACTS -->|"Static JSON and thumbnails"| VIEWER["FreeTV Viewer"]
 ```
 
