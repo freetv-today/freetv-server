@@ -224,6 +224,71 @@ For installation instructions, see the [MariaDB Server installation guide](https
 
 When using existing-database mode, create the database and grant the required permissions before starting First Run.
 
+## Local Admin Development
+
+Standalone Admin development uses two processes:
+
+- a PHP development server for the API and public Viewer artifacts;
+- a Vite development server for the Preact frontend.
+
+MariaDB must also be running and accessible using the credentials in `.env`.
+
+### Start the PHP Backend
+
+In a terminal, navigate to `freetv-server/public` and run:
+
+```bash
+php -S localhost:8081
+````
+
+This starts the PHP backend at `http://localhost:8081`. The `public/` directory acts as the local PHP document root.
+
+### Start the Vite Frontend
+
+Open a new terminal or terminal tab, navigate to `freetv-server/`, and run:
+
+```bash
+npm run dev
+```
+
+Vite starts the Admin frontend and displays its local URL. Keep both the PHP and Vite development servers running while using the Admin Dashboard.
+
+During standalone development, Vite proxies requests beginning with `/api` to:
+
+```text
+http://localhost:8081
+```
+
+### Use a Different PHP Port
+
+If the PHP backend must use a different port, start PHP with that port and set `VITE_API_PROXY_TARGET` to the matching URL.
+
+For example, start PHP with:
+
+```bash
+php -S localhost:8082
+```
+
+Then create `.env.development.local` in `freetv-server/` containing:
+
+```dotenv
+VITE_API_PROXY_TARGET=http://localhost:8082
+```
+
+Restart Vite after changing its environment configuration.
+
+`VITE_API_PROXY_TARGET` affects only the Vite development proxy. It does not configure MariaDB or the PHP runtime.
+
+### Build the Admin Frontend
+
+To create and validate the standalone Admin production frontend, navigate to `freetv-server/` and run:
+
+```bash
+npm run build
+```
+
+The build is written to `dist/` and validated by the repository’s Admin distribution contract. This frontend-only build is not a complete deployable FreeTV production assembly. Use [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) when building the complete application.
+
 # License
 
 This code is released under the [GPL v3](LICENSE) license.
