@@ -319,6 +319,41 @@ npm run build
 
 The build is written to `dist/` and validated by the repository’s Admin distribution contract. This frontend-only build is not a complete deployable FreeTV production assembly. Use [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) to build the complete deployable FreeTV site. Tooling combines the Viewer frontend, Admin Dashboard, PHP API and runtime dependencies, and the current published JSON and thumbnails into one verified production assembly.
 
+## Publishing Viewer Data
+
+Changes made in the Admin Dashboard are saved to MariaDB immediately, but the FreeTV Viewer does not read from MariaDB. The changes become available to the Viewer only after the corresponding static artifacts are published.
+
+Open the **Publish** page in the Admin Dashboard to review publication status and publish changes. Administrator access is required.
+
+### Publication Status
+
+The Publication Status table compares the authoritative MariaDB data with the currently published artifacts. It reports the status of:
+
+- each playlist and its shows;
+- Viewer configuration settings; and
+- the default playlist selection.
+
+Changed playlists may also show the number of added, edited, or removed shows, changes to show order, and changed playlist metadata.
+
+### Publication Actions
+
+| Action | Result |
+| --- | --- |
+| **Publish The Selected Playlist** | Publishes the selected playlist and updates the playlist index. |
+| **Publish All Shows and Playlist Content** | Publishes all changed playlists and updates the playlist index. If nothing has changed, no publication is performed. |
+| **Publish Config Settings** | Publishes Viewer settings to `config.json`. |
+
+Published files are written beneath the directory configured by `FREETV_PUBLIC_PATH`. Playlist artifacts are stored in `playlists/`, including `playlists/index.json`.
+
+Publication updates the local or configured public artifacts only. It does not upload them to GitHub, transfer them to another server, or deploy the Viewer.
+
+### Undo the Last Publication
+
+After a successful publication, the Publish page offers **Undo Last Publish**. Undo restores the artifacts affected by the most recent publication operation.
+
+Only the latest publication can be undone. Undo does not reverse edits in MariaDB. After restoring the previous artifacts, the Publication Status table may therefore show the current MariaDB data as unpublished changes.
+
+
 # License
 
 This code is released under the [GPL v3](LICENSE) license.
