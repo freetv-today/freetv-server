@@ -191,6 +191,31 @@ DB_NAME=freetv
 DB_USER=user
 DB_PASS=<password>
 FREETV_PUBLIC_PATH=public
+```
+
+`FREETV_PUBLIC_PATH` must remain inside the private application root. Absolute paths and path traversal segments such as `..` are rejected. For shared hosting, a value such as `public_html` can target a sibling web-root directory within the deployed application layout. For example:
+
+```text
+├── .env
+├── composer.json
+├── composer.lock
+├── public_html
+├── temp
+└── vendor
+
+```
+
+### MariaDB Permissions
+
+First Run supports two database permission models:
+
+- **Create-database mode:** The configured account can create and use the database named by `DB_NAME`.
+- **Existing-database mode:** The database already exists and the configured account can create, read, write, and remove tables within it.
+
+During readiness checking, FreeTV performs temporary database or table operations to determine which mode is available. The temporary objects are removed after the check.
+
+FreeTV does not install MariaDB or create database accounts. When using existing-database mode, create the database and grant the required permissions before starting First Run.
+
 
 # License
 
