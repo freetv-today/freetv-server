@@ -303,7 +303,7 @@ Every mode asks you to create the first Administrator username and password. Use
 
 For downloaded datasets, FreeTV retrieves the current package information, verifies the downloaded archive and package contents, and installs the database data and Viewer artifacts together. If retrieval or verification fails, initialization is not completed and the Administrator account is not created.
 
-After successful initialization, FreeTV returns you to the login screen. Log in explicitly using the Administrator account you created.
+After successful initialization, FreeTV returns you to the login screen. Log in using the Administrator account you created.
 
 The initial MariaDB data and published Viewer artifacts represent the same state, so the Publish page is initially clean. Later Admin changes affect MariaDB first and must be published before they appear in the Viewer.
 
