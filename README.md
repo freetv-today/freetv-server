@@ -60,7 +60,7 @@ Frontend dependencies, including Preact, Vite, and Bootstrap, are installed thro
 
 ## How do I ...  ?
 
-`freetv-server` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The table below covers tasks within this repository. For help choosing another FreeTV repository, see the FreeTV organization overview.<br/>
+`freetv-server` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The table below covers tasks within this repository. For help choosing another FreeTV repository, see the [FreeTV organization overview](https://github.com/freetv-today).<br/>
 
 ### FreeTV Admin Dashboard:
 
@@ -108,13 +108,16 @@ freetv-server/
 ├── public/
 │   ├── api/
 │   │   └── admin/          Admin API endpoints and backend services
-│   └── assets/             Admin Dashboard images and static assets
+│   ├── assets/             Admin Dashboard images and static assets
+│   ├── playlists/          Published Viewer playlist artifacts
+│   ├── thumbs/             Viewer thumbnail files
+│   └── config.json         Published Viewer configuration
 ├── resources/
 │   ├── bootstrap/          First Run bootstrap resources
 │   └── freetv-baseline-sample-data.zip
 │                           Bundled offline Baseline Sample Data
 ├── scripts/                Repository maintenance and validation scripts
-├── sql/                    Generated MariaDB schema and dataset packages
+├── sql/                    MariaDB schema and generated data packages
 ├── src/
 │   ├── components/         Reusable Admin Dashboard components
 │   ├── context/            Admin session and application context
@@ -123,12 +126,10 @@ freetv-server/
 │   ├── signals/            Shared reactive state
 │   └── utils/              Frontend utilities
 ├── temp/
-│   ├── data-snapshots/     Optional Data Snapshot working files
 │   ├── publication-undo/   Publication rollback state
 │   ├── thumbnail-quarantine/
 │   └── thumbnail-undo/     Thumbnail recovery state
 ├── tests/                  PHP and JavaScript contract tests
-├── tools/                  Export and SQL-package tools used by Tooling
 ├── .env.example            PHP runtime configuration template
 ├── .env.development        Vite frontend development configuration
 ├── .env.production         Vite frontend production configuration
