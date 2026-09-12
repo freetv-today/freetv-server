@@ -239,7 +239,7 @@ In a terminal, navigate to `freetv-server/public` and run:
 
 ```bash
 php -S localhost:8081
-````
+```
 
 This starts the PHP backend at `http://localhost:8081`. The `public/` directory acts as the local PHP document root.
 
