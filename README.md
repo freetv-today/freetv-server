@@ -309,7 +309,7 @@ The initial MariaDB data and published Viewer artifacts represent the same state
 
 First Run is only for an uninitialized installation. It is not a database reset or data-import workflow and is no longer available after initialization has completed.
 
-### Build the Admin Frontend
+## Build the Admin Frontend
 
 To create and validate the standalone Admin production frontend, navigate to `freetv-server/` and run:
 
