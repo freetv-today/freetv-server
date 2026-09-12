@@ -113,7 +113,7 @@ flowchart TD
     DB -->|"Publish"| ARTIFACTS
     ARTIFACTS -->|"Static JSON and thumbnails"| VIEWER["FreeTV Viewer"]
 ```
-MariaDB is the authoritative source for data managed through the FreeTV Admin Dashboard. The Viewer does not read directly from MariaDB. Instead, the Admin publication process generates static JSON and thumbnail artifacts that the Viewer consumes.
+MariaDB is the authoritative source for data managed through the FreeTV Admin Dashboard. The Viewer does not read directly from MariaDB. Instead, the Admin publication process generates static JSON artifacts that the Viewer consumes. Thumbnail files are maintained separately in the configured public directory.
 
 First Run establishes both sides of this relationship. It initializes MariaDB and establishes the corresponding Viewer artifacts using the selected initialization mode. Because the database and Viewer artifacts represent the same initial state, a successful First Run leaves the Publish page clean.
 
@@ -291,7 +291,7 @@ Before displaying the initialization options, FreeTV checks that:
 - the required PHP dependencies are available;
 - the MariaDB configuration is present and usable;
 - the configured database account has sufficient permissions; and
-- the installation does not already contain an Administrator account.
+- the installation does not already contain a user account.
 
 ### Initialization Modes
 
