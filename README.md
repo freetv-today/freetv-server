@@ -218,12 +218,11 @@ First Run supports two database permission models:
 
 During readiness checking, FreeTV performs temporary database or table operations to determine which mode is available. The temporary objects are removed after the check.
 
-**FreeTV does not install MariaDB or create database accounts!** 
+**FreeTV does not install MariaDB or create database accounts.**
 
-For specific information on how install and create user accounts on your platform, please refer to the [MariaDB Documentation](https://mariadb.com/docs/server/mariadb-quickstart-guides/installing-mariadb-server-guide). 
+For installation instructions, see the [MariaDB Server installation guide](https://mariadb.com/docs/server/mariadb-quickstart-guides/installing-mariadb-server-guide). For database accounts and privileges, follow the MariaDB documentation or the instructions provided by your hosting provider.
 
 When using existing-database mode, create the database and grant the required permissions before starting First Run.
-
 
 # License
 
