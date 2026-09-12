@@ -10,11 +10,14 @@ The FreeTV Admin Dashboard allows administrators to add new shows and playlists,
 
 ## Features
 
-- Foo
-- Bar
-- Baz
-- Bat
-- Quux
+- Easy-to-use graphical interface for managing FreeTV content
+- Session-based authentication and role-based user management
+- Create, edit, organize, and delete shows and playlists
+- Activate or disable individual shows
+- Search and test show content without opening the FreeTV Viewer
+- Upload, replace, and manage thumbnail images
+- Review and resolve Viewer problem reports
+- Publish and export show, playlist, and configuration data from MariaDB for Viewer use
 
 ## Requirements
 
