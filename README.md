@@ -180,7 +180,7 @@ The PHP backend reads its runtime configuration from `.env` in the `freetv-serve
 | `DB_NAME` | Yes | Name of the database used by FreeTV. |
 | `DB_USER` | Yes | MariaDB account used by the PHP backend. |
 | `DB_PASS` | No | Password for the configured MariaDB account. May be empty when the account does not require one. |
-| `FREETV_PUBLIC_PATH` | No | Filesystem path where public Viewer artifacts and thumbnails are stored. Relative paths are resolved from the private application root. |
+| `FREETV_PUBLIC_PATH` | No | Safe relative path where public Viewer artifacts and thumbnails are stored. Defaults to `public`. Nested paths such as `web/public` are supported. |
 
 A typical local configuration is:
 
@@ -193,16 +193,16 @@ DB_PASS=<password>
 FREETV_PUBLIC_PATH=public
 ```
 
-`FREETV_PUBLIC_PATH` must remain inside the private application root. Absolute paths and path traversal segments such as `..` are rejected. For shared hosting, a value such as `public_html` can target a sibling web-root directory within the deployed application layout. For example:
+`FREETV_PUBLIC_PATH` must remain inside the private application root. Absolute paths and path traversal segments such as `..` are rejected. For shared hosting, a value such as `public_html` can identify the web-root directory located alongside the application’s private runtime files. For example:
 
 ```text
+private-application-root/
 ├── .env
 ├── composer.json
 ├── composer.lock
-├── public_html
-├── temp
-└── vendor
-
+├── public_html/
+├── temp/
+└── vendor/
 ```
 
 ### MariaDB Permissions
