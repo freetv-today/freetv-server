@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { AdminDashboardTable } from '@/components/UI/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/UI/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
 import { AdminInfoModal } from '@/components/Modals/AdminInfoModal';
-import { AdminSortJsonModal } from '@/components/Modals/AdminSortJsonModal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { AdminTestVideoModal } from '@/components/Modals/AdminTestVideoModal';
@@ -11,33 +10,19 @@ import { AdminDeleteShowModal } from '@/components/Modals/AdminDeleteShowModal';
 import { AdminPlaylistMetaModal } from '@/components/Modals/AdminPlaylistMetaModal';
 import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
-import { useDataValidation } from '@/hooks/useDataValidation';
 import { playlistSignal, loadPlaylists } from '@signals/playlistSignal';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
-import { DataSetupPage } from '@/pages/DataSetupPage';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function Dashboard() {
 
     const log = useDebugLog();
-    const dataValidation = useDataValidation();
-    const [initialized, setInitialized] = useState(false);
-
-    // Check if we need to show data setup page
-    if (dataValidation.loading) {
-        return <SpinnerLoadingAppData />;
-    }
-
-    if (!dataValidation.canProceed) {
-        return <DataSetupPage dataState={dataValidation} onRetry={dataValidation.revalidate} />;
-    }
+    const { isAdmin } = useAdminAuth();
 
     useEffect(() => {
-        document.title = "Admin Dashboard";
+        document.title = 'Admin Dashboard';
         log('Rendered Dashboard page (pages/dashboard.jsx)');
-        // Set loading to true
-        playlistSignal.value = { ...playlistSignal.value, loading: true };
-        // Reload playlists when dashboard mounts (with shorter spinner time)
-        loadPlaylists(600).then(() => setInitialized(true));
     }, []);
 
     // useState for sorting/filtering
@@ -47,7 +32,14 @@ export function Dashboard() {
     const [hideDisabled, setHideDisabled] = useState(false);
 
     // Use playlist state from signal
-    const { playlists, currentPlaylist, showData, loading, error } = playlistSignal.value;
+    const {
+        playlists,
+        currentPlaylist,
+        currentPlaylistData,
+        showData,
+        loading,
+        error
+    } = playlistSignal.value;
     // Admin show actions and modal state (now pass currentPlaylist)
     const {
         handleEdit,
@@ -73,9 +65,6 @@ export function Dashboard() {
     // State for info modal
     const [showInfoModal, setShowInfoModal] = useState(false);
 
-    // State for sort modal
-    const [showSortModal, setShowSortModal] = useState(false);
-
     const totalShows = showData ? showData.length : 0;
     const activeShows = showData ? showData.filter(s => s.status === 'active').length : 0;
     const disabledShows = showData ? showData.filter(s => s.status === 'disabled').length : 0;
@@ -95,10 +84,6 @@ export function Dashboard() {
             case 'info':
                 if (reason === 'cancel') log('Playlist Information operation was cancelled');
                 setShowInfoModal(false);
-                break;
-            case 'sort':
-                if (reason === 'cancel') log('Sort Playlist operation was cancelled');
-                setShowSortModal(false);
                 break;
             default:
                 break;
@@ -126,11 +111,6 @@ export function Dashboard() {
         setShowInfoModal(true);
     }
 
-    function handleOpenSortModal() {
-        log('Opening Sort Playlist Modal');
-        setShowSortModal(true);
-    }
-
     async function handleSaveMeta(updatedMeta) {
         setMetaSaving(true);
         setMetaError(null);
@@ -144,13 +124,45 @@ export function Dashboard() {
                     meta: updatedMeta
                 })
             });
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                setMetaError(data && data.message ? data.message : 'Save failed.');
+
+            const responseText = await res.text();
+            let data = null;
+            try {
+                data = JSON.parse(responseText);
+            } catch {
+                data = null;
             }
+
+            if (!res.ok || data?.success !== true) {
+                const errorMessage = data?.message
+                    || (res.ok ? 'Unexpected response from server.' : `Save failed (HTTP ${res.status}).`);
+                setMetaError(errorMessage);
+                return;
+            }
+            if (isAdmin) void refreshPublicationStatus();
+
+            const refreshed = await loadPlaylists(0);
+            const refreshedPlaylistState = playlistSignal.value;
+            const selectedPlaylistWasRefreshed = refreshed
+                && refreshedPlaylistState.currentPlaylist === currentPlaylist
+                && refreshedPlaylistState.currentPlaylistData?.filename === currentPlaylist;
+
+            if (!selectedPlaylistWasRefreshed) {
+                const refreshDetail = refreshedPlaylistState.error
+                    || 'The selected playlist was not returned by the refresh.';
+                const refreshMessage = `Meta data was updated, but the refreshed playlist data could not be loaded: ${refreshDetail}`;
+                playlistSignal.value = {
+                    ...refreshedPlaylistState,
+                    error: refreshMessage
+                };
+                setMetaError(refreshMessage);
+                setAdminMsg({ type: 'warning', text: refreshMessage });
+                return;
+            }
+
             setAdminMsg({ type: 'success', text: data.message || 'Meta data updated' });
             setShowMetaModal(false);
-        } catch (err) {
+        } catch {
             setMetaError('Save failed.');
         } finally {
             setMetaSaving(false);
@@ -163,42 +175,28 @@ export function Dashboard() {
         return found ? found.dbtitle : currentPlaylist;
     }
 
-    if (!initialized || loading) return <SpinnerLoadingAppData />;
-    if (error) return <div className="alert alert-danger mt-4">{error}</div>;
+    const currentPlaylistMeta = useMemo(() => {
+        if (!currentPlaylistData) return null;
 
-    // Extract meta data for current playlist from loaded playlist JSON
-    const [currentPlaylistMeta, setCurrentPlaylistMeta] = useState(null);
-    useEffect(() => {
-        async function fetchMeta() {
-            if (!currentPlaylist) return;
-            try {
-                const res = await fetch(`/playlists/${currentPlaylist}`);
-                if (!res.ok) return;
-                const data = await res.json();
-                setCurrentPlaylistMeta({
-                    dbtitle: data.dbtitle || '',
-                    dbversion: data.dbversion || '',
-                    author: data.author || '',
-                    email: data.email || '',
-                    link: data.link || '',
-                    lastupdated: data.lastupdated || ''
-                });
-            } catch {
-                setCurrentPlaylistMeta(null);
-            }
-        }
-        fetchMeta();
-    }, [currentPlaylist, showMetaModal]);
+        return {
+            dbtitle: currentPlaylistData.dbtitle ?? '',
+            dbversion: currentPlaylistData.dbversion ?? '',
+            author: currentPlaylistData.author ?? '',
+            email: currentPlaylistData.email ?? '',
+            link: currentPlaylistData.link ?? '',
+            lastupdated: currentPlaylistData.lastupdated ?? '',
+            is_default: currentPlaylistData.is_default === true
+        };
+    }, [currentPlaylistData]);
+
+    if (loading) return <SpinnerLoadingAppData />;
+    if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
     return (
         <div className="container mt-3">
             <h1 className="text-center fw-bold mb-2">Admin Dashboard</h1>
             <AdminMessage />
-            <NavbarSubNavAdmin 
-                onMetaClick={handleOpenMetaModal} 
-                onInfoClick={handleOpenInfoModal}
-                onSortClick={handleOpenSortModal}
-            />
+            <NavbarSubNavAdmin />
             <hr/>
             <AdminDashboardFilters
                 shows={showData || []}
@@ -207,6 +205,8 @@ export function Dashboard() {
                 hideDisabled={hideDisabled}
                 setHideDisabled={setHideDisabled}
                 playlistName={getCurrentPlaylistTitle()}
+                onMetaClick={handleOpenMetaModal}
+                onInfoClick={handleOpenInfoModal}
             />
             <hr/>
             <AdminDashboardTable
@@ -251,11 +251,6 @@ export function Dashboard() {
                     disabledShows,
                     totalPlaylists
                 }}
-            />
-            <AdminSortJsonModal
-                show={showSortModal}
-                onClose={reason => handleCloseModal('sort', reason)}
-                playlistFilename={currentPlaylist}
             />
         </div>
     );

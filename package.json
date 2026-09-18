@@ -1,26 +1,40 @@
 {
-	"private": true,
+	"name": "freetv-admin",
+	"version": "3.0.0-beta",
+	"description": "Administration tools for managing a collection of shows and movies for FreeTV.",
+	"author": "Ken Dawson",
+	"license": "GPL-3.0-only",
+	"homepage": "https://freetv.today",
+	"repository": "https://github.com/freetv-today/freetv-server",
+	"bugs": "https://github.com/freetv-today/freetv-server/issues",
+	"private": false,
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"build": "vite build && npm run validate:dist",
+		"validate:dist": "node scripts/validate-admin-dist.js",
+		"test:admin-dist": "node tests/AdminDistContractTest.js",
+		"test:data-snapshot-nav": "node --test tests/DataSnapshotNavigationFlagTest.js",
 		"preview": "vite preview"
 	},
 	"dependencies": {
 		"@eslint/js": "^9.34.0",
 		"@preact/signals": "^2.3.1",
+		"bootstrap": "^5.3.8",
 		"preact": "^10.25.3",
-		"preact-iso": "^2.9.2"
+		"preact-iso": "^2.12.2"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.9.3",
 		"eslint": "^9.34.0",
-		"eslint-config-preact": "^2.0.0",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-react": "^7.37.5",
 		"vite": "^6.0.4"
 	},
-	"eslintConfig": {
-		"extends": "preact"
+	"engines": {
+		"node": ">=22"
+	},
+	"allowScripts": {
+		"esbuild@0.25.8": true
 	}
 }

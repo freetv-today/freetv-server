@@ -2,14 +2,17 @@ import { useState } from 'preact/hooks';
 import { playlistSignal, switchPlaylist } from '@signals/playlistSignal';
 import { useLocation } from 'preact-iso';
 import { AdminShowForm } from '@/components/UI/AdminShowForm';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
 import { createPath } from '@/utils/env';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 export function EditShow() {
 
   const { url, route } = useLocation();
+  const { isAdmin } = useAdminAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -35,12 +38,13 @@ export function EditShow() {
   async function handleSave(updatedShow) {
     setSaving(true);
     setError(null);
+    const playlist = currentPlaylist || show.playlist_id;
     try {
       const res = await fetch('/api/admin/update-show.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          playlist: currentPlaylist,
+          playlist,
           originalIdentifier: identifier, // <-- Add this: the identifier from the URL
           show: updatedShow
         })
@@ -49,12 +53,19 @@ export function EditShow() {
       if (!res.ok || !data.success) {
         setError(data && data.message ? data.message : 'Save failed.');
       } else {
-        await switchPlaylist(currentPlaylist);
+        if (isAdmin) void refreshPublicationStatus();
+        await switchPlaylist(playlist);
         // Check if identifier changed
         if (updatedShow.identifier !== identifier) {
-          setAdminMsg({ type: 'success', text: 'The show has been updated successfully. The identifier was changed.' });
+          setAdminFlashMsg(
+            { type: 'success', text: 'The show has been updated successfully. The identifier was changed.' },
+            createPath('/dashboard')
+          );
         } else {
-          setAdminMsg({ type: 'success', text: 'The show you edited has been updated successfully.' });
+          setAdminFlashMsg(
+            { type: 'success', text: 'The show you edited has been updated successfully.' },
+            createPath('/dashboard')
+          );
         }
         route(createPath('/dashboard')); // <-- Always route back to dashboard
       }

@@ -1,5 +1,6 @@
 import { useLocation } from 'preact-iso';
 import { createPath } from '@/utils/env';
+import { sadFace } from '@/adminAssets';
 
 /**
  * ErrorPage - Reusable error page component
@@ -9,6 +10,9 @@ import { createPath } from '@/utils/env';
  * @param {boolean} [props.showReload=false] - Show reload button
  * @param {function} [props.onReload] - Reload button callback
  * @param {boolean} [props.showHome=true] - Show home button
+ * @param {string} [props.homePath='/'] - Default home button route
+ * @param {string} [props.homeLabel='Back to Login'] - Home button label
+ * @param {function} [props.onHome] - Optional home button callback
  */
 
 export function ErrorPage({ 
@@ -16,7 +20,10 @@ export function ErrorPage({
   message = 'Something went wrong. Please try again later.',
   showReload = false,
   onReload,
-  showHome = true
+  showHome = true,
+  homePath = '/',
+  homeLabel = 'Back to Login',
+  onHome
 }) {
   const { route } = useLocation();
 
@@ -24,7 +31,7 @@ export function ErrorPage({
     <div className="text-center text-danger fw-bold p-4" style={{ marginTop: '100px' }}>
       <h3 className="display-5">{type}</h3>
       <p className="mb-4">{message}</p>
-      <img src={createPath('/assets/sadface.svg')} alt="😢" width="100" className="mb-4" /> 
+      <img src={sadFace} alt="😢" width="100" className="mb-4" />
       
       <div className="d-flex justify-content-center gap-2">
         {showReload && onReload && (
@@ -33,8 +40,11 @@ export function ErrorPage({
           </button>
         )}
         {showHome && (
-          <button className="btn btn-outline-secondary" onClick={() => route(createPath('/'))}>
-            Back to Login
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => onHome ? onHome() : route(createPath(homePath))}
+          >
+            {homeLabel}
           </button>
         )}
       </div>

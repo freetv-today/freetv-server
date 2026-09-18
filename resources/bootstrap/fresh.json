@@ -1,0 +1,16 @@
+{
+    "settings": {
+        "show_ads": false
+    },
+    "playlist": {
+        "filename": "playlist-one.json",
+        "dbtitle": "Playlist One",
+        "dbversion": null,
+        "author": null,
+        "email": null,
+        "link": null,
+        "is_default": 1,
+        "sort_order": 0
+    },
+    "shows": []
+}

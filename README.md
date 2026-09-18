@@ -1,165 +1,326 @@
-# Free TV Server
+# FreeTV Admin Dashboard
 
-<img src="public/assets/freetv.png" width="120" style="margin-bottom: 20px;">
+<img src="public/assets/freetv.png" align="left" width="100" style="margin: 10px;"> FreeTV Admin Dashboard is a web-based interface for managing hand-picked video content hosted on the Internet Archive. It works in conjunction with the FreeTV Viewer which displays this content for the end user. The show data is stored in a MariaDB database and exported via a publishing process to be consumed by the FreeTV Viewer.
 
-See it online at: https://freetv.today
+The FreeTV Admin Dashboard allows administrators to add new shows and playlists, edit existing shows and playlists, add/edit thumbnail images, and publish Viewer-compatible JSON artifacts.
 
-**Version 1.0.0 - Beta**
-
-Free TV Server contains both a front-end site for end users and a back-end administration tool (the Admin Dashboard) for managing content.
-
-The front-end site allows users to watch free TV and movie content from the Internet Archive.
-
-The administrator can log into the Admin Dashboard and add/remove shows, create playlists, fetch thumbnails, modify playlist data, and change configuration settings.
-
-This is the main server for the Free TV project which provides centralized content management. This server is the main source for playlist data (categories and shows) which are consumed by stand-alone client apps.
-
----
-
-## Table of Contents
-
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-- [Code Style](#code-style)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Requirements
-
-- Node.js v18 or higher
-- PHP 7.4 or higher
-- Git (for cloning the repository)
-
----
-
-## Getting Started
-
-1. **Clone the repository:**
-   ```
-   git clone https://github.com/freetv-today/freetv-server
-   cd freetv-server
-   ```
-
-2. **Install dependencies:**
-   ```
-   npm install
-   ```
-
-3. **Start the PHP development server (serves the backend API):**
-   ```
-   php -S localhost:8000
-   ```
-
-4. **Run the Preact/Vite development server (in a new console window or tab):**
-   ```
-   npm run dev
-   ```
-
-5. **Open your browser and visit:**  
-   [http://localhost:5173](http://localhost:5173) 
-
----
-
-## Code Style
-
-PHP code in `public/api/` follows the [PSR-12](https://www.php-fig.org/psr/psr-12/) standard, as configured in [`phpcs.xml.dist`](phpcs.xml.dist).
-
-If you want to lint PHP code locally, install [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer):
-
-```bash
-composer global require "squizlabs/php_codesniffer=*"
-```
-
-Then run:
-```bash
-phpcs
-```
-
-> **Note:** PHPCS is optional for contributors and not required to run or build the app.
-
----
+<div style="text-align: center; margin-top: 30px;">
+<a href="public/assets/freetv-admin-screenshot.jpg" target="_blank" title="Screenshot of FreeTV Admin Dashboard"><img src="public/assets/freetv-admin-screenshot.jpg" width="600"></a>
+</div>
 
 ## Features
 
-**Front-End:** Free TV Viewer
+* Easy-to-use graphical interface for managing FreeTV content
+* Session-based authentication and role-based user management
+* Create, edit, organize, and delete shows and playlists
+* Activate or disable individual shows
+* Search and test show content without opening the FreeTV Viewer
+* Upload, replace, and manage thumbnail images
+* Review and resolve Viewer problem reports
+* Publish and export show, playlist, and configuration data from MariaDB for Viewer use
 
-- Browse and watch curated TV and movie content from the Internet Archive.
-- All data and playlists are managed via JSON files.
+## Requirements
 
-**Back-End:** Admin Dashboard
+### System Requirements
 
-- Web-based dashboard for managing shows, playlists, thumbnails, and server configuration.
-- Supports adding/removing/editing TV shows and movies.
-- Allows creation and management of playlists.
-- Fetch and manage thumbnails.
-- Modify playlist data and configuration settings.
+* Node.js 22 or newer
+* npm
+* PHP 8.4.1 or newer
+* Composer
+* MariaDB
+* A modern web browser
 
----
+### Required PHP Extensions
 
-## Project Structure
+* cURL
+* Imagick
+* PDO
+* PDO MySQL
+* ZIP
 
-A brief overview of the main directories and files:
+The PHP process must also have permission to write to the configured public directory and the repository’s `temp/` directory and its subdirectories.
 
-- **public/**
-  - `api/` – Backend PHP scripts serving as the API for the frontend and admin dashboard.
-  - `assets/` – Static assets such as images and icons (including the main logo).
-  - `config.json` – Server configuration file.
-  - `playlists/` – JSON files containing TV/movie playlists consumed by the frontend.
-  - `temp/` – Temporary files and cache.
-  - `thumbs/` – Thumbnail images for shows and movies.
-  - `tools/` – Utility scripts and tools for admins/devs.
+Frontend dependencies, including Preact, Vite, and Bootstrap, are installed through npm. PHP dependencies, including Illuminate Database and PHP dotenv, are installed through Composer.
 
-- **src/**
-  - `components/` – Reusable UI components for the Preact frontend.
-  - `context/` – Context providers for app-wide state management.
-  - `hooks/` – Custom hooks for reusable logic.
-  - `index.jsx` – Main entry point for the frontend app.
-  - `pages/` – Route-level components for different app pages.
-  - `signals/` – Preact Signals for state management.
-  - `style.css` – Global styles for the frontend.
-  - `utils.js` – General utility functions.
+## Getting Started
 
-- **Other important files:**
-  - `.gitignore` – Specifies files and directories ignored by Git.
-  - `LICENSE` – Open source license (MIT).
-  - `package.json` – Project metadata and dependencies.
-  - `phpcs.xml.dist` – Coding standards for PHP code (PSR-12).
-  - `vite.config.js` – Vite configuration for development and build.
-  - `eslint.config.js` – ESLint configuration for JavaScript/Preact code.
-  - `index.html` – The main HTML file served by Vite.
+1. Clone or download `freetv-server`.
+2. Navigate to the `freetv-server` directory and run `npm install`.
+3. From the same directory, run `composer install`.
+4. Create `.env` from `.env.example`. See [Database and Runtime Configuration](#database-and-runtime-configuration) for the available settings.
+5. Enter your MariaDB credentials. The configured account must be able to either:
 
----
+   * create the configured database, or
+   * use an existing database and create tables within it.
+6. In a terminal, navigate to `freetv-server/public`. Start the PHP development server with `php -S localhost:8081`.
+7. Open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both remain running.
+8. Open the local URL printed by Vite in your browser.
+9. Complete [First Run](#first-run) to initialize the database, establish the matching Viewer artifacts, and create the first Administrator account.
+10. Log in to the FreeTV Admin Dashboard using the account you created during First Run.
+
+## How do I ...  ?
+
+`freetv-server` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The table below covers tasks within this repository. For help choosing another FreeTV repository, see the [FreeTV organization overview](https://github.com/freetv-today).<br/>
+
+| I want to...                                | What do I do?                                                                                                                                                                                                                                                                                                                                                                   | What happens?                                                                                                                                                                                                              |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Run only the Admin Dashboard locally**    | In a terminal, navigate to `freetv-server/public`. Start a PHP development server with `php -S localhost:8081`. Then open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both be running simultaneously. See [Local Admin Development](#local-admin-development) for configuration details. | Starts the PHP API on port `8081` and the Admin Dashboard using the default Vite development server port. Vite displays the local URL when it starts.                                                                      |
+| **Initialize a new FreeTV installation**    | Start the Admin Dashboard and follow the [First Run](#first-run) process in the browser.                                                                                                                                                                                                                                                                                        | Checks database readiness and allows the installation to be initialized using Start Fresh, Baseline Sample Data, Current Sample Data, or Current Official Data. Successful initialization returns you to the login screen. |
+| **Publish database changes for the Viewer** | Use the **Publish** page in the Admin Dashboard. See [Publishing Viewer Data](#publishing-viewer-data).                                                                                                                                                                                                                                                                         | Exports the current show, playlist, and configuration data as Viewer-compatible static artifacts in the configured public directory.                                                                                                |
+| **Undo the last publication**               | Use the **Undo** action on the Publish page. See [Undo the Last Publication](#undo-the-last-publication).                                                                                                                                                                                                                                                                       | Restores the previous published Viewer artifacts when an undo point is available.                                                                                                                                          |
+| **Build only the Admin frontend**           | Navigate to `freetv-server/` and run `npm run build`. See [Build the Admin Frontend](#build-the-admin-frontend).                                                                                                                                                                                                                                                                | Builds and validates the Admin Dashboard production frontend. It does not create a complete FreeTV production assembly.                                                                                                    |
+| **Configure a custom public directory**     | Set `FREETV_PUBLIC_PATH` in the Admin runtime environment. See [Database and Runtime Configuration](#database-and-runtime-configuration).                                                                                                                                                                                                                                       | Changes the filesystem directory used for public Viewer artifacts.                                                                                                                                                         |
+| **Use a different PHP backend port**        | Start PHP on the chosen port and set `VITE_API_PROXY_TARGET` to its URL. See [Use a Different PHP Port](#use-a-different-php-port).                                                                                                                                                                                                                                             | Directs Vite’s development `/api` requests to the PHP backend at the configured URL.                                                                                                                                       |
+
+## Architecture
+
+The FreeTV Admin Dashboard is divided into a browser frontend and a PHP backend. The frontend is a Preact single-page application built with Vite and styled with Bootstrap. It communicates with JSON API endpoints implemented in PHP under `public/api/`.
+
+The PHP application loads private runtime configuration through PHP dotenv and uses the Illuminate Database component to communicate with MariaDB. MariaDB stores authoritative Admin data, while the filesystem holds published Viewer artifacts, thumbnails, and temporary recovery state.
+
+### Data Flow
+
+```mermaid
+flowchart TD
+    FIRST_RUN["First Run"] -->|"Initializes"| DB[("MariaDB")]
+    FIRST_RUN -->|"Establishes matching"| ARTIFACTS["Published Viewer artifacts"]
+    ADMIN["FreeTV Admin Dashboard"] -->|"Reads and writes"| DB
+    DB -->|"Publishes JSON"| ARTIFACTS
+    ADMIN -->|"Manages thumbnails"| ARTIFACTS
+    ARTIFACTS -->|"Static JSON and thumbnails"| VIEWER["FreeTV Viewer"]
+```
+
+MariaDB is the authoritative source for data managed through the FreeTV Admin Dashboard. The Viewer does not read directly from MariaDB. Instead, the Admin publication process generates static JSON artifacts that the Viewer consumes. Thumbnail files are maintained separately in the configured public directory.
+
+First Run establishes both sides of this relationship. It initializes MariaDB and establishes the corresponding Viewer artifacts using the selected initialization mode. Because the database and Viewer artifacts represent the same initial state, a successful First Run leaves the Publish page clean.
+
+After initialization, changes made through the Admin affect MariaDB first. They become visible to the Viewer only after they are published. For an overview of the other FreeTV repositories and how they work together, see the [FreeTV organization overview](https://github.com/freetv-today).
+
+### Project Structure
+
+The following tree highlights the directories and files most relevant to installing, developing, publishing, and maintaining the Admin Dashboard. It does not list every source file or API endpoint.
+
+```text
+freetv-server/
+├── public/
+│   ├── api/
+│   │   └── admin/          Admin API endpoints and backend services
+│   ├── assets/             Admin Dashboard images and static assets
+│   ├── playlists/          Published Viewer playlist artifacts
+│   ├── thumbs/             Viewer thumbnail files
+│   └── config.json         Published Viewer configuration
+├── resources/
+│   ├── bootstrap/          First Run bootstrap resources
+│   └── freetv-baseline-sample-data.zip
+│                           Bundled offline Baseline Sample Data
+├── scripts/                Repository maintenance and validation scripts
+├── sql/                    MariaDB schema and generated data packages
+├── src/
+│   ├── components/         Reusable Admin Dashboard components
+│   ├── context/            Admin session and application context
+│   ├── hooks/              Frontend data and behavior hooks
+│   ├── pages/              Admin Dashboard pages
+│   ├── signals/            Shared reactive state
+│   └── utils/              Frontend utilities
+├── temp/
+│   ├── publication-undo/   Publication rollback state
+│   ├── thumbnail-quarantine/
+│   └── thumbnail-undo/     Thumbnail recovery state
+├── tests/                  PHP and JavaScript contract tests
+├── .env.example            PHP runtime configuration template
+├── .env.development        Vite frontend development configuration
+├── .env.production         Vite frontend production configuration
+├── composer.json           PHP dependencies
+├── package.json            Frontend commands and dependencies
+└── vite.config.js          Admin Dashboard Vite configuration
+```
 
 ## Development
 
-- **Linting:**  
-  JavaScript/Preact code can be linted using ESLint (configured in `eslint.config.js`).  
-  PHP code can be linted using PHPCS (see [Code Style](#code-style)).
+This section describes developing `freetv-server` as a standalone FreeTV Admin Dashboard. Local development requires MariaDB, the PHP backend, and the Vite frontend to run together. The Viewer is not required for ordinary Admin development, although published Viewer artifacts can be inspected in the configured public directory.
 
-- **Building for Production:**  
-  To build the front-end for production, run:
-  ```
-  npm run build
-  ```
+For coordinated development across the Admin Dashboard, Viewer, and Data repositories, see the [FreeTV Tooling documentation](https://github.com/freetv-today/freetv-tooling).
 
-- **Preview Production Build:**  
-  ```
-  npm run preview
-  ```
+### Database and Runtime Configuration
 
----
+The PHP backend reads its runtime configuration from `.env` in the `freetv-server` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
 
-## Contributing
+| Variable             | Required? | Purpose                                                                                                                                                                                                                                                           |
+| -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DB_HOST`            | Yes       | Hostname or IP address of the MariaDB server.                                                                                                                                                                                                                     |
+| `DB_PORT`            | No        | MariaDB port. Defaults to `3306` when omitted or empty. Valid values are `1` through `65535`.                                                                                                                                                                     |
+| `DB_NAME`            | Yes       | Name of the database used by FreeTV.                                                                                                                                                                                                                              |
+| `DB_USER`            | Yes       | MariaDB account used by the PHP backend.                                                                                                                                                                                                                          |
+| `DB_PASS`            | No        | Password for the configured MariaDB account. May be empty when the account does not require one.                                                                                                                                                                  |
+| `FREETV_PUBLIC_PATH` | No        | Safe relative path where public Viewer artifacts and thumbnails are stored. Defaults to `public`, matching the repository’s local development and production-assembly layout. Hosting environments may use a different web-root directory, such as `public_html`. |
 
-Contributions are welcome! Please open issues or submit pull requests for bug fixes, new features, or documentation improvements.
+A typical local configuration is:
 
----
+```dotenv
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=freetv
+DB_USER=user
+DB_PASS=<password>
+FREETV_PUBLIC_PATH=public
+```
+
+`FREETV_PUBLIC_PATH` is resolved relative to the private application root and must remain inside it. Absolute paths and path traversal segments such as `..` are rejected. For shared hosting, a value such as `public_html` can identify the web-root directory located alongside the application’s private runtime files. Example:
+
+```text
+private-application-root/
+├── .env
+├── composer.json
+├── composer.lock
+├── public_html/
+├── temp/
+└── vendor/
+```
+
+#### MariaDB Permissions
+
+First Run supports two database permission models:
+
+* **Create-database mode:** The configured account can create and use the database named by `DB_NAME`.
+* **Existing-database mode:** The database already exists and the configured account can create, read, write, and remove tables within it.
+
+During readiness checking, FreeTV performs temporary database or table operations to determine which mode is available. The temporary objects are removed after the check.
+
+**FreeTV does not install MariaDB or create database accounts.**
+
+For installation instructions, see the [MariaDB Server installation guide](https://mariadb.com/docs/server/mariadb-quickstart-guides/installing-mariadb-server-guide). For database accounts and privileges, follow the MariaDB documentation or the instructions provided by your hosting provider.
+
+When using existing-database mode, create the database and grant the required permissions before starting First Run.
+
+### Local Admin Development
+
+Standalone Admin development uses two processes:
+
+* a PHP development server for the API and public Viewer artifacts;
+* a Vite development server for the Preact frontend.
+
+MariaDB must also be running and accessible using the credentials in `.env`.
+
+#### Start the PHP Backend
+
+In a terminal, navigate to `freetv-server/public` and run:
+
+```bash
+php -S localhost:8081
+```
+
+This starts the PHP backend at `http://localhost:8081`. The `public/` directory acts as the local PHP document root.
+
+#### Start the Vite Frontend
+
+Open a new terminal or terminal tab, navigate to `freetv-server/`, and run:
+
+```bash
+npm run dev
+```
+
+Vite starts the Admin frontend and displays its local URL. Keep both the PHP and Vite development servers running while using the Admin Dashboard.
+
+During standalone development, Vite proxies requests beginning with `/api` to:
+
+```text
+http://localhost:8081
+```
+
+#### Use a Different PHP Port
+
+If the PHP backend must use a different port, start PHP with that port and set `VITE_API_PROXY_TARGET` to the matching URL.
+
+For example, start PHP with:
+
+```bash
+php -S localhost:8082
+```
+
+Then create `.env.development.local` in `freetv-server/` containing:
+
+```dotenv
+VITE_API_PROXY_TARGET=http://localhost:8082
+```
+
+Restart Vite after changing its environment configuration.
+
+`VITE_API_PROXY_TARGET` affects only the Vite development proxy. It does not configure MariaDB or the PHP runtime.
+
+### First Run
+
+First Run appears when FreeTV can connect to MariaDB but the installation has not yet been initialized. It prepares the database, establishes the corresponding Viewer artifacts, and creates the first Administrator account.
+
+Before displaying the initialization options, FreeTV checks that:
+
+* the required PHP dependencies are available;
+* the MariaDB configuration is present and usable;
+* the configured database account has sufficient permissions; and
+* the installation does not already contain a user account.
+
+#### Initialization Modes
+
+| Mode                      | Data source                                | Result                                                                                                              |
+| ------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **Start Fresh**           | Generated locally                          | Creates one empty default playlist named **Playlist One** without adding any shows.                                 |
+| **Baseline Sample Data**  | Bundled with `freetv-server`               | Installs a small sample library without downloading a dataset.                                                      |
+| **Current Sample Data**   | Downloaded from the FreeTV dataset service | Installs the current sample library and its matching Viewer artifacts. An Internet connection is required.          |
+| **Current Official Data** | Downloaded from the FreeTV dataset service | Installs the current complete FreeTV library and its matching Viewer artifacts. An Internet connection is required. |
+
+Every mode asks you to create the first Administrator username and password. Usernames may contain letters, numbers, dots, dashes, and underscores. Passwords must contain at least six characters.
+
+For downloaded datasets, FreeTV retrieves the current package information, verifies the downloaded archive and package contents, and installs the database data and Viewer artifacts together. If retrieval or verification fails, initialization is not completed and the Administrator account is not created.
+
+After successful initialization, FreeTV returns you to the login screen. Log in using the Administrator account you created.
+
+The initial MariaDB data and published Viewer artifacts represent the same state, so the Publish page is initially clean. Later Admin changes affect MariaDB first and must be published before they appear in the Viewer.
+
+First Run is only for an uninitialized installation. It is not a database reset or data-import workflow and is no longer available after initialization has completed.
+
+### Build the Admin Frontend
+
+To create and validate the standalone Admin production frontend, navigate to `freetv-server/` and run:
+
+```bash
+npm run build
+```
+
+The build is written to `dist/` and validated by the repository’s Admin distribution contract. This frontend-only build is not a complete deployable FreeTV production assembly. Use [`freetv-tooling`](https://github.com/freetv-today/freetv-tooling) to build the complete deployable FreeTV site. Tooling combines the Viewer frontend, Admin Dashboard, PHP API and runtime dependencies, and the current published JSON and thumbnails into one verified production assembly.
+
+### Publishing Viewer Data
+
+Changes made in the Admin Dashboard are saved to MariaDB immediately, but the FreeTV Viewer does not read from MariaDB. The changes become available to the Viewer only after the corresponding static artifacts are published.
+
+Open the **Publish** page in the Admin Dashboard to review publication status and publish changes. Administrator access is required.
+
+#### Publication Status
+
+The Publication Status table compares the authoritative MariaDB data with the currently published artifacts. It reports the status of:
+
+* each playlist and its shows;
+* Viewer configuration settings; and
+* the default playlist selection.
+
+Changed playlists may also show the number of added, edited, or removed shows, changes to show order, and changed playlist metadata.
+
+#### Publication Actions
+
+| Action                                     | Result                                                                                                               |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Publish The Selected Playlist**          | Publishes the selected playlist and updates the playlist index.                                                      |
+| **Publish All Shows and Playlist Content** | Publishes all changed playlists and updates the playlist index. If nothing has changed, no publication is performed. |
+| **Publish Config Settings**                | Publishes Viewer settings to `config.json`.                                                                          |
+
+Published files are written beneath the directory configured by `FREETV_PUBLIC_PATH`. Playlist artifacts are stored in `playlists/`, including `playlists/index.json`.
+
+Publication updates the local or configured public artifacts only. It does not upload them to GitHub, transfer them to another server, or deploy the Viewer.
+
+#### Undo the Last Publication
+
+After a successful publication, the Publish page offers **Undo Last Publish**. Undo restores the artifacts affected by the most recent publication operation.
+
+Only the latest publication can be undone. Undo does not reverse edits in MariaDB. After restoring the previous artifacts, the Publication Status table may therefore show the current MariaDB data as unpublished changes.
 
 ## License
 
-This code is released under the [MIT](LICENSE) license.
+This code is released under the [GPL v3](LICENSE) license.

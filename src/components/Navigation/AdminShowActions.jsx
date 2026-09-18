@@ -1,3 +1,5 @@
+import { useAdminAuth } from '@context/AdminSessionContext';
+
 /**
  * AdminShowActions - renders Edit, Delete, and Test buttons for a show row
  * @param {Object} props
@@ -8,22 +10,26 @@
  */
 
 export function AdminShowActions({ show, onEdit, onDelete, onTest }) {
+  const { canEditContent } = useAdminAuth();
+
   return (
     <div className="d-flex flex-lg-row flex-column gap-1 w-100">
-      <button
+      {canEditContent && <button
         className="btn tinybtn btn-primary w-100"
         title={`Edit \"${show.title}\"`}
         onClick={() => onEdit && onEdit(show)}
       >
         Edit
-      </button>
-      <button
-        className="btn tinybtn btn-danger w-100"
-        title={`Delete \"${show.title}\"`}
-        onClick={() => onDelete && onDelete(show)}
-      >
-        Delete
-      </button>
+      </button>}
+      {canEditContent && typeof onDelete === 'function' && (
+        <button
+          className="btn tinybtn btn-danger w-100"
+          title={`Delete \"${show.title}\"`}
+          onClick={() => onDelete(show)}
+        >
+          Delete
+        </button>
+      )}
       <button
         className="btn tinybtn btn-warning w-100"
         title={`Test \"${show.title}\"`}

@@ -3,6 +3,8 @@ import { useLocation } from 'preact-iso';
 import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { switchPlaylist } from '@signals/playlistSignal';
 import { createPath } from '@/utils/env'; 
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { refreshPublicationStatus } from '@signals/publicationStatusSignal';
 
 /**
  * useAdminShowActions - shared admin show actions for dashboard/search
@@ -14,6 +16,7 @@ import { createPath } from '@/utils/env';
 export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, onDataChanged) {
   
   const location = useLocation();
+  const { isAdmin } = useAdminAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showToDelete, setShowToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -56,13 +59,27 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
         setMessage({ type: 'danger', text: data && data.message ? data.message : 'Status update failed.' });
         return;
       }
-      await switchPlaylist(currentPlaylist);
+      if (isAdmin) void refreshPublicationStatus();
+
+      let playlistRefreshed = false;
+      try {
+        playlistRefreshed = await switchPlaylist(currentPlaylist);
+      } catch {
+        // Treat an unexpected refresh exception the same as a failed refresh.
+      }
+      if (!playlistRefreshed) {
+        setMessage({
+          type: 'warning',
+          text: 'Show status updated, but the playlist could not be refreshed.'
+        });
+        return;
+      }
       setMessage({ type: 'success', text: 'Show status updated.' });
       if (onDataChanged) onDataChanged();
     } catch {
       setMessage({ type: 'danger', text: 'Status update failed.' });
     }
-  }, [currentPlaylist, setMessage, onDataChanged]);
+  }, [currentPlaylist, setMessage, onDataChanged, isAdmin]);
 
   // Confirm delete handler
   const handleDeleteConfirm = useCallback(async () => {
@@ -78,24 +95,54 @@ export function useAdminShowActions(currentPlaylist, setMessage = setAdminMsg, o
           identifier: showToDelete.identifier
         })
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setDeleteError(data && data.message ? data.message : 'Delete failed.');
-        setDeleting(false);
+
+      const responseText = await res.text();
+      let data = null;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = null;
+      }
+
+      if (!res.ok || data?.success !== true) {
+        const errorMessage = data?.message
+          || (res.ok ? 'Unexpected response from server.' : `Delete failed (HTTP ${res.status}).`);
+        setDeleteError(errorMessage);
         return false;
       }
-      await switchPlaylist(currentPlaylist);
-      setDeleting(false);
+      if (isAdmin) void refreshPublicationStatus();
+
+      let playlistRefreshed = false;
+      try {
+        playlistRefreshed = await switchPlaylist(currentPlaylist);
+      } catch {
+        // Treat an unexpected refresh exception the same as a failed refresh.
+      }
+
       setShowDeleteModal(false);
       setShowToDelete(null);
-      if (onDataChanged) onDataChanged();
+      setDeleteError(null);
+
+      if (!playlistRefreshed) {
+        setMessage({
+          type: 'warning',
+          text: 'Show was deleted, but the playlist could not be refreshed.'
+        });
+        return false;
+      }
+
+      setMessage({ type: 'success', text: 'Show deleted successfully.' });
+      if (onDataChanged) {
+        onDataChanged();
+      }
       return true;
     } catch {
       setDeleteError('Delete failed.');
-      setDeleting(false);
       return false;
+    } finally {
+      setDeleting(false);
     }
-  }, [showToDelete, currentPlaylist, setMessage, onDataChanged]);
+  }, [showToDelete, currentPlaylist, setMessage, onDataChanged, isAdmin]);
 
   // Modal close handlers
   const closeDeleteModal = useCallback(() => {

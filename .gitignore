@@ -23,3 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 *.bak
+
+# Local environment overrides and secrets
+.env
+.env.local
+.env.*.local
+
+vendor/
+public/temp
+public/tools
+public/thumbs/
+public/playlists/
+/temp/
+public/config.json

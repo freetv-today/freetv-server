@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'preact/hooks';
-import { useLocation } from 'preact-iso';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { formatDateTime } from '@/utils/utils';
 import { UserModal } from '@/components/Modals/UserModal';
@@ -9,6 +8,7 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
 import { playlistSignal } from '@signals/playlistSignal';
 import { AdminMessage } from '@/components/UI/AdminMessage';
 import { SpinnerLoadingAppData } from '@components/Loaders/SpinnerLoadingAppData';
+import { useAdminAuth } from '@context/AdminSessionContext';
 
 export function AdminUsers() {
 
@@ -18,7 +18,9 @@ export function AdminUsers() {
     const [loading, setLoading] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'changepass' | 'delete' | null
-    const { route } = useLocation();
+    const { user: currentUser } = useAdminAuth();
+    const [userModalError, setUserModalError] = useState(null);
+    const [passwordModalError, setPasswordModalError] = useState(null);
 
     // Show loading spinner when playlist is loading
     if (playlistLoading) return <SpinnerLoadingAppData />;
@@ -38,12 +40,12 @@ export function AdminUsers() {
         try {
             const res = await fetch('/api/admin/userman.php?action=list');
             const data = await res.json();
-            if (data.success) {
+            if (res.ok && data.success) {
                 setUsers(data.users);
             } else {
-                setAdminMsg({ type: 'danger', text: 'Failed to fetch users.' });
+                setAdminMsg({ type: 'danger', text: data.message || 'Failed to fetch users.' });
             }
-        } catch (e) {
+        } catch {
             setAdminMsg({ type: 'danger', text: 'Network error.' });
         }
         setLoading(false);
@@ -51,14 +53,17 @@ export function AdminUsers() {
 
     // Modal handlers
     function handleAddUser() {
+        setUserModalError(null);
         setSelectedUser(null);
         setModalType('add');
     }
     function handleEditUser(user) {
+        setUserModalError(null);
         setSelectedUser(user);
         setModalType('edit');
     }
     function handleChangePass(user) {
+        setPasswordModalError(null);
         setSelectedUser(user);
         setModalType('changepass');
     }
@@ -67,12 +72,15 @@ export function AdminUsers() {
         setModalType('delete');
     }
     function closeModal() {
+        setUserModalError(null);
+        setPasswordModalError(null);
         setSelectedUser(null);
         setModalType(null);
     }
 
     // Backend actions
     async function handleUserModalSubmit(data) {
+        setUserModalError(null);
         setLoading(true);
         try {
             const action = modalType === 'add' ? 'add' : 'edit';
@@ -83,20 +91,21 @@ export function AdminUsers() {
                     body: JSON.stringify(data)
                 });
             const result = await res.json();
-            if (result.success) {
-                setAdminMsg({ type: 'success', text: result.message })
+            if (res.ok && result.success) {
+                setAdminMsg({ type: 'success', text: result.message });
                 closeModal();
-                fetchUsers();
+                await fetchUsers();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
+                setUserModalError(result.message || 'Operation failed.');
             }
-        } catch (e) {
-            setAdminMsg({ type: 'danger', text: 'Network error.' })
+        } catch {
+            setUserModalError('Network error.');
         }
         setLoading(false);
     }
 
     async function handlePasswordModalSubmit(data) {
+        setPasswordModalError(null);
         setLoading(true);
         try {
             const res = await fetch('/api/admin/userman.php?action=changepass', {
@@ -105,15 +114,15 @@ export function AdminUsers() {
                 body: JSON.stringify(data)
             });
             const result = await res.json();
-            if (result.success) {
+            if (res.ok && result.success) {
                 setAdminMsg({ type: 'success', text: result.message });
                 closeModal();
-                fetchUsers();
+                await fetchUsers();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
+                setPasswordModalError(result.message || 'Operation failed.');
             }
-        } catch (e) {
-            setAdminMsg({ type: 'danger', text: 'Network error.' })
+        } catch {
+            setPasswordModalError('Network error.');
         }
         setLoading(false);
     }
@@ -127,18 +136,25 @@ export function AdminUsers() {
                 body: JSON.stringify({ id: user.id })
             });
             const result = await res.json();
-            if (result.success) {
+            if (res.ok && result.success) {
                 setAdminMsg({ type: 'success', text: result.message });
                 closeModal();
-                fetchUsers();
+                await fetchUsers();
             } else {
-                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' })
+                setAdminMsg({ type: 'danger', text: result.message || 'Operation failed.' });
             }
-        } catch (e) {
-            setAdminMsg({ type: 'danger', text: 'Network error.' })
+        } catch {
+            setAdminMsg({ type: 'danger', text: 'Network error.' });
         }
         setLoading(false);
     }
+
+    const activeAdminCount = users.filter(user => user.role === 'admin' && user.status === 'active').length;
+    const selectedUserIsSelf = selectedUser && currentUser && Number(selectedUser.id) === Number(currentUser.id);
+    const selectedUserIsSoleActiveAdmin = selectedUser
+        && selectedUser.role === 'admin'
+        && selectedUser.status === 'active'
+        && activeAdminCount === 1;
 
     return (
         <div className="container py-4">
@@ -147,12 +163,9 @@ export function AdminUsers() {
 
             <AdminMessage />
 
-            {/*
             <div className="mb-3 text-end d-flex justify-content-end gap-2">
-                <button className="btn btn-secondary" onClick={() => route('/dashboard')}>Cancel</button>
-                 <button className="btn btn-primary" onClick={handleAddUser}>Add User</button>
-            </div> 
-            */}
+                <button className="btn btn-primary" onClick={handleAddUser}>Add User</button>
+            </div>
             {loading ? (
                 <div className="text-center my-5"><div className="spinner-border" /></div>
             ) : (
@@ -164,32 +177,35 @@ export function AdminUsers() {
                             <th>Status</th>
                             <th>Created</th>
                             <th>Last Login</th>
+                            <th>Updated</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(u => (
-                            <tr key={u.id}>
-                                <td>{u.username}</td>
-                                <td>{u.role}</td>
-                                <td>{u.status}</td>
-                                <td>{formatDateTime(u.created)}</td>
-                                <td>{formatDateTime(u.lastLogin)}</td>
-                                <td>
-                                    {u.role === 'admin' ? (
-                                        <button className="btn btn-sm btn-warning" onClick={() => handleChangePass(u)}>
-                                            Change Password
-                                        </button>
-                                    ) : (
-                                        <>
-                                            <button className="btn btn-sm btn-secondary me-1" onClick={() => handleEditUser(u)}>Edit</button>
-                                            <button className="btn btn-sm btn-warning me-1" onClick={() => handleChangePass(u)}>Change Password</button>
+                        {users.map(u => {
+                            const isSelf = currentUser && Number(u.id) === Number(currentUser.id);
+                            const isSoleActiveAdmin = u.role === 'admin'
+                                && u.status === 'active'
+                                && activeAdminCount === 1;
+
+                            return (
+                                <tr key={u.id}>
+                                    <td>{u.username}</td>
+                                    <td>{u.role}</td>
+                                    <td>{u.status}</td>
+                                    <td>{formatDateTime(u.created_at)}</td>
+                                    <td>{formatDateTime(u.last_login_at)}</td>
+                                    <td>{formatDateTime(u.updated_at)}</td>
+                                    <td>
+                                        <button className="btn btn-sm btn-secondary me-1" onClick={() => handleEditUser(u)}>Edit</button>
+                                        <button className="btn btn-sm btn-warning me-1" onClick={() => handleChangePass(u)}>Change Password</button>
+                                        {currentUser && !isSelf && !isSoleActiveAdmin && activeAdminCount > 0 && (
                                             <button className="btn btn-sm btn-danger" onClick={() => handleDeleteUser(u)}>Delete</button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             )}
@@ -200,12 +216,16 @@ export function AdminUsers() {
                 onSubmit={handleUserModalSubmit}
                 user={modalType === 'edit' ? selectedUser : null}
                 mode={modalType}
+                roleLocked={Boolean(selectedUser && (!currentUser || selectedUserIsSelf || selectedUserIsSoleActiveAdmin))}
+                statusLocked={Boolean(selectedUser && (!currentUser || selectedUserIsSelf || selectedUserIsSoleActiveAdmin))}
+                serverError={userModalError}
             />
             <PasswordModal
                 show={modalType === 'changepass'}
                 onClose={closeModal}
                 onSubmit={handlePasswordModalSubmit}
                 user={selectedUser}
+                serverError={passwordModalError}
             />
             <ConfirmDeleteModal
                 show={modalType === 'delete'}

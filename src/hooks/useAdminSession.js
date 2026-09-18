@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { setAdminFlashMsg } from '@/signals/adminMessageSignal';
 import { createPath } from '@/utils/env';
 
 /**
@@ -19,7 +19,10 @@ export function useAdminSession() {
       .then(data => {
         if (!data.loggedIn) {
           if (isMounted) setUser(false); // false means session invalid
-          setAdminMsg({ type: 'danger', text: 'Your session has expired!' });
+          setAdminFlashMsg(
+            { type: 'danger', text: 'Your session has expired!' },
+            createPath('/')
+          );
           route(createPath('/'));
         } else if (isMounted) {
           setUser(data.user);

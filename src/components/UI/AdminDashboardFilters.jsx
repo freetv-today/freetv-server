@@ -1,5 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
+import { useAdminAuth } from '@context/AdminSessionContext';
+import { gearIcon, infoIcon } from '@/adminAssets';
 
 /**
  * AdminDashboardFilters - filter controls for dashboard table
@@ -9,6 +11,9 @@ import { capitalizeFirstLetter } from '@/utils/utils';
  *   setFilterCategory: function
  *   hideDisabled: boolean
  *   setHideDisabled: function
+ *   playlistName: string
+ *   onMetaClick: function
+ *   onInfoClick: function
  */
 export function AdminDashboardFilters({
   shows = [],
@@ -17,7 +22,10 @@ export function AdminDashboardFilters({
   hideDisabled,
   setHideDisabled,
   playlistName = '',
+  onMetaClick,
+  onInfoClick,
 }) {
+  const { canEditContent } = useAdminAuth();
   // Compute unique categories
   const categories = useMemo(() => {
     const cats = new Set();
@@ -32,14 +40,60 @@ export function AdminDashboardFilters({
       <div className="row align-items-center mb-2 g-2 p-2">
 
         {/* Center: Current Playlist (on top for small screens) */}
-        <div className="col-12 col-md-4 order-1 order-md-2 text-center mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
-          {playlistName && (
-            <div className="small">
-              <span className="text-nowrap fw-bold">Current Playlist: </span>
-              <br />
-              <span className="font-monospace">"{playlistName}"</span>
+        <div className="col-12 col-md-4 order-1 order-md-2 mb-2 border border-1 border-dark bg-info-subtle rounded-pill">
+          <div className="d-flex align-items-center flex-md-column flex-xl-row gap-2 px-2 py-1">
+
+            <div className="small flex-grow-1 text-center" style={{ minWidth: 0 }}>
+              {playlistName && (
+                <>
+                  <span className="d-md-block d-xl-inline text-nowrap fw-bold">
+                    Current Playlist:
+                  </span>
+                  <span className="d-md-block d-xl-inline font-monospace">
+                    <span className="d-none d-xl-inline"> </span>
+                    "{playlistName}"
+                  </span>
+                </>
+              )}
             </div>
-          )}
+
+            <div className="d-flex align-items-center justify-content-center flex-shrink-0 gap-1">
+              {canEditContent && (
+                <button
+                  type="button"
+                  className="btn border-0 bg-transparent p-1 lh-1"
+                  title="Edit Playlist Metadata"
+                  aria-label="Edit Playlist Metadata"
+                  onClick={onMetaClick}
+                >
+                  <img
+                    src={gearIcon}
+                    width="20"
+                    height="20"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="btn border-0 bg-transparent p-1 lh-1"
+                title="Current Playlist Information"
+                aria-label="Current Playlist Information"
+                onClick={onInfoClick}
+              >
+                <img
+                  src={infoIcon}
+                  width="22"
+                  height="22"
+                  alt=""
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+
+          </div>
         </div>
 
         {/* Left: Category Selector */}

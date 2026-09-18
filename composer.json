@@ -1,0 +1,22 @@
+{
+    "name": "freetv/admin",
+    "description": "A backend UI for managing a hand-picked list of shows from the Internet Archive",
+    "license": "GPL-3.0-only",
+    "type": "project",
+    "require": {
+        "php": "^8.4.1",
+        "ext-curl": "*",
+        "ext-imagick": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-zip": "*",
+        "illuminate/database": "^13.18",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "authors": [
+        {
+            "name": "Ken Dawson",
+            "email": "github@kendawson.online"
+        }
+    ]
+}

@@ -7,6 +7,8 @@ import { AdminSearch } from '@pages/search';
 import { AdminProblems } from '@pages/problems';
 import { AdminSettings } from '@pages/settings';
 import { AdminUsers } from '@pages/users';
+import { AdminPublish } from '@pages/publish';
+import { DataSnapshotController } from '@pages/dataSnapshot';
 import { AdminThumbnails } from '@/pages/thumbnails';
 import { EditShow } from '@pages/EditShow';
 import { AddShow } from '@pages/AddShow';
@@ -15,19 +17,20 @@ import { NotFound } from '@pages/_404';
 import { createPath } from '@/utils/env';
 import '@/style.css'
 import '@/admin.css';
-import '@/utils/utils';
 
 // Predefined route components:
 const AdminLoginRoute = () => <LayoutFullpageBlank><AdminLogin /></LayoutFullpageBlank>;
-const DashboardRoute = () => <LayoutAdmin><Dashboard /></LayoutAdmin>;
-const EditShowRoute = () => <LayoutAdmin><EditShow /></LayoutAdmin>;
-const AddShowRoute = () => <LayoutAdmin><AddShow /></LayoutAdmin>;
-const AddPlaylistRoute = () => <LayoutAdmin><AddPlaylist /></LayoutAdmin>;
-const AdminSearchRoute = () => <LayoutAdmin><AdminSearch /></LayoutAdmin>;
-const AdminProblemsRoute = () => <LayoutAdmin><AdminProblems /></LayoutAdmin>;
-const AdminSettingsRoute = () => <LayoutAdmin><AdminSettings /></LayoutAdmin>;
-const AdminUsersRoute = () => <LayoutAdmin><AdminUsers /></LayoutAdmin>;
-const AdminThumbsRoute = () => <LayoutAdmin><AdminThumbnails /></LayoutAdmin>;
+const DashboardRoute = () => <LayoutAdmin minimumRole={'viewer'}><Dashboard /></LayoutAdmin>;
+const EditShowRoute = () => <LayoutAdmin minimumRole={'editor'}><EditShow /></LayoutAdmin>;
+const AddShowRoute = () => <LayoutAdmin minimumRole={'editor'}><AddShow /></LayoutAdmin>;
+const AddPlaylistRoute = () => <LayoutAdmin minimumRole={'editor'}><AddPlaylist /></LayoutAdmin>;
+const AdminSearchRoute = () => <LayoutAdmin minimumRole={'viewer'}><AdminSearch /></LayoutAdmin>;
+const AdminProblemsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminProblems /></LayoutAdmin>;
+const AdminSettingsRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminSettings /></LayoutAdmin>;
+const AdminUsersRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminUsers /></LayoutAdmin>;
+const AdminPublishRoute = () => <LayoutAdmin minimumRole={'admin'}><AdminPublish /></LayoutAdmin>;
+const DataSnapshotRoute = () => <LayoutAdmin minimumRole={'admin'}><DataSnapshotController /></LayoutAdmin>;
+const AdminThumbsRoute = () => <LayoutAdmin minimumRole={'editor'}><AdminThumbnails /></LayoutAdmin>;
 const NotFoundRoute = () => <LayoutFullpageBlank><NotFound /></LayoutFullpageBlank>;
 
 export function App() {
@@ -44,6 +47,8 @@ export function App() {
         <Route path={createPath("/dashboard/problems")} component={AdminProblemsRoute} />
         <Route path={createPath("/dashboard/settings")} component={AdminSettingsRoute} />
         <Route path={createPath("/dashboard/users")} component={AdminUsersRoute} />
+        <Route path={createPath("/dashboard/publish")} component={AdminPublishRoute} />
+        <Route path={createPath("/dashboard/data-snapshot")} component={DataSnapshotRoute} />
         <Route path={createPath("/dashboard/thumbnails")} component={AdminThumbsRoute} />
         <Route default component={NotFoundRoute} />
       </Router>

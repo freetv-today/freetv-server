@@ -4,7 +4,6 @@ import { SearchQueryComponent } from '@components/UI/SearchQueryComponent';
 import { ImageLargeLogo } from '@components/UI/ImageLargeLogo';
 import { AdminSearchResults } from '@components/UI/AdminSearchResults';
 import { AdminTestVideoModal } from '@/components/Modals/AdminTestVideoModal';
-import { AdminDeleteShowModal } from '@/components/Modals/AdminDeleteShowModal';
 import { useAdminShowActions } from '@hooks/useAdminShowActions';
 import { useDebugLog } from '@/hooks/useDebugLog';
 import { AdminMessage } from '@/components/UI/AdminMessage';
@@ -52,15 +51,8 @@ export function AdminSearch() {
     // Use new hook with currentPlaylist, local message setter, and rerunSearch
     const {
       handleEdit,
-      handleDelete,
       handleTest,
       handleStatusToggle,
-      showDeleteModal,
-      showToDelete,
-      deleting,
-      deleteError,
-      handleDeleteConfirm,
-      closeDeleteModal,
       showTestModal,
       testShow,
       closeTestModal,
@@ -100,10 +92,11 @@ export function AdminSearch() {
         ) : (
           <>
             <AdminMessage />
+            {/* Destructive removal is intentionally unavailable here until
+                archive-before-delete semantics are implemented. */}
             <AdminSearchResults
               results={filteredResults}
               onEdit={handleEdit}
-              onDelete={handleDelete}
               onTest={handleTest}
               onStatusToggle={handleStatusToggleWithSpinner}
               statusUpdatingIdentifier={statusUpdatingIdentifier}
@@ -112,14 +105,6 @@ export function AdminSearch() {
               show={showTestModal}
               onClose={closeTestModal}
               showData={testShow}
-            />
-            <AdminDeleteShowModal
-              show={showDeleteModal}
-              onClose={closeDeleteModal}
-              showData={showToDelete}
-              deleting={deleting}
-              error={deleteError}
-              onDeleteConfirm={handleDeleteConfirm}
             />
           </>
         )}

@@ -1,293 +1,184 @@
 <?php
 
-// Report Problem
-// Works with src/components/Navigation/ButtonShowTitleNav.jsx to
-// allow users to report problems titles which need to be removed
-
-// Centralized error/success messages
-$MSG_METHOD_NOT_ALLOWED = 'Method not allowed';
-$MSG_MISSING_FIELDS = 'Missing required fields';
-$MSG_TOO_MANY_REQUESTS = 'You are submitting problem reports too quickly. Please wait awhile before attempting to report another show title.';
-$MSG_ALREADY_REPORTED = 'You have already reported this title.';
-$MSG_SUCCESS = 'Thank you! Your problem report has been received.';
-$MSG_WRITE_ERROR = 'Could not write to log file.';
-$MSG_API_ERROR = 'Could not connect to Internet Archive API server';
-
 header('Content-Type: application/json; charset=utf-8');
+ini_set('display_errors', 0);
 
-// Only allow POST
+$messageMethodNotAllowed = 'Method not allowed';
+$messageTooManyRequests = 'You are submitting problem reports too quickly. Please wait awhile before attempting to report another show title.';
+$messageSuccess = 'Thank you! Your problem report has been received.';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['success' => false, 'message' => $MSG_METHOD_NOT_ALLOWED]);
+    echo json_encode(['success' => false, 'message' => $messageMethodNotAllowed]);
     exit;
 }
 
-// Get input JSON
-$input = json_decode(file_get_contents('php://input'), true);
-if (!$input || !isset($input['title'], $input['identifier'])) {
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/admin/Database.php';
+
+use FreeTV\Admin\Database;
+
+$requestBody = file_get_contents('php://input');
+$requestObject = json_decode($requestBody);
+if (json_last_error() !== JSON_ERROR_NONE || !is_object($requestObject)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $MSG_MISSING_FIELDS]);
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON request body']);
     exit;
 }
 
-$title = $input['title'];
-$category = $input['category'] ?? '';
-$identifier = $input['identifier'];
-$imdb = $input['imdb'] ?? '';
-$playlist = $input['playlist'] ?? '';
-$date = gmdate('Y-m-d\TH:i:s.v\Z');
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$logDir = $_SERVER['DOCUMENT_ROOT'] . '/logs';
-$logFile = $logDir . '/errors.json';
-$ipLogFile = $logDir . '/report-ip-log.json';
+$input = get_object_vars($requestObject);
+$playlist = $input['playlist'] ?? null;
+$identifier = $input['identifier'] ?? null;
 
-// For playlist file path
-$playlistFile = '';
-if ($playlist && preg_match('/^[\w\-\.]+\.json$/', $playlist)) {
-    $playlistFile = $_SERVER['DOCUMENT_ROOT'] . '/playlists/' . $playlist;
+if (
+    !is_string($playlist)
+    || trim($playlist) === ''
+    || !is_string($identifier)
+    || trim($identifier) === ''
+) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing or invalid playlist or identifier']);
+    exit;
 }
 
-// Construct API URL for Internet Archive
-$url = "https://archive.org/metadata/{$identifier}/is_dark";
+if (
+    !preg_match('/^[a-zA-Z0-9_-]+\.json$/', $playlist)
+    || strcasecmp($playlist, 'index.json') === 0
+) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid playlist filename']);
+    exit;
+}
 
-// DEV USE: for testing to make API lookup fail
-// $url = "https://this-domain-does-not-exist-123456789.com/metadata/{$identifier}/is_dark";
+$ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!is_string($ipAddress) || $ipAddress === '' || strlen($ipAddress) > 45) {
+    $ipAddress = 'unknown';
+}
 
-// Fetch API response from Internet Archive server
-// (@ suppresses warnings if fails)
+try {
+    $capsule = Database::init();
+    $connection = $capsule->getConnection();
 
-$archiveApiError = false;
-$isDark = false;
-$data = null;
-$response = @file_get_contents($url);
-if ($response === false) {
-    // API error: log report with archiveApiError flag, but do not attempt to disable
-    $archiveApiError = true;
-} else {
-    $data = json_decode($response, true);
-    if (isset($data['result']) && $data['result'] === true) {
-        $isDark = true;
-    } elseif (isset($data['error']) && str_contains($data['error'], "Couldn't get 'is_dark'")) {
-        $isDark = false; // file is not flagged as "is_dark"
-    } elseif (isset($data['error'])) {
-        // Other errors (e.g., item not found): treat as not dark, but log error
-        $archiveApiError = true;
+    $playlistRow = Database::table('playlists')
+        ->where('filename', $playlist)
+        ->first(['id', 'filename']);
+
+    if (!$playlistRow || $playlistRow->filename !== $playlist) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+        exit;
     }
-}
 
-// If title is flagged as "is_dark" from the Internet Archive, try to disable in playlist
-if ($isDark && $playlistFile && file_exists($playlistFile)) {
-    $playlistData = json_decode(file_get_contents($playlistFile), true);
-    if (isset($playlistData['shows']) && is_array($playlistData['shows'])) {
-        $found = false;
-        foreach ($playlistData['shows'] as &$show) {
-            if (isset($show['identifier']) && $show['identifier'] === $identifier) {
-                $show['status'] = 'disabled';
-                $found = true;
+    $showRow = Database::table('playlist_shows')
+        ->where('playlist_id', $playlistRow->id)
+        ->where('identifier', $identifier)
+        ->first(['id', 'playlist_id', 'identifier', 'title', 'category', 'imdb']);
+
+    if (!$showRow || $showRow->identifier !== $identifier) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
+
+    $lockName = 'freetv:report-ip:' . substr(hash('sha256', $ipAddress), 0, 40);
+    $lockAcquired = false;
+
+    try {
+        $lockResult = $connection->selectOne(
+            'SELECT GET_LOCK(?, 10) AS acquired',
+            [$lockName]
+        );
+
+        if (!$lockResult || (int) $lockResult->acquired !== 1) {
+            throw new \RuntimeException('Could not acquire problem report IP lock');
+        }
+        $lockAcquired = true;
+
+        $attemptCount = $connection->transaction(function () use (
+            $connection,
+            $ipAddress
+        ) {
+            $connection->table('problem_report_ips')
+                ->where('ip_address', $ipAddress)
+                ->whereRaw('attempted_at < CURRENT_TIMESTAMP - INTERVAL 5 MINUTE')
+                ->delete();
+
+            $connection->table('problem_report_ips')->insert([
+                'ip_address' => $ipAddress,
+                'attempted_at' => $connection->raw('CURRENT_TIMESTAMP'),
+            ]);
+
+            return $connection->table('problem_report_ips')
+                ->where('ip_address', $ipAddress)
+                ->whereRaw('attempted_at >= CURRENT_TIMESTAMP - INTERVAL 5 MINUTE')
+                ->count();
+        });
+    } finally {
+        if ($lockAcquired) {
+            try {
+                $connection->selectOne('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
+            } catch (\Throwable $releaseException) {
+                error_log('Problem Report IP Lock Release Error: ' . $releaseException->getMessage());
             }
         }
-        unset($show);
-        if ($found) {
-            // Update lastupdated
-            $playlistData['lastupdated'] = gmdate('Y-m-d\TH:i:s.v\Z');
-            file_put_contents($playlistFile, json_encode($playlistData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-            // Call rebuild_index
-            require_once __DIR__ . '/playlist_utils.php';
-            rebuild_index();
-        }
     }
-}
 
-// Ensure log directory exists
-if (!is_dir($logDir)) {
-    mkdir($logDir, 0777, true);
-}
-
-// Load or initialize errors log
-if (file_exists($logFile)) {
-    $errors = json_decode(file_get_contents($logFile), true);
-    if (json_last_error() !== JSON_ERROR_NONE || !is_array($errors)) {
-        $errors = ['reports' => []];
-    } elseif (!isset($errors['reports']) || !is_array($errors['reports'])) {
-        $errors = ['reports' => []];
-    }
-} else {
-    $errors = ['reports' => []];
-}
-
-// Load or initialize IP log
-if (file_exists($ipLogFile)) {
-    $ipLog = json_decode(file_get_contents($ipLogFile), true);
-    if (json_last_error() !== JSON_ERROR_NONE || !is_array($ipLog)) {
-        $ipLog = ['ips' => []];
-    } elseif (!isset($ipLog['ips']) || !is_array($ipLog['ips'])) {
-        $ipLog = ['ips' => []];
-    }
-} else {
-    $ipLog = ['ips' => []];
-}
-
-// Check for future: IP blacklist (not implemented, but placeholder)
-// if (isset($ipLog['blacklist']) && in_array($ip, $ipLog['blacklist'])) {
-//     http_response_code(403);
-//     echo json_encode(['success' => false, 'message' => 'You are not allowed to submit reports.']);
-//     exit;
-// }
-
-// Always add this attempt to the IP log (even for duplicates)
-$now = time();
-$window = 300;
-// 5 minutes
-$maxReports = 2;
-if (!isset($ipLog['ips'][$ip]) || !is_array($ipLog['ips'][$ip])) {
-    $ipLog['ips'][$ip] = [];
-}
-// Remove timestamps older than 5 minutes
-$ipLog['ips'][$ip] = array_filter($ipLog['ips'][$ip], function ($ts) use ($now, $window) {
-
-    return (strtotime($ts) > ($now - $window));
-});
-$ipLog['ips'][$ip][] = $date;
-// Save IP log immediately (in case of early exit)
-file_put_contents($ipLogFile, json_encode($ipLog, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-// Check rate limit BEFORE logging to errors.json
-if (count($ipLog['ips'][$ip]) > $maxReports) {
-    http_response_code(429);
-    echo json_encode([
-        'success' => false,
-        'message' => $MSG_TOO_MANY_REQUESTS
-    ]);
-    exit;
-}
-
-// 1. Check for duplicate report for this identifier from this IP
-foreach ($errors['reports'] as &$report) {
-    if (
-        isset($report['identifier'], $report['status']) &&
-        $report['identifier'] === $identifier &&
-        $report['status'] === 'reported'
-    ) {
-    // If this IP has already reported this show, return error (but attempt is still counted)
-        if (isset($report['reportingIps']) && in_array($ip, $report['reportingIps'])) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => $MSG_ALREADY_REPORTED]);
-            exit;
-        }
-        // Not a duplicate, so add IP to reportingIps and increment reportCount
-        if (!isset($report['reportingIps']) || !is_array($report['reportingIps'])) {
-            $report['reportingIps'] = [];
-        }
-        $report['reportingIps'][] = $ip;
-        $report['reportCount'] = isset($report['reportCount']) && is_numeric($report['reportCount'])
-            ? $report['reportCount'] + 1
-            : 2;
-        $report['date'] = $date;
-        if ($archiveApiError) {
-            $report['archiveApiError'] = true;
-        }
-        if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
-            exit;
-        }
-        // After logging, check rate limit
-        if (count($ipLog['ips'][$ip]) > $maxReports) {
-            http_response_code(429);
-            echo json_encode([
-            'success' => false,
-            'message' => $MSG_TOO_MANY_REQUESTS
-            ]);
-            exit;
-        }
-        echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
+    if ($attemptCount > 2) {
+        http_response_code(429);
+        echo json_encode(['success' => false, 'message' => $messageTooManyRequests]);
         exit;
     }
-}
-unset($report);
-// 2. If not found, add new report
-// Build new report entry
-$reportEntry = [
-    'playlist' => $playlist,
-    'title' => $title,
-    'category' => $category,
-    'identifier' => $identifier,
-    'imdb' => $imdb,
-    'date' => $date,
-    'reportingIps' => [$ip],
-    'reportCount' => 1,
-    'status' => 'reported'
-];
-if ($archiveApiError) {
-    $reportEntry['archiveApiError'] = true;
-}
-$errors['reports'][] = $reportEntry;
-if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
-    exit;
-}
-// After logging, check rate limit
-if (count($ipLog['ips'][$ip]) > $maxReports) {
-    http_response_code(429);
-    echo json_encode([
-        'success' => false,
-        'message' => $MSG_TOO_MANY_REQUESTS
-    ]);
-    exit;
-}
-echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
-// Check for existing report for this identifier (status 'reported')
-$found = false;
-foreach ($errors['reports'] as &$report) {
-    if (
-        isset($report['identifier'], $report['status']) &&
-        $report['identifier'] === $identifier &&
-        $report['status'] === 'reported'
-    ) {
-        $found = true;
-    // Check if this IP has already reported this show
-        if (isset($report['reportingIps']) && in_array($ip, $report['reportingIps'])) {
-            echo json_encode(['success' => false, 'message' => $MSG_ALREADY_REPORTED]);
-            exit;
-        }
-        // Add IP to reportingIps and increment reportCount
-        if (!isset($report['reportingIps']) || !is_array($report['reportingIps'])) {
-            $report['reportingIps'] = [];
-        }
-        $report['reportingIps'][] = $ip;
-        $report['reportCount'] = isset($report['reportCount']) && is_numeric($report['reportCount'])
-            ? $report['reportCount'] + 1
-            : 2;
-    // If first time, set to 2 (since it was 1 before)
-        // Optionally update date to most recent report
-        $report['date'] = $date;
-    // Save and return success
-        if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
-            exit;
-        }
-        echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
-        exit;
-    }
-}
-unset($report);
-// If not found, add new report
-$errors['reports'][] = [
-    'playlist' => $playlist,
-    'title' => $title,
-    'category' => $category,
-    'identifier' => $identifier,
-    'imdb' => $imdb,
-    'date' => $date,
-    'reportingIps' => [$ip],
-    'reportCount' => 1,
-    'status' => 'reported'
-];
-if (file_put_contents($logFile, json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $MSG_WRITE_ERROR]);
-    exit;
-}
 
-echo json_encode(['success' => true, 'message' => $MSG_SUCCESS]);
+    // The IP attempt commits independently by design. If this durable report
+    // transaction fails, that attempt remains counted without being linked to
+    // a report or identifier.
+    $connection->transaction(function () use (
+        $connection,
+        $playlistRow,
+        $showRow
+    ) {
+        $affectedRows = $connection->affectingStatement(
+            <<<'SQL'
+                INSERT INTO problem_reports (
+                    playlist_id,
+                    playlist_show_id,
+                    identifier,
+                    title,
+                    category,
+                    imdb,
+                    status,
+                    report_count,
+                    first_reported_at,
+                    last_reported_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, 'reported', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE
+                    playlist_show_id = VALUES(playlist_show_id),
+                    title = VALUES(title),
+                    category = VALUES(category),
+                    imdb = VALUES(imdb),
+                    status = 'reported',
+                    report_count = report_count + 1,
+                    last_reported_at = CURRENT_TIMESTAMP
+                SQL,
+            [
+                $playlistRow->id,
+                $showRow->id,
+                $showRow->identifier,
+                $showRow->title,
+                $showRow->category,
+                $showRow->imdb,
+            ]
+        );
+
+        if ($affectedRows < 1) {
+            throw new \RuntimeException('Problem report upsert did not affect a row');
+        }
+    });
+
+    echo json_encode(['success' => true, 'message' => $messageSuccess]);
+} catch (\Throwable $e) {
+    error_log('Report Problem API Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database error']);
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import { capitalizeFirstLetter } from '@/utils/utils';
-import { setAdminMsg } from '@/signals/adminMessageSignal';
+import { vintageTv } from '@/adminAssets';
 
 /**
  * AdminDeleteShowModal - Modal for confirming deletion of a show
@@ -15,33 +15,23 @@ import { setAdminMsg } from '@/signals/adminMessageSignal';
 
 export function AdminDeleteShowModal({ show, onClose, showData, deleting, error, onDeleteConfirm }) {
 
-  const [thumbnailSrc, setThumbnailSrc] = useState('/assets/vintage-tv.png');
+  const [thumbnailSrc, setThumbnailSrc] = useState(vintageTv);
 
   useEffect(() => {
     if (showData && showData.imdb) {
       const img = new window.Image();
       img.src = `/thumbs/${showData.imdb}.jpg`;
       img.onload = () => setThumbnailSrc(img.src);
-      img.onerror = () => setThumbnailSrc('/assets/vintage-tv.png');
+      img.onerror = () => setThumbnailSrc(vintageTv);
     } else {
-      setThumbnailSrc('/assets/vintage-tv.png');
+      setThumbnailSrc(vintageTv);
     }
   }, [showData]);
 
   if (!show || !showData) return null;
 
-  // Wrap onDeleteConfirm to set adminMsg on success, refresh playlist, and ensure index is rebuilt
   async function handleDelete() {
-    // Delete the show (calls update-show.php)
-    const deleteResult = await onDeleteConfirm();
-    if (deleteResult) {
-      // Close modal first, then show success message
-      onClose('save');
-      setTimeout(() => {
-        setAdminMsg({ type: 'success', text: 'Show deleted successfully.' });
-      }, 0);
-    }
-    // If deleteResult is false, error will be shown in the modal and modal stays open
+    await onDeleteConfirm();
   }
 
   return (

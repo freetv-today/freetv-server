@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export function PasswordModal({ show, onClose, onSubmit, user }) {
+export function PasswordModal({ show, onClose, onSubmit, user, serverError = null }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +21,7 @@ export function PasswordModal({ show, onClose, onSubmit, user }) {
       setError('Password must be at least 6 characters.');
       return;
     }
+    setError('');
     onSubmit({ id: user?.id, password });
   }
 
@@ -35,14 +36,18 @@ export function PasswordModal({ show, onClose, onSubmit, user }) {
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
-            {error && <div className="alert alert-danger">{error}</div>}
+            {(error || serverError) && <div className="alert alert-danger">{error || serverError}</div>}
             <div className="mb-3">
               <label className="form-label">New Password</label>
               <input
                 className="form-control"
-                type={showPassword ? "text" : "password"}
+                name="newPassword"
+                autoComplete="new-password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onInput={e => setPassword(e.currentTarget.value)}
+                required
+                minLength={6}
               />
               <div className="form-check mt-2">
                 <input

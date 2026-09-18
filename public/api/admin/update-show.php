@@ -1,15 +1,9 @@
 <?php
 
-session_start();
-if (!isset($_SESSION['admin'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
-
-// Endpoint for both "Add" and "Edit" show admin pages
-require_once __DIR__ . '/../playlist_utils.php';
 header('Content-Type: application/json');
+
+require_once __DIR__ . '/Authorization.php';
+\FreeTV\Admin\requireRole('editor');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -17,66 +11,261 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/ThumbnailService.php';
+require_once __DIR__ . '/ShowGroup.php';
+
+use FreeTV\Admin\Database;
+use FreeTV\Admin\ShowGroup;
+use FreeTV\Admin\ThumbnailService;
+
 $input = json_decode(file_get_contents('php://input'), true);
-$playlist = isset($input['playlist']) ? basename($input['playlist']) : null;
-$show = isset($input['show']) ? $input['show'] : null;
-$originalIdentifier = isset($input['originalIdentifier']) ? $input['originalIdentifier'] : null; // <-- Add this
-
-if (!$playlist || !$show || !isset($show['identifier'])) {
+if (!is_array($input)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing playlist or show data']);
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON request body']);
     exit;
 }
 
-$playlistPath = __DIR__ . '/../../playlists/' . $playlist;
-if (!file_exists($playlistPath)) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+$playlist = $input['playlist'] ?? null;
+$originalIdentifier = $input['originalIdentifier'] ?? null;
+$show = $input['show'] ?? null;
+$add = $input['add'] ?? false;
+
+if (array_key_exists('add', $input) && !is_bool($input['add'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid add flag']);
     exit;
 }
 
-// Load playlist JSON
-$data = json_decode(file_get_contents($playlistPath), true);
-if (!$data || !isset($data['shows']) || !is_array($data['shows'])) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Invalid playlist data']);
+if (
+    (!is_string($playlist) && !is_int($playlist))
+    || trim((string) $playlist) === ''
+    || !is_array($show)
+) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing or invalid playlist or show data'
+    ]);
     exit;
 }
 
-
-$add = isset($input['add']) ? (bool)$input['add'] : false;
-$found = false;
-
-// If originalIdentifier is provided (editing), use it to find the record; otherwise use show['identifier'] (adding)
-$searchIdentifier = $originalIdentifier ? $originalIdentifier : $show['identifier']; // <-- Add this
-
-foreach ($data['shows'] as &$item) {
-    if (isset($item['identifier']) && $item['identifier'] === $searchIdentifier) { // <-- Change this line
-        $item = $show;
-        $found = true;
-        break;
-    }
+if (
+    !$add
+    && (!is_string($originalIdentifier) || trim($originalIdentifier) === '')
+) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing or invalid originalIdentifier'
+    ]);
+    exit;
 }
-if (!$found) {
-    if ($add) {
-        $data['shows'][] = $show;
-    } else {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Show not found']);
+
+$requiredShowFields = [
+    'category',
+    'status',
+    'identifier',
+    'title',
+    'desc',
+    'start',
+    'end',
+    'imdb',
+];
+
+foreach ($requiredShowFields as $field) {
+    if (
+        !array_key_exists($field, $show)
+        || !is_string($show[$field])
+        || trim($show[$field]) === ''
+    ) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => "Missing or invalid show field: {$field}"
+        ]);
         exit;
     }
 }
 
-// Update lastupdated timestamp
-$data['lastupdated'] = gmdate('Y-m-d\TH:i:s.\0\0\0\Z');
-
-// Save JSON
-if (file_put_contents($playlistPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to save playlist']);
+if (!ThumbnailService::isValidImdb($show['imdb'])) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Must be a valid IMDb ID such as tt0052520'
+    ]);
     exit;
 }
 
-rebuild_index(__DIR__ . '/../../playlists');
+if (!in_array($show['status'], ['active', 'disabled'], true)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid show status']);
+    exit;
+}
 
-echo json_encode(['success' => true, 'message' => 'Show updated']);
+$groupName = null;
+try {
+    $groupName = ShowGroup::fromShow($show);
+} catch (\InvalidArgumentException $e) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+    exit;
+}
+
+function isDuplicateIdentifierException(\Throwable $e): bool
+{
+    if (!$e instanceof \Illuminate\Database\QueryException) {
+        return false;
+    }
+
+    $driverErrorCode = isset($e->errorInfo[1]) ? (int) $e->errorInfo[1] : null;
+
+    return $driverErrorCode === 1062
+        && strpos($e->getMessage(), 'uq_playlist_shows_playlist_identifier') !== false;
+}
+
+try {
+    $capsule = Database::init();
+    $connection = $capsule->getConnection();
+
+    $playlistQuery = Database::table('playlists');
+    $playlistValue = trim((string) $playlist);
+
+    if (ctype_digit($playlistValue) && (int) $playlistValue > 0) {
+        $playlistRow = $playlistQuery->where('id', (int) $playlistValue)->first();
+    } else {
+        $playlistRow = $playlistQuery->where('filename', $playlistValue)->first();
+    }
+
+    if (!$playlistRow) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+        exit;
+    }
+
+    $showValues = [
+        'category' => (string) $show['category'],
+        'status' => (string) $show['status'],
+        'identifier' => (string) $show['identifier'],
+        'title' => (string) $show['title'],
+        'description' => (string) $show['desc'],
+        'start_year' => (string) $show['start'],
+        'end_year' => (string) $show['end'],
+        'imdb' => (string) $show['imdb'],
+        'group_name' => $groupName,
+    ];
+    $databaseCurrentTimestamp = $connection->raw('CURRENT_TIMESTAMP');
+
+    if ($add) {
+        $addResult = $connection->transaction(function () use (
+            $playlistRow,
+            $showValues,
+            $databaseCurrentTimestamp
+        ) {
+            $lockedPlaylist = Database::table('playlists')
+                ->where('id', $playlistRow->id)
+                ->lockForUpdate()
+                ->first(['id']);
+
+            if (!$lockedPlaylist) {
+                return 'playlist_not_found';
+            }
+
+            $duplicateExists = Database::table('playlist_shows')
+                ->where('playlist_id', $playlistRow->id)
+                ->where('identifier', $showValues['identifier'])
+                ->exists();
+
+            if ($duplicateExists) {
+                return 'duplicate';
+            }
+
+            $maxSortOrder = Database::table('playlist_shows')
+                ->where('playlist_id', $playlistRow->id)
+                ->max('sort_order');
+            $sortOrder = $maxSortOrder === null ? 0 : (int) $maxSortOrder + 1;
+
+            Database::table('playlist_shows')->insert(array_merge($showValues, [
+                'playlist_id' => $playlistRow->id,
+                'sort_order' => $sortOrder,
+            ]));
+
+            Database::table('playlists')
+                ->where('id', $playlistRow->id)
+                ->update(['lastupdated' => $databaseCurrentTimestamp]);
+
+            return 'added';
+        });
+
+        if ($addResult === 'playlist_not_found') {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Playlist not found']);
+            exit;
+        }
+
+        if ($addResult === 'duplicate') {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'message' => 'A show with this identifier already exists in the selected playlist'
+            ]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Show added']);
+        exit;
+    }
+
+    $showUpdated = $connection->transaction(function () use (
+        $playlistRow,
+        $originalIdentifier,
+        $showValues,
+        $databaseCurrentTimestamp
+    ) {
+        $existingShow = Database::table('playlist_shows')
+            ->where('playlist_id', $playlistRow->id)
+            ->where('identifier', $originalIdentifier)
+            ->lockForUpdate()
+            ->first(['id']);
+
+        if (!$existingShow) {
+            return false;
+        }
+
+        Database::table('playlist_shows')
+            ->where('id', $existingShow->id)
+            ->where('playlist_id', $playlistRow->id)
+            ->update($showValues);
+
+        Database::table('playlists')
+            ->where('id', $playlistRow->id)
+            ->update(['lastupdated' => $databaseCurrentTimestamp]);
+
+        return true;
+    });
+
+    if (!$showUpdated) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Show not found']);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Show updated']);
+} catch (\Throwable $e) {
+    if ($add && isDuplicateIdentifierException($e)) {
+        http_response_code(409);
+        echo json_encode([
+            'success' => false,
+            'message' => 'A show with this identifier already exists in the selected playlist'
+        ]);
+        exit;
+    }
+
+    error_log('Update Show API Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database error']);
+}
