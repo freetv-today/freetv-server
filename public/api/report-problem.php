@@ -1,5 +1,26 @@
 <?php
 
+$allowedOrigins = ['https://test.freetv.today'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins, true)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Vary: Origin');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (!in_array($origin, $allowedOrigins, true)) {
+        http_response_code(403);
+        exit;
+    }
+
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Max-Age: 600');
+    http_response_code(204);
+    exit;
+}
+
 header('Content-Type: application/json; charset=utf-8');
 ini_set('display_errors', 0);
 
