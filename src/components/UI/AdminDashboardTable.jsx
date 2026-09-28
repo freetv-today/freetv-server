@@ -3,6 +3,11 @@ import { capitalizeFirstLetter } from '@/utils/utils';
 import { AdminShowActions } from '@components/Navigation/AdminShowActions';
 import { useAdminAuth } from '@context/AdminSessionContext';
 
+const titleCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
+});
+
 /**
  * AdminDashboardTable - displays a table of shows with per-row controls (Edit, Delete, Status toggle)
  * Props:
@@ -44,8 +49,9 @@ export function AdminDashboardTable({
       let valA = a[sortBy] || '';
       let valB = b[sortBy] || '';
       if (sortBy === 'title') {
-        valA = valA.replace(/^the\s+/i, '').toLowerCase();
-        valB = valB.replace(/^the\s+/i, '').toLowerCase();
+        valA = valA.replace(/^the\s+/i, '');
+        valB = valB.replace(/^the\s+/i, '');
+        return titleCollator.compare(valA, valB) * (sortOrder === 'asc' ? 1 : -1);
       } else {
         if (typeof valA === 'string') valA = valA.toLowerCase();
         if (typeof valB === 'string') valB = valB.toLowerCase();
