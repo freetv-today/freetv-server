@@ -309,7 +309,7 @@ Changed playlists may also show the number of added, edited, or removed shows, c
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | **Publish The Selected Playlist**          | Publishes the selected playlist and updates the playlist index.                                                      |
 | **Publish All Shows and Playlist Content** | Publishes all changed playlists and updates the playlist index. If nothing has changed, no publication is performed. |
-| **Publish Config Settings**                | Publishes Viewer settings to `config.json`.                                                                          |
+| **Publish Config Settings**                | Publishes the existing Viewer settings, including `show_ads`, to `config.json`. The v4 Viewer currently ignores this file; it remains part of the Admin publication and Data workflows. |
 
 Published files are written beneath the directory configured by `FREETV_PUBLIC_PATH`. Playlist artifacts are stored in `playlists/`, including `playlists/index.json`.
 
