@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { AdminDashboardTable } from '@/components/UI/AdminDashboardTable';
 import { AdminDashboardFilters } from '@/components/UI/AdminDashboardFilters';
 import { NavbarSubNavAdmin } from '@/components/Navigation/NavbarSubNavAdmin';
@@ -30,6 +30,23 @@ export function Dashboard() {
     const [sortOrder, setSortOrder] = useState('asc');
     const [filterCategory, setFilterCategory] = useState(null);
     const [hideDisabled, setHideDisabled] = useState(false);
+    const [databaseShowCounts, setDatabaseShowCounts] = useState(null);
+
+    const loadDatabaseShowCounts = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/admin/database-show-count.php?t=${Date.now()}`);
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setDatabaseShowCounts({ active: data.active, disabled: data.disabled });
+            }
+        } catch {
+            // Keep the dashboard usable if the database count is unavailable.
+        }
+    }, []);
+
+    useEffect(() => {
+        void loadDatabaseShowCounts();
+    }, [loadDatabaseShowCounts]);
 
     // Use playlist state from signal
     const {
@@ -55,7 +72,7 @@ export function Dashboard() {
         showTestModal,
         testShow,
         closeTestModal,
-    } = useAdminShowActions(currentPlaylist);
+    } = useAdminShowActions(currentPlaylist, undefined, loadDatabaseShowCounts);
 
     // State for playlist meta modal
     const [showMetaModal, setShowMetaModal] = useState(false);
@@ -64,11 +81,14 @@ export function Dashboard() {
 
     // State for info modal
     const [showInfoModal, setShowInfoModal] = useState(false);
-
     const totalShows = showData ? showData.length : 0;
     const activeShows = showData ? showData.filter(s => s.status === 'active').length : 0;
     const disabledShows = showData ? showData.filter(s => s.status === 'disabled').length : 0;
     const totalPlaylists = Array.isArray(playlists) ? playlists.length : 0;
+
+
+    // App version from package.json (provided by Vite)
+    const version = import.meta.env.VITE_APP_VERSION;
 
     // Generic modal close handler
     function handleCloseModal(modal, reason) {
@@ -193,6 +213,12 @@ export function Dashboard() {
     if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
     return (
+        <>
+        {databaseShowCounts && (
+        <div className="float-start ms-3 small" style={{ fontSize: '12px' }}>
+            There are {databaseShowCounts.active} active and {databaseShowCounts.disabled} disabled shows in the database
+        </div>
+        )}
         <div className="container mt-3">
             <h1 className="text-center fw-bold mb-2">Admin Dashboard</h1>
             <AdminMessage />
@@ -221,6 +247,9 @@ export function Dashboard() {
                 hideDisabled={hideDisabled}
                 onSort={handleSort}
             />
+            <div className="mt-5 mb-3 text-center small text-secondary opacity-50">
+                FreeTV Admin Dashboard version {version}
+            </div>
             <AdminTestVideoModal
                 show={showTestModal}
                 onClose={closeTestModal}
@@ -253,5 +282,6 @@ export function Dashboard() {
                 }}
             />
         </div>
+        </>
     );
 }
