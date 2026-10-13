@@ -3,6 +3,8 @@ import { useEffect, useState } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 import { vintageTv } from '@/adminAssets';
 
+const PLACEHOLDER_IMDB = 'tt000000';
+
 function formatCount(count, singular) {
   return `${count} ${singular}${count === 1 ? '' : 's'}`;
 }
@@ -65,7 +67,7 @@ export function ThumbnailManager() {
 
   async function handleThumbnailChange(thumbnailUrl) {
     const changedImdb = selectedShow?.imdb;
-    if (!changedImdb) return;
+    if (!changedImdb || changedImdb === PLACEHOLDER_IMDB) return;
 
     setChangedPreview({
       imdb: changedImdb,
@@ -84,7 +86,8 @@ export function ThumbnailManager() {
     missing,
     shared,
   };
-  const displayedItems = searchActive ? searchResults : modeItems[listMode];
+  const displayedItems = (searchActive ? searchResults : modeItems[listMode])
+    .filter(item => item.imdb !== PLACEHOLDER_IMDB);
   const previewImage = selectedShow && changedPreview?.imdb === selectedShow.imdb
     ? changedPreview.url
     : selectedShow?.has_thumbnail
@@ -230,7 +233,7 @@ export function ThumbnailManager() {
                   type="button"
                   className="btn btn-sm btn-secondary mt-1"
                   title="Check IMDb Page"
-                  disabled={!selectedShow}
+                  disabled={!selectedShow || selectedShow.imdb === PLACEHOLDER_IMDB}
                   onClick={() => selectedShow && window.open(
                     `https://www.imdb.com/title/${selectedShow.imdb}`,
                     'checkWindow',
@@ -264,7 +267,7 @@ export function ThumbnailManager() {
                 </div>
               )}
 
-              {selectedShow?.imdb && (
+              {selectedShow?.imdb && selectedShow.imdb !== PLACEHOLDER_IMDB && (
                 <div className="mt-3">
                   <ShowThumbnailControls
                     imdb={selectedShow.imdb}
