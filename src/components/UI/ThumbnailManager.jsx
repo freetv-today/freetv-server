@@ -21,7 +21,6 @@ export function ThumbnailManager() {
     error,
     totalShows,
     totalThumbnails,
-    missingThumbnails,
     sharedThumbnails,
     searching,
     searchResults,
@@ -88,6 +87,8 @@ export function ThumbnailManager() {
   };
   const displayedItems = (searchActive ? searchResults : modeItems[listMode])
     .filter(item => item.imdb !== PLACEHOLDER_IMDB);
+  const visibleMissingThumbnails = missing
+    .filter(item => item.imdb !== PLACEHOLDER_IMDB).length;
   const previewImage = selectedShow && changedPreview?.imdb === selectedShow.imdb
     ? changedPreview.url
     : selectedShow?.has_thumbnail
@@ -113,7 +114,7 @@ export function ThumbnailManager() {
         style={{ cursor: 'pointer' }}
         onClick={() => handleListModeChange('missing')}
       >
-        Missing thumbnails: {missingThumbnails}
+        Missing thumbnails: {visibleMissingThumbnails}
       </li>
       <li
         className="list-group-item list-group-item-action"
