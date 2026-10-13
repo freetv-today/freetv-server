@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { ShowThumbnailControls } from '@components/UI/ShowThumbnailControls';
 import { vintageTv } from '@/adminAssets';
 
-const PLACEHOLDER_IMDB = 'tt000000';
+const isPlaceholderImdb = imdb => imdb === 'tt000000';
 
 function formatCount(count, singular) {
   return `${count} ${singular}${count === 1 ? '' : 's'}`;
@@ -66,7 +66,7 @@ export function ThumbnailManager() {
 
   async function handleThumbnailChange(thumbnailUrl) {
     const changedImdb = selectedShow?.imdb;
-    if (!changedImdb || changedImdb === PLACEHOLDER_IMDB) return;
+    if (!changedImdb || isPlaceholderImdb(changedImdb)) return;
 
     setChangedPreview({
       imdb: changedImdb,
@@ -86,9 +86,9 @@ export function ThumbnailManager() {
     shared,
   };
   const displayedItems = (searchActive ? searchResults : modeItems[listMode])
-    .filter(item => item.imdb !== PLACEHOLDER_IMDB);
+    .filter(item => !isPlaceholderImdb(item.imdb));
   const visibleMissingThumbnails = missing
-    .filter(item => item.imdb !== PLACEHOLDER_IMDB).length;
+    .filter(item => !isPlaceholderImdb(item.imdb)).length;
   const previewImage = selectedShow && changedPreview?.imdb === selectedShow.imdb
     ? changedPreview.url
     : selectedShow?.has_thumbnail
@@ -234,7 +234,7 @@ export function ThumbnailManager() {
                   type="button"
                   className="btn btn-sm btn-secondary mt-1"
                   title="Check IMDb Page"
-                  disabled={!selectedShow || selectedShow.imdb === PLACEHOLDER_IMDB}
+                  disabled={!selectedShow || isPlaceholderImdb(selectedShow.imdb)}
                   onClick={() => selectedShow && window.open(
                     `https://www.imdb.com/title/${selectedShow.imdb}`,
                     'checkWindow',
@@ -268,7 +268,7 @@ export function ThumbnailManager() {
                 </div>
               )}
 
-              {selectedShow?.imdb && selectedShow.imdb !== PLACEHOLDER_IMDB && (
+              {selectedShow?.imdb && !isPlaceholderImdb(selectedShow.imdb) && (
                 <div className="mt-3">
                   <ShowThumbnailControls
                     imdb={selectedShow.imdb}

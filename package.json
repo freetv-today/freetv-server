@@ -1,6 +1,6 @@
 {
 	"name": "freetv-admin",
-	"version": "3.0.1-beta",
+	"version": "3.0.2-beta",
 	"description": "Administration tools for managing a collection of shows and movies for FreeTV.",
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",

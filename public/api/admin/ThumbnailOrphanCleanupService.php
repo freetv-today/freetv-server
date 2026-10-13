@@ -205,6 +205,9 @@ final class ThumbnailOrphanCleanupService
     {
         $candidates = [];
         foreach ($orphans as $item) {
+            if (is_array($item) && ThumbnailService::isPlaceholderImdb($item['imdb'] ?? null)) {
+                continue;
+            }
             if (!is_array($item)
                 || !isset($item['imdb'], $item['filename'])
                 || !ThumbnailService::isValidImdb($item['imdb'])

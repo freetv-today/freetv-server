@@ -57,6 +57,9 @@ final class ThumbnailIntegrityService
             }
 
             $imdb = trim((string) $rawImdb);
+            if (ThumbnailService::isPlaceholderImdb($imdb)) {
+                continue;
+            }
             if (ThumbnailService::isValidImdb($imdb)) {
                 $validGroups[$imdb][] = $row;
             } else {
@@ -139,7 +142,9 @@ final class ThumbnailIntegrityService
 
         $files = [];
         foreach ($entries as $filename) {
-            if (preg_match('/^tt\d+\.jpg$/', $filename) !== 1) {
+            if (ThumbnailService::isPlaceholderImdb(substr($filename, 0, -4))
+                || preg_match('/^tt\d+\.jpg$/', $filename) !== 1
+            ) {
                 continue;
             }
             $path = $this->thumbnailDirectory . '/' . $filename;

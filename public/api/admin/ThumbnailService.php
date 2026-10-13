@@ -6,8 +6,6 @@ require_once __DIR__ . '/ServerPaths.php';
 
 class ThumbnailService
 {
-    private const PLACEHOLDER_IMDB = 'tt000000';
-
     private string $thumbnailDirectory;
 
     public function __construct(?string $thumbnailDirectory = null)
@@ -18,6 +16,11 @@ class ThumbnailService
     public static function isValidImdb($imdb): bool
     {
         return is_string($imdb) && preg_match('/^tt\d+$/', $imdb) === 1;
+    }
+
+    public static function isPlaceholderImdb($imdb): bool
+    {
+        return $imdb === 'tt000000';
     }
 
     public static function calculateSummary(
@@ -212,7 +215,7 @@ class ThumbnailService
 
         foreach ($rows as $row) {
             $imdb = is_string($row->imdb) ? trim($row->imdb) : '';
-            if (!self::isValidImdb($imdb) || $imdb === self::PLACEHOLDER_IMDB) {
+            if (!self::isValidImdb($imdb) || self::isPlaceholderImdb($imdb)) {
                 continue;
             }
 
