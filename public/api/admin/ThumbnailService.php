@@ -6,6 +6,8 @@ require_once __DIR__ . '/ServerPaths.php';
 
 class ThumbnailService
 {
+    private const PLACEHOLDER_IMDB = 'tt000000';
+
     private string $thumbnailDirectory;
 
     public function __construct(?string $thumbnailDirectory = null)
@@ -210,7 +212,7 @@ class ThumbnailService
 
         foreach ($rows as $row) {
             $imdb = is_string($row->imdb) ? trim($row->imdb) : '';
-            if (!self::isValidImdb($imdb)) {
+            if (!self::isValidImdb($imdb) || $imdb === self::PLACEHOLDER_IMDB) {
                 continue;
             }
 
