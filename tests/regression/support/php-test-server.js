@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import http from 'node:http';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -26,6 +27,10 @@ function reservePort() {
 	});
 }
 
+function hasExited(child) {
+	return child.exitCode !== null || child.signalCode !== null;
+}
+
 function waitForServer(child, port, output, spawnError, timeoutMs = 5000) {
 	const startedAt = Date.now();
 
@@ -35,18 +40,27 @@ function waitForServer(child, port, output, spawnError, timeoutMs = 5000) {
 				reject(new Error(`Could not start the PHP test server: ${spawnError().message}`));
 				return;
 			}
-			if (child.exitCode !== null) {
+			if (hasExited(child)) {
 				reject(new Error(`PHP test server exited before becoming ready.\n${output()}`));
 				return;
 			}
 
-			const socket = net.createConnection({ host, port });
-			socket.once('connect', () => {
-				socket.destroy();
-				resolve();
+			const request = http.get({
+				host,
+				port,
+				path: '/api/admin/playlist_proxy.php?file=index.json',
+			}, (response) => {
+				response.resume();
+				if (response.statusCode === 401) {
+					resolve();
+					return;
+				}
+				reject(new Error(
+					`PHP test server readiness endpoint returned HTTP ${response.statusCode}.\n${output()}`
+				));
 			});
-			socket.once('error', () => {
-				socket.destroy();
+			request.once('error', () => {
+				request.destroy();
 				if (Date.now() - startedAt >= timeoutMs) {
 					reject(new Error(`PHP test server did not become ready within ${timeoutMs} ms.\n${output()}`));
 					return;
@@ -60,7 +74,7 @@ function waitForServer(child, port, output, spawnError, timeoutMs = 5000) {
 }
 
 function waitForExit(child, timeoutMs) {
-	if (child.exitCode !== null) return Promise.resolve(true);
+	if (hasExited(child)) return Promise.resolve(true);
 
 	return new Promise((resolve) => {
 		const timer = setTimeout(() => {
@@ -124,7 +138,7 @@ export async function startPhpTestServer() {
 	}
 
 	async function stop() {
-		if (child.exitCode === null) {
+		if (!hasExited(child)) {
 			child.kill('SIGTERM');
 			if (!await waitForExit(child, 2000)) {
 				child.kill('SIGKILL');

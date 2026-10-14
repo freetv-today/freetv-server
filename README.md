@@ -160,6 +160,16 @@ The suite requires Node.js 22 or newer, PHP 8.4 or newer, and the Composer depen
 
 This first suite covers representative unauthenticated and role-based API boundaries plus method and request-body validation. It does not yet cover successful authentication, database-backed CRUD, browser behavior, or the historical standalone tests in `tests/`.
 
+Check the configured local MariaDB connection and FreeTV schema separately with:
+
+```bash
+npm run test:db:check
+```
+
+The preflight uses the application's normal `.env` loading and `DB_*`/`VITE_DB_*` precedence. It connects to the configured source database and reads MariaDB metadata to verify the tables defined by the canonical schema. It also reports whether the proposed persistent `freetv_test` database is visible to the configured account. The command is read-only: it does not create or drop databases or tables, change privileges, or modify records. Failures return a nonzero exit code with a diagnostic that does not print the database password.
+
+A configured, running MariaDB instance and an account with access to the source database are required. Follow the MariaDB documentation for server, account, and privilege administration. Future `test:db:install` and `test:db:clean` commands will manage the persistent test database explicitly; neither operation is part of this preflight or `npm test`.
+
 ### Database and Runtime Configuration
 
 The PHP backend reads its runtime configuration from `.env` in the `freetv-admin` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
