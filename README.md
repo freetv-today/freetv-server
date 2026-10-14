@@ -141,6 +141,25 @@ This section describes developing `freetv-admin` as a standalone FreeTV Admin Da
 
 For coordinated development across the Admin Dashboard, Viewer, and Data repositories, see the [FreeTV Tooling documentation](https://github.com/freetv-today/freetv-tooling).
 
+### API Regression Tests
+
+Run the standard non-browser regression suite with:
+
+```bash
+npm test
+```
+
+Run one test file, or select tests with Node's native name filter, with:
+
+```bash
+node --test tests/regression/api/authorization.test.js
+node --test --test-name-pattern="unauthenticated" tests/regression/api/authorization.test.js
+```
+
+The suite requires Node.js 22 or newer, PHP 8.4 or newer, and the Composer dependencies in `vendor/`. It starts a PHP server on an available loopback port and uses a private temporary PHP session directory. Role-based tests seed that directory with the same Admin session shape produced by login; they test authorization boundaries, not the database-backed login flow. The server receives deliberately invalid database connection settings, and the initial tests exercise only authorization and request validation paths that finish before database initialization. They do not use MariaDB, publish data, or modify playlist, thumbnail, or application configuration files.
+
+This first suite covers representative unauthenticated and role-based API boundaries plus method and request-body validation. It does not yet cover successful authentication, database-backed CRUD, browser behavior, or the historical standalone tests in `tests/`.
+
 ### Database and Runtime Configuration
 
 The PHP backend reads its runtime configuration from `.env` in the `freetv-admin` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
