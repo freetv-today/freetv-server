@@ -32,7 +32,7 @@ function serverPathsFailure(callable $operation, string $message): void
 $previousEnvironment = getenv('FREETV_PUBLIC_PATH');
 $hadEnvironmentArray = array_key_exists('FREETV_PUBLIC_PATH', $_ENV);
 $previousEnvironmentArray = $_ENV['FREETV_PUBLIC_PATH'] ?? null;
-$appRoot = sys_get_temp_dir() . '/freetv-server-paths-' . bin2hex(random_bytes(6));
+$appRoot = sys_get_temp_dir() . '/freetv-admin-paths-' . bin2hex(random_bytes(6));
 mkdir($appRoot);
 
 try {

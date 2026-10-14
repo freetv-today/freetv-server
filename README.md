@@ -44,31 +44,31 @@ Frontend dependencies, including Preact, Vite, and Bootstrap, are installed thro
 
 ## Getting Started
 
-1. Clone or download `freetv-server`.
-2. Navigate to the `freetv-server` directory and run `npm install`.
+1. Clone or download `freetv-admin`.
+2. Navigate to the `freetv-admin` directory and run `npm install`.
 3. From the same directory, run `composer install`.
 4. Create `.env` from `.env.example`. See [Database and Runtime Configuration](#database-and-runtime-configuration) for the available settings.
 5. Enter your MariaDB credentials. The configured account must be able to either:
 
    * create the configured database, or
    * use an existing database and create tables within it.
-6. In a terminal, navigate to `freetv-server/public`. Start the PHP development server with `php -S localhost:8081`.
-7. Open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both remain running.
+6. In a terminal, navigate to `freetv-admin/public`. Start the PHP development server with `php -S localhost:8081`.
+7. Open a **new terminal or terminal tab**, navigate to `freetv-admin/`, and run `npm run dev`. The PHP and Vite development servers must both remain running.
 8. Open the local URL printed by Vite in your browser.
 9. Complete [First Run](#first-run) to initialize the database, establish the matching Viewer artifacts, and create the first Administrator account.
 10. Log in to the FreeTV Admin Dashboard using the account you created during First Run.
 
 ## How do I ...  ?
 
-`freetv-server` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The table below covers tasks within this repository. For help choosing another FreeTV repository, see the [FreeTV organization overview](https://github.com/freetv-today).<br/>
+`freetv-admin` can be developed and run on its own; you do not need to build the complete FreeTV site to work on the Admin Dashboard. The table below covers tasks within this repository. For help choosing another FreeTV repository, see the [FreeTV organization overview](https://github.com/freetv-today).<br/>
 
 | I want to...                                | What do I do?                                                                                                                                                                                                                                                                                                                                                                   | What happens?                                                                                                                                                                                                              |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Run only the Admin Dashboard locally**    | In a terminal, navigate to `freetv-server/public`. Start a PHP development server with `php -S localhost:8081`. Then open a **new terminal or terminal tab**, navigate to `freetv-server/`, and run `npm run dev`. The PHP and Vite development servers must both be running simultaneously. See [Local Admin Development](#local-admin-development) for configuration details. | Starts the PHP API on port `8081` and the Admin Dashboard using the default Vite development server port. Vite displays the local URL when it starts.                                                                      |
+| **Run only the Admin Dashboard locally**    | In a terminal, navigate to `freetv-admin/public`. Start a PHP development server with `php -S localhost:8081`. Then open a **new terminal or terminal tab**, navigate to `freetv-admin/`, and run `npm run dev`. The PHP and Vite development servers must both be running simultaneously. See [Local Admin Development](#local-admin-development) for configuration details. | Starts the PHP API on port `8081` and the Admin Dashboard using the default Vite development server port. Vite displays the local URL when it starts.                                                                      |
 | **Initialize a new FreeTV installation**    | Start the Admin Dashboard and follow the [First Run](#first-run) process in the browser.                                                                                                                                                                                                                                                                                        | Checks database readiness and allows the installation to be initialized using Start Fresh, Baseline Sample Data, Current Sample Data, or Current Official Data. Successful initialization returns you to the login screen. |
 | **Publish database changes for the Viewer** | Use the **Publish** page in the Admin Dashboard. See [Publishing Viewer Data](#publishing-viewer-data).                                                                                                                                                                                                                                                                         | Exports the current show, playlist, and configuration data as Viewer-compatible static artifacts in the configured public directory.                                                                                                |
 | **Undo the last publication**               | Use the **Undo** action on the Publish page. See [Undo the Last Publication](#undo-the-last-publication).                                                                                                                                                                                                                                                                       | Restores the previous published Viewer artifacts when an undo point is available.                                                                                                                                          |
-| **Build only the Admin frontend**           | Navigate to `freetv-server/` and run `npm run build`. See [Build the Admin Frontend](#build-the-admin-frontend).                                                                                                                                                                                                                                                                | Builds and validates the Admin Dashboard production frontend. It does not create a complete FreeTV production assembly.                                                                                                    |
+| **Build only the Admin frontend**           | Navigate to `freetv-admin/` and run `npm run build`. See [Build the Admin Frontend](#build-the-admin-frontend).                                                                                                                                                                                                                                                                | Builds and validates the Admin Dashboard production frontend. It does not create a complete FreeTV production assembly.                                                                                                    |
 | **Configure a custom public directory**     | Set `FREETV_PUBLIC_PATH` in the Admin runtime environment. See [Database and Runtime Configuration](#database-and-runtime-configuration).                                                                                                                                                                                                                                       | Changes the filesystem directory used for public Viewer artifacts.                                                                                                                                                         |
 | **Use a different PHP backend port**        | Start PHP on the chosen port and set `VITE_API_PROXY_TARGET` to its URL. See [Use a Different PHP Port](#use-a-different-php-port).                                                                                                                                                                                                                                             | Directs Vite’s development `/api` requests to the PHP backend at the configured URL.                                                                                                                                       |
 
@@ -101,7 +101,7 @@ After initialization, changes made through the Admin affect MariaDB first. They 
 The following tree highlights the directories and files most relevant to installing, developing, publishing, and maintaining the Admin Dashboard. It does not list every source file or API endpoint.
 
 ```text
-freetv-server/
+freetv-admin/
 ├── public/
 │   ├── api/
 │   │   └── admin/          Admin API endpoints and backend services
@@ -137,13 +137,13 @@ freetv-server/
 
 ## Development
 
-This section describes developing `freetv-server` as a standalone FreeTV Admin Dashboard. Local development requires MariaDB, the PHP backend, and the Vite frontend to run together. The Viewer is not required for ordinary Admin development, although published Viewer artifacts can be inspected in the configured public directory.
+This section describes developing `freetv-admin` as a standalone FreeTV Admin Dashboard. Local development requires MariaDB, the PHP backend, and the Vite frontend to run together. The Viewer is not required for ordinary Admin development, although published Viewer artifacts can be inspected in the configured public directory.
 
 For coordinated development across the Admin Dashboard, Viewer, and Data repositories, see the [FreeTV Tooling documentation](https://github.com/freetv-today/freetv-tooling).
 
 ### Database and Runtime Configuration
 
-The PHP backend reads its runtime configuration from `.env` in the `freetv-server` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
+The PHP backend reads its runtime configuration from `.env` in the `freetv-admin` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
 
 | Variable             | Required? | Purpose                                                                                                                                                                                                                                                           |
 | -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -203,7 +203,7 @@ MariaDB must also be running and accessible using the credentials in `.env`.
 
 #### Start the PHP Backend
 
-In a terminal, navigate to `freetv-server/public` and run:
+In a terminal, navigate to `freetv-admin/public` and run:
 
 ```bash
 php -S localhost:8081
@@ -213,7 +213,7 @@ This starts the PHP backend at `http://localhost:8081`. The `public/` directory 
 
 #### Start the Vite Frontend
 
-Open a new terminal or terminal tab, navigate to `freetv-server/`, and run:
+Open a new terminal or terminal tab, navigate to `freetv-admin/`, and run:
 
 ```bash
 npm run dev
@@ -237,7 +237,7 @@ For example, start PHP with:
 php -S localhost:8082
 ```
 
-Then create `.env.development.local` in `freetv-server/` containing:
+Then create `.env.development.local` in `freetv-admin/` containing:
 
 ```dotenv
 VITE_API_PROXY_TARGET=http://localhost:8082
@@ -263,7 +263,7 @@ Before displaying the initialization options, FreeTV checks that:
 | Mode                      | Data source                                | Result                                                                                                              |
 | ------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | **Start Fresh**           | Generated locally                          | Creates one empty default playlist named **Playlist One** without adding any shows.                                 |
-| **Baseline Sample Data**  | Bundled with `freetv-server`               | Installs a small sample library without downloading a dataset.                                                      |
+| **Baseline Sample Data**  | Bundled with `freetv-admin`               | Installs a small sample library without downloading a dataset.                                                      |
 | **Current Sample Data**   | Downloaded from the FreeTV dataset service | Installs the current sample library and its matching Viewer artifacts. An Internet connection is required.          |
 | **Current Official Data** | Downloaded from the FreeTV dataset service | Installs the current complete FreeTV library and its matching Viewer artifacts. An Internet connection is required. |
 
@@ -279,7 +279,7 @@ First Run is only for an uninitialized installation. It is not a database reset 
 
 ### Build the Admin Frontend
 
-To create and validate the standalone Admin production frontend, navigate to `freetv-server/` and run:
+To create and validate the standalone Admin production frontend, navigate to `freetv-admin/` and run:
 
 ```bash
 npm run build

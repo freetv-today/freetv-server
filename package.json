@@ -1,12 +1,12 @@
 {
 	"name": "freetv-admin",
-	"version": "3.0.2-beta",
+	"version": "3.0.3-beta",
 	"description": "Administration tools for managing a collection of shows and movies for FreeTV.",
 	"author": "Ken Dawson",
 	"license": "GPL-3.0-only",
 	"homepage": "https://freetv.today",
-	"repository": "https://github.com/freetv-today/freetv-server",
-	"bugs": "https://github.com/freetv-today/freetv-server/issues",
+	"repository": "https://github.com/freetv-today/freetv-admin",
+	"bugs": "https://github.com/freetv-today/freetv-admin/issues",
 	"private": false,
 	"type": "module",
 	"scripts": {
