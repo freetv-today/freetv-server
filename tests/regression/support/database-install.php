@@ -81,7 +81,12 @@ try {
             '--single-transaction',
             '--quick',
             '--skip-lock-tables',
+            '--skip-add-drop-table',
             '--skip-add-locks',
+            '--skip-disable-keys',
+            '--skip-no-autocommit',
+            '--skip-set-charset',
+            '--skip-tz-utc',
             '--skip-comments',
             '--skip-dump-date',
             '--quote-names',
@@ -92,7 +97,7 @@ try {
             '--',
             $settings['database'],
         ]);
-        Support::validateDump($dumpPath, $settings['database'], $sourceTables);
+        Support::prepareDumpForImport($dumpPath, $sourceTables, $testDatabase);
 
         $input = fopen($dumpPath, 'rb');
         if ($input === false) {
@@ -103,6 +108,8 @@ try {
                 'mariadb',
                 '--defaults-extra-file=' . $defaultsPath,
                 '--default-character-set=utf8mb4',
+                '--one-database',
+                '--sandbox',
                 '--database=' . $testDatabase,
             ], $input);
         } finally {

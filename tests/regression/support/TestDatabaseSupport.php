@@ -412,52 +412,47 @@ final class TestDatabaseSupport
         }
     }
 
-    public static function validateDump(string $dumpPath, string $sourceDatabase, array $sourceTables): void
+    public static function prepareDumpForImport(
+        string $dumpPath,
+        array $sourceTables,
+        string $testDatabase
+    ): void
     {
+        if (preg_match(self::TEST_DATABASE_PATTERN, $testDatabase) !== 1) {
+            throw new RuntimeException('Prepared dump target is not a generated test database');
+        }
         $sql = file_get_contents($dumpPath);
         if ($sql === false || $sql === '') {
             throw new RuntimeException('MariaDB dump is empty or unreadable');
         }
-        if (preg_match('/^\s*(?:CREATE|ALTER|DROP)\s+DATABASE\b/im', $sql) === 1
-            || preg_match('/^\s*USE\s+/im', $sql) === 1) {
-            throw new RuntimeException('MariaDB dump contains a database-selection or database-DDL statement');
-        }
-        $qualifiedSource = '/`' . preg_quote($sourceDatabase, '/') . '`\s*\.\s*`/i';
-        if (preg_match($qualifiedSource, $sql) === 1) {
-            throw new RuntimeException('MariaDB dump contains a source-qualified object reference');
-        }
-        if (preg_match('/`[^`]+`\s*\.\s*`/', $sql) === 1) {
-            throw new RuntimeException('MariaDB dump contains a qualified object reference');
-        }
-        if (preg_match('/\bDEFINER\s*=/i', $sql) === 1) {
-            throw new RuntimeException('MariaDB dump contains a DEFINER clause');
-        }
 
+        // SqlPackageExecutor treats all block comments as comments, including MariaDB's
+        // executable comments. Rewrite the dump from the statements it returns so the
+        // MariaDB client executes exactly the same comment-free stream validated below.
+        $statements = (new SqlPackageExecutor())->statements($sql);
+        if ($statements === []) {
+            throw new RuntimeException('MariaDB dump does not contain importable statements');
+        }
         $allowedTables = array_fill_keys($sourceTables, true);
-        foreach ((new SqlPackageExecutor())->statements($sql) as $statement) {
+        foreach ($statements as $statement) {
             $statement = ltrim($statement);
-            if (preg_match('/\ASET\s+/i', $statement) === 1) {
-                if (preg_match('/\ASET\s+(?:(?:@@)?GLOBAL\b|PERSIST(?:_ONLY)?\b|PASSWORD\b)/i', $statement) === 1) {
-                    throw new RuntimeException('MariaDB dump contains a server-scoped SET statement');
-                }
-                continue;
-            }
-            if (preg_match('/\A(?:START\s+TRANSACTION|COMMIT)\z/i', $statement) === 1) {
-                continue;
-            }
-
             $table = null;
+            $statementType = null;
             foreach ([
-                '/\ADROP\s+TABLE\s+IF\s+EXISTS\s+`([^`]+)`\z/is',
-                '/\ACREATE\s+TABLE\s+`([^`]+)`\s*\(/is',
-                '/\AINSERT\s+INTO\s+`([^`]+)`\s+VALUES\b/is',
-            ] as $pattern) {
+                'CREATE TABLE' => '/\ACREATE\s+TABLE\s+`([^`]+)`\s*\(/is',
+                'INSERT INTO' => '/\AINSERT\s+INTO\s+`([^`]+)`\s+VALUES\b/is',
+            ] as $type => $pattern) {
                 if (preg_match($pattern, $statement, $matches) === 1) {
                     $table = $matches[1];
+                    $statementType = $type;
                     break;
                 }
             }
             if ($table !== null && isset($allowedTables[$table])) {
+                if ($statementType === 'CREATE TABLE'
+                    && preg_match('/`[^`]+`\s*\.\s*`/', $statement) === 1) {
+                    throw new RuntimeException('MariaDB table definition contains a qualified object reference');
+                }
                 continue;
             }
 
@@ -466,6 +461,20 @@ final class TestDatabaseSupport
             throw new RuntimeException(
                 'MariaDB dump contains an unsupported statement type or target: ' . $statementType
             );
+        }
+
+        $quotedTestDatabase = DatabaseIdentifier::quote($testDatabase);
+        $preparedStatements = array_merge([
+            "USE {$quotedTestDatabase}",
+            "SET SESSION SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO'",
+            "SET SESSION TIME_ZONE = '+00:00'",
+            'SET SESSION FOREIGN_KEY_CHECKS = 0',
+        ], $statements, [
+            'SET SESSION FOREIGN_KEY_CHECKS = 1',
+        ]);
+        $preparedSql = implode(";\n", $preparedStatements) . ";\n";
+        if (file_put_contents($dumpPath, $preparedSql, LOCK_EX) === false) {
+            throw new RuntimeException('Could not prepare the validated MariaDB dump for import');
         }
     }
 }
