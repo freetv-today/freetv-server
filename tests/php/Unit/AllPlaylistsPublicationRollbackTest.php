@@ -203,6 +203,7 @@ final class AllPlaylistsPublicationRollbackTest extends TestCase
             [
                 [1, $publicationDatabaseTimestamp],
                 [2, $publicationDatabaseTimestamp],
+                [1, null],
             ],
             $timestampCalls
         );
@@ -219,6 +220,89 @@ final class AllPlaylistsPublicationRollbackTest extends TestCase
             $timestampsBefore[1],
             $databaseTimestamps[1],
             'Rollback must restore the exact pre-operation timestamp, including NULL, for a newly published playlist'
+        );
+    }
+
+    public function testRollbackRestoresDatabaseTimestampInsteadOfPublishedTimestamp(): void
+    {
+        $playlists = [
+            $this->playlist(10, 'first.json', 'First Playlist', true, 0, '2026-09-02 11:45:00'),
+            $this->playlist(20, 'second.json', 'Second Playlist', false, 1, '2026-09-02 12:30:00'),
+        ];
+        $authoritativeShows = [
+            10 => [$this->show(10, 'first-show', 'Changed First Show')],
+            20 => [$this->show(20, 'second-show', 'Changed Second Show')],
+        ];
+        $publishedShows = $authoritativeShows;
+        $publishedShows[10][0]['title'] = 'Published First Show';
+        $publishedShows[20][0]['title'] = 'Published Second Show';
+        $publishedTimestamps = [
+            'first.json' => '2026-08-15T07:00:00.000Z',
+            'second.json' => '2026-08-15T08:00:00.000Z',
+        ];
+
+        foreach ($playlists as $playlist) {
+            $this->write(
+                'playlists/' . $playlist['filename'],
+                $this->playlistArtifact(
+                    $playlist,
+                    $publishedShows[$playlist['id']],
+                    $publishedTimestamps[$playlist['filename']]
+                )
+            );
+        }
+        $this->write('playlists/index.json', $this->encode([
+            'default' => 'first.json',
+            'playlists' => [
+                $this->indexEntry($playlists[0], $publishedTimestamps['first.json']),
+                $this->indexEntry($playlists[1], $publishedTimestamps['second.json']),
+            ],
+        ]));
+
+        $databaseTimestamps = [
+            10 => '2026-09-02 11:45:00',
+            20 => '2026-09-02 12:30:00',
+        ];
+        $timestampsBefore = $databaseTimestamps;
+        $timestampCalls = [];
+        $publicationDatabaseTimestamp = '2026-09-10 15:00:00';
+        $undoService = new PublicationUndoService($this->publicationRoot, $this->undoRoot);
+        $service = new AllPlaylistsPublicationService(
+            $this->publicationRoot,
+            static fn(): array => $playlists,
+            static fn(int $playlistId): array => $authoritativeShows[$playlistId],
+            static function (int $playlistId, ?string $timestamp) use (
+                &$databaseTimestamps,
+                &$timestampCalls,
+                $publicationDatabaseTimestamp
+            ): void {
+                $timestampCalls[] = [$playlistId, $timestamp];
+                if ($playlistId === 20 && $timestamp === $publicationDatabaseTimestamp) {
+                    throw new RuntimeException('Simulated second playlist timestamp update failure');
+                }
+                $databaseTimestamps[$playlistId] = $timestamp;
+            },
+            static fn(): DateTimeImmutable => new DateTimeImmutable('2026-09-10T15:00:00Z'),
+            $undoService
+        );
+
+        $caught = null;
+        try {
+            $service->publish();
+        } catch (PublicationException $exception) {
+            $caught = $exception;
+        }
+
+        self::assertInstanceOf(PublicationException::class, $caught);
+        self::assertSame($timestampsBefore, $databaseTimestamps);
+        self::assertNotSame('2026-08-15 07:00:00', $databaseTimestamps[10]);
+        self::assertSame(
+            [
+                [10, $publicationDatabaseTimestamp],
+                [20, $publicationDatabaseTimestamp],
+                [10, $timestampsBefore[10]],
+            ],
+            $timestampCalls
         );
     }
 
