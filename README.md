@@ -176,6 +176,22 @@ A configured, running MariaDB instance, the MariaDB client utilities, and an acc
 
 `npm run test:api:db` requires an installed test database in the `ready` state. It sends real HTTP requests through PHP and performs SQL reads and a narrowly scoped write against that persistent clone. The write test restores the selected record and playlist timestamp before finishing. Installation and cleanup remain explicit; neither `npm test` nor `npm run test:api:db` creates or removes a database, and `npm test` remains database-independent during this initial integration slice.
 
+#### PHPUnit Tests
+
+Install development dependencies with `composer install`, then run the database-independent PHP unit suite with:
+
+```bash
+composer test
+```
+
+To run a selected test class directly:
+
+```bash
+./vendor/bin/phpunit --filter PlaylistPublicationSerializerTest
+```
+
+PHPUnit currently covers database-independent PHP services and business logic. The Node HTTP regression tests remain available through the separate `npm test` and `npm run test:api:db` commands described above.
+
 ### Database and Runtime Configuration
 
 The PHP backend reads its runtime configuration from `.env` in the `freetv-admin` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.
