@@ -8,6 +8,7 @@ use FreeTV\Admin\Publication\PlaylistPublicationSerializer;
 use FreeTV\Admin\Publication\PlaylistPublicationService;
 use FreeTV\Admin\Publication\PublicationException;
 use FreeTV\Admin\Publication\PublicationUndoService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PlaylistPublicationRollbackTest extends TestCase
@@ -45,7 +46,10 @@ final class PlaylistPublicationRollbackTest extends TestCase
         rmdir($this->root);
     }
 
-    public function testPromotionFailureRestoresAuthoritativeDatabaseTimestamp(): void
+    #[DataProvider('originalDatabaseTimestampProvider')]
+    public function testPromotionFailureRestoresAuthoritativeDatabaseTimestamp(
+        ?string $originalDatabaseTimestamp
+    ): void
     {
         $playlist = [
             'id' => 42,
@@ -55,7 +59,7 @@ final class PlaylistPublicationRollbackTest extends TestCase
             'author' => 'Free TV',
             'email' => 'support@example.test',
             'link' => 'https://example.test',
-            'lastupdated' => '2026-08-12 11:00:00',
+            'lastupdated' => $originalDatabaseTimestamp,
             'is_default' => 1,
             'sort_order' => 0,
         ];
@@ -110,7 +114,7 @@ final class PlaylistPublicationRollbackTest extends TestCase
         $undoStatusBefore = $realUndo->status();
         $undoMetadataBefore = (string) file_get_contents($this->undoRoot . '/active/operation.json');
         $undoHashesBefore = $this->treeHashes($this->undoRoot . '/active');
-        $databaseTimestamp = '2026-08-12 11:00:00';
+        $databaseTimestamp = $originalDatabaseTimestamp;
         $timestampCalls = [];
         $databaseStateAfterCalls = [];
 
@@ -128,7 +132,7 @@ final class PlaylistPublicationRollbackTest extends TestCase
             $this->publicationRoot,
             static fn(): array => [$playlist],
             static fn(int $playlistId): array => $shows,
-            static function (int $playlistId, string $timestamp) use (
+            static function (int $playlistId, ?string $timestamp) use (
                 &$databaseTimestamp,
                 &$timestampCalls,
                 &$databaseStateAfterCalls
@@ -156,9 +160,14 @@ final class PlaylistPublicationRollbackTest extends TestCase
         self::assertSame(500, $exception->getHttpStatus());
 
         self::assertCount(2, $timestampCalls);
-        self::assertSame([42, '2026-08-12 17:00:00'], $timestampCalls[0]);
+        self::assertSame(
+            [
+                [42, '2026-08-12 17:00:00'],
+                [42, $originalDatabaseTimestamp],
+            ],
+            $timestampCalls
+        );
         self::assertSame('2026-08-12 17:00:00', $databaseStateAfterCalls[0]);
-        self::assertSame(42, $timestampCalls[1][0]);
 
         self::assertSame($playlistBefore, file_get_contents($this->playlistDirectory . '/freetv.json'));
         self::assertSame($indexBefore, file_get_contents($this->playlistDirectory . '/index.json'));
@@ -176,10 +185,19 @@ final class PlaylistPublicationRollbackTest extends TestCase
         self::assertSame([], glob($this->playlistDirectory . '/.publish-*') ?: []);
 
         self::assertSame(
-            '2026-08-12 11:00:00',
+            $originalDatabaseTimestamp,
             $databaseTimestamp,
             'Rollback must restore the authoritative pre-publication database timestamp, not the old published JSON timestamp'
         );
+        self::assertNotSame('2026-08-12 09:00:00', $databaseTimestamp);
+    }
+
+    public static function originalDatabaseTimestampProvider(): array
+    {
+        return [
+            'non-null timestamp' => ['2026-08-12 11:00:00'],
+            'null timestamp' => [null],
+        ];
     }
 
     private function encode(array $artifact): string

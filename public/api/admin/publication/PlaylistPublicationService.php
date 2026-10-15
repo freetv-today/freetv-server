@@ -47,6 +47,7 @@ class PlaylistPublicationService
                 'author',
                 'email',
                 'link',
+                'lastupdated',
                 'is_default',
                 'sort_order',
             ])
@@ -73,7 +74,7 @@ class PlaylistPublicationService
             ->get();
         $this->timestampUpdater = $timestampUpdater ?? static function (
             int $playlistId,
-            string $databaseTimestamp
+            ?string $databaseTimestamp
         ): void {
             $updatedRows = Database::table('playlists')
                 ->where('id', $playlistId)
@@ -117,6 +118,7 @@ class PlaylistPublicationService
         if ($selectedPlaylist === null) {
             throw new PublicationException('Playlist not found', 404);
         }
+        $previousDatabaseTimestamp = self::value($selectedPlaylist, 'lastupdated');
 
         PlaylistIndexSerializer::validateDefault($playlists);
         $publishedTimestamps = $this->loadPublishedTimestamps();
@@ -153,12 +155,12 @@ class PlaylistPublicationService
             $this->undoService->promote($preparedUndo);
         } catch (Throwable $exception) {
             try {
-                $previousTimestamp = $this->undoService->preparedPlaylistTimestamp($preparedUndo);
+                $this->undoService->preparedPlaylistTimestamp($preparedUndo);
                 $this->undoService->rollbackPrepared($preparedUndo);
                 if ($databaseTimestampUpdated) {
                     ($this->timestampUpdater)(
                         (int) self::value($selectedPlaylist, 'id'),
-                        PublicationTimestamp::toDatabase($previousTimestamp)
+                        $previousDatabaseTimestamp
                     );
                 }
             } catch (Throwable $rollbackException) {
