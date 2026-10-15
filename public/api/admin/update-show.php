@@ -256,7 +256,7 @@ try {
 
     echo json_encode(['success' => true, 'message' => 'Show updated']);
 } catch (\Throwable $e) {
-    if ($add && isDuplicateIdentifierException($e)) {
+    if (isDuplicateIdentifierException($e)) {
         http_response_code(409);
         echo json_encode([
             'success' => false,
