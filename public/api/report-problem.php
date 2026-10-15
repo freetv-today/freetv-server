@@ -93,6 +93,7 @@ try {
     $showRow = Database::table('playlist_shows')
         ->where('playlist_id', $playlistRow->id)
         ->where('identifier', $identifier)
+        ->where('status', 'active')
         ->first(['id', 'playlist_id', 'identifier', 'title', 'category', 'imdb']);
 
     if (!$showRow || $showRow->identifier !== $identifier) {

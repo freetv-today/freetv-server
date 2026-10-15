@@ -842,13 +842,23 @@ function prepareAddressedReport(array $context, array $payload): array
     $scope = reportFixtureScope($payload, $context['state']);
     $connection = $context['connection'];
     Support::assertSelectedDatabase($connection, $context['state']['test_database']);
-    $identifier = reportFixtureIdentifiers($scope['token'])['addressed'];
+    $target = $payload['target'] ?? 'addressed';
+    if (!is_string($target) || !in_array($target, ['addressed', 'disabled'], true)) {
+        throw new RuntimeException('Addressed-report fixture target is invalid');
+    }
+    $identifier = reportFixtureIdentifiers($scope['token'])[$target];
+    $showStatus = $target === 'disabled' ? 'disabled' : 'active';
 
-    $reportId = $connection->transaction(function () use ($connection, $scope, $identifier): int {
+    $reportId = $connection->transaction(function () use (
+        $connection,
+        $scope,
+        $identifier,
+        $showStatus
+    ): int {
         $show = $connection->table('playlist_shows')
             ->where('playlist_id', $scope['playlist_a_id'])
             ->where('identifier', $identifier)
-            ->where('status', 'active')
+            ->where('status', $showStatus)
             ->first(['id', 'title', 'category', 'imdb']);
         if ($show === null) {
             throw new RuntimeException('Addressed-report fixture show is missing');

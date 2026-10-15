@@ -339,3 +339,35 @@ test('rejects a Disabled-show report without report or rate-limit side effects',
 		assert.deepEqual(afterState.attempts, beforeState.attempts);
 	});
 });
+
+test('does not reopen an addressed report for a Disabled show', async () => {
+	const prepared = databaseTestBridge('report-fixture-prepare-addressed', {
+		...fixtureScope(),
+		target: 'disabled',
+	});
+	await withIsolatedRateLimit(async (beforeState) => {
+		const beforeReport = findReport(
+			beforeState,
+			fixture.playlist_a_id,
+			fixture.identifiers.disabled,
+		);
+		assert.ok(beforeReport);
+		assert.equal(beforeReport.id, prepared.report_id);
+		assert.equal(beforeReport.status, 'addressed');
+		assert.equal(beforeReport.report_count, 4);
+
+		const result = await submitReport(fixture.filenames.a, fixture.identifiers.disabled);
+		const afterState = fixtureState();
+		const afterReport = findReport(
+			afterState,
+			fixture.playlist_a_id,
+			fixture.identifiers.disabled,
+		);
+
+		assert.equal(result.status, 404);
+		assert.deepEqual(result.json, { success: false, message: 'Show not found' });
+		assert.deepEqual(afterReport, beforeReport);
+		assert.deepEqual(afterState.reports, beforeState.reports);
+		assert.deepEqual(afterState.attempts, beforeState.attempts);
+	});
+});
