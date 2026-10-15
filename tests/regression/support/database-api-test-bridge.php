@@ -557,6 +557,437 @@ function cleanupShowFixture(array $context, array $payload): array
     ];
 }
 
+/** @return array{test_database: string, token: string, playlist_a_id?: int, playlist_b_id?: int, baseline_attempt_id?: int} */
+function reportFixtureScope(array $payload, array $state, bool $requireCreatedState = true): array
+{
+    if (!isset($payload['test_database']) || !is_string($payload['test_database'])
+        || $payload['test_database'] !== $state['test_database']) {
+        throw new RuntimeException('Problem-report fixture target does not match tracked test database');
+    }
+    if (!isset($payload['token']) || !is_string($payload['token'])
+        || preg_match('/\A[a-f0-9]{12}\z/D', $payload['token']) !== 1) {
+        throw new RuntimeException('Problem-report fixture token is invalid');
+    }
+
+    $scope = [
+        'test_database' => $payload['test_database'],
+        'token' => $payload['token'],
+    ];
+    if ($requireCreatedState) {
+        foreach (['playlist_a_id', 'playlist_b_id'] as $key) {
+            if (!isset($payload[$key]) || !is_int($payload[$key]) || $payload[$key] < 1) {
+                throw new RuntimeException("Problem-report fixture payload has an invalid {$key}");
+            }
+            $scope[$key] = $payload[$key];
+        }
+        if (!isset($payload['baseline_attempt_id']) || !is_int($payload['baseline_attempt_id'])
+            || $payload['baseline_attempt_id'] < 0) {
+            throw new RuntimeException('Problem-report fixture payload has an invalid baseline_attempt_id');
+        }
+        $scope['baseline_attempt_id'] = $payload['baseline_attempt_id'];
+    }
+
+    return $scope;
+}
+
+/** @return array{a: string, b: string} */
+function reportFixtureFilenames(string $token): array
+{
+    return [
+        'a' => "regression-report-{$token}-a.json",
+        'b' => "regression-report-{$token}-b.json",
+    ];
+}
+
+/** @return array{primary: string, shared: string, addressed: string, disabled: string} */
+function reportFixtureIdentifiers(string $token): array
+{
+    return [
+        'primary' => "regression-report-{$token}-primary",
+        'shared' => "regression-report-{$token}-shared",
+        'addressed' => "regression-report-{$token}-addressed",
+        'disabled' => "regression-report-{$token}-disabled",
+    ];
+}
+
+function reportFixtureTitle(string $token, string $suffix): string
+{
+    return "Regression Report {$token} {$suffix}";
+}
+
+/** @return array{playlists: int, shows: int, reports: int, attempts: int} */
+function reportFixtureCounts($connection): array
+{
+    return [
+        'playlists' => (int) $connection->table('playlists')->count(),
+        'shows' => (int) $connection->table('playlist_shows')->count(),
+        'reports' => (int) $connection->table('problem_reports')->count(),
+        'attempts' => (int) $connection->table('problem_report_ips')->count(),
+    ];
+}
+
+/** @return array<string, mixed> */
+function createReportFixture(array $context, array $payload): array
+{
+    $scope = reportFixtureScope($payload, $context['state'], false);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+
+    $clientIp = '127.0.0.1';
+    $existingClientAttempts = (int) $connection->table('problem_report_ips')
+        ->where('ip_address', $clientIp)
+        ->count();
+    if ($existingClientAttempts !== 0) {
+        throw new RuntimeException(
+            "Rate-limit isolation requires no pre-existing {$clientIp} attempts; found {$existingClientAttempts}"
+        );
+    }
+
+    $filenames = reportFixtureFilenames($scope['token']);
+    $identifiers = reportFixtureIdentifiers($scope['token']);
+    $countsBefore = reportFixtureCounts($connection);
+    $maximumAttemptId = $connection->table('problem_report_ips')->max('id');
+    $baselineAttemptId = $maximumAttemptId === null ? 0 : (int) $maximumAttemptId;
+
+    $ids = $connection->transaction(function () use (
+        $connection,
+        $scope,
+        $filenames,
+        $identifiers
+    ): array {
+        if ($connection->table('playlists')->whereIn('filename', array_values($filenames))->exists()) {
+            throw new RuntimeException('Problem-report fixture playlist already exists');
+        }
+
+        $maxPlaylistOrder = $connection->table('playlists')->max('sort_order');
+        $firstPlaylistOrder = $maxPlaylistOrder === null ? 0 : (int) $maxPlaylistOrder + 1;
+        $playlistA = (int) $connection->table('playlists')->insertGetId([
+            'filename' => $filenames['a'],
+            'dbtitle' => reportFixtureTitle($scope['token'], 'Playlist A'),
+            'dbversion' => 'test',
+            'author' => 'FreeTV Regression',
+            'email' => 'regression@example.test',
+            'link' => null,
+            'lastupdated' => '2000-01-01 00:00:00',
+            'is_default' => 0,
+            'sort_order' => $firstPlaylistOrder,
+        ]);
+        $playlistB = (int) $connection->table('playlists')->insertGetId([
+            'filename' => $filenames['b'],
+            'dbtitle' => reportFixtureTitle($scope['token'], 'Playlist B'),
+            'dbversion' => 'test',
+            'author' => 'FreeTV Regression',
+            'email' => 'regression@example.test',
+            'link' => null,
+            'lastupdated' => '2000-01-01 00:00:00',
+            'is_default' => 0,
+            'sort_order' => $firstPlaylistOrder + 1,
+        ]);
+
+        $base = [
+            'category' => 'Regression Reports',
+            'status' => 'active',
+            'description' => 'Problem-report regression fixture',
+            'start_year' => '1960',
+            'end_year' => '1961',
+            'group_name' => null,
+        ];
+        $shows = [
+            'primary' => (int) $connection->table('playlist_shows')->insertGetId(array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => $identifiers['primary'],
+                'title' => 'Primary Active Report Show',
+                'imdb' => 'tt9200001',
+                'sort_order' => 10,
+            ])),
+            'shared_a' => (int) $connection->table('playlist_shows')->insertGetId(array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => $identifiers['shared'],
+                'title' => 'Shared Report Show A',
+                'imdb' => 'tt9200002',
+                'sort_order' => 20,
+            ])),
+            'addressed' => (int) $connection->table('playlist_shows')->insertGetId(array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => $identifiers['addressed'],
+                'title' => 'Addressed Report Show',
+                'imdb' => 'tt9200003',
+                'sort_order' => 30,
+            ])),
+            'disabled' => (int) $connection->table('playlist_shows')->insertGetId(array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => $identifiers['disabled'],
+                'title' => 'Disabled Report Show',
+                'imdb' => 'tt9200004',
+                'status' => 'disabled',
+                'sort_order' => 40,
+            ])),
+            'shared_b' => (int) $connection->table('playlist_shows')->insertGetId(array_merge($base, [
+                'playlist_id' => $playlistB,
+                'identifier' => $identifiers['shared'],
+                'title' => 'Shared Report Show B',
+                'imdb' => 'tt9200005',
+                'sort_order' => 10,
+            ])),
+        ];
+
+        return [
+            'playlist_a_id' => $playlistA,
+            'playlist_b_id' => $playlistB,
+            'show_ids' => $shows,
+        ];
+    });
+
+    return array_merge($scope, $ids, [
+        'filenames' => $filenames,
+        'identifiers' => $identifiers,
+        'client_ip' => $clientIp,
+        'baseline_attempt_id' => $baselineAttemptId,
+        'counts_before' => $countsBefore,
+    ]);
+}
+
+/** @return array<string, mixed> */
+function reportFixtureState(array $context, array $payload): array
+{
+    $scope = reportFixtureScope($payload, $context['state']);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $filenames = reportFixtureFilenames($scope['token']);
+    $identifiers = reportFixtureIdentifiers($scope['token']);
+    $playlistIds = [$scope['playlist_a_id'], $scope['playlist_b_id']];
+
+    $playlistCount = (int) $connection->table('playlists')
+        ->where(function ($query) use ($scope, $filenames): void {
+            $query->where(function ($inner) use ($scope, $filenames): void {
+                $inner->where('id', $scope['playlist_a_id'])->where('filename', $filenames['a']);
+            })->orWhere(function ($inner) use ($scope, $filenames): void {
+                $inner->where('id', $scope['playlist_b_id'])->where('filename', $filenames['b']);
+            });
+        })
+        ->count();
+    if ($playlistCount !== 2) {
+        throw new RuntimeException('Problem-report fixture playlists are missing or no longer test-owned');
+    }
+
+    $shows = [];
+    foreach ($connection->table('playlist_shows')
+        ->whereIn('playlist_id', $playlistIds)
+        ->orderBy('playlist_id')
+        ->orderBy('sort_order')
+        ->get(['id', 'playlist_id', 'identifier', 'title', 'category', 'imdb', 'status']) as $show) {
+        $shows[] = [
+            'id' => (int) $show->id,
+            'playlist_id' => (int) $show->playlist_id,
+            'identifier' => (string) $show->identifier,
+            'title' => (string) $show->title,
+            'category' => $show->category,
+            'imdb' => $show->imdb,
+            'status' => (string) $show->status,
+        ];
+    }
+
+    $reports = [];
+    foreach ($connection->table('problem_reports')
+        ->whereIn('playlist_id', $playlistIds)
+        ->orderBy('id')
+        ->get([
+            'id', 'playlist_id', 'playlist_show_id', 'identifier', 'title', 'category', 'imdb',
+            'status', 'report_count', 'first_reported_at', 'last_reported_at',
+        ]) as $report) {
+        $reports[] = [
+            'id' => (int) $report->id,
+            'playlist_id' => (int) $report->playlist_id,
+            'playlist_show_id' => $report->playlist_show_id === null ? null : (int) $report->playlist_show_id,
+            'identifier' => (string) $report->identifier,
+            'title' => $report->title,
+            'category' => $report->category,
+            'imdb' => $report->imdb,
+            'status' => (string) $report->status,
+            'report_count' => (int) $report->report_count,
+            'first_reported_at' => (string) $report->first_reported_at,
+            'last_reported_at' => (string) $report->last_reported_at,
+        ];
+    }
+
+    $attempts = [];
+    foreach ($connection->table('problem_report_ips')
+        ->where('ip_address', '127.0.0.1')
+        ->orderBy('id')
+        ->get(['id', 'ip_address', 'attempted_at']) as $attempt) {
+        if ((int) $attempt->id <= $scope['baseline_attempt_id']) {
+            throw new RuntimeException('Unexpected pre-fixture client-IP attempt appeared during reporting tests');
+        }
+        $attempts[] = [
+            'id' => (int) $attempt->id,
+            'ip_address' => (string) $attempt->ip_address,
+            'attempted_at' => (string) $attempt->attempted_at,
+        ];
+    }
+
+    return [
+        'test_database' => $context['state']['test_database'],
+        'filenames' => $filenames,
+        'identifiers' => $identifiers,
+        'shows' => $shows,
+        'reports' => $reports,
+        'attempts' => $attempts,
+        'counts' => reportFixtureCounts($connection),
+    ];
+}
+
+/** @return array<string, mixed> */
+function prepareAddressedReport(array $context, array $payload): array
+{
+    $scope = reportFixtureScope($payload, $context['state']);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $identifier = reportFixtureIdentifiers($scope['token'])['addressed'];
+
+    $reportId = $connection->transaction(function () use ($connection, $scope, $identifier): int {
+        $show = $connection->table('playlist_shows')
+            ->where('playlist_id', $scope['playlist_a_id'])
+            ->where('identifier', $identifier)
+            ->where('status', 'active')
+            ->first(['id', 'title', 'category', 'imdb']);
+        if ($show === null) {
+            throw new RuntimeException('Addressed-report fixture show is missing');
+        }
+        if ($connection->table('problem_reports')
+            ->where('playlist_id', $scope['playlist_a_id'])
+            ->where('identifier', $identifier)
+            ->exists()) {
+            throw new RuntimeException('Addressed-report fixture already exists');
+        }
+
+        return (int) $connection->table('problem_reports')->insertGetId([
+            'playlist_id' => $scope['playlist_a_id'],
+            'playlist_show_id' => (int) $show->id,
+            'identifier' => $identifier,
+            'title' => $show->title,
+            'category' => $show->category,
+            'imdb' => $show->imdb,
+            'status' => 'addressed',
+            'report_count' => 4,
+            'first_reported_at' => '2000-01-01 00:00:00',
+            'last_reported_at' => '2000-01-02 00:00:00',
+        ]);
+    });
+
+    return ['test_database' => $context['state']['test_database'], 'report_id' => $reportId];
+}
+
+/** @return array<string, mixed> */
+function resetReportFixtureAttempts(array $context, array $payload): array
+{
+    $scope = reportFixtureScope($payload, $context['state']);
+    if (!isset($payload['attempt_ids']) || !is_array($payload['attempt_ids'])) {
+        throw new RuntimeException('Problem-report fixture attempt_ids must be an array');
+    }
+    $attemptIds = $payload['attempt_ids'];
+    foreach ($attemptIds as $attemptId) {
+        if (!is_int($attemptId) || $attemptId <= $scope['baseline_attempt_id']) {
+            throw new RuntimeException('Problem-report fixture attempt ID is invalid');
+        }
+    }
+    sort($attemptIds);
+    if ($attemptIds !== array_values(array_unique($attemptIds))) {
+        throw new RuntimeException('Problem-report fixture attempt IDs must be unique');
+    }
+
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $currentIds = array_map(
+        static fn(object $row): int => (int) $row->id,
+        $connection->table('problem_report_ips')
+            ->where('ip_address', '127.0.0.1')
+            ->orderBy('id')
+            ->get(['id'])
+            ->all()
+    );
+    if ($currentIds !== $attemptIds) {
+        throw new RuntimeException('Problem-report attempt cleanup does not match the exact test-owned IP rows');
+    }
+
+    $deleted = $attemptIds === [] ? 0 : $connection->table('problem_report_ips')
+        ->where('ip_address', '127.0.0.1')
+        ->whereIn('id', $attemptIds)
+        ->delete();
+    if ($deleted !== count($attemptIds)) {
+        throw new RuntimeException('Problem-report attempt cleanup affected an unexpected number of rows');
+    }
+
+    return [
+        'test_database' => $context['state']['test_database'],
+        'deleted_attempts' => $deleted,
+        'remaining_client_attempts' => (int) $connection->table('problem_report_ips')
+            ->where('ip_address', '127.0.0.1')
+            ->count(),
+    ];
+}
+
+/** @return array<string, mixed> */
+function cleanupReportFixture(array $context, array $payload): array
+{
+    $scope = reportFixtureScope($payload, $context['state']);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $filenames = reportFixtureFilenames($scope['token']);
+    $identifiers = reportFixtureIdentifiers($scope['token']);
+    $playlistIds = [$scope['playlist_a_id'], $scope['playlist_b_id']];
+
+    $attemptCleanup = resetReportFixtureAttempts($context, $payload);
+    $deleted = $connection->transaction(function () use (
+        $connection,
+        $scope,
+        $filenames,
+        $identifiers,
+        $playlistIds
+    ): array {
+        $fixtureReports = $connection->table('problem_reports')
+            ->whereIn('playlist_id', $playlistIds)
+            ->get(['id', 'identifier']);
+        foreach ($fixtureReports as $report) {
+            if (!in_array($report->identifier, array_values($identifiers), true)) {
+                throw new RuntimeException('Problem-report fixture playlist contains a non-fixture report');
+            }
+        }
+        $deletedReports = $connection->table('problem_reports')
+            ->whereIn('playlist_id', $playlistIds)
+            ->delete();
+
+        $deletedPlaylists = 0;
+        foreach (['a' => 'playlist_a_id', 'b' => 'playlist_b_id'] as $key => $idKey) {
+            $deletedPlaylists += $connection->table('playlists')
+                ->where('id', $scope[$idKey])
+                ->where('filename', $filenames[$key])
+                ->where('dbtitle', reportFixtureTitle($scope['token'], 'Playlist ' . strtoupper($key)))
+                ->delete();
+        }
+        return ['reports' => $deletedReports, 'playlists' => $deletedPlaylists];
+    });
+
+    return [
+        'test_database' => $context['state']['test_database'],
+        'deleted_reports' => $deleted['reports'],
+        'deleted_playlists' => $deleted['playlists'],
+        'deleted_attempts' => $attemptCleanup['deleted_attempts'],
+        'remaining_playlists' => (int) $connection->table('playlists')
+            ->whereIn('filename', array_values($filenames))
+            ->count(),
+        'remaining_shows' => (int) $connection->table('playlist_shows')
+            ->whereIn('playlist_id', $playlistIds)
+            ->count(),
+        'remaining_reports' => (int) $connection->table('problem_reports')
+            ->whereIn('playlist_id', $playlistIds)
+            ->count(),
+        'remaining_client_attempts' => (int) $connection->table('problem_report_ips')
+            ->where('ip_address', '127.0.0.1')
+            ->count(),
+        'counts_after' => reportFixtureCounts($connection),
+    ];
+}
+
 try {
     $actions = [
         'context',
@@ -565,6 +996,11 @@ try {
         'show-fixture-create',
         'show-fixture-state',
         'show-fixture-cleanup',
+        'report-fixture-create',
+        'report-fixture-state',
+        'report-fixture-prepare-addressed',
+        'report-fixture-reset-attempts',
+        'report-fixture-cleanup',
     ];
     if ($argc !== 2 || !in_array($argv[1], $actions, true)) {
         throw new RuntimeException('Database test support received an unsupported action');
@@ -579,6 +1015,11 @@ try {
         'show-fixture-create' => createShowFixture($context, $payload),
         'show-fixture-state' => showFixtureState($context, $payload),
         'show-fixture-cleanup' => cleanupShowFixture($context, $payload),
+        'report-fixture-create' => createReportFixture($context, $payload),
+        'report-fixture-state' => reportFixtureState($context, $payload),
+        'report-fixture-prepare-addressed' => prepareAddressedReport($context, $payload),
+        'report-fixture-reset-attempts' => resetReportFixtureAttempts($context, $payload),
+        'report-fixture-cleanup' => cleanupReportFixture($context, $payload),
     };
     fwrite(STDOUT, json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES) . "\n");
 } catch (Throwable $exception) {
