@@ -14,7 +14,7 @@
 		"build": "vite build && npm run validate:dist",
 		"validate:dist": "node scripts/validate-admin-dist.js",
 		"test": "node --test tests/regression/api/authorization.test.js",
-		"test:api:db": "node --test tests/regression/api/database.test.js",
+		"test:api:db": "node --test --test-concurrency=1 tests/regression/api/database.test.js tests/regression/api/show-management.test.js",
 		"test:db:check": "php tests/regression/support/database-preflight.php",
 		"test:db:install": "php tests/regression/support/database-install.php",
 		"test:db:clean": "php tests/regression/support/database-clean.php",

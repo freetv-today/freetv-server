@@ -314,9 +314,260 @@ function restoreRecord(array $context, array $payload): array
     return recordState($context, $scope);
 }
 
+/** @return array{test_database: string, token: string, playlist_a_id?: int, playlist_b_id?: int} */
+function showFixtureScope(array $payload, array $state, bool $requirePlaylistIds = true): array
+{
+    if (!isset($payload['test_database']) || !is_string($payload['test_database'])
+        || $payload['test_database'] !== $state['test_database']) {
+        throw new RuntimeException('Show fixture target does not match tracked test database');
+    }
+    if (!isset($payload['token']) || !is_string($payload['token'])
+        || preg_match('/\A[a-f0-9]{12}\z/D', $payload['token']) !== 1) {
+        throw new RuntimeException('Show fixture token is invalid');
+    }
+
+    $scope = [
+        'test_database' => $payload['test_database'],
+        'token' => $payload['token'],
+    ];
+    if ($requirePlaylistIds) {
+        foreach (['playlist_a_id', 'playlist_b_id'] as $key) {
+            if (!isset($payload[$key]) || !is_int($payload[$key]) || $payload[$key] < 1) {
+                throw new RuntimeException("Show fixture payload has an invalid {$key}");
+            }
+            $scope[$key] = $payload[$key];
+        }
+    }
+
+    return $scope;
+}
+
+/** @return array{a: string, b: string} */
+function showFixtureFilenames(string $token): array
+{
+    return [
+        'a' => "regression-show-{$token}-a.json",
+        'b' => "regression-show-{$token}-b.json",
+    ];
+}
+
+function showFixtureTitle(string $token, string $suffix): string
+{
+    return "Regression Show {$token} {$suffix}";
+}
+
+/** @return array{playlists: int, shows: int} */
+function showFixtureCounts($connection): array
+{
+    return [
+        'playlists' => (int) $connection->table('playlists')->count(),
+        'shows' => (int) $connection->table('playlist_shows')->count(),
+    ];
+}
+
+/** @return array<string, mixed> */
+function createShowFixture(array $context, array $payload): array
+{
+    $scope = showFixtureScope($payload, $context['state'], false);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $filenames = showFixtureFilenames($scope['token']);
+    $countsBefore = showFixtureCounts($connection);
+
+    $ids = $connection->transaction(function () use ($connection, $scope, $filenames): array {
+        $existing = $connection->table('playlists')
+            ->whereIn('filename', array_values($filenames))
+            ->count();
+        if ($existing !== 0) {
+            throw new RuntimeException('Show fixture playlist already exists');
+        }
+
+        $maxPlaylistOrder = $connection->table('playlists')->max('sort_order');
+        $firstPlaylistOrder = $maxPlaylistOrder === null ? 0 : (int) $maxPlaylistOrder + 1;
+        $playlistA = $connection->table('playlists')->insertGetId([
+            'filename' => $filenames['a'],
+            'dbtitle' => showFixtureTitle($scope['token'], 'Playlist A'),
+            'dbversion' => 'test',
+            'author' => 'FreeTV Regression',
+            'email' => 'regression@example.test',
+            'link' => null,
+            'lastupdated' => '2000-01-01 00:00:00',
+            'is_default' => 0,
+            'sort_order' => $firstPlaylistOrder,
+        ]);
+        $playlistB = $connection->table('playlists')->insertGetId([
+            'filename' => $filenames['b'],
+            'dbtitle' => showFixtureTitle($scope['token'], 'Playlist B'),
+            'dbversion' => 'test',
+            'author' => 'FreeTV Regression',
+            'email' => 'regression@example.test',
+            'link' => null,
+            'lastupdated' => '2000-01-01 00:00:00',
+            'is_default' => 0,
+            'sort_order' => $firstPlaylistOrder + 1,
+        ]);
+
+        $base = [
+            'category' => 'Regression',
+            'status' => 'active',
+            'description' => 'Regression fixture description',
+            'start_year' => '1960',
+            'end_year' => '1961',
+            'imdb' => 'tt9000001',
+            'group_name' => null,
+        ];
+        $connection->table('playlist_shows')->insert([
+            array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => "regression-{$scope['token']}-seed-a",
+                'title' => 'Seed A',
+                'sort_order' => 10,
+            ]),
+            array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => "regression-{$scope['token']}-edit-source",
+                'title' => 'Edit Source',
+                'sort_order' => 20,
+                'imdb' => 'tt9000002',
+            ]),
+            array_merge($base, [
+                'playlist_id' => $playlistA,
+                'identifier' => "regression-{$scope['token']}-edit-target",
+                'title' => 'Edit Target',
+                'sort_order' => 30,
+                'imdb' => 'tt9000003',
+            ]),
+            array_merge($base, [
+                'playlist_id' => $playlistB,
+                'identifier' => "regression-{$scope['token']}-seed-b",
+                'title' => 'Seed B',
+                'sort_order' => 5,
+                'imdb' => 'tt9000004',
+            ]),
+        ]);
+
+        return ['playlist_a_id' => (int) $playlistA, 'playlist_b_id' => (int) $playlistB];
+    });
+
+    return array_merge($scope, $ids, [
+        'filenames' => $filenames,
+        'counts_before' => $countsBefore,
+        'server_time' => serverTimestamp($connection),
+    ]);
+}
+
+/** @return array<string, mixed> */
+function showFixtureState(array $context, array $payload): array
+{
+    $scope = showFixtureScope($payload, $context['state']);
+    $connection = $context['connection'];
+    $filenames = showFixtureFilenames($scope['token']);
+    $playlists = [];
+
+    foreach (['a' => 'playlist_a_id', 'b' => 'playlist_b_id'] as $key => $idKey) {
+        $playlist = $connection->table('playlists')
+            ->where('id', $scope[$idKey])
+            ->where('filename', $filenames[$key])
+            ->where('dbtitle', showFixtureTitle($scope['token'], 'Playlist ' . strtoupper($key)))
+            ->first([
+                'id', 'filename', 'dbtitle', 'lastupdated', 'updated_at', 'sort_order',
+            ]);
+        if ($playlist === null) {
+            throw new RuntimeException("Show fixture playlist {$key} is missing or no longer owned by the test");
+        }
+
+        $shows = [];
+        foreach ($connection->table('playlist_shows')
+            ->where('playlist_id', $scope[$idKey])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get([
+                'id', 'playlist_id', 'category', 'status', 'identifier', 'title',
+                'description', 'start_year', 'end_year', 'imdb', 'group_name',
+                'sort_order', 'created_at', 'updated_at',
+            ]) as $show) {
+            $shows[] = [
+                'id' => (int) $show->id,
+                'playlist_id' => (int) $show->playlist_id,
+                'category' => $show->category,
+                'status' => (string) $show->status,
+                'identifier' => (string) $show->identifier,
+                'title' => (string) $show->title,
+                'description' => $show->description,
+                'start_year' => $show->start_year,
+                'end_year' => $show->end_year,
+                'imdb' => $show->imdb,
+                'group_name' => $show->group_name,
+                'sort_order' => (int) $show->sort_order,
+                'created_at' => (string) $show->created_at,
+                'updated_at' => (string) $show->updated_at,
+            ];
+        }
+        $playlists[$key] = [
+            'id' => (int) $playlist->id,
+            'filename' => (string) $playlist->filename,
+            'dbtitle' => (string) $playlist->dbtitle,
+            'lastupdated' => $playlist->lastupdated,
+            'updated_at' => (string) $playlist->updated_at,
+            'sort_order' => (int) $playlist->sort_order,
+            'shows' => $shows,
+        ];
+    }
+
+    return [
+        'test_database' => $context['state']['test_database'],
+        'server_time' => serverTimestamp($connection),
+        'playlists' => $playlists,
+    ];
+}
+
+/** @return array<string, mixed> */
+function cleanupShowFixture(array $context, array $payload): array
+{
+    $scope = showFixtureScope($payload, $context['state']);
+    $connection = $context['connection'];
+    Support::assertSelectedDatabase($connection, $context['state']['test_database']);
+    $filenames = showFixtureFilenames($scope['token']);
+
+    $deleted = $connection->transaction(function () use ($connection, $scope, $filenames): int {
+        $deleted = 0;
+        foreach (['a' => 'playlist_a_id', 'b' => 'playlist_b_id'] as $key => $idKey) {
+            $deleted += $connection->table('playlists')
+                ->where('id', $scope[$idKey])
+                ->where('filename', $filenames[$key])
+                ->where('dbtitle', showFixtureTitle($scope['token'], 'Playlist ' . strtoupper($key)))
+                ->delete();
+        }
+        return $deleted;
+    });
+
+    $remainingPlaylists = (int) $connection->table('playlists')
+        ->whereIn('filename', array_values($filenames))
+        ->count();
+    $remainingShows = (int) $connection->table('playlist_shows')
+        ->whereIn('playlist_id', [$scope['playlist_a_id'], $scope['playlist_b_id']])
+        ->count();
+
+    return [
+        'test_database' => $context['state']['test_database'],
+        'deleted_playlists' => $deleted,
+        'remaining_playlists' => $remainingPlaylists,
+        'remaining_shows' => $remainingShows,
+        'counts_after' => showFixtureCounts($connection),
+    ];
+}
+
 try {
-    if ($argc !== 2 || !in_array($argv[1], ['context', 'state', 'restore'], true)) {
-        throw new RuntimeException('Database test support requires context, state, or restore');
+    $actions = [
+        'context',
+        'state',
+        'restore',
+        'show-fixture-create',
+        'show-fixture-state',
+        'show-fixture-cleanup',
+    ];
+    if ($argc !== 2 || !in_array($argv[1], $actions, true)) {
+        throw new RuntimeException('Database test support received an unsupported action');
     }
 
     $context = readyTestDatabase();
@@ -325,6 +576,9 @@ try {
         'context' => fixtureContext($context),
         'state' => recordState($context, $payload),
         'restore' => restoreRecord($context, $payload),
+        'show-fixture-create' => createShowFixture($context, $payload),
+        'show-fixture-state' => showFixtureState($context, $payload),
+        'show-fixture-cleanup' => cleanupShowFixture($context, $payload),
     };
     fwrite(STDOUT, json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES) . "\n");
 } catch (Throwable $exception) {
