@@ -160,11 +160,11 @@ The suite requires Node.js 22 or newer, PHP 8.4 or newer, and the Composer depen
 
 This first suite covers representative unauthenticated and role-based API boundaries plus method and request-body validation. It does not yet cover successful authentication, database-backed CRUD, browser behavior, or the historical standalone tests in `tests/`.
 
-Manage the persistent database used by future integration tests with:
+Manage the persistent database used by integration tests with:
 
 ```bash
-npm run test:db:check
 npm run test:db:install
+npm run test:api:db
 npm run test:db:clean
 ```
 
@@ -173,6 +173,8 @@ The preflight uses the application's normal `.env` loading and `DB_*`/`VITE_DB_*
 Installation creates a uniquely named database, clones the configured source with `mariadb-dump` and `mariadb`, verifies table sets and row counts, performs a temporary-table write check, and leaves the clone installed until cleanup is explicitly confirmed in a terminal. State is first recorded as `installing` and becomes `ready` only after verification. Cleanup accepts no database-name argument and will drop only the strictly validated database recorded in the state file. Back up any valuable local development data before using database-management commands.
 
 A configured, running MariaDB instance, the MariaDB client utilities, and an account with the required database permissions are prerequisites. These commands do not install MariaDB, create accounts, or grant privileges; consult MariaDB's official documentation when those are needed. `npm test` remains database-isolated and never creates, clones, or removes a database automatically.
+
+`npm run test:api:db` requires an installed test database in the `ready` state. It sends real HTTP requests through PHP and performs SQL reads and a narrowly scoped write against that persistent clone. The write test restores the selected record and playlist timestamp before finishing. Installation and cleanup remain explicit; neither `npm test` nor `npm run test:api:db` creates or removes a database, and `npm test` remains database-independent during this initial integration slice.
 
 ### Database and Runtime Configuration
 

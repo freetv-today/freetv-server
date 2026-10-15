@@ -89,13 +89,33 @@ function waitForExit(child, timeoutMs) {
 	});
 }
 
-export async function startPhpTestServer() {
+export async function startPhpTestServer({ testDatabaseName } = {}) {
+	if (testDatabaseName !== undefined
+		&& !/^freetv_test_\d{8}_\d{6}_[a-f0-9]{4}$/.test(testDatabaseName)) {
+		throw new Error('PHP test server database name is not a generated test database');
+	}
+
 	const port = await reservePort();
 	const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freetv-admin-api-'));
 	const sessionPath = path.join(temporaryRoot, 'sessions');
 	fs.mkdirSync(sessionPath, { mode: 0o700 });
 	const outputChunks = [];
 	let childSpawnError = null;
+
+	const databaseEnvironment = testDatabaseName === undefined ? {
+		DB_HOST: host,
+		DB_PORT: '0',
+		DB_NAME: 'freetv_regression_tests_must_not_connect',
+		DB_USER: 'freetv_regression_tests',
+		DB_PASS: '',
+		VITE_DB_HOST: host,
+		VITE_DB_NAME: 'freetv_regression_tests_must_not_connect',
+		VITE_DB_USER: 'freetv_regression_tests',
+		VITE_DB_PASS: '',
+	} : {
+		DB_NAME: testDatabaseName,
+		VITE_DB_NAME: testDatabaseName,
+	};
 
 	const child = spawn(php, [
 		'-d', `session.save_path=${sessionPath}`,
@@ -108,15 +128,7 @@ export async function startPhpTestServer() {
 		cwd: adminRoot,
 		env: {
 			...process.env,
-			DB_HOST: host,
-			DB_PORT: '0',
-			DB_NAME: 'freetv_regression_tests_must_not_connect',
-			DB_USER: 'freetv_regression_tests',
-			DB_PASS: '',
-			VITE_DB_HOST: host,
-			VITE_DB_NAME: 'freetv_regression_tests_must_not_connect',
-			VITE_DB_USER: 'freetv_regression_tests',
-			VITE_DB_PASS: '',
+			...databaseEnvironment,
 		},
 		stdio: ['ignore', 'pipe', 'pipe'],
 	});
