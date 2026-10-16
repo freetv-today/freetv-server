@@ -2,21 +2,25 @@
 
 ## Executive Summary
 
-The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **32 test files**: 28 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
+The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **37 test files**: 33 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
 
 Classification totals for the 47 historical executables are:
 
 | Classification | Count |
 |---|---:|
-| A — Fully migrated | 24 |
+| A — Fully migrated | 29 |
 | B — Partially migrated | 2 |
-| C — Not yet migrated | 15 |
+| C — Not yet migrated | 10 |
 | D — Retain as a specialized test | 5 |
 | E — Obsolete or superseded | 1 |
 
-The permanent suite now protects publication serialization, rollback and Undo, initialization, database/path safety, dataset validation/providers/installers, data export, snapshot status/capture/archive integrity, and safe snapshot endpoint boundaries. It does not yet replace session services, authenticated snapshot-download streaming, or the thumbnail lifecycle.
+The permanent suite now protects publication serialization, rollback and Undo, initialization, database/path safety, dataset validation/providers/installers, data export, snapshot status/capture/archive integrity, safe snapshot endpoint boundaries, and the thumbnail lifecycle from validation through guarded orphan quarantine. It does not yet replace session services, authenticated snapshot-download streaming, or thumbnail export.
 
-Recommended next actions are to migrate the thumbnail lifecycle and remaining application contracts. After equivalence verification, retire only the A files and the explicitly superseded E file. Keep the D contract suites as separately invoked workflows.
+Recommended next actions are to migrate thumbnail export and the remaining application contracts. After equivalence verification, retire only the A files and the explicitly superseded E file. Keep the D contract suites as separately invoked workflows.
+
+### Slice 3I-B5 completion
+
+Permanent PHPUnit coverage now replaces the five historical thumbnail helper, integrity, upload, Undo, and orphan-cleanup scripts. The tests use injected database seams and unique temporary roots rather than MariaDB or repository thumbnail/private paths. They exercise real Imagick JPEG normalization when the extension is available (with explicit skips otherwise), exact-byte replacement recovery, opaque one-use Undo state, stale and corrupt state rejection, deterministic read-only integrity audits, dry-run cleanup immutability, reference rechecks, symlink/collision/failure handling, and private quarantine manifests. The historical thumbnail export script remains C for a later slice.
 
 ### Slice 3I-B4 completion
 
@@ -38,7 +42,7 @@ Permanent PHPUnit coverage now replaces the historical Fresh and package install
 
 ### PHPUnit
 
-`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 28 files. No top-level historical PHP executable is included.
+`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 33 files. No top-level historical PHP executable is included.
 
 ### Node HTTP regression tests
 
@@ -115,20 +119,18 @@ The README accurately warns that database installation and cleanup are explicit 
 | `tests/SqlPackageGeneratorTest.php` | Generated package variants and content distinctions | None | C | Retain/migrate as packaging workflow test |
 | `tests/TestDatabaseDumpPreparationTest.php` | Safe dump rewriting and rejection of ordinary `USE` | `tests/php/Unit/TestDatabaseDumpPreparationTest.php` | A | Candidate for retirement; guarded support remains |
 | `tests/ThumbnailExportServiceTest.php` | Export manifest/hashes, image validation, path safety and cleanup | None | C | Migrate concrete filesystem tests |
-| `tests/ThumbnailIntegrityServiceTest.php` | Missing, invalid, orphaned and valid thumbnail reporting | None | C | Migrate to PHPUnit |
-| `tests/ThumbnailOrphanCleanupServiceTest.php` | Guarded orphan deletion, Undo preservation and failure recovery | None | C | P0/P1 migration before any retirement |
-| `tests/ThumbnailServiceTest.php` | Filename and IMDb validation | None | C | Small focused PHPUnit migration |
-| `tests/ThumbnailUndoServiceTest.php` | Upload/replace Undo, hashes, stale state and malformed metadata | None | C | Migrate integrity and recovery cases |
-| `tests/ThumbnailUploadServiceTest.php` | Image conversion/sizing, replacement, validation and rollback | None | C | Migrate; requires Imagick but no DB/network |
+| `tests/ThumbnailIntegrityServiceTest.php` | Missing, invalid, orphaned and valid thumbnail reporting | `tests/php/Unit/ThumbnailIntegrityServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
+| `tests/ThumbnailOrphanCleanupServiceTest.php` | Guarded orphan deletion, Undo preservation and failure recovery | `tests/php/Unit/ThumbnailOrphanCleanupServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
+| `tests/ThumbnailServiceTest.php` | Filename and IMDb validation | `tests/php/Unit/ThumbnailServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
+| `tests/ThumbnailUndoServiceTest.php` | Upload/replace Undo, hashes, stale state and malformed metadata | `tests/php/Unit/ThumbnailUndoServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
+| `tests/ThumbnailUploadServiceTest.php` | Image conversion/sizing, replacement, validation and rollback | `tests/php/Unit/ThumbnailUploadServiceTest.php` | A | Candidate for retirement after final side-by-side verification; requires Imagick |
 | `tests/AdminDistContractTest.js` | Distribution allowlist and credential/runtime-file exclusion | None; separately scripted | D | Retain; already has `test:admin-dist` |
 
 ## Detailed Coverage Gaps
 
 ### P0 — Safety critical
 
-1. **Thumbnail mutation and recovery** (`ThumbnailUploadServiceTest.php`, `ThumbnailUndoServiceTest.php`, `ThumbnailOrphanCleanupServiceTest.php`). No permanent suite protects destructive file replacement/deletion, stale Undo detection, corrupt metadata, rollback, symlink/path rejection, or preservation of unrelated thumbnails. Destination: isolated Imagick-backed PHPUnit tests; no DB for most cases.
-
-2. **Shared-host publication path assembly** (`SharedHostPublicationUndoTest.php`). Core path validation, environment selection, and private Undo placement are permanent, but endpoint-level shared-host assembly remains historical. Destination: an isolated PHP subprocess.
+1. **Shared-host publication path assembly** (`SharedHostPublicationUndoTest.php`). Core path validation, environment selection, and private Undo placement are permanent, but endpoint-level shared-host assembly remains historical. Destination: an isolated PHP subprocess.
 
 ### P1 — Important regressions
 
@@ -143,7 +145,7 @@ The README accurately warns that database installation and cleanup are explicit 
 - Show-group input normalization beyond serializer output.
 - Dataset metadata endpoint and configuration matrices.
 - Snapshot endpoint request/authorization cases that can terminate before database access.
-- Thumbnail filename/IMDb helpers and integrity reporting.
+- Thumbnail export manifest, image validation, path safety and cleanup.
 - Explicit package scripts for the three currently unreferenced Node contract suites.
 
 ## Specialized Tests to Retain
@@ -162,7 +164,7 @@ The guarded Node HTTP tests and everything under `tests/regression/support/` mus
 
 `AllPlaylistsPublicationServiceTest.php` is the sole E classification. Its useful success, no-op, default-only, new-artifact, writer-failure and Undo behaviors are covered by three permanent PHPUnit classes. Its database-update failure section explicitly permits a newly published playlist to retain the attempted timestamp after a later updater fails; Slice 3E established that successfully updated rows must be restored to their authoritative pre-operation values, including `NULL`. The permanent rollback class protects that corrected behavior. Retaining the old executable as a required green test would preserve a superseded contract.
 
-The 24 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
+The 29 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
 
 - `BootstrapperTest.php`
 - `BaselineDatasetPackageProviderTest.php`
@@ -188,8 +190,13 @@ The 24 A tests are not obsolete; they are redundant migration artifacts and are 
 - `ServerPathsTest.php`
 - `SqlPackageCandidateDirectoryTest.php`
 - `TestDatabaseDumpPreparationTest.php`
+- `ThumbnailIntegrityServiceTest.php`
+- `ThumbnailOrphanCleanupServiceTest.php`
+- `ThumbnailServiceTest.php`
+- `ThumbnailUndoServiceTest.php`
+- `ThumbnailUploadServiceTest.php`
 
-Together with the superseded Publish All executable, these produce 25 retirement candidates.
+Together with the superseded Publish All executable, these produce 30 retirement candidates.
 
 ## Recommended 3I-B Work
 
@@ -197,7 +204,7 @@ Together with the superseded Publish All executable, these produce 25 retirement
 2. **3I-B2: Dataset validation and providers (complete).** Metadata, candidate-directory, archive validator, baseline provider and remote provider behavior now has permanent coverage using synthetic packages and injected I/O.
 3. **3I-B3: Concrete installers (complete).** Fresh and package artifact installers now have permanent byte-for-byte rollback, verification, lifecycle, SQL validation, and safe database-boundary coverage.
 4. **3I-B4: Snapshot/export services (complete).** Export, status, capture, archive, and safely isolatable endpoint boundaries now have permanent coverage; authenticated download streaming remains B.
-5. **3I-B5: Thumbnail lifecycle.** Migrate helper, upload, integrity, Undo, orphan cleanup and export tests in independently reviewable classes.
+5. **3I-B5: Thumbnail lifecycle (complete).** Helper, upload, integrity, Undo, and orphan cleanup now have isolated permanent coverage. Thumbnail export remains a separate C migration candidate.
 6. **3I-B6: Remaining application contracts.** Migrate AdminSession, config publication, playlist-index direct coverage, show groups, SQL executor/generator, and initialization PHP response/assembly contracts.
 7. **3I-B7: Retirement and command cleanup.** Run historical and permanent equivalents side by side; remove only verified A/E executables; add scripts for retained Node contracts; update README wording and command inventory.
 8. **3I-B8: Final verification.** Run PHPUnit, all safe Node contracts, guarded HTTP tests, and—only with explicit configured state—the database-backed suite. Confirm fixture and state cleanup.
@@ -209,7 +216,7 @@ Together with the superseded Publish All executable, these produce 25 retirement
 - `ZipArchive` normalizes or rejects duplicate entry names and NUL-bearing names during fixture construction. Permanent validator tests cover traversal, absolute/drive/backslash paths, unexpected paths, case conflicts and Unix symlink types without claiming direct duplicate/NUL archive fixtures.
 
 - Decide whether concrete dataset ZIP tests belong in default PHPUnit when `ext-zip` is already required, or in a specialized packaging command.
-- Decide whether Imagick-backed thumbnail tests should remain in default PHPUnit or have an explicit capability-gated command.
+- Imagick-backed thumbnail tests remain in default PHPUnit and explicitly skip when the runtime extension is unavailable; verification must report skips rather than claim executed image-processing coverage.
 - The package Bootstrapper contract's rollback callback is now complemented by concrete byte-for-byte artifact restoration tests; full MariaDB-backed `PackageDatabaseInstaller::verify()` remains a guarded integration concern.
 - Package cleanup failures after a successful database commit are intentionally logged and do not change the success result. Operational monitoring expectations should be documented.
 - MariaDB schema DDL is not transactional. Unit tests must not imply rollback of partially installed tables; retry/idempotency remains the supported recovery model.
