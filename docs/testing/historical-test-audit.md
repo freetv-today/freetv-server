@@ -2,21 +2,21 @@
 
 ## Executive Summary
 
-The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **25 test files**: 21 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
+The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **27 test files**: 23 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
 
 Classification totals for the 47 historical executables are:
 
 | Classification | Count |
 |---|---:|
-| A — Fully migrated | 18 |
+| A — Fully migrated | 20 |
 | B — Partially migrated | 1 |
-| C — Not yet migrated | 22 |
+| C — Not yet migrated | 20 |
 | D — Retain as a specialized test | 5 |
 | E — Obsolete or superseded | 1 |
 
-The permanent suite now protects publication serialization, semantic status/delta, single and multi-playlist publication, publication rollback and Undo, first-run readiness/schema/Fresh/package orchestration, guarded dump rewriting, database capability probing/configuration, server-path safety, dataset archive validation, remote and bundled package providers, metadata, and SQL candidate-directory safety. It does not yet replace the concrete package installers; session services; snapshot/export/archive services; or the thumbnail lifecycle.
+The permanent suite now protects publication serialization, semantic status/delta, single and multi-playlist publication, publication rollback and Undo, first-run readiness/schema/Fresh/package orchestration, guarded dump rewriting, database capability probing/configuration, server-path safety, dataset validation/providers/metadata, SQL candidate-directory safety, and concrete artifact installation/recovery. It does not yet replace session services, snapshot/export/archive services, or the thumbnail lifecycle.
 
-Recommended next actions are to migrate the safety-critical concrete package installers, then filesystem-heavy snapshot/export and thumbnail tests. After equivalence verification, retire only the A files and the explicitly superseded E file. Keep the D contract suites as separately invoked workflows.
+Recommended next actions are to migrate the filesystem-heavy snapshot/export and thumbnail tests, then the remaining application contracts. After equivalence verification, retire only the A files and the explicitly superseded E file. Keep the D contract suites as separately invoked workflows.
 
 ### Slice 3I-B1 completion
 
@@ -26,11 +26,15 @@ Permanent PHPUnit coverage now replaces the meaningful behavior of the historica
 
 Permanent PHPUnit coverage now replaces the five historical dataset validator/provider/metadata and SQL candidate-directory scripts. It executes the real archive and filesystem boundaries with synthetic ZIPs and temporary roots, and uses injected callbacks for remote transport. Lower-level cURL TLS, redirect, and response-size behavior remains covered only by the retained static initialization contract because production exposes no safe transport seam. PHP `ZipArchive` cannot reliably construct NUL-bearing or duplicate-name entries, so executable coverage uses the validator's other malformed-path and case-conflict branches instead.
 
+### Slice 3I-B3 completion
+
+Permanent PHPUnit coverage now replaces the historical Fresh and package installer scripts. The concrete installers are exercised against isolated synthetic trees, including exact managed-byte restoration after backup, promotion, and verification failures; commit/rollback lifecycle behavior; canonical SQL/data-statement validation; and the database installation boundary through a narrow fake connection. Full `PackageDatabaseInstaller::verify()` remains a guarded-integration candidate because faithfully simulating its Illuminate query and publication-status graph would require an elaborate fake ORM.
+
 ## Current Test Architecture
 
 ### PHPUnit
 
-`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 21 files. No top-level historical PHP executable is included.
+`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 23 files. No top-level historical PHP executable is included.
 
 ### Node HTTP regression tests
 
@@ -80,12 +84,12 @@ The README accurately warns that database installation and cleanup are explicit 
 | `tests/DatabaseConfigTest.php` | DB port/default/password/required values and `VITE_DB_*` aliases | `tests/php/Unit/DatabaseConfigTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/DatabaseReadinessContractTest.js` | Endpoint/UI readiness wiring and permission guidance | Readiness PHPUnit covers service results, not UI/endpoint source contract | D | Retain; add explicit package script |
 | `tests/DatabaseReadinessTest.php` | Ready/missing/error/incomplete readiness service behavior | `tests/php/Unit/DatabaseReadinessTest.php` | A | Candidate for retirement |
-| `tests/DatasetPackageInstallationTest.php` | Concrete SQL validation/database installation and artifact promotion/verification rollback | Package Bootstrapper uses injected doubles | C | Migrate concrete installers; do not treat callback invocation as byte-level coverage |
+| `tests/DatasetPackageInstallationTest.php` | Concrete SQL validation/database installation and artifact promotion/verification rollback | `tests/php/Unit/DatasetPackageInstallationTest.php` | A | Candidate for retirement after final side-by-side verification; full DB-state verification remains guarded integration |
 | `tests/DatasetPackageMetadataTest.php` | Metadata values, malformed definitions and endpoint response | `tests/php/Unit/DatasetPackageMetadataTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/DatasetPackageProviderTest.php` | Metadata/download ordering, hashes, archive handling, cleanup and provider failures | `tests/php/Unit/DatasetPackageProviderTest.php` | A | Candidate for retirement after final side-by-side verification; retain static transport contract separately |
 | `tests/DatasetPackageValidatorTest.php` | Archive layout, required files, paths, hashes and malformed packages | `tests/php/Unit/DatasetPackageValidatorTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/ErrorPageContractTest.js` | Initialization error UI, retries, hard failures and no fallback | No executable UI replacement | D | Retain; add explicit package script |
-| `tests/FreshArtifactInstallerTest.php` | Real managed-file replacement, byte rollback, staging cleanup and unrelated files | Fresh Bootstrapper exercises real installer success/failure, including restoration | C | Still migrate lower-level installer branches and verification failures independently |
+| `tests/FreshArtifactInstallerTest.php` | Real managed-file replacement, byte rollback, staging cleanup and unrelated files | `tests/php/Unit/FreshArtifactInstallerTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/InitializationBootstrapContractTest.php` | Endpoint bootstrap selection/wiring and initialization contract | Bootstrapper PHPUnit tests services, not endpoint assembly | C | Retain until safe endpoint/assembly contract is permanent |
 | `tests/InitializationErrorResponseTest.php` | Stable initialization failure response mapping | Node UI contracts check codes, not executable PHP response mapping | C | Migrate response mapper without a real DB |
 | `tests/PackageBootstrapperTest.php` | Baseline/sample/official orchestration and failure cleanup | `tests/php/Unit/PackageBootstrapperTest.php` | A | Candidate for retirement |
@@ -118,13 +122,11 @@ The README accurately warns that database installation and cleanup are explicit 
 
 ### P0 — Safety critical
 
-1. **Concrete dataset installation boundary** (`DatasetPackageInstallationTest.php`). Archive traversal/layout rejection, metadata/archive hashes, provider cleanup and candidate-directory allowlists are now permanent. SQL validation before DDL, concrete database installation, managed-artifact restoration, and partial cleanup still require migration without implying transactional MariaDB DDL.
+1. **Thumbnail mutation and recovery** (`ThumbnailUploadServiceTest.php`, `ThumbnailUndoServiceTest.php`, `ThumbnailOrphanCleanupServiceTest.php`). No permanent suite protects destructive file replacement/deletion, stale Undo detection, corrupt metadata, rollback, symlink/path rejection, or preservation of unrelated thumbnails. Destination: isolated Imagick-backed PHPUnit tests; no DB for most cases.
 
-2. **Thumbnail mutation and recovery** (`ThumbnailUploadServiceTest.php`, `ThumbnailUndoServiceTest.php`, `ThumbnailOrphanCleanupServiceTest.php`). No permanent suite protects destructive file replacement/deletion, stale Undo detection, corrupt metadata, rollback, symlink/path rejection, or preservation of unrelated thumbnails. Destination: isolated Imagick-backed PHPUnit tests; no DB for most cases.
+2. **Production snapshot/export filesystem integrity** (`DataExportServiceTest.php`, `ProductionContentSnapshotServiceTest.php`, `ProductionContentSnapshotArchiveServiceTest.php`). Missing coverage includes byte/hash manifests, immutable publication/Undo sources, invalid destinations, partial staging cleanup, archive validation and restoration. Destination: PHPUnit with temporary roots and injected readers; DB loaders should remain doubles.
 
-3. **Production snapshot/export filesystem integrity** (`DataExportServiceTest.php`, `ProductionContentSnapshotServiceTest.php`, `ProductionContentSnapshotArchiveServiceTest.php`). Missing coverage includes byte/hash manifests, immutable publication/Undo sources, invalid destinations, partial staging cleanup, archive validation and restoration. Destination: PHPUnit with temporary roots and injected readers; DB loaders should remain doubles.
-
-4. **Shared-host publication path assembly** (`SharedHostPublicationUndoTest.php`). Core path validation, environment selection, and private Undo placement are permanent, but endpoint-level shared-host assembly remains historical. Destination: an isolated PHP subprocess.
+3. **Shared-host publication path assembly** (`SharedHostPublicationUndoTest.php`). Core path validation, environment selection, and private Undo placement are permanent, but endpoint-level shared-host assembly remains historical. Destination: an isolated PHP subprocess.
 
 ### P1 — Important regressions
 
@@ -133,7 +135,6 @@ The README accurately warns that database installation and cleanup are explicit 
 - **Snapshot status:** timestamp boundary calculations and new/updated/deleted counts remain standalone only.
 - **Initialization endpoint error mapping:** service orchestration is covered, but stable PHP endpoint error codes/messages are not executed permanently.
 - **SQL package parser/generator:** quoted semicolons, comments, canonical package shape and sample/full distinctions lack permanent coverage.
-- **Concrete Fresh artifact installer:** orchestration covers a promotion failure, but lower-level input validation, verification mismatch, backup failure and cleanup branches remain standalone.
 - **Playlist index serializer:** service tests exercise common paths, but direct zero/multiple-default, ordering and timestamp-validation cases should be retained in a focused class.
 
 ### P2 — Useful coverage
@@ -160,7 +161,7 @@ The guarded Node HTTP tests and everything under `tests/regression/support/` mus
 
 `AllPlaylistsPublicationServiceTest.php` is the sole E classification. Its useful success, no-op, default-only, new-artifact, writer-failure and Undo behaviors are covered by three permanent PHPUnit classes. Its database-update failure section explicitly permits a newly published playlist to retain the attempted timestamp after a later updater fails; Slice 3E established that successfully updated rows must be restored to their authoritative pre-operation values, including `NULL`. The permanent rollback class protects that corrected behavior. Retaining the old executable as a required green test would preserve a superseded contract.
 
-The 18 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
+The 20 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
 
 - `BootstrapperTest.php`
 - `BaselineDatasetPackageProviderTest.php`
@@ -168,8 +169,10 @@ The 18 A tests are not obsolete; they are redundant migration artifacts and are 
 - `DatabaseConfigTest.php`
 - `DatabaseReadinessTest.php`
 - `DatasetPackageMetadataTest.php`
+- `DatasetPackageInstallationTest.php`
 - `DatasetPackageProviderTest.php`
 - `DatasetPackageValidatorTest.php`
+- `FreshArtifactInstallerTest.php`
 - `PackageBootstrapperTest.php`
 - `PlaylistPublicationSerializerTest.php`
 - `PlaylistPublicationServiceTest.php`
@@ -181,13 +184,13 @@ The 18 A tests are not obsolete; they are redundant migration artifacts and are 
 - `SqlPackageCandidateDirectoryTest.php`
 - `TestDatabaseDumpPreparationTest.php`
 
-Together with the superseded Publish All executable, these produce 19 retirement candidates.
+Together with the superseded Publish All executable, these produce 21 retirement candidates.
 
 ## Recommended 3I-B Work
 
 1. **3I-B1: Safety foundations (complete).** `DatabaseCapabilityProbeTest`, `DatabaseConfigTest`, and `ServerPathsTest` now have isolated permanent PHPUnit coverage with no real database/path access.
 2. **3I-B2: Dataset validation and providers (complete).** Metadata, candidate-directory, archive validator, baseline provider and remote provider behavior now has permanent coverage using synthetic packages and injected I/O.
-3. **3I-B3: Concrete installers.** Migrate `FreshArtifactInstallerTest` and `DatasetPackageInstallationTest`, including byte-for-byte rollback and partial cleanup.
+3. **3I-B3: Concrete installers (complete).** Fresh and package artifact installers now have permanent byte-for-byte rollback, verification, lifecycle, SQL validation, and safe database-boundary coverage.
 4. **3I-B4: Snapshot/export services.** Migrate export, snapshot status/service/archive, and safe endpoint cases.
 5. **3I-B5: Thumbnail lifecycle.** Migrate helper, upload, integrity, Undo, orphan cleanup and export tests in independently reviewable classes.
 6. **3I-B6: Remaining application contracts.** Migrate AdminSession, config publication, playlist-index direct coverage, show groups, SQL executor/generator, and initialization PHP response/assembly contracts.
@@ -202,7 +205,7 @@ Together with the superseded Publish All executable, these produce 19 retirement
 
 - Decide whether concrete dataset ZIP tests belong in default PHPUnit when `ext-zip` is already required, or in a specialized packaging command.
 - Decide whether Imagick-backed thumbnail tests should remain in default PHPUnit or have an explicit capability-gated command.
-- The package Bootstrapper contract proves that `rollback()` is requested, but does not itself prove concrete artifact byte restoration; the concrete installer migration is required before making that claim.
+- The package Bootstrapper contract's rollback callback is now complemented by concrete byte-for-byte artifact restoration tests; full MariaDB-backed `PackageDatabaseInstaller::verify()` remains a guarded integration concern.
 - Package cleanup failures after a successful database commit are intentionally logged and do not change the success result. Operational monitoring expectations should be documented.
 - MariaDB schema DDL is not transactional. Unit tests must not imply rollback of partially installed tables; retry/idempotency remains the supported recovery model.
 - Explicit Undo of a newly published playlist removes the artifact without inventing a previous publication timestamp; review whether the retained database timestamp is an acceptable architectural state.
