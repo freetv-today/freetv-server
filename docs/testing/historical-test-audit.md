@@ -2,21 +2,25 @@
 
 ## Executive Summary
 
-The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **37 test files**: 33 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
+The repository contains **47 historical executable tests** at the top level of `tests/`: 42 PHP scripts and 5 Node/JavaScript contract suites. The framework-based permanent suites contain **42 test files**: 38 PHPUnit classes under `tests/php/Unit/` and 4 Node HTTP regression files under `tests/regression/api/`.
 
 Classification totals for the 47 historical executables are:
 
 | Classification | Count |
 |---|---:|
-| A — Fully migrated | 29 |
-| B — Partially migrated | 2 |
-| C — Not yet migrated | 10 |
+| A — Fully migrated | 34 |
+| B — Partially migrated | 1 |
+| C — Not yet migrated | 6 |
 | D — Retain as a specialized test | 5 |
 | E — Obsolete or superseded | 1 |
 
-The permanent suite now protects publication serialization, rollback and Undo, initialization, database/path safety, dataset validation/providers/installers, data export, snapshot status/capture/archive integrity, safe snapshot endpoint boundaries, and the thumbnail lifecycle from validation through guarded orphan quarantine. It does not yet replace session services, authenticated snapshot-download streaming, or thumbnail export.
+The permanent suite now protects config and playlist-index serialization, config publication and Undo, show-group normalization, SQL parsing/execution, publication rollback and Undo, initialization, database/path safety, dataset validation/providers/installers, data export, snapshot status/capture/archive integrity, safe snapshot endpoint boundaries, and the thumbnail lifecycle from validation through guarded orphan quarantine. It does not yet replace session services, authenticated snapshot-download streaming, or thumbnail export.
 
 Recommended next actions are to migrate thumbnail export and the remaining application contracts. After equivalence verification, retire only the A files and the explicitly superseded E file. Keep the D contract suites as separately invoked workflows.
+
+### Slice 3I-B6-A completion
+
+Permanent PHPUnit coverage now replaces the direct config serializer/service, playlist-index serializer, show-group, and SQL executor scripts. Config publication uses a concrete private Undo service and synthetic public root to verify exact JSON bytes, permissions, restoration, isolation, and rejected-input immutability. Playlist-index tests directly protect ordering, exact public fields, database-default selection, multi-playlist changes, object rows, and strict preservation/validation of existing published timestamps rather than database timestamps. SQL tests verify exact parsed statements across quoting/comment forms, the seven-statement canonical schema fixture, ordered execution and first-failure termination through a recording fake connection. No MariaDB or production publication path is used.
 
 ### Slice 3I-B5 completion
 
@@ -42,7 +46,7 @@ Permanent PHPUnit coverage now replaces the historical Fresh and package install
 
 ### PHPUnit
 
-`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 33 files. No top-level historical PHP executable is included.
+`composer test` runs `phpunit --configuration phpunit.xml.dist`. PHPUnit discovers every test class in `tests/php/Unit/`; it is database-independent and currently contains 38 files. No top-level historical PHP executable is included.
 
 ### Node HTTP regression tests
 
@@ -82,8 +86,8 @@ The README accurately warns that database installation and cleanup are explicit 
 | `tests/AllPlaylistsPublicationServiceTest.php` | Selective Publish All, no-op/default-only, rollback, new artifacts and Undo | `AllPlaylistsPublicationServiceTest`, `AllPlaylistsPublicationRollbackTest`, `PublicationUndoServiceTest` | E | Retire after final verification; its newly-published timestamp failure assertion predates and conflicts with the Slice 3E authoritative rollback contract |
 | `tests/BaselineDatasetPackageProviderTest.php` | Bundled ZIP discovery, validation, cleanup and failure mapping | `tests/php/Unit/BaselineDatasetPackageProviderTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/BootstrapperTest.php` | Fresh initialization, artifacts, status, rollback and initialized guard | `tests/php/Unit/BootstrapperTest.php` | A | Candidate for retirement |
-| `tests/ConfigPublicationSerializerTest.php` | Boolean settings and timestamp serialization/validation | Indirect Fresh and publication-status coverage only | C | Add focused serializer PHPUnit tests |
-| `tests/ConfigPublicationServiceTest.php` | Config write, permissions, response and invalid root failure | No permanent service test | C | Migrate to PHPUnit |
+| `tests/ConfigPublicationSerializerTest.php` | Boolean settings and timestamp serialization/validation | `tests/php/Unit/ConfigPublicationSerializerTest.php` | A | Candidate for retirement after final side-by-side verification |
+| `tests/ConfigPublicationServiceTest.php` | Config write, permissions, response and invalid root failure | `tests/php/Unit/ConfigPublicationServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/DataExportServiceTest.php` | Manifest, hashes, immutable source/DB/Undo state, invalid destinations and cleanup | `tests/php/Unit/DataExportServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/DataInitializationContractTest.js` | Four initialization modes, UI wiring, provider separation and TLS/trust source contracts | Package PHPUnit tests cover orchestration, not frontend/source wiring | D | Retain as a specialized static contract; add package script |
 | `tests/DataSnapshotNavigationFlagTest.js` | Admin-only feature flag behavior | None; separately scripted | D | Retain; already has `test:data-snapshot-nav` |
@@ -101,7 +105,7 @@ The README accurately warns that database installation and cleanup are explicit 
 | `tests/InitializationBootstrapContractTest.php` | Endpoint bootstrap selection/wiring and initialization contract | Bootstrapper PHPUnit tests services, not endpoint assembly | C | Retain until safe endpoint/assembly contract is permanent |
 | `tests/InitializationErrorResponseTest.php` | Stable initialization failure response mapping | Node UI contracts check codes, not executable PHP response mapping | C | Migrate response mapper without a real DB |
 | `tests/PackageBootstrapperTest.php` | Baseline/sample/official orchestration and failure cleanup | `tests/php/Unit/PackageBootstrapperTest.php` | A | Candidate for retirement |
-| `tests/PlaylistIndexSerializerTest.php` | Ordering, default validation and preservation/validation of unselected timestamps | Indirectly exercised by single/Publish All service tests | B | Add direct edge cases before retirement, especially zero defaults and malformed timestamp variants |
+| `tests/PlaylistIndexSerializerTest.php` | Ordering, default validation and preservation/validation of unselected timestamps | `tests/php/Unit/PlaylistIndexSerializerTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/PlaylistPublicationSerializerTest.php` | Viewer fields, ordering, groups and timestamps | `tests/php/Unit/PlaylistPublicationSerializerTest.php` | A | Candidate for retirement |
 | `tests/PlaylistPublicationServiceTest.php` | Single-playlist publish, validation and rollback | `PlaylistPublicationServiceTest`, `PlaylistPublicationRollbackTest` | A | Candidate for retirement |
 | `tests/ProductionContentSnapshotArchiveServiceTest.php` | Snapshot archive construction, validation and cleanup | `tests/php/Unit/ProductionContentSnapshotArchiveServiceTest.php` | A | Candidate for retirement after final side-by-side verification |
@@ -113,9 +117,9 @@ The README accurately warns that database installation and cleanup are explicit 
 | `tests/SchemaBootstrapperTest.php` | Creation, existing schema, partial failure, unsafe names and initialization state | `tests/php/Unit/SchemaBootstrapperTest.php` | A | Candidate for retirement |
 | `tests/ServerPathsTest.php` | Environment/path derivation and unsafe path rejection | `tests/php/Unit/ServerPathsTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/SharedHostPublicationUndoTest.php` | Shared-host Undo endpoint/path behavior | Undo service tests do not cover shared-host endpoint assembly | C | Retain until guarded endpoint coverage exists |
-| `tests/ShowGroupTest.php` | Show group normalization/serialization behavior | Serializer covers group output, but not all input/service behavior | C | Migrate remaining group validation cases |
+| `tests/ShowGroupTest.php` | Show group normalization/serialization behavior | `tests/php/Unit/ShowGroupTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/SqlPackageCandidateDirectoryTest.php` | Candidate directory allowlist and unexpected files | `tests/php/Unit/SqlPackageCandidateDirectoryTest.php` | A | Candidate for retirement after final side-by-side verification |
-| `tests/SqlPackageExecutorTest.php` | SQL splitting across comments/quoted semicolons and canonical statement count | Schema tests use executor but do not protect parser details | C | Migrate parser unit tests |
+| `tests/SqlPackageExecutorTest.php` | SQL splitting across comments/quoted semicolons and canonical statement count | `tests/php/Unit/SqlPackageExecutorTest.php` | A | Candidate for retirement after final side-by-side verification |
 | `tests/SqlPackageGeneratorTest.php` | Generated package variants and content distinctions | None | C | Retain/migrate as packaging workflow test |
 | `tests/TestDatabaseDumpPreparationTest.php` | Safe dump rewriting and rejection of ordinary `USE` | `tests/php/Unit/TestDatabaseDumpPreparationTest.php` | A | Candidate for retirement; guarded support remains |
 | `tests/ThumbnailExportServiceTest.php` | Export manifest/hashes, image validation, path safety and cleanup | None | C | Migrate concrete filesystem tests |
@@ -135,14 +139,11 @@ The README accurately warns that database installation and cleanup are explicit 
 ### P1 — Important regressions
 
 - **Admin session construction:** authorization tests seed expected sessions but do not prove `AdminSession` creates the same secure cookie/session state.
-- **Config publication:** direct serializer and service contracts, permissions, atomic replacement and invalid-root behavior are absent.
 - **Initialization endpoint error mapping:** service orchestration is covered, but stable PHP endpoint error codes/messages are not executed permanently.
-- **SQL package parser/generator:** quoted semicolons, comments, canonical package shape and sample/full distinctions lack permanent coverage.
-- **Playlist index serializer:** service tests exercise common paths, but direct zero/multiple-default, ordering and timestamp-validation cases should be retained in a focused class.
+- **SQL package generator:** canonical package shape and sample/full distinctions lack permanent coverage.
 
 ### P2 — Useful coverage
 
-- Show-group input normalization beyond serializer output.
 - Dataset metadata endpoint and configuration matrices.
 - Snapshot endpoint request/authorization cases that can terminate before database access.
 - Thumbnail export manifest, image validation, path safety and cleanup.
@@ -164,10 +165,12 @@ The guarded Node HTTP tests and everything under `tests/regression/support/` mus
 
 `AllPlaylistsPublicationServiceTest.php` is the sole E classification. Its useful success, no-op, default-only, new-artifact, writer-failure and Undo behaviors are covered by three permanent PHPUnit classes. Its database-update failure section explicitly permits a newly published playlist to retain the attempted timestamp after a later updater fails; Slice 3E established that successfully updated rows must be restored to their authoritative pre-operation values, including `NULL`. The permanent rollback class protects that corrected behavior. Retaining the old executable as a required green test would preserve a superseded contract.
 
-The 29 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
+The 34 A tests are not obsolete; they are redundant migration artifacts and are safe retirement candidates only after one final side-by-side verification:
 
 - `BootstrapperTest.php`
 - `BaselineDatasetPackageProviderTest.php`
+- `ConfigPublicationSerializerTest.php`
+- `ConfigPublicationServiceTest.php`
 - `DatabaseCapabilityProbeTest.php`
 - `DatabaseConfigTest.php`
 - `DatabaseReadinessTest.php`
@@ -179,6 +182,7 @@ The 29 A tests are not obsolete; they are redundant migration artifacts and are 
 - `DatasetPackageValidatorTest.php`
 - `FreshArtifactInstallerTest.php`
 - `PackageBootstrapperTest.php`
+- `PlaylistIndexSerializerTest.php`
 - `PlaylistPublicationSerializerTest.php`
 - `PlaylistPublicationServiceTest.php`
 - `PublicationSemanticDeltaTest.php`
@@ -188,7 +192,9 @@ The 29 A tests are not obsolete; they are redundant migration artifacts and are 
 - `ProductionContentSnapshotServiceTest.php`
 - `SchemaBootstrapperTest.php`
 - `ServerPathsTest.php`
+- `ShowGroupTest.php`
 - `SqlPackageCandidateDirectoryTest.php`
+- `SqlPackageExecutorTest.php`
 - `TestDatabaseDumpPreparationTest.php`
 - `ThumbnailIntegrityServiceTest.php`
 - `ThumbnailOrphanCleanupServiceTest.php`
@@ -196,7 +202,7 @@ The 29 A tests are not obsolete; they are redundant migration artifacts and are 
 - `ThumbnailUndoServiceTest.php`
 - `ThumbnailUploadServiceTest.php`
 
-Together with the superseded Publish All executable, these produce 30 retirement candidates.
+Together with the superseded Publish All executable, these produce 35 retirement candidates.
 
 ## Recommended 3I-B Work
 
@@ -205,7 +211,7 @@ Together with the superseded Publish All executable, these produce 30 retirement
 3. **3I-B3: Concrete installers (complete).** Fresh and package artifact installers now have permanent byte-for-byte rollback, verification, lifecycle, SQL validation, and safe database-boundary coverage.
 4. **3I-B4: Snapshot/export services (complete).** Export, status, capture, archive, and safely isolatable endpoint boundaries now have permanent coverage; authenticated download streaming remains B.
 5. **3I-B5: Thumbnail lifecycle (complete).** Helper, upload, integrity, Undo, and orphan cleanup now have isolated permanent coverage. Thumbnail export remains a separate C migration candidate.
-6. **3I-B6: Remaining application contracts.** Migrate AdminSession, config publication, playlist-index direct coverage, show groups, SQL executor/generator, and initialization PHP response/assembly contracts.
+6. **3I-B6-A: Serialization and SQL executor contracts (complete).** Config publication, playlist-index direct coverage, show groups, and SQL execution now have isolated permanent coverage. AdminSession, SQL generation, thumbnail export, and initialization PHP response/assembly contracts remain.
 7. **3I-B7: Retirement and command cleanup.** Run historical and permanent equivalents side by side; remove only verified A/E executables; add scripts for retained Node contracts; update README wording and command inventory.
 8. **3I-B8: Final verification.** Run PHPUnit, all safe Node contracts, guarded HTTP tests, and—only with explicit configured state—the database-backed suite. Confirm fixture and state cleanup.
 
