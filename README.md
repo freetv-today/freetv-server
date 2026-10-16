@@ -141,56 +141,18 @@ This section describes developing `freetv-admin` as a standalone FreeTV Admin Da
 
 For coordinated development across the Admin Dashboard, Viewer, and Data repositories, see the [FreeTV Tooling documentation](https://github.com/freetv-today/freetv-tooling).
 
-### API Regression Tests
+### Testing
 
-Run the standard non-browser regression suite with:
-
-```bash
-npm test
-```
-
-Run one test file, or select tests with Node's native name filter, with:
-
-```bash
-node --test tests/regression/api/authorization.test.js
-node --test --test-name-pattern="unauthenticated" tests/regression/api/authorization.test.js
-```
-
-The suite requires Node.js 22 or newer, PHP 8.4 or newer, and the Composer dependencies in `vendor/`. It starts a PHP server on an available loopback port and uses a private temporary PHP session directory. Role-based tests seed that directory with the same Admin session shape produced by login; they test authorization boundaries, not the database-backed login flow. The server receives deliberately invalid database connection settings, and the initial tests exercise only authorization and request validation paths that finish before database initialization. They do not use MariaDB, publish data, or modify playlist, thumbnail, or application configuration files.
-
-This first suite covers representative unauthenticated and role-based API boundaries plus method and request-body validation. It does not yet cover successful authentication, database-backed CRUD, browser behavior, or the historical standalone tests in `tests/`.
-
-Manage the persistent database used by integration tests with:
-
-```bash
-npm run test:db:install
-npm run test:api:db
-npm run test:db:clean
-```
-
-The preflight uses the application's normal `.env` loading and `DB_*`/`VITE_DB_*` precedence. It verifies the configured source database and reports any test database tracked in `temp/testing/database-state.json`. The preflight is read-only and returns a nonzero exit code on invalid configuration, schema, state, or connectivity.
-
-Installation creates a uniquely named database, clones the configured source with `mariadb-dump` and `mariadb`, verifies table sets and row counts, performs a temporary-table write check, and leaves the clone installed until cleanup is explicitly confirmed in a terminal. State is first recorded as `installing` and becomes `ready` only after verification. Cleanup accepts no database-name argument and will drop only the strictly validated database recorded in the state file. Back up any valuable local development data before using database-management commands.
-
-A configured, running MariaDB instance, the MariaDB client utilities, and an account with the required database permissions are prerequisites. These commands do not install MariaDB, create accounts, or grant privileges; consult MariaDB's official documentation when those are needed. `npm test` remains database-isolated and never creates, clones, or removes a database automatically.
-
-`npm run test:api:db` requires an installed test database in the `ready` state. It sends real HTTP requests through PHP and performs SQL reads and a narrowly scoped write against that persistent clone. The write test restores the selected record and playlist timestamp before finishing. Installation and cleanup remain explicit; neither `npm test` nor `npm run test:api:db` creates or removes a database, and `npm test` remains database-independent during this initial integration slice.
-
-#### PHPUnit Tests
-
-Install development dependencies with `composer install`, then run the database-independent PHP unit suite with:
+FreeTV Admin provides database-independent PHPUnit tests, default Node HTTP authorization tests, specialized frontend/build contracts, and opt-in guarded MariaDB integration tests. Run the two independent default suites with:
 
 ```bash
 composer test
+npm test
 ```
 
-To run a selected test class directly:
+Neither default command installs, deletes, or modifies a MariaDB test database. Database-backed integration testing uses an explicitly managed, uniquely named clone with guarded preflight, installation, and cleanup commands.
 
-```bash
-./vendor/bin/phpunit --filter PlaylistPublicationSerializerTest
-```
-
-PHPUnit currently covers database-independent PHP services and business logic. The Node HTTP regression tests remain available through the separate `npm test` and `npm run test:api:db` commands described above.
+See [Testing FreeTV Admin](docs/Testing.md) for prerequisites, the complete feature-oriented PHPUnit reference, specialized Node commands, and the guarded database workflow.
 
 ### Database and Runtime Configuration
 
