@@ -37,12 +37,14 @@ final class DataSnapshotStatusServiceTest extends TestCase
         $json = match ($case) {
             'json' => '{bad',
             'version' => json_encode(array_replace($manifest, ['format_version' => 2]), JSON_THROW_ON_ERROR),
+            'version zero' => json_encode(array_replace($manifest, ['format_version' => 0]), JSON_THROW_ON_ERROR),
             'version type' => json_encode(array_replace($manifest, ['format_version' => '1']), JSON_THROW_ON_ERROR),
             'generated' => json_encode(array_replace($manifest, ['generated_at' => 'bad']), JSON_THROW_ON_ERROR),
             'snapshot missing' => json_encode(array_diff_key($manifest, ['reconciled_snapshot' => true]), JSON_THROW_ON_ERROR),
             'snapshot type' => json_encode(array_replace($manifest, ['reconciled_snapshot' => 'bad']), JSON_THROW_ON_ERROR),
             'name' => json_encode(array_replace_recursive($manifest, ['reconciled_snapshot' => ['name' => '']]), JSON_THROW_ON_ERROR),
             'captured' => json_encode(array_replace_recursive($manifest, ['reconciled_snapshot' => ['captured_at' => 'bad']]), JSON_THROW_ON_ERROR),
+            'captured missing' => json_encode(array_replace($manifest, ['reconciled_snapshot' => ['name' => $manifest['reconciled_snapshot']['name']]]), JSON_THROW_ON_ERROR),
             'counts type' => json_encode(array_replace($manifest, ['counts' => 'bad']), JSON_THROW_ON_ERROR),
             'counts missing' => json_encode(array_replace($manifest, ['counts' => ['playlists' => 1]]), JSON_THROW_ON_ERROR),
             'negative' => json_encode(array_replace_recursive($manifest, ['counts' => ['shows' => -1]]), JSON_THROW_ON_ERROR),
@@ -50,7 +52,7 @@ final class DataSnapshotStatusServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         DataSnapshotManifest::fromJson($json);
     }
-    public static function invalidManifestProvider(): array { return array_map(static fn(string $v) => [$v], ['json','version','version type','generated','snapshot missing','snapshot type','name','captured','counts type','counts missing','negative']); }
+    public static function invalidManifestProvider(): array { return array_map(static fn(string $v) => [$v], ['json','version','version zero','version type','generated','snapshot missing','snapshot type','name','captured','captured missing','counts type','counts missing','negative']); }
 
     public function testStatusUsesOneUtcDatabaseBoundaryAndClassifiesNewAndUpdatedOnly(): void
     {

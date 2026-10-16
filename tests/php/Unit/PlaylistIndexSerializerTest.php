@@ -47,6 +47,15 @@ final class PlaylistIndexSerializerTest extends TestCase
                 ],
             ],
         ], $artifact);
+        self::assertSame($artifact, PlaylistIndexSerializer::serialize(
+            $this->playlists(),
+            'selected.json',
+            '2026-08-12T16:30:00.000Z',
+            [
+                'default.json' => '2026-08-09T08:00:00.000Z',
+                'third.json' => '2026-08-10T10:30:00.000Z',
+            ]
+        ));
     }
 
     public function testDatabaseLastupdatedDoesNotReplaceExistingPublishedTimestamp(): void

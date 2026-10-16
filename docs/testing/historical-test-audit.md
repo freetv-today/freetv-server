@@ -18,6 +18,61 @@ The permanent suite now protects Admin session destruction, initialization assem
 
 Recommended next actions are final side-by-side verification and retirement/command cleanup. Retire only the A files and the explicitly superseded E file, preserve the single B gap, and keep the D contract suites as separately invoked workflows.
 
+### Slice 3I-B7-A final equivalence review
+
+All 40 A-classified scripts were compared assertion-by-assertion with their permanent replacements. Six safe historical scripts were also executed individually after inspection: `ThumbnailServiceTest.php`, `ThumbnailIntegrityServiceTest.php`, `ConfigPublicationSerializerTest.php`, `PlaylistIndexSerializerTest.php`, `DataExportServiceTest.php`, and `DataSnapshotStatusServiceTest.php`. The other 34 were reviewed statically because their already-permanent replacements exercise the same contracts in isolated fixtures; this pass did not rerun historical scripts with database, endpoint, global-session, repository-path, or image-extension side effects merely to establish retirement eligibility.
+
+| Historical script | Permanent coverage | Equivalence result | Notes |
+|---|---|---|---|
+| `AdminSessionTest.php` | `AdminSessionTest` | Verified with documented limitation | Durable session behavior is equivalent; CLI can inspect cookie configuration but cannot prove HTTP cookie delivery. Historical script reviewed statically. |
+| `BaselineDatasetPackageProviderTest.php` | `BaselineDatasetPackageProviderTest` | Verified equivalent | Bundled ZIP discovery, validation, cleanup, and failure mapping covered; reviewed statically. |
+| `BootstrapperTest.php` | `BootstrapperTest` | Verified equivalent | Fresh initialization, initialized guard, status, artifacts, and rollback covered; reviewed statically. |
+| `ConfigPublicationSerializerTest.php` | `ConfigPublicationSerializerTest` | Verified equivalent (corrected) | Added explicit stored `'false'` to boolean `false`; historical script passed. |
+| `ConfigPublicationServiceTest.php` | `ConfigPublicationServiceTest` | Verified equivalent | Exact write/permissions/response and invalid-root failure covered; reviewed statically. |
+| `DataExportServiceTest.php` | `DataExportServiceTest` | Verified equivalent (corrected) | Added published-default mismatch and absent shared-lock recreation without Undo/source mutation; historical script passed. |
+| `DataSnapshotStatusServiceTest.php` | `DataSnapshotStatusServiceTest` | Verified equivalent (corrected) | Added missing `captured_at` and unsupported format version `0`; historical script passed. |
+| `DatabaseCapabilityProbeTest.php` | `DatabaseCapabilityProbeTest` | Verified equivalent | Disposable database/table probes are represented with recording fakes and expanded error coverage; no MariaDB run. |
+| `DatabaseConfigTest.php` | `DatabaseConfigTest` | Verified equivalent | Defaults, aliases, required values, ports, and empty legacy passwords covered; reviewed statically. |
+| `DatabaseReadinessTest.php` | `DatabaseReadinessTest` | Verified equivalent | Ready/missing/error/incomplete service states covered with injected connections; reviewed statically. |
+| `DatasetPackageInstallationTest.php` | `DatasetPackageInstallationTest` | Verified with documented limitation | Concrete SQL/artifact lifecycle and rollback are covered; full ORM-backed `verify()` remains guarded integration scope. |
+| `DatasetPackageMetadataTest.php` | `DatasetPackageMetadataTest` | Verified equivalent | Metadata values, invalid definitions, and safe endpoint responses covered; reviewed statically. |
+| `DatasetPackageProviderTest.php` | `DatasetPackageProviderTest` | Verified with documented limitation | Ordering, hashes, archive validation, cleanup, and failures covered through injected I/O; built-in cURL controls remain in retained static contract coverage. |
+| `DatasetPackageValidatorTest.php` | `DatasetPackageValidatorTest` | Verified with documented limitation | Required layout, hashes, traversal and name conflicts covered; PHP cannot reliably construct duplicate/NUL ZIP names. |
+| `FreshArtifactInstallerTest.php` | `FreshArtifactInstallerTest` | Verified equivalent | Promotion, exact-byte rollback, cleanup, and unrelated-file preservation covered; reviewed statically. |
+| `InitializationBootstrapContractTest.php` | `InitializationBootstrapContractTest` | Verified with documented limitation | Bootstrap selection and endpoint wiring are source-verified; successful endpoint execution intentionally avoids MariaDB. |
+| `InitializationErrorResponseTest.php` | `InitializationErrorResponseTest` | Verified equivalent | Exact safe failure mappings covered; reviewed statically. |
+| `PackageBootstrapperTest.php` | `PackageBootstrapperTest` | Verified equivalent | Baseline/sample/official orchestration and cleanup callbacks covered; reviewed statically. |
+| `PlaylistIndexSerializerTest.php` | `PlaylistIndexSerializerTest` | Verified equivalent (corrected) | Added explicit identical repeated-call result while retaining exact-output checks; historical script passed. |
+| `PlaylistPublicationSerializerTest.php` | `PlaylistPublicationSerializerTest` | Verified equivalent | Viewer fields, ordering, groups, and timestamps covered; reviewed statically. |
+| `PlaylistPublicationServiceTest.php` | `PlaylistPublicationServiceTest`, `PlaylistPublicationRollbackTest` | Verified equivalent | Single-playlist success, validation, write failures, and database timestamp rollback covered; reviewed statically. |
+| `ProductionContentSnapshotArchiveServiceTest.php` | `ProductionContentSnapshotArchiveServiceTest` | Verified equivalent | Archive bytes/layout validation, failure cleanup, and prior-snapshot preservation covered; reviewed statically. |
+| `ProductionContentSnapshotServiceTest.php` | `ProductionContentSnapshotServiceTest` | Verified equivalent | Capture/manifests/state preservation and failure cleanup covered with private roots; reviewed statically. |
+| `PublicationSemanticDeltaTest.php` | `PublicationSemanticDeltaTest` | Verified equivalent | Playlist/config deltas and duplicate-identifier rejection covered; reviewed statically. |
+| `PublicationStatusServiceTest.php` | `PublicationStatusServiceTest` | Verified equivalent | Status, no-op, errors, default changes, and semantic deltas covered; reviewed statically. |
+| `PublicationUndoServiceTest.php` | `PublicationUndoServiceTest` | Verified equivalent | Playlist/config/Publish All Undo, slot replacement, integrity guards, and timestamp failure handling covered; reviewed statically. |
+| `SchemaBootstrapperTest.php` | `SchemaBootstrapperTest` | Verified equivalent | Create/existing/partial failure/name safety/initialization state covered with fakes; no MariaDB run. |
+| `ServerPathsTest.php` | `ServerPathsTest` | Verified equivalent | Constructor and environment resolution include `FREETV_PUBLIC_PATH=public_html`; reviewed statically. |
+| `SharedHostPublicationUndoTest.php` | `SharedHostPublicationUndoTest`, `ServerPathsTest` | Verified equivalent | Real Undo service uses synthetic `public_html`; environment resolution is independently protected by `ServerPathsTest`. |
+| `ShowGroupTest.php` | `ShowGroupTest` | Verified equivalent | Normalization and serialization boundaries covered; reviewed statically. |
+| `SqlPackageCandidateDirectoryTest.php` | `SqlPackageCandidateDirectoryTest` | Verified equivalent | Allowlist and unexpected-entry rejection covered; reviewed statically. |
+| `SqlPackageExecutorTest.php` | `SqlPackageExecutorTest` | Verified equivalent | Comment/quote-aware splitting, canonical schema count, order, and first-failure stop covered; reviewed statically. |
+| `SqlPackageGeneratorTest.php` | `SqlPackageGeneratorTest` | Verified equivalent | Deterministic six-package output, literals, translation, sampling, validation, and exclusions covered; reviewed statically. |
+| `TestDatabaseDumpPreparationTest.php` | `TestDatabaseDumpPreparationTest` | Verified equivalent | Safe dump rewriting and ordinary `USE` rejection covered; reviewed statically. |
+| `ThumbnailExportServiceTest.php` | `ThumbnailExportServiceTest` | Verified equivalent | Bytes/hashes/manifest/path validation and cleanup covered with synthetic images; reviewed statically. |
+| `ThumbnailIntegrityServiceTest.php` | `ThumbnailIntegrityServiceTest` | Verified equivalent (corrected) | Removed a non-test-owned sibling `/tmp/thumbnail-undo` assertion; complete fixture-tree snapshot still proves read-only behavior. Historical script passed. |
+| `ThumbnailOrphanCleanupServiceTest.php` | `ThumbnailOrphanCleanupServiceTest` | Verified equivalent | Dry run, reference recheck, symlink/collision/failure behavior, quarantine, and Undo preservation covered; reviewed statically. |
+| `ThumbnailServiceTest.php` | `ThumbnailServiceTest` | Verified equivalent (corrected) | Added historical `calculateSummary(100, 95, 92)` example and retained additional cases; historical script passed. |
+| `ThumbnailUndoServiceTest.php` | `ThumbnailUndoServiceTest` | Verified equivalent | Replacement recovery, one-use state, hashes, stale/corrupt rejection covered; reviewed statically. |
+| `ThumbnailUploadServiceTest.php` | `ThumbnailUploadServiceTest` | Verified equivalent | Conversion/sizing, replacement, validation, and rollback covered with explicit Imagick dependency handling; reviewed statically. |
+
+The final A review found six scripts whose permanent coverage or test safety needed a small correction; all six are now verified equivalent. No A script was reclassified, and no production defect was found.
+
+The E-classified `AllPlaylistsPublicationServiceTest.php` remains superseded. Permanent coverage protects selective Publish All, semantic no-op, default-only changes, new artifacts, writer failures, and explicit Undo. `AllPlaylistsPublicationRollbackTest` additionally proves that failure after timestamp updates restores every successfully changed row to its authoritative prior database value, including `NULL`; that intentionally replaces the historical script's outdated expectation.
+
+The B-classified `ProductionContentSnapshotEndpointTest.php` remains partially migrated. Permanent PHPUnit covers safe authorization, method, traversal, and request boundaries, but authenticated byte-exact ZIP streaming still depends on a hard-coded application root. Its historical authenticated path was not executed because it writes beneath the repository runtime snapshot directory.
+
+All five D-classified Node contracts remain specialized tests. `AdminDistContractTest.js` and `DataSnapshotNavigationFlagTest.js` are invoked by `test:admin-dist` and `test:data-snapshot-nav`; `DataInitializationContractTest.js`, `DatabaseReadinessContractTest.js`, and `ErrorPageContractTest.js` remain direct `node --test` invocations pending B7-B command cleanup.
+
 ### Slice 3I-B6-C completion
 
 Permanent PHPUnit coverage now replaces the final four C-classified PHP scripts. Admin session destruction runs only in isolated PHP subprocesses with unique private save paths and verifies durable-state removal, fresh-session isolation, retained authentication on simulated failure, and observable CLI cookie configuration without claiming HTTP cookie delivery. Initialization errors have exact safe response mappings, while `initialize.php` has focused read-only structural coverage because its valid execution path necessarily reaches database bootstrap. Shared-host Undo executes the real service against a synthetic `public_html` layout with private state under `temp/`, recording timestamp updates and protecting exact restoration plus stale/missing-live hash guards. No initialization success path or MariaDB connection is executed.

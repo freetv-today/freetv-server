@@ -54,10 +54,15 @@ final class DataExportServiceTest extends TestCase
     #[DataProvider('artifactFailureProvider')]
     public function testMalformedPublicationLeavesNoExport(string $case):void
     {
-        if($case==='missing')unlink($this->public.'/playlists/one.json');elseif($case==='json')file_put_contents($this->public.'/playlists/one.json','{');elseif($case==='default'){$this->playlists[0]['is_default']=0;}elseif($case==='index mismatch'){$index=$this->decode('playlists/index.json');array_pop($index['playlists']);$this->write('playlists/index.json',$index);}elseif($case==='timestamp'){$index=$this->decode('playlists/index.json');$index['playlists'][0]['lastupdated']='2026-01-01T00:00:00.000Z';$this->write('playlists/index.json',$index);}
+        if($case==='missing')unlink($this->public.'/playlists/one.json');elseif($case==='json')file_put_contents($this->public.'/playlists/one.json','{');elseif($case==='default'){$this->playlists[0]['is_default']=0;}elseif($case==='published default mismatch'){$index=$this->decode('playlists/index.json');$index['default']='two.json';$this->write('playlists/index.json',$index);}elseif($case==='index mismatch'){$index=$this->decode('playlists/index.json');array_pop($index['playlists']);$this->write('playlists/index.json',$index);}elseif($case==='timestamp'){$index=$this->decode('playlists/index.json');$index['playlists'][0]['lastupdated']='2026-01-01T00:00:00.000Z';$this->write('playlists/index.json',$index);}
         $dest=$this->root.'/failed-'.$case;$this->expectException(PublicationException::class);try{(new DataExportService($this->public,$this->publicationStatus(),null,null,new PublicationUndoService($this->public,$this->root.'/undo-'.$case)))->export($dest);}finally{self::assertDirectoryDoesNotExist($dest);}
     }
-    public static function artifactFailureProvider():array{return array_map(static fn($x)=>[$x],['missing','json','default','index mismatch','timestamp']);}
+    public static function artifactFailureProvider():array{return array_map(static fn($x)=>[$x],['missing','json','default','published default mismatch','index mismatch','timestamp']);}
+
+    public function testExportCreatesMissingSharedLockWithoutUndoSnapshotOrSourceMutation():void
+    {
+        $undo=$this->root.'/missing-lock-undo';mkdir($undo,0700,true);file_put_contents($undo.'/sentinel','preserve');$before=$this->tree($this->public);$service=new DataExportService($this->public,$this->publicationStatus(),static fn()=>new DateTimeImmutable('2026-09-01T12:34:56Z'),static fn()=>null,new PublicationUndoService($this->public,$undo,static fn()=>throw new RuntimeException()));$service->export($this->root.'/missing-lock-export');self::assertFileExists($undo.'/.lock');self::assertSame(['.lock','sentinel'],array_values(array_diff(scandir($undo),['.','..'])));self::assertSame('preserve',file_get_contents($undo.'/sentinel'));self::assertSame($before,$this->tree($this->public));self::assertFileExists($this->root.'/missing-lock-export/manifest.json');
+    }
 
     public function testExistingDestinationsAndPublicationRootAreRejectedWithoutMutation():void
     {

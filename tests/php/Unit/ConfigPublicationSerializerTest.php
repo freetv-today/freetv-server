@@ -80,6 +80,13 @@ final class ConfigPublicationSerializerTest extends TestCase
         self::assertSame(
             ['lastupdated' => '2026-08-12T19:30:00.000Z', 'show_ads' => false],
             ConfigPublicationSerializer::serialize(
+                Settings::fromRows([['setting_key' => 'show_ads', 'setting_value' => 'false']]),
+                '2026-08-12T19:30:00.000Z'
+            )
+        );
+        self::assertSame(
+            ['lastupdated' => '2026-08-12T19:30:00.000Z', 'show_ads' => false],
+            ConfigPublicationSerializer::serialize(
                 Settings::fromRows([]),
                 '2026-08-12T19:30:00.000Z'
             )
