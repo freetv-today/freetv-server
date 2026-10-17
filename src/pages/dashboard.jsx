@@ -215,7 +215,7 @@ export function Dashboard() {
     return (
         <>
         {databaseShowCounts && (
-        <div className="float-start ms-3 small" style={{ fontSize: '12px' }}>
+        <div className="float-none float-lg-start ms-3 small" style={{ fontSize: '12px' }}>
             There are {databaseShowCounts.active} active and {databaseShowCounts.disabled} disabled shows in the database
         </div>
         )}

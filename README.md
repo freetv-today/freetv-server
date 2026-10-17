@@ -141,6 +141,19 @@ This section describes developing `freetv-admin` as a standalone FreeTV Admin Da
 
 For coordinated development across the Admin Dashboard, Viewer, and Data repositories, see the [FreeTV Tooling documentation](https://github.com/freetv-today/freetv-tooling).
 
+### Testing
+
+FreeTV Admin provides database-independent PHPUnit tests, default Node HTTP authorization tests, specialized frontend/build contracts, and opt-in guarded MariaDB integration tests. Run the two independent default suites with:
+
+```bash
+composer test
+npm test
+```
+
+Neither default command installs, deletes, or modifies a MariaDB test database. Database-backed integration testing uses an explicitly managed, uniquely named clone with guarded preflight, installation, and cleanup commands.
+
+See [Testing FreeTV Admin](docs/Testing.md) for prerequisites, the complete feature-oriented PHPUnit reference, specialized Node commands, and the guarded database workflow.
+
 ### Database and Runtime Configuration
 
 The PHP backend reads its runtime configuration from `.env` in the `freetv-admin` root directory. Create this file from `.env.example`. The file may contain database credentials and must not be committed to source control.

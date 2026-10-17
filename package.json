@@ -13,8 +13,17 @@
 		"dev": "vite",
 		"build": "vite build && npm run validate:dist",
 		"validate:dist": "node scripts/validate-admin-dist.js",
+		"test": "node --test tests/regression/api/authorization.test.js",
+		"test:api:db": "node --test --test-concurrency=1 tests/regression/api/database.test.js tests/regression/api/show-management.test.js tests/regression/api/problem-reporting.test.js",
+		"test:db:check": "php tests/regression/support/database-preflight.php",
+		"test:db:install": "php tests/regression/support/database-install.php",
+		"test:db:clean": "php tests/regression/support/database-clean.php",
 		"test:admin-dist": "node tests/AdminDistContractTest.js",
 		"test:data-snapshot-nav": "node --test tests/DataSnapshotNavigationFlagTest.js",
+		"test:data-initialization": "node --test tests/DataInitializationContractTest.js",
+		"test:database-readiness": "node --test tests/DatabaseReadinessContractTest.js",
+		"test:error-page": "node --test tests/ErrorPageContractTest.js",
+		"test:contracts": "npm run test:admin-dist && npm run test:data-snapshot-nav && npm run test:data-initialization && npm run test:database-readiness && npm run test:error-page",
 		"preview": "vite preview"
 	},
 	"dependencies": {

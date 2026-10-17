@@ -125,6 +125,12 @@ class Database
         return self::getConfig()['database'];
     }
 
+    /** @return array{host: string, port: int, database: string, user: string, pass: string} */
+    public static function configuredConnectionSettings(): array
+    {
+        return self::getConfig();
+    }
+
     public static function createBootstrapConnection()
     {
         $capsule = new Capsule;

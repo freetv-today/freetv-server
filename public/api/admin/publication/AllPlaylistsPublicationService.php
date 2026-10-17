@@ -52,6 +52,7 @@ class AllPlaylistsPublicationService
                 'author',
                 'email',
                 'link',
+                'lastupdated',
                 'is_default',
                 'sort_order',
             ])
@@ -78,7 +79,7 @@ class AllPlaylistsPublicationService
             ->get();
         $this->timestampUpdater = $timestampUpdater ?? static function (
             int $playlistId,
-            string $databaseTimestamp
+            ?string $databaseTimestamp
         ): void {
             $updatedRows = Database::table('playlists')
                 ->where('id', $playlistId)
@@ -119,11 +120,14 @@ class AllPlaylistsPublicationService
 
         $publicationTimestamp = PublicationTimestamp::forOperation(($this->clock)());
         $playlistArtifacts = [];
+        $previousDatabaseTimestamps = [];
         foreach ($changedFilenames as $filename) {
             $playlist = $state['playlists_by_filename'][$filename];
+            $playlistId = (int) self::value($playlist, 'id');
+            $previousDatabaseTimestamps[$playlistId] = self::value($playlist, 'lastupdated');
             $artifact = PlaylistPublicationSerializer::serialize(
                 $playlist,
-                $state['shows_by_playlist'][(int) self::value($playlist, 'id')],
+                $state['shows_by_playlist'][$playlistId],
                 $publicationTimestamp
             );
             $deltaValidation = PublicationSemanticDelta::playlist(
@@ -156,7 +160,8 @@ class AllPlaylistsPublicationService
             $relativePaths
         );
         try {
-            $previousTimestamps = $this->undoService->preparedPlaylistTimestamps($preparedUndo);
+            // Validate prepared artifact timestamps; database rollback uses the authoritative row values above.
+            $this->undoService->preparedPlaylistTimestamps($preparedUndo);
         } catch (Throwable $exception) {
             $this->undoService->discardPrepared($preparedUndo);
             throw $exception;
@@ -183,13 +188,11 @@ class AllPlaylistsPublicationService
             try {
                 $this->undoService->rollbackPrepared($preparedUndo);
                 foreach ($updatedFilenames as $filename) {
-                    if (!array_key_exists($filename, $previousTimestamps)) {
-                        continue;
-                    }
                     $playlist = $state['playlists_by_filename'][$filename];
+                    $playlistId = (int) self::value($playlist, 'id');
                     ($this->timestampUpdater)(
-                        (int) self::value($playlist, 'id'),
-                        PublicationTimestamp::toDatabase($previousTimestamps[$filename])
+                        $playlistId,
+                        $previousDatabaseTimestamps[$playlistId]
                     );
                 }
             } catch (Throwable $rollbackException) {
